@@ -9,7 +9,7 @@
 	dayjs.extend(duration);
 
 	const tickingSoundPath = '/soft-ticking.mp3';
-	const successSoundPath = '/mixkit-game-level-completed-2059.mp3';
+	const successSoundPath = '/timesup.mp3';
 
 	let target = $state(5);
 	let pauseTarget = $state(0);
