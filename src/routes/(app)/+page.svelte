@@ -3,8 +3,11 @@
 	import { pb } from '$lib/pb';
 </script>
 
+<svelte:head>
+	<title>Towsey</title>
+</svelte:head>
 <PageWrapper title="Towsey" {pb}>
-	<main class="grid h-full content-center justify-items-center max-lg:grid-rows-3 lg:grid-cols-2">
+	<main class="grid h-full content-center justify-items-center max-lg:grid-rows-3 lg:grid-cols-3">
 		<a
 			href="/towelie"
 			class="focus:border-primary/30 active:border-primary/30 hover:bg-primary grid w-full content-center gap-2 rounded-xl text-center focus:border active:border"

@@ -38,6 +38,10 @@
 	}
 </script>
 
+<svelte:head>
+	<title>Login</title>
+</svelte:head>
+
 <PageWrapper title="Login" {pb}>
 	<form class="grid h-full w-full max-w-sm content-center justify-self-center">
 		<h1 class="text-primary mb-4 text-center text-5xl font-bold lg:mb-12 lg:text-9xl">Towsey</h1>
