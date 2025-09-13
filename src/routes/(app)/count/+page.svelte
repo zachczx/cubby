@@ -246,17 +246,9 @@
 </PageWrapper>
 
 <style>
-	/* .countdown > * {
-		&::before {
-			transition: all 0.3s cubic-bezier(1, 0, 0, 1) !important;
-		}
-	} */
-
 	.countdown-custom {
 		display: inline-flex;
-		&.countdown {
-			line-height: 1em;
-		}
+
 		& > * {
 			display: inline-block;
 			overflow-y: hidden;
@@ -267,7 +259,6 @@
 				white-space: pre;
 				top: calc(var(--value) * -1em);
 				text-align: center;
-				/* transition: all 1s cubic-bezier(1, 0, 0, 1); */
 			}
 		}
 	}

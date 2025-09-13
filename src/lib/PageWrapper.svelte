@@ -31,7 +31,7 @@
 <div class="grid min-h-dvh w-full grid-rows-[auto_1fr] content-start justify-items-center">
 	<div
 		id="safe-area"
-		class="navbar border-b-base-300/50 bg-neutral text-neutral-content items-end border-b"
+		class="navbar border-b-base-300/50 bg-neutral text-neutral-content items-center border-b"
 	>
 		<div class="navbar-start">
 			<div class="dropdown">
