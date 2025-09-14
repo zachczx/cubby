@@ -19,7 +19,7 @@
 	onMount(async () => {
 		if (pb.authStore.isValid) {
 			results = await pb.collection('spray').getFullList({
-				sort: '-created'
+				sort: '-time'
 			});
 		}
 	});
@@ -37,7 +37,7 @@
 		}
 
 		results = await pb.collection('spray').getFullList({
-			sort: '-created'
+			sort: '-time'
 		});
 	}
 

@@ -18,27 +18,27 @@
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
 
-	let dbRecords: TowelDB[] | undefined = $state([]);
-	let records: TowelRecord[] | undefined = $derived.by(() => {
-		if (!dbRecords) return [];
+	let towelDB: TowelDB[] | undefined = $state([]);
+	let towelRecords: TowelRecord[] | undefined = $derived.by(() => {
+		if (!towelDB) return [];
 
-		return dbRecords.map((record, i, allRecords) => {
+		return towelDB.map((record, i, allRecords) => {
 			const nextRecord = allRecords[i + 1];
 			const gap = nextRecord ? dayjs(record.time).diff(nextRecord.time, 'day', true) : 0;
 			return { ...record, gap };
 		});
 	});
 	let longestGap: TowelRecord | undefined = $derived.by(() => {
-		if (records.length <= 1) return;
-		const avoidMutatingOriginalArray = [...records];
+		if (towelRecords.length <= 1) return;
+		const avoidMutatingOriginalArray = [...towelRecords];
 		const sorted = avoidMutatingOriginalArray.sort((a, b) => b.gap - a.gap);
 		return sorted[0];
 	});
 	let averageGap: number = $derived.by(() => {
-		const total = records.reduce((accumulator, entry) => {
+		const total = towelRecords.reduce((accumulator, entry) => {
 			return (accumulator += entry.gap);
 		}, 0);
-		const average = total / records.length;
+		const average = total / towelRecords.length;
 		return average;
 	});
 
@@ -46,10 +46,10 @@
 		const gaps: number[] = [];
 		const numberOfRecords = 10;
 		for (let i = 0; i < numberOfRecords; i++) {
-			if (!records[i]) {
+			if (!towelRecords[i]) {
 				gaps.unshift(0);
 			} else {
-				gaps.unshift(records[i].gap);
+				gaps.unshift(towelRecords[i].gap);
 			}
 		}
 		return gaps;
@@ -59,10 +59,10 @@
 		const gapsDates: string[] = [];
 		const numberOfRecords = 10;
 		for (let i = 0; i < numberOfRecords; i++) {
-			if (!records[i]) {
+			if (!towelRecords[i]) {
 				gapsDates.unshift('-');
 			} else {
-				gapsDates.unshift(dayjs(records[i].time).format('D/M'));
+				gapsDates.unshift(dayjs(towelRecords[i].time).format('D/M'));
 			}
 		}
 		return gapsDates;
@@ -70,8 +70,8 @@
 
 	let towelDirty: number | undefined = $derived.by(() => {
 		let towelDirty;
-		if (records && records.length > 0) {
-			const lastWashDate = dayjs(records[0].time);
+		if (towelRecords && towelRecords.length > 0) {
+			const lastWashDate = dayjs(towelRecords[0].time);
 			const today = dayjs();
 			/**
 			 * https://stackoverflow.com/questions/36560806/the-left-hand-side-of-an-arithmetic-operation-must-be-of-type-any-number-or
@@ -91,7 +91,7 @@
 		// }
 
 		if (pb.authStore.isValid) {
-			dbRecords = await pb.collection('towel').getFullList({
+			towelDB = await pb.collection('towel').getFullList({
 				sort: '-time'
 			});
 
@@ -116,7 +116,7 @@
 	});
 
 	$effect(() => {
-		if (lineChart && records) {
+		if (lineChart && towelRecords) {
 			lineChart.data.labels = [...gapsDates];
 			lineChart.data.datasets[0].data = gaps;
 			lineChart.update();
@@ -157,7 +157,7 @@
 			spinner = false;
 		}
 
-		dbRecords = await pb.collection('towel').getFullList({
+		towelDB = await pb.collection('towel').getFullList({
 			sort: '-time'
 		});
 	}
@@ -206,7 +206,7 @@
 		class="grid max-w-[1200px] content-center justify-items-center gap-8 justify-self-center p-2 lg:grid-cols-2"
 	>
 		<div class="grid content-start justify-items-center gap-4">
-			{#key records}
+			{#key towelRecords}
 				{#if status === 'green'}
 					<enhanced:img src={Green} alt="Clean" class="rounded-3xl" />
 				{:else if status === 'yellow'}
@@ -230,7 +230,7 @@
 				>
 					<div class="border-r-base-content/15 grid justify-items-center border-r p-4">
 						<div>Status</div>
-						{#key records}
+						{#key towelRecords}
 							<button
 								class="flex min-h-20 cursor-pointer items-center gap-4 py-8 text-2xl font-bold"
 								onclick={() => modal.showModal()}
@@ -253,9 +253,9 @@
 					<div class="grid justify-items-center p-4">
 						<div>Last Washed</div>
 						<div class="text-center text-2xl font-bold">
-							{#key records}
-								{#if records && records.length > 0}
-									{@const formatted = dayjs(records[0].time).fromNow()}
+							{#key towelRecords}
+								{#if towelRecords && towelRecords.length > 0}
+									{@const formatted = dayjs(towelRecords[0].time).fromNow()}
 									{formatted}
 								{:else}
 									Nil

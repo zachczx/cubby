@@ -12,7 +12,14 @@
 		<ul>
 			<li>
 				Count uses content produced with Typecast, an AI virtual actor service. Characters casted:
-				Frankenstein from https://typecast.ai
+				Frankenstein from <a href="https://typecast.ai" class="hover:text-primary underline"
+					>https://typecast.ai</a
+				>
+			</li>
+			<li>
+				Alternate sounds from <a href="https://ttsmp3.com/" class="hover:text-primary underline"
+					>https://ttsmp3.com/</a
+				>
 			</li>
 		</ul>
 	</main>

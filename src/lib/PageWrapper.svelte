@@ -239,7 +239,7 @@
 		</div>
 	</div>
 
-	<div class="w-full px-2 py-4 lg:px-12 lg:pt-12">
+	<div class="w-full px-4 py-4 lg:px-12 lg:pt-12">
 		{@render children?.()}
 	</div>
 </div>
