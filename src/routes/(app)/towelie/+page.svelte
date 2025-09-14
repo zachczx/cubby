@@ -28,6 +28,7 @@
 			return { ...record, gap };
 		});
 	});
+
 	let longestGap: TowelRecord | undefined = $derived.by(() => {
 		if (towelRecords.length <= 1) return;
 		const avoidMutatingOriginalArray = [...towelRecords];
@@ -231,23 +232,25 @@
 					<div class="border-r-base-content/15 grid justify-items-center border-r p-4">
 						<div>Status</div>
 						{#key towelRecords}
-							<button
-								class="flex min-h-20 cursor-pointer items-center gap-4 py-8 text-2xl font-bold"
-								onclick={() => modal.showModal()}
-								>{#if status === 'green'}
-									<div class="hidden h-6 w-6 rounded-full bg-lime-400 lg:flex"></div>
-									<span class="text-lime-400">Squeaky Clean</span>
-								{:else if status === 'yellow'}
-									<div class="hidden h-6 w-6 rounded-full bg-yellow-500 lg:flex"></div>
-									<span class="text-yellow-500">Still Fresh</span>
-								{:else if status === 'orange'}
-									<div class="hidden h-6 w-6 rounded-full bg-orange-400 lg:flex"></div>
-									<span class="text-orange-400">Kinda Funky</span>
-								{:else}
-									<div class="hidden h-5 w-5 rounded-full bg-red-700 lg:flex"></div>
-									<span class="text-red-700">Wash Me!</span>
-								{/if}
-							</button>
+							{#if status}
+								<div class="flex min-h-20 items-center gap-4 text-2xl font-bold">
+									{#if status === 'green'}
+										<div class="hidden h-6 w-6 rounded-full bg-lime-400 lg:flex"></div>
+										<span class="text-lime-400">Squeaky Clean</span>
+									{:else if status === 'yellow'}
+										<div class="hidden h-6 w-6 rounded-full bg-yellow-500 lg:flex"></div>
+										<span class="text-yellow-500">Still Fresh</span>
+									{:else if status === 'orange'}
+										<div class="hidden h-6 w-6 rounded-full bg-orange-400 lg:flex"></div>
+										<span class="text-orange-400">Kinda Funky</span>
+									{:else}
+										<div class="hidden h-5 w-5 rounded-full bg-red-700 lg:flex"></div>
+										<span class="text-red-700">Wash Me!</span>
+									{/if}
+								</div>
+							{:else}
+								<div class="flex min-h-20 items-center gap-4 text-2xl font-bold">Nil</div>
+							{/if}
 						{/key}
 					</div>
 					<div class="grid justify-items-center p-4">
@@ -258,7 +261,7 @@
 									{@const formatted = dayjs(towelRecords[0].time).fromNow()}
 									{formatted}
 								{:else}
-									Nil
+									<div class="flex min-h-20 items-center gap-4 text-2xl font-bold">Nil</div>
 								{/if}
 							{/key}
 						</div>
