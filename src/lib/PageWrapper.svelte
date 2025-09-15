@@ -36,7 +36,7 @@
 <div class="grid min-h-dvh w-full grid-rows-[auto_1fr] content-start justify-items-center">
 	<div
 		id="safe-area-topnav"
-		class="navbar border-b-base-300/50 bg-neutral text-neutral-content items-center border-b"
+		class="navbar border-b-base-300/50 bg-neutral text-neutral-content min-h-14 items-center border-b"
 	>
 		<div class="navbar-start">
 			<a href="/" class="btn btn-ghost text-xl font-bold">Towsey</a>
