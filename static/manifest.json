@@ -1,14 +1,14 @@
 {
 	"name": "Towsey",
+	"short_name": "Towsey",
 	"description": "Manage your towels and nasal sprays.",
-	"display": "standalone",
 	"start_url": "/",
+	"display": "standalone",
 	"icons": [
 		{
 			"src": "android-chrome-512x512.png",
 			"sizes": "512x512",
-			"type": "image/png",
-			"purpose": "any maskable"
+			"type": "image/png"
 		}
 	]
 }
