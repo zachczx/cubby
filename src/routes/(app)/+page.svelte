@@ -128,8 +128,9 @@
 							<div class="custom-loader"></div>
 						{/if}
 					</div>
-					<button class="btn btn-primary flex w-full items-center gap-2" onclick={addTowelHandler}
-						>Just Washed My Towel!</button
+					<button
+						class="btn btn-primary flex w-full items-center gap-2 rounded-2xl"
+						onclick={addTowelHandler}>Just Washed My Towel!</button
 					>
 				</div>
 
@@ -142,8 +143,9 @@
 							<div class="custom-loader"></div>
 						{/if}
 					</div>
-					<button class="btn btn-primary flex w-full items-center gap-2" onclick={addSprayHandler}
-						>Just Sprayed Nose!</button
+					<button
+						class="btn btn-primary flex w-full items-center gap-2 rounded-2xl"
+						onclick={addSprayHandler}>Just Sprayed Nose!</button
 					>
 				</div>
 			</section>

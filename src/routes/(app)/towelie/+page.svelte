@@ -13,6 +13,8 @@
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
 	import PageWrapper from '$lib/PageWrapper.svelte';
 	import Chart from 'chart.js/auto';
+	import { Calendar, DayGrid, Interaction } from '@event-calendar/core';
+	import MaterialSymbolsCheck from '$lib/assets/svg/MaterialSymbolsCheck.svelte';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
@@ -69,6 +71,50 @@
 		return gapsDates;
 	});
 
+	let times = $derived.by(() => {
+		let times: Calendar.EventInput[] = [];
+		if (towelDB && towelDB.length > 0) {
+			for (const r of towelDB) {
+				//Adding the timezone here creates a problem for mobile devices, not sure why => .tz('Asia/Singapore');
+				const n = dayjs.utc(r.time);
+				times.push({ start: n.toDate(), end: n.toDate(), title: `— Washed` });
+			}
+		}
+		return times;
+	});
+
+	let singleDay: SprayDB[] | undefined = $state([]);
+	let singleDayModal = $state() as HTMLDialogElement;
+
+	let calendarOptions: Calendar.Options = $derived.by(() => {
+		return {
+			view: 'dayGridMonth',
+			events: [...times],
+			selectBackgroundColor: 'red',
+			eventBackgroundColor: '#4a4a7d',
+			firstDay: 1,
+			titleFormat: (date) => {
+				const month = dayjs(date).get('month');
+				if (month === 8) {
+					return dayjs(date).format('MMMM YY');
+				}
+				return dayjs(date).format('MMMM YYYY');
+			},
+			dateClick: async (info) => {
+				singleDay = towelDB?.filter((day) => {
+					return dayjs(day.time).get('date') == dayjs(info.date).get('date');
+				});
+				singleDayModal.showModal();
+			},
+			eventClick: async (info) => {
+				singleDay = towelDB?.filter((day) => {
+					return dayjs(day.time).get('date') == dayjs(info.event.start).get('date');
+				});
+				singleDayModal.showModal();
+			}
+		};
+	});
+
 	function getStatusColorFromValue(val: number): string {
 		const day = 24;
 
@@ -99,6 +145,8 @@
 
 	let lineChartEl = $state() as HTMLCanvasElement;
 	let lineChart: Chart | undefined = $state();
+
+	let currentTab = $state('overview');
 
 	onMount(async () => {
 		// if (!pb.authStore.isValid) {
@@ -202,11 +250,11 @@
 	<title>Towelie</title>
 </svelte:head>
 
-<PageWrapper title="Towelie" {pb}>
+<PageWrapper title="Towelie" {pb} noPadding={true}>
 	<div
-		class="grid max-w-[1200px] content-center justify-items-center gap-8 justify-self-center p-2 lg:grid-cols-2"
+		class="grid w-full max-w-[1200px] content-start justify-items-center gap-4 justify-self-center lg:grid-cols-2"
 	>
-		<div class="grid content-start justify-items-center gap-4">
+		<div class="grid content-start justify-items-center gap-4 px-4 pt-4">
 			{#key towelRecords}
 				{#if status === 'green'}
 					<enhanced:img src={Green} alt="Clean" class="rounded-3xl" />
@@ -214,158 +262,205 @@
 					<enhanced:img src={Yellow} alt="Still Good" class="rounded-3xl" />
 				{:else if status === 'orange'}
 					<enhanced:img src={Orange} alt="Ripening" class="rounded-3xl" />
-				{:else}
+				{:else if status === 'red'}
 					<enhanced:img src={Red} alt="Time to Wash!" class="rounded-3xl" />
+				{:else}
+					<div class="skeleton h-[600px] w-[600px] max-lg:h-[342px] max-lg:w-[342px]"></div>
 				{/if}
 			{/key}
 			<form class="w-full">
-				<button class="btn btn-xl btn-primary flex w-full items-center gap-2" onclick={addHandler}
-					>Just Washed My Towel!</button
+				<button
+					class="btn btn-xl btn-primary flex w-full items-center gap-2 rounded-2xl"
+					onclick={addHandler}>Just Washed My Towel!</button
 				>
 			</form>
 		</div>
-		<div class="grid w-full grid-rows-[auto_1fr_auto] content-start justify-items-center gap-8">
-			<div class="w-full">
-				<div
-					class="text-md border-base-content/5 bg-base-200/50 grid grid-cols-2 content-center gap-4 rounded-lg border shadow"
-				>
-					<div class="border-r-base-content/15 grid justify-items-center border-r p-4">
-						<div>Status</div>
-						{#key towelRecords}
-							{#if status}
-								<div class="flex min-h-20 items-center gap-4 text-2xl font-bold">
-									{#if status === 'green'}
-										<div class="hidden h-6 w-6 rounded-full bg-lime-500 lg:flex"></div>
-										<span class="text-lime-500">Squeaky Clean</span>
-									{:else if status === 'yellow'}
-										<div class="hidden h-6 w-6 rounded-full bg-yellow-500 lg:flex"></div>
-										<span class="text-yellow-500">Still Fresh</span>
-									{:else if status === 'orange'}
-										<div class="hidden h-6 w-6 rounded-full bg-orange-400 lg:flex"></div>
-										<span class="text-orange-400">Kinda Funky</span>
-									{:else}
-										<div class="hidden h-5 w-5 rounded-full bg-red-700 lg:flex"></div>
-										<span class="text-red-700">Wash Me!</span>
-									{/if}
-								</div>
-							{:else}
-								<div class="flex min-h-20 items-center gap-4 text-2xl font-bold">Nil</div>
-							{/if}
-						{/key}
-					</div>
-					<div class="grid justify-items-center p-4">
-						<div>Last Washed</div>
-						<div class="text-center text-2xl font-bold">
+
+		<div class="grid w-full content-start gap-8 py-4">
+			<ul class="grid w-full grid-cols-2 content-center justify-items-center">
+				<li class="w-full">
+					<button
+						class={[
+							currentTab === 'overview' ? 'border-b-primary font-semibold' : 'border-b-base-300',
+							'w-full cursor-pointer border-b-2 text-center'
+						]}
+						onclick={() => {
+							currentTab = 'overview';
+						}}
+					>
+						Overview</button
+					>
+				</li>
+				<li class="w-full">
+					<button
+						class={[
+							currentTab === 'calendar' ? 'border-b-primary font-semibold' : 'border-b-base-300',
+							'w-full cursor-pointer border-b-2 text-center'
+						]}
+						onclick={() => {
+							currentTab = 'calendar';
+						}}
+					>
+						Calendar</button
+					>
+				</li>
+			</ul>
+
+			<div class="{currentTab === 'overview' ? 'grid' : 'hidden'} w-full gap-8 px-4">
+				<div class="w-full">
+					<div
+						class="text-md border-base-content/5 bg-base-200/50 grid grid-cols-2 content-center gap-4 rounded-lg border shadow"
+					>
+						<div class="border-r-base-content/15 grid justify-items-center border-r p-4">
+							<div>Status</div>
 							{#key towelRecords}
-								{#if towelRecords && towelRecords.length > 0}
-									{@const formatted = dayjs(towelRecords[0].time).fromNow()}
-									{formatted}
+								{#if status}
+									<div class="flex min-h-20 items-center gap-4 text-2xl font-bold">
+										{#if status === 'green'}
+											<div class="hidden h-6 w-6 rounded-full bg-lime-500 lg:flex"></div>
+											<span class="text-lime-500">Squeaky Clean</span>
+										{:else if status === 'yellow'}
+											<div class="hidden h-6 w-6 rounded-full bg-yellow-500 lg:flex"></div>
+											<span class="text-yellow-500">Still Fresh</span>
+										{:else if status === 'orange'}
+											<div class="hidden h-6 w-6 rounded-full bg-orange-400 lg:flex"></div>
+											<span class="text-orange-400">Kinda Funky</span>
+										{:else}
+											<div class="hidden h-5 w-5 rounded-full bg-red-700 lg:flex"></div>
+											<span class="text-red-700">Wash Me!</span>
+										{/if}
+									</div>
 								{:else}
 									<div class="flex min-h-20 items-center gap-4 text-2xl font-bold">Nil</div>
 								{/if}
 							{/key}
 						</div>
+						<div class="grid justify-items-center p-4">
+							<div>Last Washed</div>
+							<div class="text-center text-2xl font-bold">
+								{#key towelRecords}
+									{#if towelRecords && towelRecords.length > 0}
+										{@const formatted = dayjs(towelRecords[0].time).fromNow()}
+										{formatted}
+									{:else}
+										<div class="flex min-h-20 items-center gap-4 text-2xl font-bold">Nil</div>
+									{/if}
+								{/key}
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="border-base-content/5 bg-base-200/50 w-full rounded-lg border p-4 shadow">
+					<h2 class="text-md text-center">Gaps for Past Washes</h2>
+					<div>
+						<canvas bind:this={lineChartEl}></canvas>
+					</div>
+				</div>
+
+				<div
+					class="border-base-content/5 bg-base-200/50 grid w-full grid-cols-2 content-center gap-4 rounded-lg border shadow"
+				>
+					<div class="border-r-base-content/15 grid justify-items-center border-r p-4">
+						<h2 class="text-md">Longest Gap</h2>
+						<div class="text-center text-2xl font-bold">
+							{#if longestGap}
+								{longestGap.gap.toFixed(0)} days
+							{:else}
+								N/A
+							{/if}
+						</div>
+					</div>
+
+					<div class="grid justify-items-center p-4">
+						<h2 class="text-md">Average Gap</h2>
+						<div class="text-center text-2xl font-bold">
+							{#if longestGap}
+								{averageGap.toFixed(1)} days
+							{:else}
+								N/A
+							{/if}
+						</div>
 					</div>
 				</div>
 			</div>
 
-			<div class="border-base-content/5 bg-base-200/50 w-full rounded-lg border p-4 shadow">
-				<h2 class="text-md text-center">Gaps for Past Washes</h2>
-				<div>
-					<canvas bind:this={lineChartEl}></canvas>
-				</div>
-			</div>
-
+			<!-- The minmax(0, 1fr) or min-w-0 approaches explicitly tell the browser that the calendar can shrink below its content size, which is often what's needed for responsive calendar components. -->
 			<div
-				class="border-base-content/5 bg-base-200/50 grid w-full grid-cols-2 content-center gap-4 rounded-lg border shadow"
+				class="{currentTab === 'calendar'
+					? 'grid'
+					: 'hidden'} w-full grid-cols-[minmax(0,1fr)] overflow-hidden px-4"
 			>
-				<div class="border-r-base-content/15 grid justify-items-center border-r p-4">
-					<h2 class="text-md">Longest Gap</h2>
-					<div class="text-center text-2xl font-bold">
-						{#if longestGap}
-							{longestGap.gap.toFixed(0)} days
-						{:else}
-							N/A
-						{/if}
-					</div>
-				</div>
-
-				<div class="grid justify-items-center p-4">
-					<h2 class="text-md">Average Gap</h2>
-					<div class="text-center text-2xl font-bold">
-						{#if longestGap}
-							{averageGap.toFixed(1)} days
-						{:else}
-							N/A
-						{/if}
-					</div>
-				</div>
+				{#key towelDB}
+					<Calendar plugins={[DayGrid, Interaction]} options={calendarOptions} />
+				{/key}
 			</div>
 		</div>
 	</div>
 </PageWrapper>
 
-<!-- <dialog bind:this={modal} class="modal">
-	<div class="modal-box grid gap-8">
-		<h3 class="text-4xl font-bold">More Details</h3>
-		<div class="grid min-h-16 w-full grid-cols-4">
-			<div
-				class="flex items-center justify-center rounded-l-lg bg-lime-500 {status === 'green'
-					? 'border-base-content border-4 font-bold'
-					: undefined}"
-			>
-				Clean
-			</div>
-			<div
-				class="flex items-center justify-center bg-yellow-500 {status === 'yellow'
-					? 'border-base-content border-4 font-bold'
-					: undefined}"
-			>
-				Still Fresh
-			</div>
-			<div
-				class="flex items-center justify-center bg-orange-400 {status === 'orange'
-					? 'border-base-content border-4 font-bold'
-					: undefined}"
-			>
-				Kinda Funky
-			</div>
-			<div
-				class="flex items-center justify-center rounded-r-lg bg-red-700 {status === 'yikes'
-					? 'border-base-content border-4 font-bold'
-					: undefined}"
-			>
-				Wash Me!
-			</div>
-		</div>
-
-		<div class="w-full text-sm">
-			<h2 class="mb-2 text-lg font-semibold">Past 5 Washes</h2>
-			{#if results && results.length > 0}
-				{#each results as towel, i}
-					{#if i <= 4}
-						{@const formatted = dayjs(results[i].time).format('D MMM, h:mma')}
-						{@const semantic = stripNegative(
-							i === results.length - 1
-								? 0
-								: dayjs(results[i].time).diff(results[i + 1].time, 'day', true)
-						)}
-						<li class="border-b-base-300 ms-1 border-b py-2">
-							{formatted}&nbsp;&nbsp;<span class="border-neutral/30 rounded-full border px-2"
-								>+{semantic}</span
-							>
+<dialog bind:this={singleDayModal} class="modal">
+	<div class="modal-box">
+		{#if singleDay && singleDay.length > 0}
+			{@const theDay = dayjs(singleDay[0].time).format('D MMM YYYY')}
+			<h3 class="text-lg font-bold">{theDay}</h3>
+			<div class="py-4">
+				<ul class="list-disc">
+					{#each singleDay as day}
+						{@const formatted = dayjs(day.time).format('h:mma')}
+						<li class="flex items-center gap-2">
+							<MaterialSymbolsCheck class="text-success size-[1.3em]" />
+							{formatted}
 						</li>
-					{/if}
-				{/each}
-			{:else}
-				No washes!
-			{/if}
-		</div>
+					{/each}
+				</ul>
+			</div>
+		{:else}
+			<h3 class="text-lg font-bold">Nothing here!</h3>
+		{/if}
 		<div class="modal-action">
 			<form method="dialog">
-				
 				<button class="btn">Close</button>
 			</form>
 		</div>
 	</div>
-</dialog> -->
+</dialog>
+
+<style>
+	:global {
+		.ec.ec-day-grid {
+			/* max-width: 90vw; */
+			width: 100%;
+		}
+
+		.ec-title {
+			font-size: 1.25rem;
+			font-weight: 600 !important;
+		}
+
+		.ec-today {
+			background-color: var(--color-primary-content) !important;
+		}
+
+		.ec-day {
+			&:hover {
+				background-color: rgba(242, 189, 205, 0.3);
+				.ec-day-head {
+					font-weight: 600 !important;
+				}
+				color: var(--color-primary);
+			}
+		}
+
+		.ec-bg-events {
+			&:hover {
+				cursor: pointer;
+			}
+		}
+
+		.ec-header {
+			border-top-left-radius: 10px !important;
+			border-top-right-radius: 10px !important;
+		}
+	}
+</style>
