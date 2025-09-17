@@ -118,7 +118,8 @@
 
 	let currentTab = $state('overview');
 
-	let daysToNext = $state(3);
+	const defaultSprayInterval = 3;
+	let daysToNext = $state(defaultSprayInterval);
 
 	// For Statuses
 
@@ -208,7 +209,7 @@
 
 <PageWrapper title="Spray Logs" {pb} noPadding={true}>
 	<main
-		class="grid w-full max-w-[1200px] content-start justify-items-center gap-4 justify-self-center lg:grid-cols-2"
+		class="grid w-full max-w-[1200px] content-start justify-items-center gap-4 justify-self-center lg:grid-cols-2 lg:pt-8"
 	>
 		<div class="grid content-start justify-items-center gap-4 px-4 pt-4">
 			{#key sprayDB}
@@ -228,7 +229,7 @@
 			<button
 				class="btn btn-xl btn-primary flex w-full min-w-54 grow items-center gap-2 rounded-2xl"
 				onclick={handleClick}
-				><MaterialSymbolsAdd class="size-[1.3em]" />
+			>
 				{#if !spinner}
 					Just Sprayed!
 				{:else}

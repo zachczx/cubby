@@ -252,7 +252,7 @@
 
 <PageWrapper title="Towelie" {pb} noPadding={true}>
 	<div
-		class="grid w-full max-w-[1200px] content-start justify-items-center gap-4 justify-self-center lg:grid-cols-2"
+		class="grid w-full max-w-[1200px] content-start justify-items-center gap-4 justify-self-center lg:grid-cols-2 lg:pt-8"
 	>
 		<div class="grid content-start justify-items-center gap-4 px-4 pt-4">
 			{#key towelRecords}

@@ -7,6 +7,7 @@
 	import MaterialSymbolsClose from './assets/svg/MaterialSymbolsClose.svelte';
 	import MaterialSymbolsLogin from './assets/svg/MaterialSymbolsLogin.svelte';
 	import MaterialSymbolsLogout from './assets/svg/MaterialSymbolsLogout.svelte';
+	import MaterialSymbolsSettings from './assets/svg/MaterialSymbolsSettings.svelte';
 
 	let {
 		pb,
@@ -120,7 +121,7 @@
 											xmlns="http://www.w3.org/2000/svg"
 											width="1em"
 											height="1em"
-											class="material-symbols:home-outline size-[1.3em] opacity-50"
+											class="material-symbols:home-outline size-[1.3em] opacity-75"
 											viewBox="0 0 24 24"
 											><path
 												fill="currentColor"
@@ -137,7 +138,7 @@
 											xmlns="http://www.w3.org/2000/svg"
 											width="1em"
 											height="1em"
-											class="lucide-lab:towel-rack size-[1.3em] opacity-50"
+											class="lucide-lab:towel-rack size-[1.3em] opacity-75"
 											viewBox="0 0 24 24"
 											><path
 												fill="none"
@@ -159,7 +160,7 @@
 											xmlns="http://www.w3.org/2000/svg"
 											width="1em"
 											height="1em"
-											class="material-symbols:health-and-safety-outline size-[1.3em] opacity-50"
+											class="material-symbols:health-and-safety-outline size-[1.3em] opacity-75"
 											viewBox="0 0 24 24"
 											><path
 												fill="currentColor"
@@ -177,7 +178,7 @@
 											xmlns="http://www.w3.org/2000/svg"
 											width="32"
 											height="32"
-											class="material-symbols:timer-outline size-[1.3em] opacity-50"
+											class="material-symbols:timer-outline size-[1.3em] opacity-75"
 											viewBox="0 0 24 24"
 											><path
 												fill="currentColor"
@@ -191,9 +192,16 @@
 								{#if pb.authStore.isValid}
 									<li>
 										<a
+											href="/settings"
+											class="text-base-content flex w-full gap-4 py-4 text-lg font-semibold"
+											><MaterialSymbolsSettings class="size-[1.3em] opacity-75" />Settings</a
+										>
+									</li>
+									<li>
+										<a
 											href="/logout"
 											class="text-base-content flex w-full gap-4 py-4 text-lg font-semibold"
-											><MaterialSymbolsLogout class="size-[1.3em] opacity-50" />Logout</a
+											><MaterialSymbolsLogout class="size-[1.3em] opacity-75" />Logout</a
 										>
 									</li>
 								{/if}
@@ -202,7 +210,7 @@
 										<a
 											href="/login"
 											class="text-base-content flex w-full gap-4 py-4 text-lg font-semibold"
-											><MaterialSymbolsLogin class="size-[1.3em] opacity-50" />Login</a
+											><MaterialSymbolsLogin class="size-[1.3em] opacity-75" />Login</a
 										>
 									</li>
 									<li>
@@ -213,7 +221,7 @@
 												xmlns="http://www.w3.org/2000/svg"
 												width="32"
 												height="32"
-												class="material-symbols:signature size-[1.3em] opacity-50"
+												class="material-symbols:signature size-[1.3em] opacity-75"
 												viewBox="0 0 24 24"
 												><path
 													fill="currentColor"
@@ -231,9 +239,9 @@
 			</div>
 			<div id="desktop-logout" class="hidden items-center text-sm lg:flex">
 				{#if pb.authStore.isValid}
-					{pb.authStore.record?.email}<a href="/logout" class="btn btn-sm btn-outline ms-4"
-						>Logout</a
-					>
+					<a href="/settings" class="btn btn-ghost"
+						><MaterialSymbolsSettings class="size-[1.5em] opacity-75" /></a
+					><a href="/logout" class="btn btn-outline ms-1">Logout</a>
 				{:else}
 					<a href="/register" class="underline">Register</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a
 						href="/login"
@@ -244,7 +252,7 @@
 		</div>
 	</div>
 
-	<div class={['w-full', !noPadding && 'px-4 py-4 lg:px-12 lg:pt-12']}>
+	<div class={['bg-pattern w-full', !noPadding && 'px-4 py-4 lg:px-12 lg:pt-12']}>
 		{@render children?.()}
 	</div>
 </div>
@@ -253,5 +261,14 @@
 	#safe-area-topnav,
 	#mobile-drawer {
 		padding-top: calc(var(--safe-area-inset-top) + 0.5rem) !important;
+	}
+	/* 
+	.bg-pattern {
+		background-color: red;
+	} */
+
+	.bg-pattern {
+		background:
+			linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.7)), url('/gplay.webp'); /* #008c8c; */
 	}
 </style>

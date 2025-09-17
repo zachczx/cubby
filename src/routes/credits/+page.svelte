@@ -12,8 +12,9 @@
 		<ul>
 			<li>
 				Count uses content produced with Typecast, an AI virtual actor service. Characters casted:
-				Frankenstein from <a href="https://typecast.ai" class="hover:text-primary underline"
-					>https://typecast.ai</a
+				Frankenstein, Neoguard from <a
+					href="https://typecast.ai"
+					class="hover:text-primary underline">https://typecast.ai</a
 				>
 			</li>
 			<li>

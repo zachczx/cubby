@@ -81,35 +81,7 @@
 </svelte:head>
 <PageWrapper title="Towsey" {pb}>
 	<main class="h-full">
-		<div
-			id="desktop"
-			class="hidden h-full content-center justify-items-center lg:grid lg:grid-cols-3"
-		>
-			<a
-				href="/towelie"
-				class="focus:border-primary/30 active:border-primary/30 max-lg:hover:bg-primary grid w-full content-center gap-2 rounded-xl text-center focus:border active:border"
-			>
-				<h2 class="font-towelie-logo hover:text-primary text-center text-7xl xl:text-9xl">
-					Towelie
-				</h2>
-				<div>Track towel washes</div>
-			</a>
-			<a
-				href="/nosey"
-				class="focus:border-primary/30 active:border-primary/30 max-lg:hover:bg-primary grid w-full content-center gap-2 rounded-xl text-center focus:border active:border"
-			>
-				<h2 class="font-space hover:text-primary text-7xl font-bold xl:text-9xl">Nosey</h2>
-				<div>Track nasal sprays</div>
-			</a>
-			<a
-				href="/count"
-				class="focus:border-primary/30 active:border-primary/30 max-lg:hover:bg-primary grid w-full content-center gap-2 rounded-xl text-center focus:border active:border"
-			>
-				<h2 class="hover:text-primary text-7xl font-black tracking-tighter xl:text-9xl">Count</h2>
-				<div>Countdown for video watching</div>
-			</a>
-		</div>
-		<div id="mobile" class="grid gap-8 lg:hidden">
+		<div id="mobile" class="grid w-full max-w-lg gap-8 justify-self-center lg:text-base">
 			<header class="grid justify-self-start text-start">
 				{#if pb.authStore && pb.authStore.record}
 					<span class="opacity-[0.9]">Welcome back,</span><span class="font-semibold"
@@ -120,7 +92,7 @@
 
 			<section class="grid gap-4">
 				<div class="bg-primary/10 border-base-300 grid min-h-24 gap-4 rounded-3xl border p-4">
-					<h3 class="text-sm">Towel Washed</h3>
+					<h3 class="text-sm lg:text-base">Towel Washed</h3>
 					<div class="text-2xl font-bold">
 						{#if towelLast}
 							{towelLast}
@@ -129,13 +101,13 @@
 						{/if}
 					</div>
 					<button
-						class="btn btn-primary flex w-full items-center gap-2 rounded-2xl"
+						class="btn btn-primary lg:btn-lg flex w-full items-center gap-2 rounded-2xl"
 						onclick={addTowelHandler}>Just Washed My Towel!</button
 					>
 				</div>
 
 				<div class="bg-secondary/10 border-base-300 grid min-h-24 gap-4 rounded-3xl border p-4">
-					<h3 class="text-sm">Nose Sprayed</h3>
+					<h3 class="text-sm lg:text-base">Nose Sprayed</h3>
 					<div class="text-2xl font-bold">
 						{#if sprayLast}
 							{sprayLast}
@@ -144,24 +116,24 @@
 						{/if}
 					</div>
 					<button
-						class="btn btn-primary flex w-full items-center gap-2 rounded-2xl"
+						class="btn btn-primary lg:btn-lg flex w-full items-center gap-2 rounded-2xl"
 						onclick={addSprayHandler}>Just Sprayed Nose!</button
 					>
 				</div>
 			</section>
 
-			<section class="border-base-300 grid min-h-24 gap-4 rounded-3xl border-0 p-4">
-				<h3 class="text-sm font-bold">Jump To</h3>
+			<section class="border-base-300 grid min-h-24 gap-4 rounded-3xl border-0 py-4">
+				<h3 class="text-sm font-bold lg:text-base">Jump To</h3>
 				<ul class="justify-items-around grid grid-cols-3 gap-2">
 					<li>
 						<a
 							href="/towelie"
-							class="focus:bg-primary/10 active:bg-primary/10 border-primary/20 hover:bg-primary/10 text-primary grid aspect-square w-full content-center justify-items-center gap-1 rounded-3xl border p-2 font-semibold"
+							class="bg-base-200/30 focus:bg-primary/10 active:bg-primary/10 border-primary/20 hover:bg-primary/10 text-primary grid aspect-square w-full content-center justify-items-center gap-1 rounded-3xl border p-2 font-semibold lg:text-lg"
 							><svg
 								xmlns="http://www.w3.org/2000/svg"
 								width="1em"
 								height="1em"
-								class="lucide-lab:towel-rack size-[1.3em] opacity-50"
+								class="lucide-lab:towel-rack size-[1.3em] opacity-50 lg:size-[1.7em]"
 								viewBox="0 0 24 24"
 								><path
 									fill="none"
@@ -177,13 +149,13 @@
 					<li>
 						<a
 							href="/nosey"
-							class="focus:bg-primary/10 active:bg-primary/10 border-primary/20 hover:bg-primary/10 text-primary grid aspect-square w-full content-center justify-items-center gap-1 rounded-3xl border p-2 font-semibold"
+							class="bg-base-200/30 focus:bg-primary/10 active:bg-primary/10 border-primary/20 hover:bg-primary/10 text-primary grid aspect-square w-full content-center justify-items-center gap-1 rounded-3xl border p-2 font-semibold lg:text-lg"
 						>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								width="1em"
 								height="1em"
-								class="material-symbols:health-and-safety-outline size-[1.3em] opacity-50"
+								class="material-symbols:health-and-safety-outline size-[1.3em] opacity-50 lg:size-[1.7em]"
 								viewBox="0 0 24 24"
 								><path
 									fill="currentColor"
@@ -195,13 +167,13 @@
 					<li>
 						<a
 							href="/count"
-							class="focus:bg-primary/10 active:bg-primary/10 border-primary/20 hover:bg-primary/10 text-primary grid aspect-square w-full content-center justify-items-center gap-1 rounded-3xl border p-2 font-semibold"
+							class="bg-base-200/30 focus:bg-primary/10 active:bg-primary/10 border-primary/20 hover:bg-primary/10 text-primary grid aspect-square w-full content-center justify-items-center gap-1 rounded-3xl border p-2 font-semibold lg:text-lg"
 						>
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								width="32"
 								height="32"
-								class="material-symbols:timer-outline size-[1.3em] opacity-50"
+								class="material-symbols:timer-outline size-[1.3em] opacity-50 lg:size-[1.7em]"
 								viewBox="0 0 24 24"
 								><path
 									fill="currentColor"

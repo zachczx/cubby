@@ -21,3 +21,20 @@ interface SprayDB {
 	updated: string;
 	user: string;
 }
+
+type Characters = 'frankenstein' | 'robot' | 'furnando';
+
+interface UserDB {
+	collectionId: string;
+	collectionName: 'users';
+	id: string;
+	email: string;
+	emailVisibility: boolean;
+	verified: boolean;
+	name: string;
+	avatar: string;
+	mute: boolean;
+	defaultSprayInterval: number;
+	created: string;
+	updated: string;
+}
