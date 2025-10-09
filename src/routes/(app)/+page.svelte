@@ -94,11 +94,13 @@
 				<div class="bg-primary/10 border-base-300 grid min-h-24 gap-4 rounded-3xl border p-4">
 					<h3 class="text-sm lg:text-base">Towel Washed</h3>
 					<div class="text-2xl font-bold">
-						{#if towelLast}
-							{towelLast}
-						{:else}
-							<div class="custom-loader"></div>
-						{/if}
+						{#key towelLast}
+							{#if towelLast}
+								{towelLast}
+							{:else}
+								<div class="custom-loader"></div>
+							{/if}
+						{/key}
 					</div>
 					<button
 						class="btn btn-primary lg:btn-lg flex w-full items-center gap-2 rounded-2xl"
@@ -109,11 +111,13 @@
 				<div class="bg-secondary/10 border-base-300 grid min-h-24 gap-4 rounded-3xl border p-4">
 					<h3 class="text-sm lg:text-base">Nose Sprayed</h3>
 					<div class="text-2xl font-bold">
-						{#if sprayLast}
-							{sprayLast}
-						{:else}
-							<div class="custom-loader"></div>
-						{/if}
+						{#key sprayLast}
+							{#if sprayLast}
+								{sprayLast}
+							{:else}
+								<div class="custom-loader"></div>
+							{/if}
+						{/key}
 					</div>
 					<button
 						class="btn btn-primary lg:btn-lg flex w-full items-center gap-2 rounded-2xl"
