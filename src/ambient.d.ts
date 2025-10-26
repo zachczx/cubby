@@ -46,6 +46,6 @@ interface VacationDB {
 	created: string;
 	updated: string;
 	user: string;
-	startTime: string;
-	endTime: string;
+	startDateTime: string;
+	endDateTime: string;
 }

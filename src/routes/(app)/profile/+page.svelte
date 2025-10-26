@@ -25,7 +25,7 @@
 	onMount(async () => {
 		if (pb.authStore.isValid && pb.authStore.record) {
 			user = await pb.collection('users').getOne(pb.authStore.record.id);
-			vacations = await pb.collection('vacation').getFullList({ sort: '-startTime' });
+			vacations = await pb.collection('vacation').getFullList({ sort: '-startDateTime' });
 		}
 	});
 
@@ -46,7 +46,6 @@
 			if (result.status === 200) {
 				addToast('success', 'Updated!');
 				spinner = false;
-				vacations = await pb.collection('vacation').getFullList({ sort: 'startTime' });
 			}
 		} catch (err) {
 			console.log(err);
@@ -63,28 +62,29 @@
 
 			const result = await pb.collection('vacation').create({
 				user: pb.authStore.record?.id,
-				startTime: start,
-				endTime: end
+				startDateTime: start,
+				endDateTime: end
 			});
 			if (result.id) {
 				addToast('success', 'Added successfully!');
 				spinner = false;
+				vacations = await pb.collection('vacation').getFullList({ sort: '-startDateTime' });
 			}
 		} catch (err) {
 			console.log(err);
 		}
 	}
 
-	let currentTab = $state('vacations');
+	let currentTab = $state('settings');
 	let vacationStart = $state('');
 	let vacationEnd = $state('');
 	let vacationsModal = $state() as HTMLDialogElement;
 
-	function formatTime(startTime: string, endTime: string) {
-		if (!startTime || !endTime) return;
+	function formatTime(startDateTime: string, endDateTime: string) {
+		if (!startDateTime || !endDateTime) return;
 
-		const s = dayjs(startTime);
-		const e = dayjs(endTime);
+		const s = dayjs(startDateTime);
+		const e = dayjs(endDateTime);
 
 		if (s.get('month') === e.get('month')) {
 			if (s.get('date') === e.get('date')) {
@@ -175,8 +175,8 @@
 						</div>
 						<ul class="list-disc">
 							{#each vacations as v}
-								{@const dateTime = formatTime(v.startTime, v.endTime)}
-								<li class="ms-6 py-2">
+								{@const dateTime = formatTime(v.startDateTime, v.endDateTime)}
+								<li class="ms-6 py-0.5">
 									{dateTime}
 								</li>
 							{/each}
@@ -225,8 +225,8 @@
 		<h3 class="mb-4 text-lg font-bold uppercase">Recent Vacations</h3>
 		<ul class="list-disc">
 			{#each vacations as v}
-				{@const dateTime = formatTime(v.startTime, v.endTime)}
-				<li class="ms-6">
+				{@const dateTime = formatTime(v.startDateTime, v.endDateTime)}
+				<li class="ms-6 py-0.5">
 					{dateTime}
 				</li>
 			{/each}

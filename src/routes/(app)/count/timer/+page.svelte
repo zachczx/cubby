@@ -4,7 +4,7 @@
 	import duration from 'dayjs/plugin/duration';
 	dayjs.extend(duration);
 
-	let startTime: dayjs.Dayjs | undefined = $state();
+	let startDateTime: dayjs.Dayjs | undefined = $state();
 	let df: duration.Duration | undefined = $state();
 
 	let sec = $state(0);
@@ -14,7 +14,7 @@
 
 	function tick() {
 		const now = dayjs();
-		df = dayjs.duration(now.diff(startTime));
+		df = dayjs.duration(now.diff(startDateTime));
 		sec = df.seconds();
 		min = df.minutes();
 
@@ -24,7 +24,7 @@
 	}
 
 	function start() {
-		startTime = dayjs();
+		startDateTime = dayjs();
 
 		tick();
 
@@ -33,7 +33,7 @@
 
 	function stop() {
 		clearInterval(timerInterval);
-		startTime = undefined;
+		startDateTime = undefined;
 		sec = 0;
 		min = 0;
 	}

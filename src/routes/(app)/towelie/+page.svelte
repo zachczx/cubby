@@ -15,19 +15,39 @@
 	import Chart from 'chart.js/auto';
 	import { Calendar, DayGrid, Interaction } from '@event-calendar/core';
 	import MaterialSymbolsCheck from '$lib/assets/svg/MaterialSymbolsCheck.svelte';
+	import { calculateVacationOverlap } from '$lib/overlap';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
 
+	let vacations: VacationDB[] | undefined = $state([]);
 	let towelDB: TowelDB[] | undefined = $state([]);
 	let towelRecords: TowelRecord[] | undefined = $derived.by(() => {
 		if (!towelDB) return [];
 
 		return towelDB.map((record, i, allRecords) => {
 			const nextRecord = allRecords[i + 1];
-			const gap = nextRecord ? dayjs(record.time).diff(nextRecord.time, 'day', true) : 0;
-			return { ...record, gap };
+			if (!nextRecord) {
+				return { ...record, gap: 0 };
+			}
+
+			// 1. Calculate the raw gap
+			const rawGap = dayjs(record.time).diff(nextRecord.time, 'day', true);
+
+			// 2. Calculate vacation days within that gap
+			const vacationDays = calculateVacationOverlap(
+				record.time,
+				nextRecord.time,
+				vacations ?? [],
+				'day'
+			);
+
+			// 3. Subtract vacation time from the raw gap
+			const finalGap = rawGap - vacationDays;
+
+			// Ensure gap is never negative
+			return { ...record, gap: Math.max(0, finalGap) };
 		});
 	});
 
@@ -83,7 +103,7 @@
 		return times;
 	});
 
-	let singleDay: SprayDB[] | undefined = $state([]);
+	let singleDay: TowelDB[] | undefined = $state([]);
 	let singleDayModal = $state() as HTMLDialogElement;
 
 	let calendarOptions: Calendar.Options = $derived.by(() => {
@@ -131,14 +151,32 @@
 
 	let towelDirty: number | undefined = $derived.by(() => {
 		let towelDirty;
+
 		if (towelRecords && towelRecords.length > 0) {
+			if (!vacations) {
+				const lastWashDate = dayjs(towelRecords[0].time);
+				const today = dayjs();
+				/**
+				 * https://stackoverflow.com/questions/36560806/the-left-hand-side-of-an-arithmetic-operation-must-be-of-type-any-number-or
+				 */
+				towelDirty = today.diff(lastWashDate, 'hours', true);
+				return towelDirty;
+			}
+
 			const lastWashDate = dayjs(towelRecords[0].time);
-			const today = dayjs();
-			/**
-			 * https://stackoverflow.com/questions/36560806/the-left-hand-side-of-an-arithmetic-operation-must-be-of-type-any-number-or
-			 */
-			towelDirty = today.diff(lastWashDate, 'hours', true);
-			return towelDirty;
+			const now = dayjs();
+
+			// 1. Calculate the raw difference in hours
+			const rawDiffHours = now.diff(lastWashDate, 'hours', true);
+
+			// 2. Calculate vacation hours between last wash and now
+			const vacationHours = calculateVacationOverlap(now, lastWashDate, vacations, 'hours');
+
+			// 3. Subtract vacation time
+			towelDirty = rawDiffHours - vacationHours;
+
+			// Ensure it's not negative
+			return Math.max(0, towelDirty);
 		}
 	});
 	let spinner = $state(false);
@@ -154,6 +192,8 @@
 		// }
 
 		if (pb.authStore.isValid) {
+			vacations = await pb.collection('vacation').getFullList({ sort: '-startDateTime' });
+
 			towelDB = await pb.collection('towel').getFullList({
 				sort: '-time'
 			});
