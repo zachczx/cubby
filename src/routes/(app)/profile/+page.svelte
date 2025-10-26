@@ -16,7 +16,7 @@
 	dayjs.extend(timezone);
 
 	let user: UserDB | undefined = $state();
-	let vacations: VacationDB[] | undefined = $state();
+	let vacations: VacationDB[] | undefined = $state([]);
 
 	if (!pb.authStore.isValid) {
 		goto('/login');
@@ -25,7 +25,7 @@
 	onMount(async () => {
 		if (pb.authStore.isValid && pb.authStore.record) {
 			user = await pb.collection('users').getOne(pb.authStore.record.id);
-			vacations = await pb.collection('vacation').getFullList({ sort: 'startTime' });
+			vacations = await pb.collection('vacation').getFullList({ sort: '-startTime' });
 		}
 	});
 
