@@ -10,41 +10,37 @@
 	import { defaultSprayInterval } from '$lib/config';
 	import MaterialSymbolsAdd from '$lib/assets/svg/MaterialSymbolsAdd.svelte';
 	import MaterialSymbolsChevronRight from '$lib/assets/svg/MaterialSymbolsChevronRight.svelte';
+	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
 
-	let towelDB: TowelDB[] | undefined = $state([]);
-	let sprayDB: SprayDB[] | undefined = $state([]);
+	const towels = createQuery<TowelDB[]>(() => ({
+		queryKey: ['towels'],
+		queryFn: async () => await pb.collection('towel').getFullList({ sort: '-time' })
+	}));
 
-	onMount(async () => {
-		if (pb.authStore.isValid) {
-			towelDB = await pb.collection('towel').getFullList({
-				sort: '-time'
-			});
+	const sprays = createQuery<SprayDB[]>(() => ({
+		queryKey: ['sprays'],
+		queryFn: async () => await pb.collection('spray').getFullList({ sort: '-time' })
+	}));
 
-			sprayDB = await pb.collection('spray').getFullList({
-				sort: '-time'
-			});
+	const tanstackClient = useQueryClient();
+
+	let towelLast: string = $derived.by(() => {
+		if (towels.isSuccess) {
+			return dayjs(towels.data[0].time).fromNow();
 		}
+		return '';
 	});
-
-	let towelLast: string | undefined = $derived.by(() => {
-		if (towelDB && towelDB.length > 0) {
-			return dayjs(towelDB[0].time).fromNow();
-		}
-		return undefined;
-	});
-	let spinner = $state(false);
 
 	let daysToNext = $state(defaultSprayInterval);
 
-	let sprayLast: string | undefined = $derived.by(() => {
-		if (sprayDB && sprayDB.length > 0) {
-			return dayjs(sprayDB[0].time).fromNow();
-		}
-		return undefined;
+	let sprayLast: string = $derived.by(() => {
+		if (sprays.isSuccess) return dayjs(sprays.data[0].time).fromNow();
+
+		return '';
 	});
 
 	async function addTowelHandler() {
@@ -55,16 +51,16 @@
 
 		if (result.id) {
 			addToast('success', 'Added successfully!');
-			spinner = false;
 		}
 
-		towelDB = await pb.collection('towel').getFullList({
-			sort: '-time'
+		await tanstackClient.refetchQueries({
+			queryKey: ['towels'],
+			type: 'active',
+			exact: true
 		});
 	}
 
 	async function addSprayHandler() {
-		spinner = true;
 		const result = await pb.collection('spray').create({
 			user: pb.authStore.record?.id,
 			time: dayjs.tz(new Date(), 'Asia/Singapore'),
@@ -75,11 +71,12 @@
 
 		if (result.id) {
 			addToast('success', 'Added successfully!');
-			spinner = false;
 		}
 
-		sprayDB = await pb.collection('spray').getFullList({
-			sort: '-time'
+		await tanstackClient.refetchQueries({
+			queryKey: ['sprays'],
+			type: 'active',
+			exact: true
 		});
 	}
 </script>
@@ -120,13 +117,15 @@
 							<!-- <h3 class="text-sm lg:text-base">Towel Washed</h3> -->
 							<div class="text-lg">
 								<p class="font-semibold uppercase">Wash</p>
-								{#key towelLast}
-									{#if towelLast}
-										{towelLast}
-									{:else}
-										<div class="custom-loader"></div>
-									{/if}
-								{/key}
+								{#if towels.isPending}
+									<div class="custom-loader"></div>
+								{/if}
+								{#if towels.error}
+									Error: {towels.error.message}
+								{/if}
+								{#if towels.isSuccess}
+									{towelLast}
+								{/if}
 							</div>
 						</div>
 						<div class="flex h-full items-center">
@@ -185,13 +184,16 @@
 							<!-- <h3 class="text-sm lg:text-base">Nose Sprayed</h3> -->
 							<div class="text-lg">
 								<p class="font-semibold uppercase">Spray</p>
-								{#key sprayLast}
-									{#if sprayLast}
-										{sprayLast}
-									{:else}
-										<div class="custom-loader"></div>
-									{/if}
-								{/key}
+								{#if sprays.isPending}
+									<div class="custom-loader"></div>
+								{/if}
+								{#if sprays.error}
+									An error has occurred:
+									{sprays.error.message}
+								{/if}
+								{#if sprays.isSuccess}
+									{sprayLast}
+								{/if}
 							</div>
 						</div>
 						<div class="flex h-full items-center">

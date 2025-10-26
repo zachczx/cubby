@@ -3,6 +3,9 @@
 	import '../app.css';
 	import { pb } from '$lib/pb';
 	import { goto } from '$app/navigation';
+	import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
+
+	const queryClient = new QueryClient();
 
 	let { children } = $props();
 
@@ -11,5 +14,7 @@
 	}
 </script>
 
-<ArkToaster />
-{@render children()}
+<QueryClientProvider client={queryClient}>
+	<ArkToaster />
+	{@render children()}
+</QueryClientProvider>
