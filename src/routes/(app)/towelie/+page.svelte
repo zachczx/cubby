@@ -16,39 +16,52 @@
 	import { Calendar, DayGrid, Interaction } from '@event-calendar/core';
 	import MaterialSymbolsCheck from '$lib/assets/svg/MaterialSymbolsCheck.svelte';
 	import { calculateVacationOverlap } from '$lib/overlap';
+	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
 
-	let vacations: VacationDB[] | undefined = $state([]);
-	let towelDB: TowelDB[] | undefined = $state([]);
+	const vacations = createQuery<VacationDB[]>(() => ({
+		queryKey: ['vacations'],
+		queryFn: async () => await pb.collection('vacation').getFullList({ sort: '-time' })
+	}));
+
+	const towels = createQuery<TowelDB[]>(() => ({
+		queryKey: ['towels'],
+		queryFn: async () => await pb.collection('towel').getFullList({ sort: '-time' })
+	}));
+
+	const tanstackClient = useQueryClient();
+
 	let towelRecords: TowelRecord[] | undefined = $derived.by(() => {
-		if (!towelDB) return [];
+		if (towels.isSuccess) {
+			return towels.data.map((record, i, allRecords) => {
+				const nextRecord = allRecords[i + 1];
+				if (!nextRecord) {
+					return { ...record, gap: 0 };
+				}
 
-		return towelDB.map((record, i, allRecords) => {
-			const nextRecord = allRecords[i + 1];
-			if (!nextRecord) {
-				return { ...record, gap: 0 };
-			}
+				// 1. Calculate the raw gap
+				const rawGap = dayjs(record.time).diff(nextRecord.time, 'day', true);
 
-			// 1. Calculate the raw gap
-			const rawGap = dayjs(record.time).diff(nextRecord.time, 'day', true);
+				// 2. Calculate vacation days within that gap
+				const vacationDays = calculateVacationOverlap(
+					record.time,
+					nextRecord.time,
+					vacations.data ?? [],
+					'day'
+				);
 
-			// 2. Calculate vacation days within that gap
-			const vacationDays = calculateVacationOverlap(
-				record.time,
-				nextRecord.time,
-				vacations ?? [],
-				'day'
-			);
+				// 3. Subtract vacation time from the raw gap
+				const finalGap = rawGap - vacationDays;
 
-			// 3. Subtract vacation time from the raw gap
-			const finalGap = rawGap - vacationDays;
+				// Ensure gap is never negative
+				return { ...record, gap: Math.max(0, finalGap) };
+			});
+		}
 
-			// Ensure gap is never negative
-			return { ...record, gap: Math.max(0, finalGap) };
-		});
+		return [];
 	});
 
 	let longestGap: TowelRecord | undefined = $derived.by(() => {
@@ -93,8 +106,8 @@
 
 	let times = $derived.by(() => {
 		let times: Calendar.EventInput[] = [];
-		if (towelDB && towelDB.length > 0) {
-			for (const r of towelDB) {
+		if (towels.isSuccess) {
+			for (const r of towels.data) {
 				//Adding the timezone here creates a problem for mobile devices, not sure why => .tz('Asia/Singapore');
 				const n = dayjs.utc(r.time);
 				times.push({ start: n.toDate(), end: n.toDate(), title: `— Washed` });
@@ -121,15 +134,19 @@
 				return dayjs(date).format('MMMM YYYY');
 			},
 			dateClick: async (info) => {
-				singleDay = towelDB?.filter((day) => {
-					return dayjs(day.time).get('date') == dayjs(info.date).get('date');
-				});
+				if (towels.isSuccess) {
+					singleDay = towels.data.filter((day) => {
+						return dayjs(day.time).get('date') == dayjs(info.date).get('date');
+					});
+				}
 				singleDayModal.showModal();
 			},
 			eventClick: async (info) => {
-				singleDay = towelDB?.filter((day) => {
-					return dayjs(day.time).get('date') == dayjs(info.event.start).get('date');
-				});
+				if (towels.isSuccess) {
+					singleDay = towels.data.filter((day) => {
+						return dayjs(day.time).get('date') == dayjs(info.event.start).get('date');
+					});
+				}
 				singleDayModal.showModal();
 			}
 		};
@@ -153,7 +170,7 @@
 		let towelDirty;
 
 		if (towelRecords && towelRecords.length > 0) {
-			if (!vacations) {
+			if (!vacations.isSuccess) {
 				const lastWashDate = dayjs(towelRecords[0].time);
 				const today = dayjs();
 				/**
@@ -170,7 +187,7 @@
 			const rawDiffHours = now.diff(lastWashDate, 'hours', true);
 
 			// 2. Calculate vacation hours between last wash and now
-			const vacationHours = calculateVacationOverlap(now, lastWashDate, vacations, 'hours');
+			const vacationHours = calculateVacationOverlap(now, lastWashDate, vacations.data, 'hours');
 
 			// 3. Subtract vacation time
 			towelDirty = rawDiffHours - vacationHours;
@@ -187,35 +204,23 @@
 	let currentTab = $state('overview');
 
 	onMount(async () => {
-		// if (!pb.authStore.isValid) {
-		// 	goto('/login');
-		// }
-
-		if (pb.authStore.isValid) {
-			vacations = await pb.collection('vacation').getFullList({ sort: '-startDateTime' });
-
-			towelDB = await pb.collection('towel').getFullList({
-				sort: '-time'
-			});
-
-			lineChart = new Chart(lineChartEl, {
-				type: 'line',
-				options: { plugins: { legend: { display: false } } },
-				data: {
-					labels: [...gapsDates],
-					datasets: [
-						{
-							label: '',
-							data: gaps,
-							fill: false,
-							borderColor: 'oklch(56.86% 0.255 257.57)',
-							tension: 0.1,
-							showLine: true
-						}
-					]
-				}
-			});
-		}
+		lineChart = new Chart(lineChartEl, {
+			type: 'line',
+			options: { plugins: { legend: { display: false } } },
+			data: {
+				labels: [...gapsDates],
+				datasets: [
+					{
+						label: '',
+						data: gaps,
+						fill: false,
+						borderColor: 'oklch(56.86% 0.255 257.57)',
+						tension: 0.1,
+						showLine: true
+					}
+				]
+			}
+		});
 	});
 
 	$effect(() => {
@@ -246,8 +251,10 @@
 			spinner = false;
 		}
 
-		towelDB = await pb.collection('towel').getFullList({
-			sort: '-time'
+		await tanstackClient.refetchQueries({
+			queryKey: ['towels'],
+			type: 'active',
+			exact: true
 		});
 	}
 
@@ -433,7 +440,7 @@
 					? 'grid'
 					: 'hidden'} w-full grid-cols-[minmax(0,1fr)] overflow-hidden px-4"
 			>
-				{#key towelDB}
+				{#key towels.data}
 					<Calendar plugins={[DayGrid, Interaction]} options={calendarOptions} />
 				{/key}
 			</div>

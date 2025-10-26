@@ -22,6 +22,10 @@ interface SprayDB {
 	user: string;
 }
 
+interface SprayRecord extends SprayDB {
+	gap: number;
+}
+
 type Characters = 'frankenstein' | 'robot' | 'furnando';
 
 interface UserDB {

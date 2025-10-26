@@ -16,14 +16,21 @@
 	import MaterialSymbolsAdd from '$lib/assets/svg/MaterialSymbolsAdd.svelte';
 	import Chart from 'chart.js/auto';
 	import { defaultSprayInterval } from '$lib/config';
+	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
 
-	let sprayDB: SprayDB[] | undefined = $state([]);
 	let singleDay: SprayDB[] | undefined = $state([]);
 	let singleDayModal = $state() as HTMLDialogElement;
+
+	const sprays = createQuery<SprayDB[]>(() => ({
+		queryKey: ['sprays'],
+		queryFn: async () => await pb.collection('spray').getFullList({ sort: '-time' })
+	}));
+
+	const tanstackClient = useQueryClient();
 
 	async function handleClick() {
 		spinner = true;
@@ -38,15 +45,17 @@
 			spinner = false;
 		}
 
-		sprayDB = await pb.collection('spray').getFullList({
-			sort: '-time'
+		await tanstackClient.refetchQueries({
+			queryKey: ['sprays'],
+			type: 'active',
+			exact: true
 		});
 	}
 
 	let times = $derived.by(() => {
 		let times: Calendar.EventInput[] = [];
-		if (sprayDB && sprayDB.length > 0) {
-			for (const r of sprayDB) {
+		if (sprays.isSuccess) {
+			for (const r of sprays.data) {
 				//Adding the timezone here creates a problem for mobile devices, not sure why => .tz('Asia/Singapore');
 				const n = dayjs.utc(r.time);
 				times.push({ start: n.toDate(), end: n.toDate(), title: `— Sprayed` });
@@ -70,16 +79,20 @@
 				return dayjs(date).format('MMMM YYYY');
 			},
 			dateClick: async (info) => {
-				singleDay = sprayDB?.filter((day) => {
-					return dayjs(day.time).get('date') == dayjs(info.date).get('date');
-				});
-				singleDayModal.showModal();
+				if (sprays.isSuccess) {
+					singleDay = sprays.data.filter((day) => {
+						return dayjs(day.time).get('date') == dayjs(info.date).get('date');
+					});
+					singleDayModal.showModal();
+				}
 			},
 			eventClick: async (info) => {
-				singleDay = sprayDB?.filter((day) => {
-					return dayjs(day.time).get('date') == dayjs(info.event.start).get('date');
-				});
-				singleDayModal.showModal();
+				if (sprays.isSuccess) {
+					singleDay = sprays.data.filter((day) => {
+						return dayjs(day.time).get('date') == dayjs(info.event.start).get('date');
+					});
+					singleDayModal.showModal();
+				}
 			}
 		};
 	});
@@ -102,8 +115,8 @@
 
 	let lastSpray: number | undefined = $derived.by(() => {
 		let lastSpray;
-		if (sprayDB && sprayDB.length > 0) {
-			const lastWashDate = dayjs(sprayDB[0].time);
+		if (sprays.isSuccess) {
+			const lastWashDate = dayjs(sprays.data[0].time);
 			const today = dayjs();
 			lastSpray = today.diff(lastWashDate, 'hours', true);
 			return lastSpray;
@@ -123,17 +136,19 @@
 
 	// For Statuses
 
-	let sprayRecords: TowelRecord[] | undefined = $derived.by(() => {
-		if (!sprayDB) return [];
+	let sprayRecords: SprayRecord[] | undefined = $derived.by(() => {
+		if (sprays.isSuccess) {
+			return sprays.data.map((record, i, allRecords) => {
+				const nextRecord = allRecords[i + 1];
+				const gap = nextRecord ? dayjs(record.time).diff(nextRecord.time, 'day', true) : 0;
+				return { ...record, gap };
+			});
+		}
 
-		return sprayDB.map((record, i, allRecords) => {
-			const nextRecord = allRecords[i + 1];
-			const gap = nextRecord ? dayjs(record.time).diff(nextRecord.time, 'day', true) : 0;
-			return { ...record, gap };
-		});
+		return [];
 	});
 
-	let longestGap: TowelRecord | undefined = $derived.by(() => {
+	let longestGap: SprayRecord | undefined = $derived.by(() => {
 		if (sprayRecords.length <= 1) return;
 		const avoidMutatingOriginalArray = [...sprayRecords];
 		const sorted = avoidMutatingOriginalArray.sort((a, b) => b.gap - a.gap);
@@ -178,10 +193,6 @@
 
 	onMount(async () => {
 		if (pb.authStore.isValid) {
-			sprayDB = await pb.collection('spray').getFullList({
-				sort: '-time'
-			});
-
 			lineChart = new Chart(lineChartEl, {
 				type: 'line',
 				options: { plugins: { legend: { display: false } } },
@@ -212,7 +223,7 @@
 		class="grid w-full max-w-[1200px] content-start justify-items-center gap-4 justify-self-center lg:grid-cols-2 lg:pt-8"
 	>
 		<div class="grid content-start justify-items-center gap-4 px-4 pt-8">
-			{#key sprayDB}
+			{#if sprays.isSuccess}
 				{#if status === 'green'}
 					<enhanced:img src={Green} alt="Clean" class="rounded-3xl" />
 				{:else if status === 'yellow'}
@@ -224,7 +235,7 @@
 				{:else}
 					<div class="skeleton h-[600px] w-[600px] max-lg:h-[342px] max-lg:w-[342px]"></div>
 				{/if}
-			{/key}
+			{/if}
 
 			<button
 				class="btn btn-xl btn-primary flex w-full min-w-54 grow items-center gap-2 rounded-2xl"
@@ -287,7 +298,7 @@
 				>
 					<div class="border-r-base-content/15 grid justify-items-center border-r p-4">
 						<div>Status</div>
-						{#key sprayDB}
+						{#if sprays.isSuccess}
 							{#if status}
 								<div
 									class="flex min-h-20 items-center justify-center gap-4 text-center text-2xl font-bold"
@@ -309,19 +320,22 @@
 							{:else}
 								<div class="flex min-h-20 items-center gap-4 text-2xl font-bold">Nil</div>
 							{/if}
-						{/key}
+						{/if}
 					</div>
 					<div class="grid justify-items-center p-4">
 						<div>Last Sprayed</div>
 						<div class="text-center text-2xl font-bold">
-							{#key sprayDB}
-								{#if sprayDB && sprayDB.length > 0}
-									{@const formatted = dayjs(sprayDB[0].time).fromNow()}
+							{#if sprays.isSuccess}
+								{#if sprays.data.length > 0}
+									{@const formatted = dayjs(sprays.data[0].time).fromNow()}
 									{formatted}
 								{:else}
 									<div class="flex min-h-20 items-center gap-4 text-2xl font-bold">Nil</div>
 								{/if}
-							{/key}
+							{/if}
+							{#if sprays.isPending}
+								<div class="custom-loader"></div>
+							{/if}
 						</div>
 					</div>
 				</div>
@@ -366,7 +380,7 @@
 					? 'grid'
 					: 'hidden'} w-full grid-cols-[minmax(0,1fr)] overflow-hidden px-4"
 			>
-				{#key sprayDB}
+				{#key sprays.data}
 					<Calendar plugins={[DayGrid, Interaction]} options={calendarOptions} />
 				{/key}
 			</div>
