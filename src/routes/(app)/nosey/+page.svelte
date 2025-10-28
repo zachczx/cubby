@@ -30,6 +30,11 @@
 		queryFn: async () => await pb.collection('spray').getFullList({ sort: '-time' })
 	}));
 
+	const userPref = createQuery<UserDB>(() => ({
+		queryKey: ['user', pb.authStore?.record?.id],
+		queryFn: async () => await pb.collection('user').getOne(String(pb.authStore?.record?.id))
+	}));
+
 	const tanstackClient = useQueryClient();
 
 	async function handleClick() {
@@ -100,6 +105,8 @@
 	let spinner = $state(false);
 
 	function getStatusColorFromValue(val: number): string {
+		if (!daysToNext) return '';
+
 		const day = 24;
 
 		if (val > 0 && val <= daysToNext * day) return 'green';
@@ -132,7 +139,13 @@
 
 	let currentTab = $state('overview');
 
-	let daysToNext = $state(defaultSprayInterval);
+	let daysToNext = $derived.by(() => {
+		if (userPref.isPending) {
+			return undefined;
+		}
+
+		return userPref.data?.defaultSprayInterval;
+	});
 
 	// For Statuses
 

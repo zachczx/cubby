@@ -26,6 +26,11 @@
 		queryFn: async () => await pb.collection('spray').getFullList({ sort: '-time' })
 	}));
 
+	const userPref = createQuery<UserDB>(() => ({
+		queryKey: ['user', pb.authStore?.record?.id],
+		queryFn: async () => await pb.collection('user').getOne(String(pb.authStore?.record?.id))
+	}));
+
 	const tanstackClient = useQueryClient();
 
 	let towelLast: string = $derived.by(() => {
@@ -35,7 +40,13 @@
 		return '';
 	});
 
-	let daysToNext = $state(defaultSprayInterval);
+	let daysToNext = $derived.by(() => {
+		if (userPref.isPending) {
+			return undefined;
+		}
+
+		return userPref.data?.defaultSprayInterval;
+	});
 
 	let sprayLast: string = $derived.by(() => {
 		if (sprays.isSuccess) return dayjs(sprays.data[0].time).fromNow();
