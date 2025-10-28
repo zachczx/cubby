@@ -31,14 +31,12 @@
 		spinner = true;
 
 		try {
-			const result = await pb.collection('users').update(user?.id, {
+			await pb.collection('users').update(user?.id, {
 				defaultSprayInterval: sprayInterval,
 				mute: mute === undefined ? false : !mute
 			});
-			if (result.status === 200) {
-				addToast('success', 'Updated!');
-				spinner = false;
-			}
+			addToast('success', 'Updated!');
+			spinner = false;
 		} catch (err) {
 			console.log(err);
 		}
