@@ -7,31 +7,47 @@
 	import timezone from 'dayjs/plugin/timezone';
 
 	import { onMount } from 'svelte';
+	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
 
-	let user: UserDB | undefined = $state();
-	let vacations: VacationDB[] | undefined = $state([]);
+	const user = createQuery<UserDB>(() => ({
+		queryKey: ['user', pb.authStore?.record?.id],
+		queryFn: async () => await pb.collection('users').getOne(String(pb.authStore?.record?.id))
+	}));
 
-	onMount(async () => {
-		if (pb.authStore.isValid && pb.authStore.record) {
-			user = await pb.collection('users').getOne(pb.authStore.record.id);
-			vacations = await pb.collection('vacation').getFullList({ sort: '-startDateTime' });
+	const vacations = createQuery<VacationDB[]>(() => ({
+		queryKey: ['vacations', pb.authStore?.record?.id],
+		queryFn: async () => await pb.collection('vacation').getFullList({ sort: '-startDateTime' })
+	}));
+
+	const tanstackClient = useQueryClient();
+
+	let sprayInterval = $derived.by(() => {
+		if (user.isPending) {
+			return undefined;
 		}
+
+		return user.data?.defaultSprayInterval;
 	});
 
-	let sprayInterval = $derived(user?.defaultSprayInterval);
-	let mute = $derived(!user?.mute);
+	let mute = $derived.by(() => {
+		if (!user.isSuccess) {
+			return undefined;
+		}
+
+		return !user.data?.mute;
+	});
 
 	let spinner = $state(false);
 
 	async function submitHandler() {
-		if (!user || !user.id) return;
+		if (!user.isSuccess) return;
 		spinner = true;
 
 		try {
-			await pb.collection('users').update(user?.id, {
+			await pb.collection('users').update(user.data.id, {
 				defaultSprayInterval: sprayInterval,
 				mute: mute === undefined ? false : !mute
 			});
@@ -43,7 +59,7 @@
 	}
 
 	async function addVacationDateHandler() {
-		if (!user || !user.id) return;
+		if (!user.isSuccess) return;
 		spinner = true;
 
 		try {
@@ -58,7 +74,12 @@
 			if (result.id) {
 				addToast('success', 'Added successfully!');
 				spinner = false;
-				vacations = await pb.collection('vacation').getFullList({ sort: '-startDateTime' });
+
+				await tanstackClient.refetchQueries({
+					queryKey: ['vacation'],
+					type: 'active',
+					exact: true
+				});
 			}
 		} catch (err) {
 			console.log(err);
@@ -164,12 +185,14 @@
 							</button>
 						</div>
 						<ul class="list-disc">
-							{#each vacations as v}
-								{@const dateTime = formatTime(v.startDateTime, v.endDateTime)}
-								<li class="ms-6 py-0.5">
-									{dateTime}
-								</li>
-							{/each}
+							{#if vacations.isSuccess}
+								{#each vacations.data as v}
+									{@const dateTime = formatTime(v.startDateTime, v.endDateTime)}
+									<li class="ms-6 py-0.5">
+										{dateTime}
+									</li>
+								{/each}
+							{/if}
 						</ul>
 					</div>
 
@@ -214,12 +237,14 @@
 		</form>
 		<h3 class="mb-4 text-lg font-bold uppercase">Recent Vacations</h3>
 		<ul class="list-disc">
-			{#each vacations as v}
-				{@const dateTime = formatTime(v.startDateTime, v.endDateTime)}
-				<li class="ms-6 py-0.5">
-					{dateTime}
-				</li>
-			{/each}
+			{#if vacations.isSuccess}
+				{#each vacations.data as v}
+					{@const dateTime = formatTime(v.startDateTime, v.endDateTime)}
+					<li class="ms-6 py-0.5">
+						{dateTime}
+					</li>
+				{/each}
+			{/if}
 		</ul>
 	</div>
 </dialog>
