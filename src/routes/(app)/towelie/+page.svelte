@@ -17,6 +17,7 @@
 	import MaterialSymbolsCheck from '$lib/assets/svg/MaterialSymbolsCheck.svelte';
 	import { calculateVacationOverlap } from '$lib/overlap';
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
+	import { dirtyTowelDays } from '$lib/config';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
@@ -161,7 +162,7 @@
 
 		if (val > 4 * day && val <= 6 * day) return 'orange';
 
-		if (val > 6 * day && val <= 999 * day) return 'red';
+		if (val > dirtyTowelDays * day && val <= 999 * day) return 'red';
 
 		return '';
 	}
@@ -256,40 +257,6 @@
 			type: 'active',
 			exact: true
 		});
-	}
-
-	function stripNegative(input: number | undefined): string {
-		if (!input) return '';
-
-		if (input < 0) {
-			input = input * -1;
-		}
-
-		let clean = '';
-
-		if (input === 0) {
-			clean = input.toFixed(0).toString() + ' day';
-		} else if (input <= 1) {
-			clean = input.toFixed(1).toString() + ' day';
-		} else {
-			clean = input.toFixed(1).toString() + ' days';
-		}
-
-		return clean;
-	}
-
-	function getColorClass(gapDays: number | undefined): string {
-		if (!gapDays) return '';
-
-		if (gapDays > 0 && gapDays <= 2) return 'lime-500';
-
-		if (gapDays > 2 && gapDays <= 4) return 'yellow-500';
-
-		if (gapDays > 4 && gapDays <= 6) return 'orange-400';
-
-		if (gapDays > 6 && gapDays <= 999) return 'red-700';
-
-		return '';
 	}
 </script>
 

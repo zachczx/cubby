@@ -7,7 +7,7 @@
 	import timezone from 'dayjs/plugin/timezone';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
-	import { defaultSprayInterval } from '$lib/config';
+	import { defaultSprayInterval, dirtyTowelDays } from '$lib/config';
 	import MaterialSymbolsAdd from '$lib/assets/svg/MaterialSymbolsAdd.svelte';
 	import MaterialSymbolsChevronRight from '$lib/assets/svg/MaterialSymbolsChevronRight.svelte';
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
@@ -79,16 +79,64 @@
 			exact: true
 		});
 	}
+
+	let sprayNotification = $derived.by(() => {
+		if (!sprays?.isSuccess) return false;
+
+		const lastSpray = sprays.data?.[0] ?? null;
+
+		if (!lastSpray) {
+			return false;
+		}
+
+		const now = dayjs();
+		const leadTimeHours = 12;
+		const intervalHours = lastSpray.daysToNext * 24;
+
+		const hoursSinceLastSpray = now.diff(dayjs(lastSpray.time), 'hour', true);
+		if (hoursSinceLastSpray >= intervalHours - leadTimeHours) {
+			return true;
+		}
+
+		return false;
+	});
+
+	let towelNotification = $derived.by(() => {
+		if (!towels?.isSuccess) return false;
+
+		const lastWash = towels.data?.[0] ?? null;
+
+		if (!lastWash) {
+			return false;
+		}
+
+		const now = dayjs();
+		const leadTimeHours = 12;
+		const intervalHours = dirtyTowelDays * 24;
+
+		const hoursSinceLastWash = now.diff(dayjs(lastWash.time), 'hour', true);
+
+		if (hoursSinceLastWash >= intervalHours - leadTimeHours) {
+			return true;
+		}
+
+		return false;
+	});
 </script>
 
 <svelte:head>
 	<title>Towsey</title>
 </svelte:head>
-<PageWrapper title="Towsey" {pb}>
+<PageWrapper title="Towsey" {pb} {towelNotification} {sprayNotification}>
 	<main class="h-full">
 		<div id="mobile" class="grid w-full max-w-lg gap-8 justify-self-center lg:text-base">
 			<div class="grid gap-4 py-4">
-				<section class="bg-primary/10 border-base-300 grid min-h-24 gap-4 rounded-3xl border p-4">
+				<section
+					class={[
+						'border-base-300 grid min-h-24 gap-4 rounded-3xl border p-4',
+						towelNotification ? 'bg-error/30 outline-error/70 outline' : 'bg-primary/10'
+					]}
+				>
 					<a href="/towelie" class="flex items-center">
 						<div class="flex grow items-center gap-8">
 							<svg
@@ -116,6 +164,9 @@
 							>
 							<!-- <h3 class="text-sm lg:text-base">Towel Washed</h3> -->
 							<div class="text-lg">
+								{#if towelNotification}
+									<span class="btn btn-error btn-xs mb-2 rounded-full">Overdue</span>
+								{/if}
 								<p class="font-semibold uppercase">Wash</p>
 								{#if towels.isPending}
 									<div class="custom-loader"></div>
@@ -140,7 +191,12 @@
 					>
 				</section>
 
-				<section class="bg-primary/10 border-base-300 grid min-h-24 gap-4 rounded-3xl border p-4">
+				<section
+					class={[
+						'border-base-300 grid min-h-24 gap-4 rounded-3xl border p-4',
+						sprayNotification ? 'bg-error/30 outline-error/70 outline' : 'bg-primary/10'
+					]}
+				>
 					<a href="/nosey" class="flex items-center">
 						<div class="flex grow items-center gap-8">
 							<svg
@@ -183,6 +239,9 @@
 							>
 							<!-- <h3 class="text-sm lg:text-base">Nose Sprayed</h3> -->
 							<div class="text-lg">
+								{#if sprayNotification}
+									<span class="btn btn-error btn-xs mb-2 rounded-full">Overdue</span>
+								{/if}
 								<p class="font-semibold uppercase">Spray</p>
 								{#if sprays.isPending}
 									<div class="custom-loader"></div>

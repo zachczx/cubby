@@ -20,6 +20,7 @@ interface SprayDB {
 	created: string;
 	updated: string;
 	user: string;
+	daysToNext: number;
 }
 
 interface SprayRecord extends SprayDB {

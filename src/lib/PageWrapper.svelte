@@ -8,19 +8,33 @@
 	import MaterialSymbolsLogin from './assets/svg/MaterialSymbolsLogin.svelte';
 	import MaterialSymbolsLogout from './assets/svg/MaterialSymbolsLogout.svelte';
 	import MaterialSymbolsSettings from './assets/svg/MaterialSymbolsSettings.svelte';
+	import dayjs from 'dayjs';
+	import type { CreateQueryResult } from '@tanstack/svelte-query';
+	import MaterialSymbolsNotifications from './assets/svg/MaterialSymbolsNotifications.svelte';
+	import { dirtyTowelDays } from './config';
+	import MaterialSymbolsExclamation from './assets/svg/MaterialSymbolsExclamation.svelte';
+	import MaterialSymbolsWarning from './assets/svg/MaterialSymbolsWarning.svelte';
+	import MaterialSymbolsChevronRight from './assets/svg/MaterialSymbolsChevronRight.svelte';
+	import MaterialSymbolsCheckCircle from './assets/svg/MaterialSymbolsCheckCircle.svelte';
+	import MaterialSymbolsCheck from './assets/svg/MaterialSymbolsCheck.svelte';
+	import MaterialSymbolsNotificationImportant from './assets/svg/MaterialSymbolsNotificationImportant.svelte';
 
 	let {
 		pb,
 		children,
 		title,
 		back,
-		noPadding = false
+		noPadding = false,
+		towelNotification,
+		sprayNotification
 	}: {
 		pb: Client;
 		children: Snippet;
 		title: string;
 		back?: boolean;
 		noPadding?: boolean;
+		towelNotification?: boolean;
+		sprayNotification?: boolean;
 	} = $props();
 
 	let drawerToggle = $state() as HTMLInputElement;
@@ -116,11 +130,58 @@
 			</ul>
 		</div>
 		<div class="navbar-end">
-			<div id="mobile-hamburger" class="dropdown lg:hidden">
+			<div id="mobile-hamburger" class="dropdown flex items-center gap-4 lg:hidden">
+				<div class="dropdown dropdown-end">
+					<div tabindex="0" role="button" class="btn btn-ghost drawer-button px-2 py-0">
+						{#if !sprayNotification && !towelNotification}
+							<MaterialSymbolsNotifications class="size-6" />
+						{:else}
+							<MaterialSymbolsNotificationImportant class="size-6" />
+						{/if}
+					</div>
+					<ul
+						class="dropdown-content menu rounded-box bg-base-100 text-md text-base-content z-1 w-72 p-2 shadow-lg"
+					>
+						{#if !sprayNotification && !towelNotification}
+							<li>
+								<div class="flex items-center justify-center gap-2">
+									<MaterialSymbolsCheckCircle class="size-[1.3em]" /><span>All good!</span>
+								</div>
+							</li>
+						{/if}
+
+						{#if sprayNotification}
+							<li>
+								<a href="/nosey" class="flex items-center">
+									<div class="flex grow items-center gap-2">
+										<MaterialSymbolsWarning class="size-[1.3em]" />Spray your nose!
+									</div>
+									<div>
+										<MaterialSymbolsChevronRight class="size-5 opacity-50" />
+									</div>
+								</a>
+							</li>
+						{/if}
+
+						{#if towelNotification}
+							<li>
+								<a href="/towelie" class="flex items-center">
+									<div class="flex grow items-center gap-2">
+										<MaterialSymbolsWarning class="size-[1.3em]" />Wash your towel!
+									</div>
+									<div>
+										<MaterialSymbolsChevronRight class="size-5 opacity-50" />
+									</div>
+								</a>
+							</li>
+						{/if}
+					</ul>
+				</div>
+
 				<div class="drawer drawer-end">
 					<input id="side-drawer" type="checkbox" class="drawer-toggle" bind:this={drawerToggle} />
 					<div class="drawer-content">
-						<label for="side-drawer" class="btn btn-ghost drawer-button p-0">
+						<label for="side-drawer" class="btn btn-ghost drawer-button px-2 py-0">
 							<svg
 								xmlns="http://www.w3.org/2000/svg"
 								width="32"

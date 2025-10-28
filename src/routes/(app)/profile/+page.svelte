@@ -1,7 +1,4 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-	import MaterialSymbolsVisibilityOffOutline from '$lib/assets/svg/MaterialSymbolsVisibilityOffOutline.svelte';
-	import MaterialSymbolsVisibilityOutline from '$lib/assets/svg/MaterialSymbolsVisibilityOutline.svelte';
 	import PageWrapper from '$lib/PageWrapper.svelte';
 	import { pb } from '$lib/pb';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
@@ -10,17 +7,12 @@
 	import timezone from 'dayjs/plugin/timezone';
 
 	import { onMount } from 'svelte';
-	import MaterialSymbolsOpenInNew from '$lib/assets/svg/MaterialSymbolsOpenInNew.svelte';
 
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
 
 	let user: UserDB | undefined = $state();
 	let vacations: VacationDB[] | undefined = $state([]);
-
-	if (!pb.authStore.isValid) {
-		goto('/login');
-	}
 
 	onMount(async () => {
 		if (pb.authStore.isValid && pb.authStore.record) {
