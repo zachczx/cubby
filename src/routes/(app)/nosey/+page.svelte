@@ -110,9 +110,9 @@
 
 		if (val > 0 && val <= daysToNext * day) return 'green';
 
-		// if (val > 2 * day && val <= 4 * day) return 'yellow';
+		if (val > 2 * day && val <= 4 * day) return 'yellow';
 
-		// if (val > 4 * day && val <= 6 * day) return 'orange';
+		if (val > 4 * day && val <= 6 * day) return 'orange';
 
 		if (val > daysToNext * day && val <= 999 * day) return 'red';
 
