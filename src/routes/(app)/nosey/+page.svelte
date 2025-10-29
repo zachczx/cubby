@@ -235,7 +235,7 @@
 	<title>Nosey</title>
 </svelte:head>
 
-<PageWrapper title="Spray Logs" back={true} {pb} noPadding={true}>
+<PageWrapper title="Nosey" back={true} {pb} noPadding={true}>
 	<main
 		class="grid w-full max-w-xl content-start justify-items-center gap-4 justify-self-center lg:pt-8"
 	>

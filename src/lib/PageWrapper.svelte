@@ -88,7 +88,7 @@
 					>
 				</button>
 			{/if}
-			<a href="/" class="text-xl font-bold">Towsey</a>
+			<span class="text-xl font-bold">{title}</span>
 		</div>
 		<div id="desktop-menu" class="navbar-center hidden lg:flex">
 			<ul class="menu menu-horizontal gap-8 px-1 text-lg">
