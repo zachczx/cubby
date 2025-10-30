@@ -29,12 +29,6 @@ importers:
       '@fontsource-variable/quicksand':
         specifier: ^5.2.10
         version: 5.2.10
-      '@fontsource-variable/space-grotesk':
-        specifier: ^5.2.10
-        version: 5.2.10
-      '@fontsource/chewy':
-        specifier: ^5.2.7
-        version: 5.2.7
       '@sveltejs/adapter-static':
         specifier: ^3.0.10
         version: 3.0.10(@sveltejs/kit@2.48.3(@sveltejs/vite-plugin-svelte@6.2.1(svelte@5.43.1)(vite@7.1.12(@types/node@24.9.2)(jiti@2.6.1)(lightningcss@1.30.2)))(svelte@5.43.1)(vite@7.1.12(@types/node@24.9.2)(jiti@2.6.1)(lightningcss@1.30.2)))
@@ -387,12 +381,6 @@ packages:
 
   '@fontsource-variable/quicksand@5.2.10':
     resolution: {integrity: sha512-1uzkzGDwWgtFnxquAXuD7fZV9wHkALb49UPzRXxGTVeeLsNrGnIU0O/pcz6m1U7RDtpHz2qx77JhCpKaq7FrUg==}
-
-  '@fontsource-variable/space-grotesk@5.2.10':
-    resolution: {integrity: sha512-yJQO/o35/hAP3CFnpdFTwQku2yzJOae2HIpBmqkOVoxhhXJaQP3g+b6Jrz7u+eI7A5ZdCIf88uMWpBJdFiGr5w==}
-
-  '@fontsource/chewy@5.2.7':
-    resolution: {integrity: sha512-Hn6YV2EAeubrcWkJWID0V5Ed+yLXdiBmFH2B99LpUaiA67LugM9fyozIOwQB1tIf8KxUiBm1+kJwg6Fcbo7I9w==}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -2611,10 +2599,6 @@ snapshots:
   '@floating-ui/utils@0.2.10': {}
 
   '@fontsource-variable/quicksand@5.2.10': {}
-
-  '@fontsource-variable/space-grotesk@5.2.10': {}
-
-  '@fontsource/chewy@5.2.7': {}
 
   '@humanfs/core@0.19.1': {}
 

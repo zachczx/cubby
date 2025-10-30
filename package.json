@@ -52,8 +52,6 @@
 		"@capacitor/app": "^7.1.0",
 		"@capacitor/core": "^7.4.4",
 		"@fontsource-variable/quicksand": "^5.2.10",
-		"@fontsource-variable/space-grotesk": "^5.2.10",
-		"@fontsource/chewy": "^5.2.7",
 		"@sveltejs/adapter-static": "^3.0.10",
 		"@tanstack/svelte-query": "^6.0.3",
 		"@tanstack/svelte-query-devtools": "^6.0.0",
