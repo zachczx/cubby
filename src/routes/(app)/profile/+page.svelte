@@ -108,6 +108,7 @@
 		class="lg:bg-base-200 grid w-full rounded-2xl max-lg:h-full max-lg:grid-rows-[1fr_auto] lg:h-min lg:max-w-lg lg:justify-self-center lg:p-8 lg:shadow-md"
 	>
 		<div class="overflow-y-auto">
+			<h1 class="text-primary mb-4 text-center text-4xl font-bold max-lg:hidden">Profile</h1>
 			<ul class="grid w-full grid-cols-2 content-center justify-items-center pt-4">
 				<li class="w-full">
 					<button

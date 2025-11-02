@@ -101,7 +101,7 @@
 				</button>
 			{/if}
 
-			<a class="hidden text-xl font-bold lg:flex" href="/">{title}</a>
+			<a class="hidden text-xl font-bold lg:flex" href="/">Nosey</a>
 			<span class="text-xl font-bold lg:hidden">{title}</span>
 		</div>
 		<div id="desktop-menu" class="navbar-center hidden lg:flex">
