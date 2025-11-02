@@ -20,6 +20,7 @@
 	import StreamlineKameleonColorMedicine from '$lib/assets/towsey-icons/StreamlineKameleonColorMedicine.svelte';
 	import StreamlineKameleonColorTowel from '$lib/assets/towsey-icons/StreamlineKameleonColorTowel.svelte';
 	import MaterialSymbolsCheck from '$lib/assets/svg/MaterialSymbolsCheck.svelte';
+	import { availableSprayNotification, availableTowelNotification } from '$lib/notification';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
@@ -95,48 +96,9 @@
 		await tanstackClient.refetchQueries(createSprayRefetchOptions());
 	}
 
-	let sprayNotification = $derived.by(() => {
-		if (!sprays?.isSuccess || sprays.data.length === 0) return false;
+	let sprayNotification = $derived.by(() => availableSprayNotification(sprays));
 
-		const lastSpray = sprays.data?.[0] ?? null;
-
-		if (!lastSpray) {
-			return false;
-		}
-
-		const now = dayjs();
-		const leadTimeHours = 12;
-		const intervalHours = lastSpray.daysToNext * 24;
-
-		const hoursSinceLastSpray = now.diff(dayjs(lastSpray.time), 'hour', true);
-		if (hoursSinceLastSpray >= intervalHours - leadTimeHours) {
-			return true;
-		}
-
-		return false;
-	});
-
-	let towelNotification = $derived.by(() => {
-		if (!towels?.isSuccess || towels.data.length === 0) return false;
-
-		const lastWash = towels.data?.[0] ?? null;
-
-		if (!lastWash) {
-			return false;
-		}
-
-		const now = dayjs();
-		const leadTimeHours = 12;
-		const intervalHours = dirtyTowelDays * 24;
-
-		const hoursSinceLastWash = now.diff(dayjs(lastWash.time), 'hour', true);
-
-		if (hoursSinceLastWash >= intervalHours - leadTimeHours) {
-			return true;
-		}
-
-		return false;
-	});
+	let towelNotification = $derived.by(() => availableTowelNotification(towels));
 </script>
 
 <svelte:head>

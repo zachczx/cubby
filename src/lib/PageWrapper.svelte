@@ -17,6 +17,7 @@
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import dayjs from 'dayjs';
 	import { dirtyTowelDays } from './config';
+	import { availableSprayNotification, availableTowelNotification } from './notification';
 
 	let {
 		pb,
@@ -54,48 +55,9 @@
 	const towels = createQuery(createTowelQueryOptions);
 	const sprays = createQuery(createSprayQueryOptions);
 
-	let sprayNotification = $derived.by(() => {
-		if (!sprays?.isSuccess || sprays.data.length === 0) return false;
+	let sprayNotification = $derived.by(() => availableSprayNotification(sprays));
 
-		const lastSpray = sprays.data?.[0] ?? null;
-
-		if (!lastSpray) {
-			return false;
-		}
-
-		const now = dayjs();
-		const leadTimeHours = 12;
-		const intervalHours = lastSpray.daysToNext * 24;
-
-		const hoursSinceLastSpray = now.diff(dayjs(lastSpray.time), 'hour', true);
-		if (hoursSinceLastSpray >= intervalHours - leadTimeHours) {
-			return true;
-		}
-
-		return false;
-	});
-
-	let towelNotification = $derived.by(() => {
-		if (!towels?.isSuccess || towels.data.length === 0) return false;
-
-		const lastWash = towels.data?.[0] ?? null;
-
-		if (!lastWash) {
-			return false;
-		}
-
-		const now = dayjs();
-		const leadTimeHours = 12;
-		const intervalHours = dirtyTowelDays * 24;
-
-		const hoursSinceLastWash = now.diff(dayjs(lastWash.time), 'hour', true);
-
-		if (hoursSinceLastWash >= intervalHours - leadTimeHours) {
-			return true;
-		}
-
-		return false;
-	});
+	let towelNotification = $derived.by(() => availableTowelNotification(towels));
 </script>
 
 <svelte:head>
@@ -138,7 +100,9 @@
 					>
 				</button>
 			{/if}
-			<span class="text-xl font-bold">{title}</span>
+
+			<a class="hidden text-xl font-bold lg:flex" href="/">{title}</a>
+			<span class="text-xl font-bold lg:hidden">{title}</span>
 		</div>
 		<div id="desktop-menu" class="navbar-center hidden lg:flex">
 			<ul class="menu menu-horizontal gap-8 px-1 text-lg">
