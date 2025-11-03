@@ -23,6 +23,7 @@
 		createTowelRefetchOptions,
 		createVacationQueryOptions
 	} from '$lib/queries';
+	import { getCalendarEntries } from '$lib/calendar';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
@@ -104,17 +105,9 @@
 		return gapsDates;
 	});
 
-	let times = $derived.by(() => {
-		let times: Calendar.EventInput[] = [];
-		if (towels.isSuccess) {
-			for (const r of towels.data) {
-				//Adding the timezone here creates a problem for mobile devices, not sure why => .tz('Asia/Singapore');
-				const n = dayjs.utc(r.time);
-				times.push({ start: n.toDate(), end: n.toDate(), title: `— Washed` });
-			}
-		}
-		return times;
-	});
+	let towelTimes = $derived.by(() => getCalendarEntries(towels, 'Washed'));
+
+	let vacationTimes = $derived.by(() => getCalendarEntries(vacations, 'Vacation', '✈️'));
 
 	let singleDay: TowelDB[] | undefined = $state([]);
 	let singleDayModal = $state() as HTMLDialogElement;
@@ -122,9 +115,9 @@
 	let calendarOptions: Calendar.Options = $derived.by(() => {
 		return {
 			view: 'dayGridMonth',
-			events: [...times],
+			events: [...towelTimes, ...vacationTimes],
 			selectBackgroundColor: 'red',
-			eventBackgroundColor: '#4a4a7d',
+			eventBackgroundColor: '#0054cc',
 			firstDay: 1,
 			titleFormat: (date) => {
 				const month = dayjs(date).get('month');

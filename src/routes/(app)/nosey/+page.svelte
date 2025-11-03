@@ -18,8 +18,10 @@
 	import {
 		createSprayQueryOptions,
 		createSprayRefetchOptions,
-		createUserQueryOptions
+		createUserQueryOptions,
+		createVacationQueryOptions
 	} from '$lib/queries';
+	import { getCalendarEntries } from '$lib/calendar';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
@@ -32,6 +34,7 @@
 
 	const sprays = createQuery(createSprayQueryOptions);
 	const user = createQuery(createUserQueryOptions);
+	const vacations = createQuery(createVacationQueryOptions);
 	const tanstackClient = useQueryClient();
 
 	async function addSprayHandler() {
@@ -56,22 +59,13 @@
 		await tanstackClient.refetchQueries(createSprayRefetchOptions());
 	}
 
-	let times = $derived.by(() => {
-		let times: Calendar.EventInput[] = [];
-		if (sprays.isSuccess) {
-			for (const r of sprays.data) {
-				//Adding the timezone here creates a problem for mobile devices, not sure why => .tz('Asia/Singapore');
-				const n = dayjs.utc(r.time);
-				times.push({ start: n.toDate(), end: n.toDate(), title: `— Sprayed` });
-			}
-		}
-		return times;
-	});
+	let times = $derived.by(() => getCalendarEntries(sprays, 'Sprayed'));
+	let vacationTimes = $derived.by(() => getCalendarEntries(vacations, 'Vacation', '✈️'));
 
 	let calendarOptions: Calendar.Options = $derived.by(() => {
 		return {
 			view: 'dayGridMonth',
-			events: [...times],
+			events: [...times, ...vacationTimes],
 			selectBackgroundColor: 'red',
 			eventBackgroundColor: '#4a4a7d',
 			firstDay: 1,
@@ -100,8 +94,6 @@
 			}
 		};
 	});
-
-	let spinner = $state(false);
 
 	function getStatusColorFromValue(val: number): string {
 		if (!daysToNext) return '';
