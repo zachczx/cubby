@@ -337,7 +337,7 @@
 			{#if !sprayNotification.show && !towelNotification.show}
 				<MaterialSymbolsNotifications class="size-6" />
 			{:else}
-				{@const count = towelNotification && towelNotification ? 2 : 1}
+				{@const count = sprayNotification.show && towelNotification.show ? 2 : 1}
 				<MaterialSymbolsNotificationImportant class="size-6" />
 				<span class="absolute top-1 right-1 z-2 size-4 rounded-full bg-red-600 text-xs"
 					>{count}</span
