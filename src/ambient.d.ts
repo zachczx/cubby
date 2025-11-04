@@ -54,3 +54,8 @@ interface VacationDB {
 	startDateTime: string;
 	endDateTime: string;
 }
+
+interface NotificationStatus {
+	show: boolean;
+	level: 'ok' | 'due' | 'overdue';
+}

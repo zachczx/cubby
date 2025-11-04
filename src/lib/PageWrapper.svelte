@@ -17,7 +17,7 @@
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import dayjs from 'dayjs';
 	import { dirtyTowelDays } from './config';
-	import { availableSprayNotification, availableTowelNotification } from './notification';
+	import { getNotificationStatus } from './notification';
 
 	let {
 		pb,
@@ -55,9 +55,9 @@
 	const towels = createQuery(createTowelQueryOptions);
 	const sprays = createQuery(createSprayQueryOptions);
 
-	let sprayNotification = $derived.by(() => availableSprayNotification(sprays));
+	let sprayNotification = $derived.by(() => getNotificationStatus(sprays));
 
-	let towelNotification = $derived.by(() => availableTowelNotification(towels));
+	let towelNotification = $derived.by(() => getNotificationStatus(towels));
 </script>
 
 <svelte:head>
@@ -329,12 +329,12 @@
 </div>
 
 {#snippet notification(
-	sprayNotification: boolean | undefined,
-	towelNotification: boolean | undefined
+	sprayNotification: NotificationStatus,
+	towelNotification: NotificationStatus
 )}
 	<div class="dropdown dropdown-end">
 		<div tabindex="0" role="button" class="btn btn-ghost drawer-button px-2 py-0">
-			{#if !sprayNotification && !towelNotification}
+			{#if !sprayNotification.show && !towelNotification.show}
 				<MaterialSymbolsNotifications class="size-6" />
 			{:else}
 				{@const count = towelNotification && towelNotification ? 2 : 1}
@@ -347,7 +347,7 @@
 		<ul
 			class="dropdown-content menu rounded-box bg-base-100 text-md text-base-content z-1 w-72 p-2 shadow-lg"
 		>
-			{#if !sprayNotification && !towelNotification}
+			{#if !sprayNotification.show && !towelNotification.show}
 				<li>
 					<div class="flex items-center justify-center gap-2">
 						<MaterialSymbolsCheckCircle class="size-[1.3em]" /><span>No pending items</span>
@@ -355,7 +355,7 @@
 				</li>
 			{/if}
 
-			{#if sprayNotification}
+			{#if sprayNotification.show}
 				<li>
 					<a href="/nosey" class="flex items-center">
 						<div class="flex grow items-center gap-2">
@@ -368,7 +368,7 @@
 				</li>
 			{/if}
 
-			{#if towelNotification}
+			{#if towelNotification.show}
 				<li>
 					<a href="/towelie" class="flex items-center">
 						<div class="flex grow items-center gap-2">

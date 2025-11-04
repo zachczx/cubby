@@ -20,7 +20,7 @@
 	import StreamlineKameleonColorMedicine from '$lib/assets/towsey-icons/StreamlineKameleonColorMedicine.svelte';
 	import StreamlineKameleonColorTowel from '$lib/assets/towsey-icons/StreamlineKameleonColorTowel.svelte';
 	import MaterialSymbolsCheck from '$lib/assets/svg/MaterialSymbolsCheck.svelte';
-	import { availableSprayNotification, availableTowelNotification } from '$lib/notification';
+	import { getNotificationStatus } from '$lib/notification';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
@@ -96,9 +96,9 @@
 		await tanstackClient.refetchQueries(createSprayRefetchOptions());
 	}
 
-	let sprayNotification = $derived.by(() => availableSprayNotification(sprays));
+	let sprayNotification = $derived.by(() => getNotificationStatus(sprays));
 
-	let towelNotification = $derived.by(() => availableTowelNotification(towels));
+	let towelNotification = $derived.by(() => getNotificationStatus(towels));
 </script>
 
 <svelte:head>
@@ -112,7 +112,7 @@
 				<section
 					class={[
 						'border-base-300 grid min-h-24 gap-4 rounded-3xl border p-4',
-						towelNotification ? 'bg-error/30 outline-error/70 outline' : 'bg-primary/10'
+						towelNotification.show ? 'bg-error/30 outline-error/70 outline' : 'bg-primary/10'
 					]}
 				>
 					<a href="/towelie" class="flex items-center">
@@ -120,8 +120,14 @@
 							<StreamlineKameleonColorTowel class="size-24" />
 							<!-- <h3 class="text-sm lg:text-base">Towel Washed</h3> -->
 							<div class="text-lg">
-								{#if towelNotification}
-									<span class="btn btn-error btn-xs mb-2 rounded-full">Overdue</span>
+								{#if towelNotification.show}
+									<span class="btn btn-error btn-xs mb-2 rounded-full">
+										{#if towelNotification.level === 'overdue'}
+											Overdue
+										{:else if towelNotification.level === 'due'}
+											Due
+										{/if}
+									</span>
 								{/if}
 								<p class="font-semibold uppercase">Wash Towel</p>
 								{#if towels.isPending && !towels.data}
@@ -163,7 +169,7 @@
 				<section
 					class={[
 						'border-base-300 grid min-h-24 gap-4 rounded-3xl border p-4',
-						sprayNotification ? 'bg-error/30 outline-error/70 outline' : 'bg-primary/10'
+						sprayNotification.show ? 'bg-error/30 outline-error/70 outline' : 'bg-primary/10'
 					]}
 				>
 					<a href="/nosey" class="flex items-center">
@@ -171,8 +177,14 @@
 							<StreamlineKameleonColorMedicine class="size-24" />
 							<!-- <h3 class="text-sm lg:text-base">Nose Sprayed</h3> -->
 							<div class="text-lg">
-								{#if sprayNotification}
-									<span class="btn btn-error btn-xs mb-2 rounded-full">Overdue</span>
+								{#if sprayNotification.show}
+									<span class="btn btn-error btn-xs mb-2 rounded-full">
+										{#if sprayNotification.level === 'overdue'}
+											Overdue
+										{:else if sprayNotification.level === 'due'}
+											Due
+										{/if}
+									</span>
 								{/if}
 								<p class="font-semibold uppercase">Spray Nose</p>
 								{#if sprays.isPending && !sprays.data}
