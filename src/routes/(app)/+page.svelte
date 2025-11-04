@@ -117,9 +117,9 @@
 				>
 					<a href="/towelie" class="flex items-center">
 						<div class="flex grow items-center gap-8">
-							<StreamlineKameleonColorTowel class="size-24" />
+							<StreamlineKameleonColorTowel class="size-16" />
 							<!-- <h3 class="text-sm lg:text-base">Towel Washed</h3> -->
-							<div class="text-lg">
+							<div>
 								{#if towelNotification.show}
 									<span class="btn btn-error btn-xs mb-2 rounded-full">
 										{#if towelNotification.level === 'overdue'}
@@ -129,7 +129,7 @@
 										{/if}
 									</span>
 								{/if}
-								<p class="font-semibold uppercase">Wash Towel</p>
+								<p class="text-xl font-bold">Wash Towel</p>
 								{#if towels.isPending && !towels.data}
 									<div class="custom-loader"></div>
 								{/if}
@@ -174,9 +174,9 @@
 				>
 					<a href="/nosey" class="flex items-center">
 						<div class="flex grow items-center gap-8">
-							<StreamlineKameleonColorMedicine class="size-24" />
+							<StreamlineKameleonColorMedicine class="size-16" />
 							<!-- <h3 class="text-sm lg:text-base">Nose Sprayed</h3> -->
-							<div class="text-lg">
+							<div>
 								{#if sprayNotification.show}
 									<span class="btn btn-error btn-xs mb-2 rounded-full">
 										{#if sprayNotification.level === 'overdue'}
@@ -186,7 +186,7 @@
 										{/if}
 									</span>
 								{/if}
-								<p class="font-semibold uppercase">Spray Nose</p>
+								<p class="text-xl font-bold">Spray Nose</p>
 								{#if sprays.isPending && !sprays.data}
 									<div class="custom-loader"></div>
 								{/if}
@@ -230,9 +230,12 @@
 				>
 					<div class="flex items-center">
 						<div class="flex grow items-center gap-8">
-							<ReshotTimerOff class="size-24" />
+							<ReshotTimerOff class="size-16" />
 
-							<div class="text-lg font-semibold uppercase">Count</div>
+							<div>
+								<p class="text-xl font-bold">Stopwatch</p>
+								Tap to start timer.
+							</div>
 						</div>
 						<div class="flex h-full items-center">
 							<button class="active:bg-neutral/10 cursor-pointer rounded-lg p-1 opacity-75"
