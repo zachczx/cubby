@@ -17,13 +17,13 @@
 	import MaterialSymbolsCheck from '$lib/assets/svg/MaterialSymbolsCheck.svelte';
 	import { calculateVacationOverlap } from '$lib/overlap';
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
-	import { dirtyTowelDays } from '$lib/config';
 	import {
 		createTowelQueryOptions,
 		createTowelRefetchOptions,
 		createVacationQueryOptions
 	} from '$lib/queries';
 	import { getCalendarEntries } from '$lib/calendar';
+	import { getStatusColorFromValue } from '$lib/towels';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
@@ -145,20 +145,6 @@
 		};
 	});
 
-	function getStatusColorFromValue(val: number): string {
-		const day = 24;
-
-		if (val > 0 && val <= 2 * day) return 'green';
-
-		if (val > 2 * day && val <= 4 * day) return 'yellow';
-
-		if (val > 4 * day && val <= 6 * day) return 'orange';
-
-		if (val > dirtyTowelDays * day && val <= 999 * day) return 'red';
-
-		return '';
-	}
-
 	let towelDirty: number | undefined = $derived.by(() => {
 		let towelDirty;
 
@@ -171,7 +157,12 @@
 				const rawDiffHours = now.diff(lastWashDate, 'hours', true);
 
 				// 2. Calculate vacation hours between last wash and now
-				const vacationHours = calculateVacationOverlap(now, lastWashDate, vacations.data, 'hours');
+				const vacationHours = calculateVacationOverlap(
+					now,
+					lastWashDate,
+					vacations.data ?? [],
+					'hours'
+				);
 
 				// 3. Subtract vacation time
 				towelDirty = rawDiffHours - vacationHours;
@@ -250,8 +241,6 @@
 
 		await tanstackClient.refetchQueries(createTowelRefetchOptions());
 	}
-
-	$inspect(status);
 </script>
 
 <svelte:head>
