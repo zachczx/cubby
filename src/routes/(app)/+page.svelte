@@ -161,7 +161,7 @@
 				>
 					<a href="/towelie" class="flex items-center">
 						<div class="flex grow items-center gap-4">
-							<PhTowelFill class="size-12" />
+							<PhTowelFill class="size-12 opacity-75" />
 							<!-- <h3 class="text-sm lg:text-base">Towel Washed</h3> -->
 							<div>
 								<p class="text-xl font-bold">Wash Towel</p>
@@ -218,7 +218,7 @@
 				>
 					<a href="/nosey" class="flex items-center">
 						<div class="flex grow items-center gap-4">
-							<IconParkSolidBottleOne class="size-12" />
+							<IconParkSolidBottleOne class="size-12 opacity-75" />
 							<div>
 								<p class="text-xl font-bold">Spray Nose</p>
 								{#if sprays.isPending && !sprays.data}
@@ -274,7 +274,7 @@
 				>
 					<a href="/gummy" class="flex items-center">
 						<div class="flex grow items-center gap-4">
-							<MaterialSymbolsHealthAndSafety class="size-12" />
+							<MaterialSymbolsHealthAndSafety class="size-12 opacity-75" />
 							<div>
 								<p class="text-xl font-bold">Elderberry Gummy</p>
 								{#if gummies.isPending && !gummies.data}
@@ -327,7 +327,7 @@
 				<div class="bg-primary/10 border-base-300 grid min-h-24 gap-4 rounded-3xl border p-4">
 					<a href="/count" class="flex items-center">
 						<div class="flex grow items-center gap-4">
-							<MaterialSymbolsTimer class="size-12" />
+							<MaterialSymbolsTimer class="size-12 opacity-75" />
 
 							<div>
 								<p class="text-xl font-bold">Timer</p>
