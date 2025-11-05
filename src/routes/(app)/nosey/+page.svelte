@@ -114,10 +114,12 @@
 	let lastSpray: number | undefined = $derived.by(() => {
 		let lastSpray;
 		if (sprays.isSuccess) {
-			const lastRecord = dayjs(sprays.data[0].time);
-			const today = dayjs();
-			lastSpray = today.diff(lastRecord, 'hours', true);
-			return lastSpray;
+			if (sprays.data && sprays.data.length > 0) {
+				const lastRecord = dayjs(sprays.data[0].time);
+				const today = dayjs();
+				lastSpray = today.diff(lastRecord, 'hours', true);
+				return lastSpray;
+			}
 		}
 	});
 
