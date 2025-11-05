@@ -141,8 +141,8 @@
 	}
 
 	let sprayNotification = $derived.by(() => getNotificationStatus(sprays));
-
 	let towelNotification = $derived.by(() => getNotificationStatus(towels));
+	let gummyNotification = $derived.by(() => getNotificationStatus(gummies));
 </script>
 
 <svelte:head>
@@ -285,17 +285,15 @@
 									{gummies.error.message}
 								{/if}
 								{#if gummies.isSuccess}
-									<!-- {#if sprayNotification.show}
+									{#if gummyNotification.show}
 										<span class="text-error font-medium tracking-tight">
-											{#if sprayNotification.level === 'overdue'}
+											{#if gummyNotification.level === 'overdue'}
 												Overdue
-											{:else if sprayNotification.level === 'due'}
+											{:else if gummyNotification.level === 'due'}
 												Due
 											{/if}
 										</span>&nbsp;&nbsp;•&nbsp;&nbsp;
-									{/if} --><span
-										>{gummyLast}</span
-									>
+									{/if}<span>{gummyLast}</span>
 								{/if}
 							</div>
 						</div>

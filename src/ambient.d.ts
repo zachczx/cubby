@@ -29,7 +29,7 @@ interface SprayRecord extends SprayDB {
 
 interface GummyDB {
 	collectionId: string;
-	collectionName: 'spray';
+	collectionName: 'gummy';
 	id: string;
 	time: string;
 	created: string;

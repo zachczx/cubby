@@ -13,11 +13,15 @@
 	import MaterialSymbolsChevronRight from './assets/svg/MaterialSymbolsChevronRight.svelte';
 	import MaterialSymbolsCheckCircle from './assets/svg/MaterialSymbolsCheckCircle.svelte';
 	import MaterialSymbolsNotificationImportant from './assets/svg/MaterialSymbolsNotificationImportant.svelte';
-	import { createSprayQueryOptions, createTowelQueryOptions } from './queries';
+	import {
+		createGummyQueryOptions,
+		createSprayQueryOptions,
+		createTowelQueryOptions
+	} from './queries';
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import dayjs from 'dayjs';
 	import { dirtyTowelDays } from './config';
-	import { getNotificationStatus } from './notification';
+	import { getNotificationCount, getNotificationStatus } from './notification';
 	import MaterialSymbolsHome from './assets/svg/MaterialSymbolsHome.svelte';
 	import MaterialSymbolsHealthCross from './assets/svg/MaterialSymbolsHealthCross.svelte';
 	import MaterialSymbolsTimer from './assets/svg/MaterialSymbolsTimer.svelte';
@@ -60,8 +64,10 @@
 
 	const towels = createQuery(createTowelQueryOptions);
 	const sprays = createQuery(createSprayQueryOptions);
+	const gummies = createQuery(createGummyQueryOptions);
 	let sprayNotification = $derived.by(() => getNotificationStatus(sprays));
 	let towelNotification = $derived.by(() => getNotificationStatus(towels));
+	let gummyNotification = $derived.by(() => getNotificationStatus(gummies));
 </script>
 
 <svelte:head>
@@ -168,13 +174,13 @@
 		</div>
 		<div class="navbar-end">
 			<div id="mobile-hamburger" class="dropdown flex items-center lg:hidden">
-				{@render notification(sprayNotification, towelNotification)}
+				{@render notification(sprayNotification, towelNotification, gummyNotification)}
 				<a href="/profile" class="btn btn-ghost -me-4"
 					><MaterialSymbolsSettings class="size-[1.5em]" /></a
 				>
 			</div>
 			<div id="desktop-logout" class="hidden items-center text-sm lg:flex">
-				{@render notification(sprayNotification, towelNotification)}
+				{@render notification(sprayNotification, towelNotification, gummyNotification)}
 				{#if pb.authStore.isValid}
 					<a href="/profile" class="btn btn-ghost"><MaterialSymbolsSettings class="size-6" /></a><a
 						href="/logout"
@@ -234,14 +240,19 @@
 
 {#snippet notification(
 	sprayNotification: NotificationStatus,
-	towelNotification: NotificationStatus
+	towelNotification: NotificationStatus,
+	gummyNotification: NotificationStatus
 )}
 	<div class="dropdown dropdown-end">
 		<div tabindex="0" role="button" class="btn btn-ghost drawer-button px-2 py-0">
 			{#if !sprayNotification.show && !towelNotification.show}
 				<MaterialSymbolsNotifications class="size-6" />
 			{:else}
-				{@const count = sprayNotification.show && towelNotification.show ? 2 : 1}
+				{@const count = getNotificationCount(
+					sprayNotification,
+					towelNotification,
+					gummyNotification
+				)}
 				<MaterialSymbolsNotificationImportant class="size-6" />
 				<span class="absolute top-1 right-1 z-2 size-4 rounded-full bg-red-600 text-xs"
 					>{count}</span
@@ -251,7 +262,7 @@
 		<ul
 			class="dropdown-content menu rounded-box bg-base-100 text-md text-base-content z-1 w-72 p-2 shadow-lg"
 		>
-			{#if !sprayNotification.show && !towelNotification.show}
+			{#if !sprayNotification.show && !towelNotification.show && !gummyNotification.show}
 				<li>
 					<div class="flex items-center justify-center gap-2">
 						<MaterialSymbolsCheckCircle class="size-[1.3em]" /><span>No pending items</span>
@@ -277,6 +288,19 @@
 					<a href="/towelie" class="flex items-center">
 						<div class="flex grow items-center gap-2">
 							<MaterialSymbolsWarning class="size-[1.3em]" />Wash your towel!
+						</div>
+						<div>
+							<MaterialSymbolsChevronRight class="size-5 opacity-50" />
+						</div>
+					</a>
+				</li>
+			{/if}
+
+			{#if gummyNotification.show}
+				<li>
+					<a href="/gummy" class="flex items-center">
+						<div class="flex grow items-center gap-2">
+							<MaterialSymbolsWarning class="size-[1.3em]" />Eat your gummy!
 						</div>
 						<div>
 							<MaterialSymbolsChevronRight class="size-5 opacity-50" />
