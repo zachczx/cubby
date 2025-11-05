@@ -96,12 +96,12 @@
 			}
 
 			&[data-type='error'] {
-				background: red;
+				background: var(--color-error);
 				color: white;
 			}
 
 			&[data-type='info'] {
-				background: blue;
+				background: var(--color-secondary);
 				color: white;
 			}
 
@@ -110,7 +110,7 @@
 			}
 
 			&[data-type='success'] {
-				background: green;
+				background: var(--color-success);
 				color: white;
 			}
 		}
