@@ -14,7 +14,7 @@ export function getNotificationStatus(
 	if (!lastRecord) return defaultNotificationStatus;
 
 	const now = dayjs();
-	const leadTimeHours = 12;
+	const leadTimeHours = 6;
 
 	let intervalHours = 0;
 
