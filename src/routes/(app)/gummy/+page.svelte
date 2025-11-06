@@ -29,7 +29,7 @@
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
 
-	let singleDay: SprayDB[] | undefined = $state([]);
+	let singleDay: GummyDB[] | undefined = $state([]);
 	let singleDayModal = $state() as HTMLDialogElement;
 
 	let gummyButtonStatus: 'default' | 'loading' | 'success' = $state('default');
@@ -147,7 +147,7 @@
 
 	// For Statuses
 
-	let gummyRecords: SprayRecord[] | undefined = $derived.by(() => {
+	let gummyRecords: GummyRecord[] | undefined = $derived.by(() => {
 		if (gummies.isSuccess && gummies.data) {
 			return gummies.data.map((record, i, allRecords) => {
 				const nextRecord = allRecords[i + 1];
@@ -159,7 +159,7 @@
 		return [];
 	});
 
-	let longestGap: SprayRecord | undefined = $derived.by(() => {
+	let longestGap: GummyRecord | undefined = $derived.by(() => {
 		if (gummyRecords.length <= 1) return;
 		const avoidMutatingOriginalArray = [...gummyRecords];
 		const sorted = avoidMutatingOriginalArray.sort((a, b) => b.gap - a.gap);
@@ -234,10 +234,10 @@
 </script>
 
 <svelte:head>
-	<title>Nosey</title>
+	<title>Spray</title>
 </svelte:head>
 
-<PageWrapper title="Nosey" back={true} {pb}>
+<PageWrapper title="Spray" back={true} {pb}>
 	<main class="grid w-full max-w-xl content-start justify-items-center gap-4 justify-self-center">
 		<div class="grid w-full content-start justify-items-center gap-4">
 			{#if gummies.isSuccess}

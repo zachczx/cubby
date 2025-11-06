@@ -38,6 +38,10 @@ interface GummyDB {
 	daysToNext: number;
 }
 
+interface GummyRecord extends GummyDB {
+	gap: number;
+}
+
 type Characters = 'frankenstein' | 'robot' | 'furnando';
 
 interface UserDB {
