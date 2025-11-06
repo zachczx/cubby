@@ -25,6 +25,11 @@
 	import { getCalendarEntries } from '$lib/calendar';
 	import { getStatusColorFromValue } from '$lib/towels';
 	import EmptyState from '$lib/assets/svg/EmptyState.svelte';
+	import MaterialSymbolsCalendarClock from '$lib/assets/svg/MaterialSymbolsCalendarClock.svelte';
+	import MaterialSymbolsNestClockFarsightAnalogOutline from '$lib/assets/svg/MaterialSymbolsNestClockFarsightAnalogOutline.svelte';
+	import MaterialSymbolsChevronRight from '$lib/assets/svg/MaterialSymbolsChevronRight.svelte';
+	import MaterialSymbolsArrowRightAlt from '$lib/assets/svg/MaterialSymbolsArrowRightAlt.svelte';
+	import CustomDateModal from '$lib/CustomDateModal.svelte';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
@@ -181,7 +186,6 @@
 			return towelDirty;
 		}
 	});
-	let spinner = $state(false);
 
 	let lineChartEl = $state() as HTMLCanvasElement;
 	let lineChart: Chart | undefined = $state();
@@ -248,7 +252,7 @@
 	<title>Towelie</title>
 </svelte:head>
 
-<PageWrapper title="Towelie" {pb} back={true}>
+<PageWrapper title="Towel" {pb} back={true}>
 	<div class="grid w-full max-w-xl content-start justify-items-center gap-4 justify-self-center">
 		<div class="grid w-full content-start justify-items-center gap-4">
 			{#key towelRecords}
@@ -302,6 +306,9 @@
 					{/if}
 				</button>
 			</form>
+			<div class="flex justify-start">
+				<CustomDateModal collectionName="towel" {tanstackClient} />
+			</div>
 		</div>
 
 		<div class="grid w-full content-start gap-8 pt-4 pb-8">
