@@ -6,7 +6,11 @@
 	import timezone from 'dayjs/plugin/timezone';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import { addToast } from './ui/ArkToaster.svelte';
-	import { createTowelRefetchOptions } from './queries';
+	import {
+		createGummyRefetchOptions,
+		createSprayRefetchOptions,
+		createTowelRefetchOptions
+	} from './queries';
 	import MaterialSymbolsCheck from './assets/svg/MaterialSymbolsCheck.svelte';
 	import MaterialSymbolsArrowRightAlt from './assets/svg/MaterialSymbolsArrowRightAlt.svelte';
 
@@ -16,8 +20,13 @@
 
 	let {
 		collectionName,
+		daysToNext,
 		tanstackClient
-	}: { collectionName: 'towel' | 'spray' | 'gummy'; tanstackClient: QueryClient } = $props();
+	}: {
+		collectionName: 'towel' | 'spray' | 'gummy';
+		daysToNext?: number;
+		tanstackClient: QueryClient;
+	} = $props();
 
 	let buttonStatus: 'default' | 'loading' | 'success' = $state('default');
 
@@ -42,22 +51,47 @@
 	async function addHandler() {
 		buttonStatus = 'loading';
 
-		const result = await pb.collection(collectionName).create({
-			user: pb.authStore.record?.id,
-			time: dayjs.tz(timestamp, 'Asia/Singapore')
-		});
+		if (collectionName === 'towel') {
+			const result = await pb.collection(collectionName).create({
+				user: pb.authStore.record?.id,
+				time: dayjs.tz(timestamp, 'Asia/Singapore')
+			});
 
-		if (result.id) {
-			dialog.close();
-			addToast('success', 'Added successfully!');
-			buttonStatus = 'success';
+			if (result.id) {
+				dialog.close();
+				addToast('success', 'Added successfully!');
+				buttonStatus = 'success';
 
-			setTimeout(() => {
-				buttonStatus = 'default';
-			}, 3000);
+				setTimeout(() => {
+					buttonStatus = 'default';
+				}, 3000);
+			}
+
+			await tanstackClient.refetchQueries(createTowelRefetchOptions());
+		} else {
+			const result = await pb.collection(collectionName).create({
+				user: pb.authStore.record?.id,
+				time: dayjs.tz(timestamp, 'Asia/Singapore'),
+				daysToNext: daysToNext
+			});
+
+			if (result.id) {
+				dialog.close();
+				addToast('success', 'Added successfully!');
+				buttonStatus = 'success';
+
+				setTimeout(() => {
+					buttonStatus = 'default';
+				}, 3000);
+			}
+
+			if (collectionName === 'spray') {
+				await tanstackClient.refetchQueries(createSprayRefetchOptions());
+			}
+			if (collectionName === 'gummy') {
+				await tanstackClient.refetchQueries(createGummyRefetchOptions());
+			}
 		}
-
-		await tanstackClient.refetchQueries(createTowelRefetchOptions());
 	}
 </script>
 
