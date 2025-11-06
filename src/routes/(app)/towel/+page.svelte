@@ -248,10 +248,6 @@
 	}
 </script>
 
-<svelte:head>
-	<title>Towelie</title>
-</svelte:head>
-
 <PageWrapper title="Towel" {pb} back={true}>
 	<div class="grid w-full max-w-xl content-start justify-items-center gap-4 justify-self-center">
 		<div class="grid w-full content-start justify-items-center gap-4">

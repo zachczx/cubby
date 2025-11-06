@@ -229,11 +229,7 @@
 	});
 </script>
 
-<svelte:head>
-	<title>Nosey</title>
-</svelte:head>
-
-<PageWrapper title="Nosey" back={true} {pb}>
+<PageWrapper title="Spray" back={true} {pb}>
 	<main class="grid w-full max-w-xl content-start justify-items-center gap-4 justify-self-center">
 		<div class="grid w-full content-start justify-items-center gap-4">
 			{#if sprays.isSuccess}

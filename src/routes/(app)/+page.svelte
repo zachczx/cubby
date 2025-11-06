@@ -159,7 +159,7 @@
 						towelNotification.show ? 'bg-error/15 outline-error/30 outline' : 'bg-primary/10'
 					]}
 				>
-					<a href="/towelie" class="flex items-center">
+					<a href="/towel" class="flex items-center">
 						<div class="flex grow items-center gap-4">
 							<PhTowelFill class="size-12 opacity-75" />
 							<!-- <h3 class="text-sm lg:text-base">Towel Washed</h3> -->
@@ -216,7 +216,7 @@
 						sprayNotification.show ? 'bg-error/15 outline-error/30 outline' : 'bg-primary/10'
 					]}
 				>
-					<a href="/nosey" class="flex items-center">
+					<a href="/spray" class="flex items-center">
 						<div class="flex grow items-center gap-4">
 							<IconParkSolidBottleOne class="size-12 opacity-75" />
 							<div>

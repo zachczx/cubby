@@ -49,10 +49,10 @@
 
 		if (p.includes('count')) {
 			return 'count';
-		} else if (p.includes('nosey')) {
-			return 'nosey';
-		} else if (p.includes('towelie')) {
-			return 'towelie';
+		} else if (p.includes('spray')) {
+			return 'spray';
+		} else if (p.includes('towel')) {
+			return 'towel';
 		} else if (p.includes('gummy')) {
 			return 'gummy';
 		} else if (p.endsWith('')) {
@@ -111,7 +111,7 @@
 				</button>
 			{/if}
 
-			<a class="hidden text-xl font-bold lg:flex" href="/">Nosey</a>
+			<a class="hidden text-xl font-bold lg:flex" href="/">Sundry</a>
 			<span class="text-xl font-bold lg:hidden">{title}</span>
 		</div>
 		<div id="desktop-menu" class="navbar-center hidden lg:flex">
@@ -129,22 +129,22 @@
 
 				<li>
 					<a
-						href="/towelie"
+						href="/towel"
 						class={[
 							'px-4 py-2',
-							currentPage === 'towelie' && 'rounded-full bg-white/30 font-bold',
-							currentPage !== 'towelie' && 'rounded-full hover:bg-white/20'
+							currentPage === 'towel' && 'rounded-full bg-white/30 font-bold',
+							currentPage !== 'towel' && 'rounded-full hover:bg-white/20'
 						]}>Towel</a
 					>
 				</li>
 
 				<li>
 					<a
-						href="/nosey"
+						href="/spray"
 						class={[
 							'px-4 py-2',
-							currentPage === 'nosey' && 'rounded-full bg-white/30 font-bold',
-							currentPage !== 'nosey' && 'rounded-full hover:bg-white/20'
+							currentPage === 'spray' && 'rounded-full bg-white/30 font-bold',
+							currentPage !== 'spray' && 'rounded-full hover:bg-white/20'
 						]}>Spray</a
 					>
 				</li>
@@ -216,12 +216,12 @@
 			<span class="text-sm tracking-wider">Home</span>
 		</a>
 
-		<a href="/towelie" class={[currentPage === 'towelie' && 'text-primary font-semibold']}>
+		<a href="/towel" class={[currentPage === 'towel' && 'text-primary font-semibold']}>
 			<PhTowelFill class="size-[1.5em]" />
 			<span class="text-sm tracking-wider">Towel</span>
 		</a>
 
-		<a href="/nosey" class={[currentPage === 'nosey' && 'text-primary font-semibold']}>
+		<a href="/spray" class={[currentPage === 'spray' && 'text-primary font-semibold']}>
 			<IconParkSolidBottleOne class="size-[1.5em]" />
 			<span class="text-sm tracking-wider">Spray</span>
 		</a>
@@ -272,7 +272,7 @@
 
 			{#if sprayNotification.show}
 				<li>
-					<a href="/nosey" class="flex items-center">
+					<a href="/spray" class="flex items-center">
 						<div class="flex grow items-center gap-2">
 							<MaterialSymbolsWarning class="size-[1.3em]" />Spray your nose!
 						</div>
@@ -285,7 +285,7 @@
 
 			{#if towelNotification.show}
 				<li>
-					<a href="/towelie" class="flex items-center">
+					<a href="/towel" class="flex items-center">
 						<div class="flex grow items-center gap-2">
 							<MaterialSymbolsWarning class="size-[1.3em]" />Wash your towel!
 						</div>

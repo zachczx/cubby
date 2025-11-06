@@ -7,7 +7,7 @@
 	<title>Credits</title>
 </svelte:head>
 
-<PageWrapper title="Towelie" {pb}>
+<PageWrapper title="Credits" {pb}>
 	<main class="grid h-full content-center justify-items-center">
 		<ul>
 			<li>
