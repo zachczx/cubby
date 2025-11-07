@@ -1,11 +1,5 @@
 <script lang="ts">
-	import Red from '$lib/images/red.webp?w=150&enhanced';
-	import Orange from '$lib/images/orange.webp?w=150&enhanced';
-	import Yellow from '$lib/images/yellow.webp?w=150&enhanced';
-	import Green from '$lib/images/green.webp?w=150&enhanced';
-	import { onMount } from 'svelte';
 	import { pb } from '$lib/pb';
-	import { goto } from '$app/navigation';
 	import dayjs from 'dayjs';
 	import utc from 'dayjs/plugin/utc';
 	import timezone from 'dayjs/plugin/timezone';
@@ -32,6 +26,11 @@
 	import CustomDateModal from '$lib/CustomDateModal.svelte';
 	import TwoColumnCard from '$lib/ui/TwoColumnCard.svelte';
 	import StatusDescriptions from '$lib/ui/StatusDescriptions.svelte';
+	import MaterialSymbolsCheckCircle from '$lib/assets/svg/MaterialSymbolsCheckCircle.svelte';
+	import MaterialSymbolsExclamation from '$lib/assets/svg/MaterialSymbolsExclamation.svelte';
+	import AntDesignExclamationCircleFilled from '$lib/assets/svg/AntDesignExclamationCircleFilled.svelte';
+	import StatusHeroImage from '$lib/ui/StatusHeroImage.svelte';
+	import ActionButton from '$lib/ui/ActionButton.svelte';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
@@ -226,7 +225,7 @@
 		if (!towelDirty) {
 			return 'empty';
 		}
-		return getStatusColorFromValue(towelDirty);
+		return getStatusColorFromValue(towelDirty ?? 0);
 	});
 
 	async function addTowelHandler() {
@@ -254,55 +253,10 @@
 	<div class="grid w-full max-w-xl content-start justify-items-center gap-4 justify-self-center">
 		<div class="grid w-full content-start justify-items-center gap-4">
 			{#key towelRecords}
-				{@const status = getStatusColorFromValue(towelDirty ?? 0)}
-				{#if status === 'green'}
-					<div class="avatar">
-						<div class="w-32 rounded-full bg-[#dbf0be] p-4">
-							<enhanced:img src={Green} alt="Still Good" class="" />
-						</div>
-					</div>
-				{:else if status === 'yellow'}
-					<div class="avatar">
-						<div class="w-32 rounded-full bg-[#dbf0be] p-4">
-							<enhanced:img src={Yellow} alt="Still Good" class="rounded-2xl" />
-						</div>
-					</div>
-				{:else if status === 'orange'}
-					<div class="avatar">
-						<div class="w-32 rounded-full bg-orange-200/70 p-4">
-							<enhanced:img src={Orange} alt="Ripening" class="rounded-2xl" />
-						</div>
-					</div>
-				{:else if status === 'red'}
-					<div class="avatar">
-						<div class="w-32 rounded-full bg-red-200/70 p-4">
-							<enhanced:img src={Red} alt="Time to Wash!" class="rounded-2xl" />
-						</div>
-					</div>
-				{:else if status === 'empty'}
-					<EmptyState class="text-primary/30 my-4" />
-				{:else}
-					<div class="skeleton h-[600px] w-[600px] max-lg:h-[342px] max-lg:w-[342px]"></div>
-				{/if}
+				<StatusHeroImage {status} />
 			{/key}
 			<form class="w-full">
-				<button
-					class={[
-						'btn btn-lg flex w-full items-center gap-2 rounded-full',
-						towelButtonStatus === 'default' && 'btn-primary',
-						towelButtonStatus === 'loading' && 'btn-primary',
-						towelButtonStatus === 'success' && 'btn-success'
-					]}
-					onclick={addTowelHandler}
-				>
-					{#if towelButtonStatus === 'success'}
-						<MaterialSymbolsCheck class="size-6" />Added!
-					{:else if towelButtonStatus === 'loading'}
-						<span class="loading loading-spinner loading-md"></span>
-					{:else}
-						Just Washed
-					{/if}
-				</button>
+				<ActionButton handler={addTowelHandler} status={towelButtonStatus} text="Just Washed" />
 			</form>
 			<div class="flex justify-start">
 				<CustomDateModal collectionName="towel" {tanstackClient} />

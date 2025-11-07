@@ -33,9 +33,9 @@
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
 
-	let towelButtonStatus: ButtonStatus = $state('default');
-	let sprayButtonStatus: ButtonStatus = $state('default');
-	let gummyButtonStatus: ButtonStatus = $state('default');
+	let towelButtonStatus: ButtonState = $state('default');
+	let sprayButtonStatus: ButtonState = $state('default');
+	let gummyButtonStatus: ButtonState = $state('default');
 
 	const towels = createQuery(createTowelQueryOptions);
 	const sprays = createQuery(createSprayQueryOptions);

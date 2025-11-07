@@ -26,6 +26,8 @@
 	import CustomDateModal from '$lib/CustomDateModal.svelte';
 	import StatusDescriptions from '$lib/ui/StatusDescriptions.svelte';
 	import TwoColumnCard from '$lib/ui/TwoColumnCard.svelte';
+	import StatusHeroImage from '$lib/ui/StatusHeroImage.svelte';
+	import ActionButton from '$lib/ui/ActionButton.svelte';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
@@ -236,54 +238,10 @@
 	<main class="grid w-full max-w-xl content-start justify-items-center gap-4 justify-self-center">
 		<div class="grid w-full content-start justify-items-center gap-4">
 			{#if sprays.isSuccess}
-				{#if status === 'green'}
-					<div class="avatar">
-						<div class="w-32 rounded-full bg-[#dbf0be]">
-							<enhanced:img src={Green} alt="Still Good" class="" />
-						</div>
-					</div>
-				{:else if status === 'yellow'}
-					<div class="avatar">
-						<div class="w-32 rounded-full bg-yellow-200/70">
-							<enhanced:img src={Yellow} alt="Still Good" class="rounded-2xl" />
-						</div>
-					</div>
-				{:else if status === 'orange'}
-					<div class="avatar">
-						<div class="w-32 rounded-full bg-orange-200/70">
-							<enhanced:img src={Orange} alt="Ripening" class="rounded-2xl" />
-						</div>
-					</div>
-				{:else if status === 'red'}
-					<div class="avatar">
-						<div class="w-32 rounded-full bg-red-200/70">
-							<enhanced:img src={Red} alt="Time to Wash!" class="rounded-2xl" />
-						</div>
-					</div>
-				{:else if status === 'empty'}
-					<EmptyState class="text-primary/30 my-4" />
-				{:else}
-					<div class="skeleton h-[600px] w-[600px] max-lg:h-[342px] max-lg:w-[342px]"></div>
-				{/if}
+				<StatusHeroImage {status} />
 			{/if}
 
-			<button
-				class={[
-					'btn btn-lg flex w-full items-center gap-2 rounded-full',
-					sprayButtonStatus === 'default' && 'btn-primary',
-					sprayButtonStatus === 'loading' && 'btn-primary',
-					sprayButtonStatus === 'success' && 'btn-success'
-				]}
-				onclick={addSprayHandler}
-			>
-				{#if sprayButtonStatus === 'success'}
-					<MaterialSymbolsCheck class="size-6" />Added!
-				{:else if sprayButtonStatus === 'loading'}
-					<span class="loading loading-spinner loading-md"></span>
-				{:else}
-					Just Sprayed
-				{/if}
-			</button>
+			<ActionButton handler={addSprayHandler} status={sprayButtonStatus} text="Just Sprayed" />
 
 			<div class="flex justify-start">
 				<CustomDateModal collectionName="spray" {tanstackClient} {daysToNext} />

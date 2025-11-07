@@ -76,7 +76,7 @@ interface NotificationStatus {
 	level: 'ok' | 'due' | 'overdue';
 }
 
-type ButtonStatus = 'default' | 'loading' | 'success';
+type ButtonState = 'default' | 'loading' | 'success';
 
 interface StatusDescriptions {
 	green: string;
