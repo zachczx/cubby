@@ -25,6 +25,8 @@
 	import { getCalendarEntries } from '$lib/calendar';
 	import EmptyState from '$lib/assets/svg/EmptyState.svelte';
 	import CustomDateModal from '$lib/CustomDateModal.svelte';
+	import TwoColumnCard from '$lib/ui/TwoColumnCard.svelte';
+	import StatusDescriptions from '$lib/ui/StatusDescriptions.svelte';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
@@ -205,27 +207,27 @@
 	let lineChartEl = $state() as HTMLCanvasElement;
 	let lineChart: Chart | undefined = $state();
 
-	onMount(() => {
-		lineChart = new Chart(lineChartEl, {
-			type: 'line',
-			options: { plugins: { legend: { display: false } } },
-			data: {
-				labels: [...gapsDates],
-				datasets: [
-					{
-						label: '',
-						data: gaps,
-						fill: false,
-						borderColor: '#3d6b5e',
-						tension: 0.1,
-						showLine: true
-					}
-				]
-			}
-		});
-	});
-
 	$effect(() => {
+		if (lineChartEl && gummies.isSuccess && currentTab === 'overview' && !lineChart) {
+			lineChart = new Chart(lineChartEl, {
+				type: 'line',
+				options: { plugins: { legend: { display: false } } },
+				data: {
+					labels: [...gapsDates],
+					datasets: [
+						{
+							label: '',
+							data: gaps,
+							fill: false,
+							borderColor: '#3d6b5e',
+							tension: 0.1,
+							showLine: true
+						}
+					]
+				}
+			});
+		}
+
 		if (lineChart && gapsDates && gaps) {
 			lineChart.data.labels = [...gapsDates];
 			lineChart.data.datasets[0].data = gaps;
@@ -327,56 +329,39 @@
 			</ul>
 
 			<div class="{currentTab === 'overview' ? 'grid' : 'hidden'} w-full gap-8 px-4">
-				<div
-					class="text-md border-base-content/5 bg-base-200/50 grid grid-cols-2 content-center gap-4 rounded-lg border shadow"
-				>
-					<div class="border-r-base-content/15 grid justify-items-center border-r p-4">
-						<div>Status</div>
+				<TwoColumnCard leftTitle="Status" rightTitle="Last Ate">
+					{#snippet left()}
 						{#if gummies.isSuccess}
 							{#if status}
-								<div
-									class="flex min-h-14 items-center justify-center gap-4 text-center text-2xl font-bold lg:min-h-20"
-								>
-									{#if status === 'green'}
-										<div class="hidden h-6 w-6 rounded-full bg-lime-500 lg:flex"></div>
-										<span class="text-lime-500">Dosed</span>
-									{:else if status === 'yellow'}
-										<div class="hidden h-6 w-6 rounded-full bg-yellow-500 lg:flex"></div>
-										<span class="text-yellow-500">Good</span>
-									{:else if status === 'orange'}
-										<div class="hidden h-6 w-6 rounded-full bg-orange-400 lg:flex"></div>
-										<span class="text-orange-400">Due</span>
-									{:else if status === 'red'}
-										<div class="hidden h-5 w-5 rounded-full bg-red-700 lg:flex"></div>
-										<span class="text-red-700">Overdue</span>
-									{:else}
-										<span>Nil</span>
-									{/if}
-								</div>
+								{@const descriptions = {
+									green: 'Dosed',
+									yellow: 'Good',
+									orange: 'Due',
+									red: 'Overdue'
+								}}
+								<StatusDescriptions {status} {descriptions} />
 							{:else}
 								<div class="flex min-h-20 items-center gap-4 text-2xl font-bold">Nil</div>
 							{/if}
 						{/if}
-					</div>
-					<div class="grid justify-items-center p-4">
-						<div>Last Gummy</div>
-						<div class="text-center text-2xl font-bold">
-							{#if gummies.isSuccess}
-								{#if gummies.data.length > 0}
-									{@const formatted = dayjs(gummies.data[0].time).fromNow()}
-									{formatted}
-								{:else}
-									<div class="flex min-h-20 items-center gap-4 text-2xl font-bold">Nil</div>
-								{/if}
-							{/if}
-							{#if gummies.isPending}
-								<div class="custom-loader"></div>
-							{/if}
-						</div>
-					</div>
-				</div>
+					{/snippet}
 
-				<div class="border-base-content/5 bg-base-200/50 w-full rounded-lg border p-4 shadow">
+					{#snippet right()}
+						{#if gummies.isSuccess}
+							{#if gummies.data.length > 0}
+								{@const formatted = dayjs(gummies.data[0].time).fromNow()}
+								{formatted}
+							{:else}
+								<div class="flex min-h-20 items-center gap-4 text-2xl font-bold">Nil</div>
+							{/if}
+						{/if}
+						{#if gummies.isPending}
+							<div class="custom-loader"></div>
+						{/if}
+					{/snippet}
+				</TwoColumnCard>
+
+				<div class="border-base-content/5 w-full rounded-lg border p-4 shadow">
 					<h2 class="text-md text-center">Intervals</h2>
 					<div>
 						<canvas bind:this={lineChartEl}></canvas>
@@ -384,7 +369,7 @@
 				</div>
 
 				<div
-					class="border-base-content/5 bg-base-200/50 grid w-full grid-cols-2 content-center gap-4 rounded-lg border shadow"
+					class="border-base-content/5 grid w-full grid-cols-2 content-center gap-4 rounded-lg border shadow"
 				>
 					<div class="border-r-base-content/15 grid justify-items-center border-r p-4">
 						<h2 class="text-md">Longest Gap</h2>

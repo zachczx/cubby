@@ -156,7 +156,7 @@
 				<section
 					class={[
 						'border-base-300 grid min-h-24 gap-4 rounded-3xl border p-4',
-						towelNotification.show ? 'bg-error/15 outline-error/30 outline' : 'bg-primary/10'
+						towelNotification.show ? 'bg-error/15 outline-error/30 outline' : 'bg-base-100'
 					]}
 				>
 					<a href="/towel" class="flex items-center">
@@ -213,7 +213,7 @@
 				<section
 					class={[
 						'border-base-300 grid min-h-24 gap-4 rounded-3xl border p-4',
-						sprayNotification.show ? 'bg-error/15 outline-error/30 outline' : 'bg-primary/10'
+						sprayNotification.show ? 'bg-error/15 outline-error/30 outline' : 'bg-base-100'
 					]}
 				>
 					<a href="/spray" class="flex items-center">
@@ -269,7 +269,7 @@
 				<section
 					class={[
 						'border-base-300 grid min-h-24 gap-4 rounded-3xl border p-4',
-						sprayNotification.show ? 'bg-error/15 outline-error/30 outline' : 'bg-primary/10'
+						sprayNotification.show ? 'bg-error/15 outline-error/30 outline' : 'bg-base-100'
 					]}
 				>
 					<a href="/gummy" class="flex items-center">
@@ -322,7 +322,7 @@
 					</button>
 				</section>
 
-				<div class="bg-primary/10 border-base-300 grid min-h-24 gap-4 rounded-3xl border p-4">
+				<div class="bg-base-100 border-base-300 grid min-h-24 gap-4 rounded-3xl border p-4">
 					<a href="/count" class="flex items-center">
 						<div class="flex grow items-center gap-4">
 							<MaterialSymbolsTimer class="size-12 opacity-75" />

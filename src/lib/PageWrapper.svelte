@@ -198,7 +198,7 @@
 
 	<div
 		class={[
-			'max-lg:min-h-[calc(100vh - 3.5rem - 6rem)] lg:min-h-[calc(100vh - 3.5rem - 1rem)] mt-14 w-full p-4 max-lg:pb-24 lg:grid lg:px-12 lg:pt-12',
+			'bg-base-100 max-lg:min-h-[calc(100vh - 3.5rem - 6rem)] lg:min-h-[calc(100vh - 3.5rem - 1rem)] mt-14 w-full p-4 max-lg:pb-24 lg:grid lg:px-12 lg:pt-12',
 			largeScreenCenter && 'lg:content-center'
 		]}
 	>

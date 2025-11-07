@@ -30,6 +30,8 @@
 	import MaterialSymbolsChevronRight from '$lib/assets/svg/MaterialSymbolsChevronRight.svelte';
 	import MaterialSymbolsArrowRightAlt from '$lib/assets/svg/MaterialSymbolsArrowRightAlt.svelte';
 	import CustomDateModal from '$lib/CustomDateModal.svelte';
+	import TwoColumnCard from '$lib/ui/TwoColumnCard.svelte';
+	import StatusDescriptions from '$lib/ui/StatusDescriptions.svelte';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
@@ -192,27 +194,27 @@
 
 	let currentTab = $state('overview');
 
-	onMount(async () => {
-		lineChart = new Chart(lineChartEl, {
-			type: 'line',
-			options: { plugins: { legend: { display: false } } },
-			data: {
-				labels: [...gapsDates],
-				datasets: [
-					{
-						label: '',
-						data: gaps,
-						fill: false,
-						borderColor: '#3d6b5e',
-						tension: 0.1,
-						showLine: true
-					}
-				]
-			}
-		});
-	});
-
 	$effect(() => {
+		if (lineChartEl && towels.isSuccess && currentTab === 'overview' && !lineChart) {
+			lineChart = new Chart(lineChartEl, {
+				type: 'line',
+				options: { plugins: { legend: { display: false } } },
+				data: {
+					labels: [...gapsDates],
+					datasets: [
+						{
+							label: '',
+							data: gaps,
+							fill: false,
+							borderColor: '#3d6b5e',
+							tension: 0.1,
+							showLine: true
+						}
+					]
+				}
+			});
+		}
+
 		if (lineChart && towelRecords) {
 			lineChart.data.labels = [...gapsDates];
 			lineChart.data.datasets[0].data = gaps;
@@ -338,55 +340,36 @@
 			</ul>
 
 			<div class="{currentTab === 'overview' ? 'grid' : 'hidden'} w-full gap-8 px-4">
-				<div class="w-full">
-					<div
-						class="text-md border-base-content/5 bg-base-200/50 grid grid-cols-2 content-center gap-4 rounded-lg border shadow"
-					>
-						<div class="border-r-base-content/15 grid justify-items-center border-r p-4">
-							<div>Status</div>
-							{#key towelRecords}
-								{#if status}
-									<div
-										class="flex min-h-20 items-center justify-center gap-4 text-center text-2xl font-bold"
-									>
-										{#if status === 'green'}
-											<div class="hidden h-6 w-6 rounded-full bg-lime-500 lg:flex"></div>
-											<span class="text-lime-500">Squeaky Clean</span>
-										{:else if status === 'yellow'}
-											<div class="hidden h-6 w-6 rounded-full bg-lime-500 lg:flex"></div>
-											<span class="text-lime-500">Still Fresh</span>
-										{:else if status === 'orange'}
-											<div class="hidden h-6 w-6 rounded-full bg-orange-400 lg:flex"></div>
-											<span class="text-orange-400">Kinda Funky</span>
-										{:else if status === 'red'}
-											<div class="hidden h-5 w-5 rounded-full bg-red-700 lg:flex"></div>
-											<span class="text-red-700">Wash Me!</span>
-										{:else}
-											<span>Nil</span>
-										{/if}
-									</div>
-								{:else}
-									<div class="flex min-h-20 items-center gap-4 text-2xl font-bold">Nil</div>
-								{/if}
-							{/key}
-						</div>
-						<div class="grid justify-items-center p-4">
-							<div>Last Washed</div>
-							<div class="text-center text-2xl font-bold">
-								{#key towelRecords}
-									{#if towelRecords && towelRecords.length > 0}
-										{@const formatted = dayjs(towelRecords[0].time).fromNow()}
-										{formatted}
-									{:else}
-										<div class="flex min-h-20 items-center gap-4 text-2xl font-bold">Nil</div>
-									{/if}
-								{/key}
-							</div>
-						</div>
-					</div>
-				</div>
+				<TwoColumnCard leftTitle="Status" rightTitle="Last Washed">
+					{#snippet left()}
+						{#key towelRecords}
+							{#if status}
+								{@const descriptions = {
+									green: 'Squeaky Clean',
+									yellow: 'Still Fresh',
+									orange: 'Kinda Funky',
+									red: 'Wash Me!'
+								}}
+								<StatusDescriptions {status} {descriptions} />
+							{:else}
+								<div class="flex min-h-20 items-center gap-4 text-2xl font-bold">Nil</div>
+							{/if}
+						{/key}
+					{/snippet}
 
-				<div class="border-base-content/5 bg-base-200/50 w-full rounded-lg border p-4 shadow">
+					{#snippet right()}
+						{#key towelRecords}
+							{#if towelRecords && towelRecords.length > 0}
+								{@const formatted = dayjs(towelRecords[0].time).fromNow()}
+								{formatted}
+							{:else}
+								<div class="flex min-h-20 items-center gap-4 text-2xl font-bold">Nil</div>
+							{/if}
+						{/key}
+					{/snippet}
+				</TwoColumnCard>
+
+				<div class="border-base-content/5 w-full rounded-lg border p-4 shadow">
 					<h2 class="text-md text-center">Gaps for Past Washes</h2>
 					<div>
 						<canvas bind:this={lineChartEl}></canvas>
@@ -394,7 +377,7 @@
 				</div>
 
 				<div
-					class="border-base-content/5 bg-base-200/50 grid w-full grid-cols-2 content-center gap-4 rounded-lg border shadow"
+					class="border-base-content/5 grid w-full grid-cols-2 content-center gap-4 rounded-lg border shadow"
 				>
 					<div class="border-r-base-content/15 grid justify-items-center border-r p-4">
 						<h2 class="text-md">Longest Gap</h2>

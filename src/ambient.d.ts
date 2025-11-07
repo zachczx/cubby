@@ -77,3 +77,10 @@ interface NotificationStatus {
 }
 
 type ButtonStatus = 'default' | 'loading' | 'success';
+
+interface StatusDescriptions {
+	green: string;
+	yellow: string;
+	orange: string;
+	red: string;
+}
