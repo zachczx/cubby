@@ -1,13 +1,7 @@
 import dayjs from 'dayjs';
 import { dirtyTowelDays } from './config';
-import type { CreateQueryResult } from '@tanstack/svelte-query';
 
-export function getNotificationStatus(
-	query:
-		| CreateQueryResult<SprayDB[], Error>
-		| CreateQueryResult<TowelDB[], Error>
-		| CreateQueryResult<GummyDB[], Error>
-): NotificationStatus {
+export function getNotificationStatus(query: Query): NotificationStatus {
 	if (!query?.isSuccess || query.data.length === 0) return defaultNotificationStatus;
 
 	const lastRecord = query.data?.[0] ?? null;

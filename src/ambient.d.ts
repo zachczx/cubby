@@ -84,3 +84,8 @@ interface StatusDescriptions {
 	orange: string;
 	red: string;
 }
+
+type Query =
+	| CreateQueryResult<SprayDB[], Error>
+	| CreateQueryResult<TowelDB[], Error>
+	| CreateQueryResult<GummyDB[], Error>;
