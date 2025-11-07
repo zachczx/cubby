@@ -37,7 +37,7 @@
 
 <button
 	class={[
-		'btn btn-lg flex w-full items-center gap-2 rounded-full border-0',
+		'btn btn-lg flex w-full items-center gap-2 rounded-full',
 		status === 'default' && 'btn-primary',
 		status === 'loading' && 'btn-primary',
 		status === 'success' && 'btn-success'
