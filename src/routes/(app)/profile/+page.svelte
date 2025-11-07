@@ -30,6 +30,14 @@
 		return user.data?.defaultSprayInterval;
 	});
 
+	let gummyInterval = $derived.by(() => {
+		if (user.isPending) {
+			return undefined;
+		}
+
+		return user.data?.defaultGummyInterval;
+	});
+
 	let mute = $derived.by(() => {
 		if (!user.isSuccess) {
 			return undefined;
@@ -47,6 +55,7 @@
 		try {
 			await pb.collection('users').update(user.data.id, {
 				defaultSprayInterval: sprayInterval,
+				defaultGummyInterval: gummyInterval,
 				mute: mute === undefined ? false : !mute
 			});
 			addToast('success', 'Updated!');
@@ -140,11 +149,23 @@
 
 			<div class="mt-4 grid w-full content-start">
 				{#if currentTab === 'settings'}
-					<div class="">
+					<div class="pe-1">
 						<div class="border-b-base-300 flex items-center border-b py-4 text-lg">
-							<legend class="fieldset-legend mb-2 grow">Days Between Nasal Sprays</legend>
+							<legend class="fieldset-legend mb-2 grow">Days Per Nasal Spray</legend>
 
 							<select bind:value={sprayInterval} class="select w-auto shrink text-lg">
+								<option value={1}>1</option>
+								<option value={2}>2</option>
+								<option value={3}>3</option>
+								<option value={4}>4</option>
+								<option value={5}>5</option>
+							</select>
+						</div>
+
+						<div class="border-b-base-300 flex items-center border-b py-4 text-lg">
+							<legend class="fieldset-legend mb-2 grow">Days Per Gummy</legend>
+
+							<select bind:value={gummyInterval} class="select w-auto shrink text-lg">
 								<option value={1}>1</option>
 								<option value={2}>2</option>
 								<option value={3}>3</option>
