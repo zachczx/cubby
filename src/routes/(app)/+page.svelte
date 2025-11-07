@@ -269,7 +269,7 @@
 				<section
 					class={[
 						'border-base-300 grid min-h-24 gap-4 rounded-3xl border p-4',
-						sprayNotification.show ? 'bg-error/15 outline-error/30 outline' : 'bg-base-100'
+						gummyNotification.show ? 'bg-error/15 outline-error/30 outline' : 'bg-base-100'
 					]}
 				>
 					<a href="/gummy" class="flex items-center">
