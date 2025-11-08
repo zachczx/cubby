@@ -16,7 +16,7 @@
 		createVacationQueryOptions
 	} from '$lib/queries';
 	import { getCalendarEntries } from '$lib/calendar';
-	import CustomDateModal from '$lib/CustomDateModal.svelte';
+	import CustomDateModal from '$lib/ui/CustomDateModal.svelte';
 	import StatusDescriptions from '$lib/ui/StatusDescriptions.svelte';
 	import TwoColumnCard from '$lib/ui/TwoColumnCard.svelte';
 	import StatusHeroImage from '$lib/ui/StatusHeroImage.svelte';
@@ -124,7 +124,7 @@
 			return undefined;
 		}
 
-		return user.data?.defaultSprayInterval;
+		return user.data?.sprayInterval;
 	});
 
 	let sprayRecords: SprayRecord[] | undefined = $derived.by(() => {

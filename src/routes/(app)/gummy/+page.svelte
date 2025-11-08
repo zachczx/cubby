@@ -124,7 +124,7 @@
 			return undefined;
 		}
 
-		return user.data?.defaultGummyInterval;
+		return user.data?.gummyInterval;
 	});
 
 	let gummyRecords = $derived.by(() => {

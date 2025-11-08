@@ -27,7 +27,7 @@
 			return undefined;
 		}
 
-		return user.data?.defaultSprayInterval;
+		return user.data?.sprayInterval;
 	});
 
 	let gummyInterval = $derived.by(() => {
@@ -35,7 +35,7 @@
 			return undefined;
 		}
 
-		return user.data?.defaultGummyInterval;
+		return user.data?.gummyInterval;
 	});
 
 	let mute = $derived.by(() => {
@@ -54,8 +54,8 @@
 
 		try {
 			await pb.collection('users').update(user.data.id, {
-				defaultSprayInterval: sprayInterval,
-				defaultGummyInterval: gummyInterval,
+				sprayInterval: sprayInterval,
+				gummyInterval: gummyInterval,
 				mute: mute === undefined ? false : !mute
 			});
 			addToast('success', 'Updated!');

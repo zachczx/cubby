@@ -54,8 +54,8 @@ interface UserDB {
 	name: string;
 	avatar: string;
 	mute: boolean;
-	defaultSprayInterval: number;
-	defaultGummyInterval: number;
+	sprayInterval: number;
+	gummyInterval: number;
 	created: string;
 	updated: string;
 }
