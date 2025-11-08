@@ -16,7 +16,7 @@
 	} from '$lib/queries';
 	import { getCalendarEntries } from '$lib/calendar';
 	import { getStatusColorFromValue } from '$lib/towels';
-	import CustomDateModal from '$lib/CustomDateModal.svelte';
+	import CustomDateModal from '$lib/ui/CustomDateModal.svelte';
 	import TwoColumnCard from '$lib/ui/TwoColumnCard.svelte';
 	import StatusDescriptions from '$lib/ui/StatusDescriptions.svelte';
 	import StatusHeroImage from '$lib/ui/StatusHeroImage.svelte';
