@@ -6,7 +6,7 @@
 	import timezone from 'dayjs/plugin/timezone';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
-	import { dirtyTowelDays } from '$lib/config';
+	import { dirtyTowelDays } from '$lib/logic';
 	import MaterialSymbolsChevronRight from '$lib/assets/svg/MaterialSymbolsChevronRight.svelte';
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import {

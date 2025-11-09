@@ -22,6 +22,8 @@
 	import StatusHeroImage from '$lib/ui/StatusHeroImage.svelte';
 	import ActionButton from '$lib/ui/ActionButton.svelte';
 	import SingleDayModal from '$lib/ui/SingleDayModal.svelte';
+	import { DatePickerYearSelect } from '@ark-ui/svelte';
+	import { getDoggoChewableStatusColor } from '$lib/logic';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
@@ -80,20 +82,6 @@
 		};
 	});
 
-	function getStatusColorFromValue(daysDiff: number): string {
-		if (!monthsToNext) return '';
-
-		if (daysDiff === 0) return 'empty';
-
-		if (daysDiff < 0) return 'green';
-
-		if (daysDiff > 0 && daysDiff < 1) return 'orange';
-
-		if (daysDiff >= 1) return 'red';
-
-		return '';
-	}
-
 	let nextChewable: number | undefined = $derived.by(() => {
 		let nextChewable;
 		if (doggoChewables.isSuccess) {
@@ -113,7 +101,7 @@
 			return 'empty';
 		}
 		console.log(nextChewable);
-		return getStatusColorFromValue(nextChewable);
+		return getDoggoChewableStatusColor(nextChewable, monthsToNext);
 	});
 
 	let currentTab = $state('overview');

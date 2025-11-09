@@ -22,6 +22,7 @@
 	import StatusHeroImage from '$lib/ui/StatusHeroImage.svelte';
 	import ActionButton from '$lib/ui/ActionButton.svelte';
 	import SingleDayModal from '$lib/ui/SingleDayModal.svelte';
+	import { getSprayStatusColor } from '$lib/logic';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
@@ -80,24 +81,6 @@
 		};
 	});
 
-	function getStatusColorFromValue(val: number): string {
-		if (!daysToNext) return '';
-
-		if (val === 0) return '';
-
-		const day = 24;
-
-		if (val > 0 && val <= daysToNext * day) return 'green';
-
-		if (val > 2 * day && val <= 4 * day) return 'yellow';
-
-		if (val > 4 * day && val <= 6 * day) return 'orange';
-
-		if (val > daysToNext * day && val <= 999 * day) return 'red';
-
-		return '';
-	}
-
 	let lastSpray: number | undefined = $derived.by(() => {
 		let lastSpray;
 		if (sprays.isSuccess) {
@@ -114,7 +97,7 @@
 		if (!lastSpray) {
 			return 'empty';
 		}
-		return getStatusColorFromValue(lastSpray);
+		return getSprayStatusColor(lastSpray, daysToNext);
 	});
 
 	let currentTab = $state('overview');

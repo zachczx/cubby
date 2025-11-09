@@ -2,8 +2,6 @@ import type { Calendar } from '@event-calendar/core';
 import type { CreateQueryResult } from '@tanstack/svelte-query';
 import dayjs from 'dayjs';
 
-type CalendarRecord = VacationDB | SprayDB | TowelDB | GummyDB | DoggoChewableDB;
-
 function hasDateRange(record: CalendarRecord): record is VacationDB {
 	return 'startDateTime' in record;
 }

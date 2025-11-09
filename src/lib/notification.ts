@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { dirtyTowelDays } from './config';
+import { dirtyTowelDays } from './logic';
 
 export function getNotificationStatus(query: Query): NotificationStatus {
 	if (!query?.isSuccess || query.data.length === 0) return defaultNotificationStatus;

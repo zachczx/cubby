@@ -44,7 +44,7 @@ interface GummyRecord extends GummyDB {
 
 interface DoggoChewableDB {
 	collectionId: string;
-	collectionName: 'gummy';
+	collectionName: 'doggoChewable';
 	id: string;
 	time: string;
 	created: string;
@@ -54,6 +54,21 @@ interface DoggoChewableDB {
 }
 
 interface DoggoChewableRecord extends DoggoChewableDB {
+	gap: number;
+}
+
+interface DoggoBathDB {
+	collectionId: string;
+	collectionName: 'doggoBath';
+	id: string;
+	time: string;
+	created: string;
+	updated: string;
+	user: string;
+	monthsToNext: number;
+}
+
+interface DoggoBathRecord extends DoggoBathDB {
 	gap: number;
 }
 
@@ -105,4 +120,12 @@ interface StatusDescriptions {
 type Query =
 	| CreateQueryResult<SprayDB[], Error>
 	| CreateQueryResult<TowelDB[], Error>
-	| CreateQueryResult<GummyDB[], Error>;
+	| CreateQueryResult<GummyDB[], Error>
+	| CreateQueryResult<DoggoChewableDB[], Error>
+	| CreateQueryResult<DoggoBathDB[], Error>;
+
+type CollectionsTrackingTime = SprayDB | TowelDB | GummyDB | DoggoChewableDB | DoggoBathDB;
+
+type Collections = CollectionsTrackingTime | VacationDB;
+
+type CalendarRecord = Collections;

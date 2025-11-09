@@ -15,13 +15,13 @@
 		createVacationQueryOptions
 	} from '$lib/queries';
 	import { getCalendarEntries } from '$lib/calendar';
-	import { getStatusColorFromValue } from '$lib/towels';
 	import CustomDateModal from '$lib/ui/CustomDateModal.svelte';
 	import TwoColumnCard from '$lib/ui/TwoColumnCard.svelte';
 	import StatusDescriptions from '$lib/ui/StatusDescriptions.svelte';
 	import StatusHeroImage from '$lib/ui/StatusHeroImage.svelte';
 	import ActionButton from '$lib/ui/ActionButton.svelte';
 	import SingleDayModal from '$lib/ui/SingleDayModal.svelte';
+	import { dirtyTowelDays, getTowelStatusColor } from '$lib/logic';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
@@ -35,7 +35,6 @@
 	 * Using $state + $effect instead of $derived due to TanStack Query store
 	 * not properly triggering Svelte 5's fine-grained reactivity on async data changes
 	 */
-
 	let towelRecords: TowelRecord[] = $state([]);
 	$effect(() => {
 		if (towels.isSuccess) {
@@ -216,7 +215,7 @@
 		if (!towelDirty) {
 			return 'empty';
 		}
-		return getStatusColorFromValue(towelDirty ?? 0);
+		return getTowelStatusColor(towelDirty ?? 0);
 	});
 
 	const query = async () =>

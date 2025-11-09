@@ -57,6 +57,15 @@ export function createDoggoChewableQueryOptions() {
 	});
 }
 
+export function createDoggoBathQueryOptions() {
+	return queryOptions({
+		queryKey: ['doggoBaths', pb.authStore?.record?.id],
+		queryFn: async (): Promise<DoggoBathDB[]> =>
+			await pb.collection('doggoBath').getFullList({ sort: '-time' }),
+		staleTime: staleTime
+	});
+}
+
 export function createTowelRefetchOptions(): RefetchQueryFilters {
 	return {
 		queryKey: ['towels', pb.authStore?.record?.id],
@@ -84,6 +93,14 @@ export function createGummyRefetchOptions(): RefetchQueryFilters {
 export function createDoggoChewableRefetchOptions(): RefetchQueryFilters {
 	return {
 		queryKey: ['doggoChewables', pb.authStore?.record?.id],
+		type: 'active',
+		exact: true
+	};
+}
+
+export function createDoggoBathRefetchOptions(): RefetchQueryFilters {
+	return {
+		queryKey: ['doggoBaths', pb.authStore?.record?.id],
 		type: 'active',
 		exact: true
 	};
