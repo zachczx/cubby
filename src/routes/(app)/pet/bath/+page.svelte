@@ -246,8 +246,8 @@
 						{#if doggoBaths.isSuccess}
 							{#if status}
 								{@const descriptions = {
-									green: 'Fed',
-									yellow: 'Good',
+									green: 'Bathed',
+									yellow: 'Bathed',
 									orange: 'Due',
 									red: 'Overdue'
 								}}

@@ -221,7 +221,7 @@
 			<section class="grid gap-4 py-2">
 				<h2 class="text-base-content/70 text-lg font-bold">Upcoming</h2>
 
-				{#if doggoBathNotification}
+				{#if doggoBathNotification.show}
 					{@render upcomingCard({
 						title: 'Bath',
 						query: doggoBaths,
@@ -232,7 +232,7 @@
 					})}
 				{/if}
 
-				{#if doggoChewableNotification}
+				{#if doggoChewableNotification.show}
 					{@render upcomingCard({
 						title: 'Chewable',
 						query: doggoChewables,

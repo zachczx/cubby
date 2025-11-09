@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import { dirtyTowelDays } from './logic';
 
 export function getNotificationStatus(query: Query): NotificationStatus {
-	if (!query?.isSuccess || query.data.length === 0) return defaultNotificationStatus;
+	if (!query?.isSuccess || query.data?.length === 0) return defaultNotificationStatus;
 
 	const lastRecord = query.data?.[0] ?? null;
 	if (!lastRecord) return defaultNotificationStatus;
@@ -12,7 +12,11 @@ export function getNotificationStatus(query: Query): NotificationStatus {
 
 	let intervalHours = 0;
 
-	if (lastRecord.collectionName === 'spray' || lastRecord.collectionName === 'gummy') {
+	if (
+		lastRecord.collectionName === 'spray' ||
+		lastRecord.collectionName === 'gummy' ||
+		lastRecord.collectionName === 'doggoBath'
+	) {
 		intervalHours = lastRecord.daysToNext * 24;
 	} else if (lastRecord.collectionName === 'towel') {
 		intervalHours = dirtyTowelDays * 24;
