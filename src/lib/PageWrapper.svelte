@@ -29,6 +29,7 @@
 	import LucideLabTowelRack from './assets/svg/LucideLabTowelRack.svelte';
 	import PhTowelFill from './assets/svg/PhTowelFill.svelte';
 	import IconParkSolidBottleOne from './assets/svg/IconParkSolidBottleOne.svelte';
+	import MaterialSymbolsCleaningServices from './assets/svg/MaterialSymbolsCleaningServices.svelte';
 
 	let {
 		pb,
@@ -44,19 +45,35 @@
 		largeScreenCenter?: boolean;
 	} = $props();
 
-	let currentPage = $derived.by(() => {
+	// let currentPage = $derived.by(() => {
+	// 	const p = page.url.pathname;
+
+	// 	if (p.includes('count')) {
+	// 		return 'count';
+	// 	} else if (p.includes('spray')) {
+	// 		return 'spray';
+	// 	} else if (p.includes('towel')) {
+	// 		return 'towel';
+	// 	} else if (p.includes('gummy')) {
+	// 		return 'gummy';
+	// 	} else if (p.endsWith('')) {
+	// 		return '/';
+	// 	} else {
+	// 		return '';
+	// 	}
+	// });
+
+	let currentSection = $derived.by(() => {
 		const p = page.url.pathname;
 
-		if (p.includes('count')) {
-			return 'count';
-		} else if (p.includes('spray')) {
-			return 'spray';
-		} else if (p.includes('towel')) {
-			return 'towel';
-		} else if (p.includes('gummy')) {
-			return 'gummy';
+		if (p.includes('personal')) {
+			return 'personal';
+		} else if (p.includes('pet')) {
+			return 'pet';
+		} else if (p.includes('household')) {
+			return 'household';
 		} else if (p.endsWith('')) {
-			return '/';
+			return 'home';
 		} else {
 			return '';
 		}
@@ -121,52 +138,52 @@
 						href="/"
 						class={[
 							'px-4 py-2',
-							currentPage === '/' && 'rounded-full bg-white/30 font-bold',
-							currentPage !== '/' && 'rounded-full hover:bg-white/20'
+							currentSection === 'home' && 'rounded-full bg-white/30 font-bold',
+							currentSection !== 'home' && 'rounded-full hover:bg-white/20'
 						]}>Dashboard</a
 					>
 				</li>
 
 				<li>
 					<a
-						href="/towel"
+						href="/household/towel"
 						class={[
 							'px-4 py-2',
-							currentPage === 'towel' && 'rounded-full bg-white/30 font-bold',
-							currentPage !== 'towel' && 'rounded-full hover:bg-white/20'
+							currentSection === 'towel' && 'rounded-full bg-white/30 font-bold',
+							currentSection !== 'towel' && 'rounded-full hover:bg-white/20'
 						]}>Towel</a
 					>
 				</li>
 
 				<li>
 					<a
-						href="/spray"
+						href="/personal/spray"
 						class={[
 							'px-4 py-2',
-							currentPage === 'spray' && 'rounded-full bg-white/30 font-bold',
-							currentPage !== 'spray' && 'rounded-full hover:bg-white/20'
+							currentSection === 'spray' && 'rounded-full bg-white/30 font-bold',
+							currentSection !== 'spray' && 'rounded-full hover:bg-white/20'
 						]}>Spray</a
 					>
 				</li>
 
 				<li>
 					<a
-						href="/gummy"
+						href="/personal/gummy"
 						class={[
 							'px-4 py-2',
-							currentPage === 'gummy' && 'rounded-full bg-white/30 font-bold',
-							currentPage !== 'gummy' && 'rounded-full hover:bg-white/20'
+							currentSection === 'gummy' && 'rounded-full bg-white/30 font-bold',
+							currentSection !== 'gummy' && 'rounded-full hover:bg-white/20'
 						]}>Gummy</a
 					>
 				</li>
 
 				<li>
 					<a
-						href="/count"
+						href="/household/count"
 						class={[
 							'px-4 py-2',
-							currentPage === 'count' && 'rounded-full bg-white/20 font-bold',
-							currentPage !== 'count' && 'rounded-full hover:bg-white/10'
+							currentSection === 'count' && 'rounded-full bg-white/20 font-bold',
+							currentSection !== 'count' && 'rounded-full hover:bg-white/10'
 						]}>Timer</a
 					>
 				</li>
@@ -211,29 +228,24 @@
 			title === 'Login' ? 'hidden' : undefined
 		]}
 	>
-		<a href="/" class={[currentPage === '/' && 'text-primary font-semibold']}>
+		<a href="/" class={[currentSection === 'home' && 'text-primary font-semibold']}>
 			<MaterialSymbolsHome class="size-[1.5em]" />
 			<span class="text-sm tracking-wider">Home</span>
 		</a>
 
-		<a href="/towel" class={[currentPage === 'towel' && 'text-primary font-semibold']}>
-			<PhTowelFill class="size-[1.5em]" />
-			<span class="text-sm tracking-wider">Towel</span>
-		</a>
-
-		<a href="/spray" class={[currentPage === 'spray' && 'text-primary font-semibold']}>
-			<IconParkSolidBottleOne class="size-[1.5em]" />
-			<span class="text-sm tracking-wider">Spray</span>
-		</a>
-
-		<a href="/gummy" class={[currentPage === 'gummy' && 'text-primary font-semibold']}>
+		<a href="/personal" class={[currentSection === 'personal' && 'text-primary font-semibold']}>
 			<MaterialSymbolsHealthAndSafety class="size-[1.5em]" />
-			<span class="text-sm tracking-wider">Gummy</span>
+			<span class="text-sm tracking-wider">Personal</span>
 		</a>
 
-		<a href="/count" class={[currentPage === 'count' && 'text-primary font-semibold']}>
+		<a href="/household" class={[currentSection === 'household' && 'text-primary font-semibold']}>
+			<MaterialSymbolsCleaningServices class="size-[1.5em]" />
+			<span class="text-sm tracking-wider">Household</span>
+		</a>
+
+		<a href="/pet" class={[currentSection === 'pet' && 'text-primary font-semibold']}>
 			<MaterialSymbolsTimer class="size-[1.5em]" />
-			<span class="text-sm tracking-wider">Timer</span>
+			<span class="text-sm tracking-wider">Pet</span>
 		</a>
 	</nav>
 </div>

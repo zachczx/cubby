@@ -107,23 +107,6 @@
 			<div class="grid gap-8 py-4">
 				<ActionCard
 					options={{
-						title: 'Wash Towel',
-						query: towels,
-						notification: towelNotification,
-						route: '/household/towel',
-						icon: PhTowelFill,
-						last: towelLast,
-						button: {
-							query: towelQuery,
-							refetch: towelRefetch,
-							status: towelButtonStatus,
-							text: 'Washed'
-						}
-					}}
-				></ActionCard>
-
-				<ActionCard
-					options={{
 						title: 'Spray Nose',
 						query: sprays,
 						notification: sprayNotification,
