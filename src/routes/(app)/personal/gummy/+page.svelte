@@ -97,8 +97,7 @@
 
 	let currentTab = $state('overview');
 
-	let daysToNext = $derived.by(() => (user.isSuccess ? user.data?.gummyIntervalDays : undefined));
-
+	let daysToNext = $derived(user.isSuccess ? user.data.gummyIntervalDays : undefined);
 	/**
 	 * Using $state + $effect instead of $derived due to TanStack Query store
 	 * not properly triggering Svelte 5's fine-grained reactivity on async data changes
