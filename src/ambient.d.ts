@@ -6,6 +6,7 @@ interface TowelDB {
 	created: string;
 	updated: string;
 	user: string;
+	daysToNext: number;
 }
 
 interface TowelRecord extends TowelDB {
@@ -84,6 +85,7 @@ interface UserDB {
 	name: string;
 	avatar: string;
 	mute: boolean;
+	towelInterval: number;
 	sprayInterval: number;
 	gummyInterval: number;
 	doggoChewableIntervalMonths: number;

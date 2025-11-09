@@ -7,8 +7,8 @@ export function createTowelQueryOptions() {
 	return queryOptions({
 		queryKey: ['towels', pb.authStore?.record?.id],
 		queryFn: async (): Promise<TowelDB[]> =>
-			await pb.collection('towel').getFullList({ sort: '-time' }),
-		staleTime: staleTime
+			await pb.collection('towel').getFullList({ sort: '-time' })
+		// staleTime: staleTime
 	});
 }
 
@@ -25,8 +25,8 @@ export function createUserQueryOptions() {
 	return queryOptions({
 		queryKey: ['users', pb.authStore?.record?.id],
 		queryFn: async (): Promise<UserDB> =>
-			await pb.collection('users').getOne(String(pb.authStore?.record?.id)),
-		staleTime: staleTime
+			await pb.collection('users').getOne(String(pb.authStore?.record?.id))
+		// staleTime: staleTime
 	});
 }
 

@@ -54,24 +54,7 @@
 	async function addHandler() {
 		buttonStatus = 'loading';
 
-		if (collectionName === 'towel') {
-			const result = await pb.collection(collectionName).create({
-				user: pb.authStore.record?.id,
-				time: dayjs.tz(timestamp, 'Asia/Singapore')
-			});
-
-			if (result.id) {
-				dialog.close();
-				addToast('success', 'Added successfully!');
-				buttonStatus = 'success';
-
-				setTimeout(() => {
-					buttonStatus = 'default';
-				}, 3000);
-			}
-
-			await tanstackClient.refetchQueries(createTowelRefetchOptions());
-		} else if (collectionName === 'doggoChewable') {
+		if (collectionName === 'doggoChewable') {
 			const result = await pb.collection(collectionName).create({
 				user: pb.authStore.record?.id,
 				time: dayjs.tz(timestamp, 'Asia/Singapore'),
@@ -106,6 +89,9 @@
 				}, 3000);
 			}
 
+			if (collectionName === 'towel') {
+				await tanstackClient.refetchQueries(createTowelRefetchOptions());
+			}
 			if (collectionName === 'spray') {
 				await tanstackClient.refetchQueries(createSprayRefetchOptions());
 			}

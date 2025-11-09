@@ -12,6 +12,7 @@
 	import {
 		createTowelQueryOptions,
 		createTowelRefetchOptions,
+		createUserQueryOptions,
 		createVacationQueryOptions
 	} from '$lib/queries';
 	import { getCalendarEntries } from '$lib/calendar';
@@ -29,6 +30,7 @@
 
 	const vacations = createQuery(createVacationQueryOptions);
 	const towels = createQuery(createTowelQueryOptions);
+	const user = createQuery(createUserQueryOptions);
 	const tanstackClient = useQueryClient();
 
 	/**
@@ -218,12 +220,14 @@
 		return getTowelStatusColor(towelDirty ?? 0);
 	});
 
+	let daysToNext = $derived.by(() => (user.isSuccess ? user.data?.towelInterval : undefined));
+
 	const query = async () =>
 		await pb.collection('towel').create({
 			user: pb.authStore.record?.id,
-			time: dayjs.tz(new Date(), 'Asia/Singapore')
+			time: dayjs.tz(new Date(), 'Asia/Singapore'),
+			daysToNext: daysToNext
 		});
-
 	const refetch = async () => await tanstackClient.refetchQueries(createTowelRefetchOptions());
 </script>
 
@@ -237,7 +241,7 @@
 			<ActionButton {query} {refetch} text="Washed" />
 
 			<div class="flex justify-start">
-				<CustomDateModal collectionName="towel" {tanstackClient} />
+				<CustomDateModal collectionName="towel" {tanstackClient} {daysToNext} />
 			</div>
 		</div>
 
