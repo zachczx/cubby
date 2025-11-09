@@ -85,11 +85,11 @@
 
 		if (daysDiff === 0) return 'empty';
 
-		const day = 24;
-
 		if (daysDiff < 0) return 'green';
 
-		if (daysDiff > 0) return 'red';
+		if (daysDiff > 0 && daysDiff < 1) return 'orange';
+
+		if (daysDiff >= 1) return 'red';
 
 		return '';
 	}
@@ -112,7 +112,7 @@
 		if (!nextChewable) {
 			return 'empty';
 		}
-
+		console.log(nextChewable);
 		return getStatusColorFromValue(nextChewable);
 	});
 
@@ -131,7 +131,6 @@
 	 * not properly triggering Svelte 5's fine-grained reactivity on async data changes
 	 */
 	let doggoChewableRecords: DoggoChewableRecord[] = $state([]);
-
 	$effect(() => {
 		if (doggoChewables.isSuccess && doggoChewables.data) {
 			doggoChewableRecords = doggoChewables.data.map((record, i, allRecords) => {
@@ -141,8 +140,6 @@
 			});
 		}
 	});
-
-	$inspect(doggoChewableRecords);
 
 	let longestGap: DoggoChewableRecord | undefined = $derived.by(() => {
 		if (doggoChewableRecords.length <= 1) return;
@@ -259,12 +256,12 @@
 			</ul>
 
 			<div class="{currentTab === 'overview' ? 'grid' : 'hidden'} w-full gap-8 px-4">
-				<TwoColumnCard leftTitle="Status" rightTitle="Last Ate">
+				<TwoColumnCard leftTitle="Status" rightTitle="Last Fed">
 					{#snippet left()}
 						{#if doggoChewables.isSuccess}
 							{#if status}
 								{@const descriptions = {
-									green: 'Dosed',
+									green: 'Fed',
 									yellow: 'Good',
 									orange: 'Due',
 									red: 'Overdue'
