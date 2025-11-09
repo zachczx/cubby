@@ -12,6 +12,7 @@
 		createVacationQueryOptions,
 		createVacationRefetchOptions
 	} from '$lib/queries';
+	import { page } from '$app/state';
 
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
@@ -92,6 +93,14 @@
 	}
 
 	let currentTab = $state('settings');
+	let param = $derived(page.url.searchParams.get('p'));
+
+	$effect(() => {
+		if (param === 'vacations') {
+			currentTab = 'vacations';
+		}
+	});
+
 	let vacationStart = $state('');
 	let vacationEnd = $state('');
 	let vacationsModal = $state() as HTMLDialogElement;

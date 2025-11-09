@@ -5,7 +5,7 @@
 		placement: 'top',
 		overlap: true,
 		gap: 24,
-		duration: 7000
+		duration: 3000
 	});
 
 	export const addToast = (type: string = 'success', description: string) => {
