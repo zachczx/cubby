@@ -127,15 +127,20 @@
 		return user.data?.sprayInterval;
 	});
 
-	let sprayRecords: SprayRecord[] | undefined = $derived.by(() => {
+	/**
+	 * Using $state + $effect instead of $derived due to TanStack Query store
+	 * not properly triggering Svelte 5's fine-grained reactivity on async data changes
+	 */
+
+	let sprayRecords: SprayRecord[] = $state([]);
+	$effect(() => {
 		if (sprays.isSuccess && sprays.data) {
-			return sprays.data.map((record, i, allRecords) => {
+			sprayRecords = sprays.data.map((record, i, allRecords) => {
 				const nextRecord = allRecords[i + 1];
 				const gap = nextRecord ? dayjs(record.time).diff(nextRecord.time, 'day', true) : 0;
 				return { ...record, gap };
 			});
 		}
-		return [];
 	});
 
 	let longestGap: SprayRecord | undefined = $derived.by(() => {
