@@ -13,6 +13,7 @@
 		createVacationRefetchOptions
 	} from '$lib/queries';
 	import { page } from '$app/state';
+	import SegmentedControl from '$lib/ui/SegmentedControl.svelte';
 
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
@@ -39,13 +40,7 @@
 		user.isSuccess ? user.data?.doggoBathIntervalDays : undefined
 	);
 
-	let mute = $derived.by(() => {
-		if (!user.isSuccess) {
-			return undefined;
-		}
-
-		return !user.data?.mute;
-	});
+	let mute = $derived.by(() => (user.isSuccess ? !user.data?.mute : undefined));
 
 	let spinner = $state(false);
 
@@ -161,65 +156,224 @@
 
 			<div class="mt-4 grid w-full content-start">
 				{#if currentTab === 'settings'}
-					<div class="pe-1">
-						<div class="border-b-base-300 flex items-center border-b py-4 text-lg">
-							<legend class="fieldset-legend mb-2 grow">Days Per Towel Wash</legend>
+					<div class="px-1">
+						<div class="border-b-base-300 grid border-b py-4 text-lg">
+							<legend class="fieldset-legend">Days Per Towel Wash</legend>
 
-							<select bind:value={towelIntervalDays} class="select w-auto shrink text-lg">
-								<option value={1}>1</option>
-								<option value={2}>2</option>
-								<option value={3}>3</option>
-								<option value={4}>4</option>
-								<option value={5}>5</option>
-							</select>
+							<SegmentedControl items={5}>
+								<label>
+									<input
+										type="radio"
+										bind:group={towelIntervalDays}
+										value={1}
+										name="towelIntervalDays"
+									/>1
+								</label>
+								<label>
+									<input
+										type="radio"
+										bind:group={towelIntervalDays}
+										value={2}
+										name="towelIntervalDays"
+									/>2
+								</label>
+								<label>
+									<input
+										type="radio"
+										bind:group={towelIntervalDays}
+										value={3}
+										name="towelIntervalDays"
+									/>3
+								</label>
+								<label>
+									<input
+										type="radio"
+										bind:group={towelIntervalDays}
+										value={4}
+										name="towelIntervalDays"
+									/>4
+								</label>
+								<label>
+									<input
+										type="radio"
+										bind:group={towelIntervalDays}
+										value={5}
+										name="towelIntervalDays"
+									/>5
+								</label>
+							</SegmentedControl>
 						</div>
 
-						<div class="border-b-base-300 flex items-center border-b py-4 text-lg">
-							<legend class="fieldset-legend mb-2 grow">Days Per Nasal Spray</legend>
+						<div class="border-b-base-300 grid border-b py-4 text-lg">
+							<legend class="fieldset-legend">Days Per Nasal Spray</legend>
 
-							<select bind:value={sprayIntervalDays} class="select w-auto shrink text-lg">
-								<option value={1}>1</option>
-								<option value={2}>2</option>
-								<option value={3}>3</option>
-								<option value={4}>4</option>
-								<option value={5}>5</option>
-							</select>
+							<SegmentedControl items={5}>
+								<label>
+									<input
+										type="radio"
+										bind:group={sprayIntervalDays}
+										value={1}
+										name="sprayIntervalDays"
+									/>1
+								</label>
+								<label>
+									<input
+										type="radio"
+										bind:group={sprayIntervalDays}
+										value={2}
+										name="sprayIntervalDays"
+									/>2
+								</label>
+								<label>
+									<input
+										type="radio"
+										bind:group={sprayIntervalDays}
+										value={3}
+										name="sprayIntervalDays"
+									/>3
+								</label>
+								<label>
+									<input
+										type="radio"
+										bind:group={sprayIntervalDays}
+										value={4}
+										name="sprayIntervalDays"
+									/>4
+								</label>
+								<label>
+									<input
+										type="radio"
+										bind:group={sprayIntervalDays}
+										value={5}
+										name="sprayIntervalDays"
+									/>5
+								</label>
+							</SegmentedControl>
 						</div>
 
-						<div class="border-b-base-300 flex items-center border-b py-4 text-lg">
-							<legend class="fieldset-legend mb-2 grow">Days Per Gummy</legend>
+						<div class="border-b-base-300 grid border-b py-4 text-lg">
+							<legend class="fieldset-legend">Days Per Gummy</legend>
 
-							<select bind:value={gummyIntervalDays} class="select w-auto shrink text-lg">
-								<option value={1}>1</option>
-								<option value={2}>2</option>
-								<option value={3}>3</option>
-								<option value={4}>4</option>
-								<option value={5}>5</option>
-							</select>
+							<SegmentedControl items={5}>
+								<label>
+									<input
+										type="radio"
+										bind:group={gummyIntervalDays}
+										value={1}
+										name="gummyIntervalDays"
+									/>1
+								</label>
+								<label>
+									<input
+										type="radio"
+										bind:group={gummyIntervalDays}
+										value={2}
+										name="gummyIntervalDays"
+									/>2
+								</label>
+								<label>
+									<input
+										type="radio"
+										bind:group={gummyIntervalDays}
+										value={3}
+										name="gummyIntervalDays"
+									/>3
+								</label>
+								<label>
+									<input
+										type="radio"
+										bind:group={gummyIntervalDays}
+										value={4}
+										name="gummyIntervalDays"
+									/>4
+								</label>
+								<label>
+									<input
+										type="radio"
+										bind:group={gummyIntervalDays}
+										value={5}
+										name="gummyIntervalDays"
+									/>5
+								</label>
+							</SegmentedControl>
 						</div>
 
-						<div class="border-b-base-300 flex items-center border-b py-4 text-lg">
-							<legend class="fieldset-legend mb-2 grow">Months Per Pet Chewable</legend>
+						<div class="border-b-base-300 grid border-b py-4 text-lg">
+							<legend class="fieldset-legend">Months Per Pet Chewable</legend>
 
-							<select bind:value={doggoChewableIntervalMonths} class="select w-auto shrink text-lg">
-								<option value={1}>1</option>
-								<option value={2}>2</option>
-								<option value={3}>3</option>
-								<option value={4}>4</option>
-								<option value={5}>5</option>
-							</select>
+							<SegmentedControl items={3}>
+								<label>
+									<input
+										type="radio"
+										bind:group={doggoChewableIntervalMonths}
+										value={1}
+										name="doggoChewableIntervalMonths"
+									/>Monthly
+								</label>
+								<label>
+									<input
+										type="radio"
+										bind:group={doggoChewableIntervalMonths}
+										value={3}
+										name="doggoChewableIntervalMonths"
+									/>Quarterly
+								</label>
+								<label>
+									<input
+										type="radio"
+										bind:group={doggoChewableIntervalMonths}
+										value={6}
+										name="doggoChewableIntervalMonths"
+									/>Half-Yearly
+								</label>
+							</SegmentedControl>
 						</div>
 
-						<div class="border-b-base-300 flex items-center border-b py-4 text-lg">
-							<legend class="fieldset-legend mb-2 grow">Days Per Pet Bath</legend>
+						<div class="border-b-base-300 grid border-b py-4 text-lg">
+							<legend class="fieldset-legend">Days Per Pet Bath</legend>
 
-							<select bind:value={doggoBathIntervalDays} class="select w-auto shrink text-lg">
-								<option value={1}>1</option>
-								<option value={2}>2</option>
-								<option value={3}>3</option>
-								<option value={4}>4</option>
-								<option value={5}>5</option>
-							</select>
+							<SegmentedControl items={5}>
+								<label>
+									<input
+										type="radio"
+										bind:group={doggoBathIntervalDays}
+										value={3}
+										name="doggoBathIntervalDays"
+									/>3
+								</label>
+								<label>
+									<input
+										type="radio"
+										bind:group={doggoBathIntervalDays}
+										value={5}
+										name="doggoBathIntervalDays"
+									/>5
+								</label>
+								<label>
+									<input
+										type="radio"
+										bind:group={doggoBathIntervalDays}
+										value={7}
+										name="doggoBathIntervalDays"
+									/>7
+								</label>
+								<label>
+									<input
+										type="radio"
+										bind:group={doggoBathIntervalDays}
+										value={14}
+										name="doggoBathIntervalDays"
+									/>14
+								</label>
+								<label>
+									<input
+										type="radio"
+										bind:group={doggoBathIntervalDays}
+										value={30}
+										name="doggoBathIntervalDays"
+									/>30
+								</label>
+							</SegmentedControl>
 						</div>
 
 						<div class="border-b-base-300 flex items-center border-b py-4 text-lg">
