@@ -37,13 +37,14 @@
 				align-items: center;
 				justify-content: center;
 
-				outline-color: var(--input-color);
+				outline-color: #d6cecb;
+				/* var(--input-color);
 				--input-color: color-mix(
 					in oklab,
-					var(--color-base-content) /* var(--color-base-content) */ 40%,
+					var(--color-base-content) 40%,
 					#0000
-				);
-				--size: calc(var(--size-field, 0.25rem /* 4px */) * 10);
+				); */
+				--size: calc(var(--size-field, 0.25rem) * 10);
 
 				&:has(input:checked) {
 					color: var(--color-neutral-content);
