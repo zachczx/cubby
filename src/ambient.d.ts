@@ -85,11 +85,11 @@ interface UserDB {
 	name: string;
 	avatar: string;
 	mute: boolean;
-	towelInterval: number;
-	sprayInterval: number;
-	gummyInterval: number;
+	towelIntervalDays: number;
+	sprayIntervalDays: number;
+	gummyIntervalDays: number;
 	doggoChewableIntervalMonths: number;
-	doggoBathInterval: number;
+	doggoBathIntervalDays: number;
 	created: string;
 	updated: string;
 }

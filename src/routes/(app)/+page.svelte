@@ -55,21 +55,13 @@
 		return '';
 	});
 
-	let sprayDaysToNext = $derived.by(() => {
-		if (user.isPending) {
-			return undefined;
-		}
+	let sprayDaysToNext = $derived.by(() =>
+		user.isSuccess ? user.data?.sprayIntervalDays : undefined
+	);
 
-		return user.data?.sprayInterval;
-	});
-
-	let gummyDaysToNext = $derived.by(() => {
-		if (user.isPending) {
-			return undefined;
-		}
-
-		return user.data?.gummyInterval;
-	});
+	let gummyDaysToNext = $derived.by(() =>
+		user.isSuccess ? user.data?.gummyIntervalDays : undefined
+	);
 
 	let sprayLast: string = $derived.by(() => {
 		if (sprays.isSuccess && sprays.data.length > 0) return dayjs(sprays.data[0].time).fromNow();
@@ -119,7 +111,7 @@
 			return undefined;
 		}
 
-		return user.data?.doggoBathInterval;
+		return user.data?.doggoBathIntervalDays;
 	});
 
 	let doggoChewableMonthsToNext = $derived.by(() => {

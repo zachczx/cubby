@@ -23,21 +23,21 @@
 
 	const tanstackClient = useQueryClient();
 
-	let sprayInterval = $derived.by(() => {
-		if (user.isPending) {
-			return undefined;
-		}
-
-		return user.data?.sprayInterval;
-	});
-
-	let gummyInterval = $derived.by(() => {
-		if (user.isPending) {
-			return undefined;
-		}
-
-		return user.data?.gummyInterval;
-	});
+	let towelIntervalDays = $derived.by(() =>
+		user.isSuccess ? user.data?.towelIntervalDays : undefined
+	);
+	let sprayIntervalDays = $derived.by(() =>
+		user.isSuccess ? user.data?.sprayIntervalDays : undefined
+	);
+	let gummyIntervalDays = $derived.by(() =>
+		user.isSuccess ? user.data?.gummyIntervalDays : undefined
+	);
+	let doggoChewableIntervalMonths = $derived.by(() =>
+		user.isSuccess ? user.data?.doggoChewableIntervalMonths : undefined
+	);
+	let doggoBathIntervalDays = $derived.by(() =>
+		user.isSuccess ? user.data?.doggoBathIntervalDays : undefined
+	);
 
 	let mute = $derived.by(() => {
 		if (!user.isSuccess) {
@@ -55,8 +55,11 @@
 
 		try {
 			await pb.collection('users').update(user.data.id, {
-				sprayInterval: sprayInterval,
-				gummyInterval: gummyInterval,
+				towelIntervalDays: towelIntervalDays,
+				sprayIntervalDays: sprayIntervalDays,
+				gummyIntervalDays: gummyIntervalDays,
+				doggoChewableIntervalMonths: doggoChewableIntervalMonths,
+				doggoBathIntervalDays: doggoBathIntervalDays,
 				mute: mute === undefined ? false : !mute
 			});
 			addToast('success', 'Updated!');
@@ -160,9 +163,21 @@
 				{#if currentTab === 'settings'}
 					<div class="pe-1">
 						<div class="border-b-base-300 flex items-center border-b py-4 text-lg">
+							<legend class="fieldset-legend mb-2 grow">Days Per Towel Wash</legend>
+
+							<select bind:value={towelIntervalDays} class="select w-auto shrink text-lg">
+								<option value={1}>1</option>
+								<option value={2}>2</option>
+								<option value={3}>3</option>
+								<option value={4}>4</option>
+								<option value={5}>5</option>
+							</select>
+						</div>
+
+						<div class="border-b-base-300 flex items-center border-b py-4 text-lg">
 							<legend class="fieldset-legend mb-2 grow">Days Per Nasal Spray</legend>
 
-							<select bind:value={sprayInterval} class="select w-auto shrink text-lg">
+							<select bind:value={sprayIntervalDays} class="select w-auto shrink text-lg">
 								<option value={1}>1</option>
 								<option value={2}>2</option>
 								<option value={3}>3</option>
@@ -174,7 +189,31 @@
 						<div class="border-b-base-300 flex items-center border-b py-4 text-lg">
 							<legend class="fieldset-legend mb-2 grow">Days Per Gummy</legend>
 
-							<select bind:value={gummyInterval} class="select w-auto shrink text-lg">
+							<select bind:value={gummyIntervalDays} class="select w-auto shrink text-lg">
+								<option value={1}>1</option>
+								<option value={2}>2</option>
+								<option value={3}>3</option>
+								<option value={4}>4</option>
+								<option value={5}>5</option>
+							</select>
+						</div>
+
+						<div class="border-b-base-300 flex items-center border-b py-4 text-lg">
+							<legend class="fieldset-legend mb-2 grow">Months Per Pet Chewable</legend>
+
+							<select bind:value={doggoChewableIntervalMonths} class="select w-auto shrink text-lg">
+								<option value={1}>1</option>
+								<option value={2}>2</option>
+								<option value={3}>3</option>
+								<option value={4}>4</option>
+								<option value={5}>5</option>
+							</select>
+						</div>
+
+						<div class="border-b-base-300 flex items-center border-b py-4 text-lg">
+							<legend class="fieldset-legend mb-2 grow">Days Per Pet Bath</legend>
+
+							<select bind:value={doggoBathIntervalDays} class="select w-auto shrink text-lg">
 								<option value={1}>1</option>
 								<option value={2}>2</option>
 								<option value={3}>3</option>

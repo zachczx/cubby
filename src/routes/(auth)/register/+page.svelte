@@ -23,10 +23,11 @@
 				emailVisibility: true,
 				password: cleanPassword,
 				passwordConfirm: cleanPassword,
-				sprayInterval: 2,
-				gummyInterval: 2,
-				doggoNexgardIntervalMonths: 1,
-				doggoBathInterval: 14
+				towelIntervalDays: 5,
+				sprayIntervalDays: 3,
+				gummyIntervalDays: 2,
+				doggoChewableIntervalMonths: 1,
+				doggoBathIntervalDays: 14
 			};
 
 			const record = await pb.collection('users').create(data);

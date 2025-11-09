@@ -216,7 +216,7 @@
 
 	let towelNotification = $derived.by(() => getNotificationStatus(towels));
 
-	let daysToNext = $derived.by(() => (user.isSuccess ? user.data?.towelInterval : undefined));
+	let daysToNext = $derived.by(() => (user.isSuccess ? user.data?.towelIntervalDays : undefined));
 
 	const query = async () =>
 		await pb.collection('towel').create({

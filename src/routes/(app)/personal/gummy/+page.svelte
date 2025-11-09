@@ -97,7 +97,7 @@
 
 	let currentTab = $state('overview');
 
-	let daysToNext = $derived.by(() => (user.isSuccess ? user.data?.gummyInterval : undefined));
+	let daysToNext = $derived.by(() => (user.isSuccess ? user.data?.gummyIntervalDays : undefined));
 
 	/**
 	 * Using $state + $effect instead of $derived due to TanStack Query store

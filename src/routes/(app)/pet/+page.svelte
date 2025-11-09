@@ -47,7 +47,7 @@
 			return undefined;
 		}
 
-		return user.data?.doggoBathInterval;
+		return user.data?.doggoBathIntervalDays;
 	});
 
 	let doggoChewableMonthsToNext = $derived.by(() => {

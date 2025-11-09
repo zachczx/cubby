@@ -101,13 +101,9 @@
 
 	let currentTab = $state('overview');
 
-	let monthsToNext = $derived.by(() => {
-		if (user.isPending) {
-			return undefined;
-		}
-
-		return user.data?.doggoChewableIntervalMonths;
-	});
+	let monthsToNext = $derived.by(() =>
+		user.isSuccess ? user.data?.doggoChewableIntervalMonths : undefined
+	);
 
 	/**
 	 * Using $state + $effect instead of $derived due to TanStack Query store

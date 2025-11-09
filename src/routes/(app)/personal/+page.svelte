@@ -50,7 +50,7 @@
 			return undefined;
 		}
 
-		return user.data?.sprayInterval;
+		return user.data?.sprayIntervalDays;
 	});
 
 	let gummyDaysToNext = $derived.by(() => {
@@ -58,7 +58,7 @@
 			return undefined;
 		}
 
-		return user.data?.gummyInterval;
+		return user.data?.gummyIntervalDays;
 	});
 
 	let sprayLast: string = $derived.by(() => {
