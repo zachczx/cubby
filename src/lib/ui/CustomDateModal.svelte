@@ -25,7 +25,7 @@
 		monthsToNext,
 		tanstackClient
 	}: {
-		collectionName: 'towel' | 'spray' | 'gummy' | 'doggoChewable' | 'doggoBath';
+		collectionName: CollectionName;
 		daysToNext?: number;
 		monthsToNext?: number;
 		tanstackClient: QueryClient;

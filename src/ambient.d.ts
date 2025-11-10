@@ -112,11 +112,33 @@ interface NotificationStatus {
 
 type ButtonState = 'default' | 'loading' | 'success';
 
-interface StatusDescriptions {
-	green: string;
-	yellow: string;
-	orange: string;
-	red: string;
+interface TrackerStatuses {
+	ok: string;
+	due: string;
+	overdue: string;
+}
+
+type CollectionName =
+	| 'towel'
+	| 'spray'
+	| 'gummy'
+	| 'user'
+	| 'vacation'
+	| 'doggoBath'
+	| 'doggoChewable';
+
+// Types/Interfaces for TrackerPage component abstraction
+
+interface TrackerPageOptions {
+	collectionName: CollectionName;
+	labels: { pageTitle: string; ctaButtonText: string; statusLabels: TrackerStatuses };
+	queries: {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		query: () => any;
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		refetch: () => any;
+	};
+	calculateGaps?: (records: TrackerDB[], vacations: VacationDB[]) => TrackerRecord[];
 }
 
 type Query =
@@ -125,6 +147,9 @@ type Query =
 	| CreateQueryResult<GummyDB[], Error>
 	| CreateQueryResult<DoggoChewableDB[], Error>
 	| CreateQueryResult<DoggoBathDB[], Error>;
+
+type TrackerDB = TowelDB | SprayDB | GummyDB;
+type TrackerRecord = TowelRecord | SprayRecord | GummyRecord;
 
 type CollectionsTrackingTime = SprayDB | TowelDB | GummyDB | DoggoChewableDB | DoggoBathDB;
 
