@@ -1,5 +1,5 @@
 <script lang="ts">
-	import PageWrapper from '$lib/PageWrapper.svelte';
+	import PageWrapper from '$lib/shell/PageWrapper.svelte';
 	import { pb } from '$lib/pb';
 	import dayjs from 'dayjs';
 	import utc from 'dayjs/plugin/utc';

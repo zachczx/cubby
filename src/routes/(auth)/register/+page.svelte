@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 	import MaterialSymbolsVisibilityOffOutline from '$lib/assets/svg/MaterialSymbolsVisibilityOffOutline.svelte';
 	import MaterialSymbolsVisibilityOutline from '$lib/assets/svg/MaterialSymbolsVisibilityOutline.svelte';
-	import PageWrapper from '$lib/PageWrapper.svelte';
+	import PageWrapper from '$lib/shell/PageWrapper.svelte';
 	import { pb } from '$lib/pb';
 
 	if (pb.authStore.isValid) {

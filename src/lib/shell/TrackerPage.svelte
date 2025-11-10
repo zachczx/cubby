@@ -5,7 +5,7 @@
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import timezone from 'dayjs/plugin/timezone';
 	import { Calendar, DayGrid, Interaction } from '@event-calendar/core';
-	import PageWrapper from '$lib/PageWrapper.svelte';
+	import PageWrapper from '$lib/shell/PageWrapper.svelte';
 	import Chart from 'chart.js/auto';
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import { createUserQueryOptions, createVacationQueryOptions } from '$lib/queries';

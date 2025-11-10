@@ -1,5 +1,5 @@
 <script lang="ts">
-	import PageWrapper from '$lib/PageWrapper.svelte';
+	import PageWrapper from '$lib/shell/PageWrapper.svelte';
 	import { pb } from '$lib/pb';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
 	import dayjs from 'dayjs';

@@ -4,32 +4,32 @@
 
 	import type Client from 'pocketbase';
 	import type { Snippet } from 'svelte';
-	import MaterialSymbolsClose from './assets/svg/MaterialSymbolsClose.svelte';
-	import MaterialSymbolsLogin from './assets/svg/MaterialSymbolsLogin.svelte';
-	import MaterialSymbolsLogout from './assets/svg/MaterialSymbolsLogout.svelte';
-	import MaterialSymbolsSettings from './assets/svg/MaterialSymbolsSettings.svelte';
-	import MaterialSymbolsNotifications from './assets/svg/MaterialSymbolsNotifications.svelte';
-	import MaterialSymbolsWarning from './assets/svg/MaterialSymbolsWarning.svelte';
-	import MaterialSymbolsChevronRight from './assets/svg/MaterialSymbolsChevronRight.svelte';
-	import MaterialSymbolsCheckCircle from './assets/svg/MaterialSymbolsCheckCircle.svelte';
-	import MaterialSymbolsNotificationImportant from './assets/svg/MaterialSymbolsNotificationImportant.svelte';
+	import MaterialSymbolsClose from '$lib/assets/svg/MaterialSymbolsClose.svelte';
+	import MaterialSymbolsLogin from '$lib/assets/svg/MaterialSymbolsLogin.svelte';
+	import MaterialSymbolsLogout from '$lib/assets/svg/MaterialSymbolsLogout.svelte';
+	import MaterialSymbolsSettings from '$lib/assets/svg/MaterialSymbolsSettings.svelte';
+	import MaterialSymbolsNotifications from '$lib/assets/svg/MaterialSymbolsNotifications.svelte';
+	import MaterialSymbolsWarning from '$lib/assets/svg/MaterialSymbolsWarning.svelte';
+	import MaterialSymbolsChevronRight from '$lib/assets/svg/MaterialSymbolsChevronRight.svelte';
+	import MaterialSymbolsCheckCircle from '$lib/assets/svg/MaterialSymbolsCheckCircle.svelte';
+	import MaterialSymbolsNotificationImportant from '$lib/assets/svg/MaterialSymbolsNotificationImportant.svelte';
 	import {
 		createGummyQueryOptions,
 		createSprayQueryOptions,
 		createTowelQueryOptions
-	} from './queries';
+	} from '$lib/queries';
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import dayjs from 'dayjs';
-	import { dirtyTowelDays } from './logic';
-	import { getNotificationCount, getNotificationStatus } from './notification';
-	import MaterialSymbolsHome from './assets/svg/MaterialSymbolsHome.svelte';
-	import MaterialSymbolsHealthCross from './assets/svg/MaterialSymbolsHealthCross.svelte';
-	import MaterialSymbolsTimer from './assets/svg/MaterialSymbolsTimer.svelte';
-	import MaterialSymbolsHealthAndSafety from './assets/svg/MaterialSymbolsHealthAndSafety.svelte';
-	import LucideLabTowelRack from './assets/svg/LucideLabTowelRack.svelte';
-	import PhTowelFill from './assets/svg/PhTowelFill.svelte';
-	import IconParkSolidBottleOne from './assets/svg/IconParkSolidBottleOne.svelte';
-	import MaterialSymbolsCleaningServices from './assets/svg/MaterialSymbolsCleaningServices.svelte';
+	import { dirtyTowelDays } from '$lib/logic';
+	import { getNotificationCount, getNotificationStatus } from '$lib/notification';
+	import MaterialSymbolsHome from '$lib/assets/svg/MaterialSymbolsHome.svelte';
+	import MaterialSymbolsHealthCross from '$lib/assets/svg/MaterialSymbolsHealthCross.svelte';
+	import MaterialSymbolsTimer from '$lib/assets/svg/MaterialSymbolsTimer.svelte';
+	import MaterialSymbolsHealthAndSafety from '$lib/assets/svg/MaterialSymbolsHealthAndSafety.svelte';
+	import LucideLabTowelRack from '$lib/assets/svg/LucideLabTowelRack.svelte';
+	import PhTowelFill from '$lib/assets/svg/PhTowelFill.svelte';
+	import IconParkSolidBottleOne from '$lib/assets/svg/IconParkSolidBottleOne.svelte';
+	import MaterialSymbolsCleaningServices from '$lib/assets/svg/MaterialSymbolsCleaningServices.svelte';
 
 	let {
 		pb,
@@ -44,24 +44,6 @@
 		back?: boolean;
 		largeScreenCenter?: boolean;
 	} = $props();
-
-	// let currentPage = $derived.by(() => {
-	// 	const p = page.url.pathname;
-
-	// 	if (p.includes('count')) {
-	// 		return 'count';
-	// 	} else if (p.includes('spray')) {
-	// 		return 'spray';
-	// 	} else if (p.includes('towel')) {
-	// 		return 'towel';
-	// 	} else if (p.includes('gummy')) {
-	// 		return 'gummy';
-	// 	} else if (p.endsWith('')) {
-	// 		return '/';
-	// 	} else {
-	// 		return '';
-	// 	}
-	// });
 
 	let currentSection = $derived.by(() => {
 		const p = page.url.pathname;

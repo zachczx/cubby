@@ -3,7 +3,7 @@
 	import dayjs from 'dayjs';
 	import duration from 'dayjs/plugin/duration';
 	import { play } from '$lib/play';
-	import PageWrapper from '$lib/PageWrapper.svelte';
+	import PageWrapper from '$lib/shell/PageWrapper.svelte';
 	import { pb } from '$lib/pb';
 	import { Capacitor } from '@capacitor/core';
 	import { createUserQueryOptions } from '$lib/queries';
