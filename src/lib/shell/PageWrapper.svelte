@@ -30,6 +30,7 @@
 	import PhTowelFill from '$lib/assets/svg/PhTowelFill.svelte';
 	import IconParkSolidBottleOne from '$lib/assets/svg/IconParkSolidBottleOne.svelte';
 	import MaterialSymbolsCleaningServices from '$lib/assets/svg/MaterialSymbolsCleaningServices.svelte';
+	import MaterialSymbolsPets from '$lib/assets/svg/MaterialSymbolsPets.svelte';
 
 	let {
 		pb,
@@ -128,45 +129,34 @@
 
 				<li>
 					<a
-						href="/household/towel"
+						href="/personal"
 						class={[
 							'px-4 py-2',
-							currentSection === 'towel' && 'rounded-full bg-white/30 font-bold',
-							currentSection !== 'towel' && 'rounded-full hover:bg-white/20'
-						]}>Towel</a
+							currentSection === 'personal' && 'rounded-full bg-white/30 font-bold',
+							currentSection !== 'personal' && 'rounded-full hover:bg-white/20'
+						]}>Personal</a
 					>
 				</li>
 
 				<li>
 					<a
-						href="/personal/spray"
+						href="/household"
 						class={[
 							'px-4 py-2',
-							currentSection === 'spray' && 'rounded-full bg-white/30 font-bold',
-							currentSection !== 'spray' && 'rounded-full hover:bg-white/20'
-						]}>Spray</a
+							currentSection === 'household' && 'rounded-full bg-white/30 font-bold',
+							currentSection !== 'household' && 'rounded-full hover:bg-white/20'
+						]}>Household</a
 					>
 				</li>
 
 				<li>
 					<a
-						href="/personal/gummy"
+						href="/pet"
 						class={[
 							'px-4 py-2',
-							currentSection === 'gummy' && 'rounded-full bg-white/30 font-bold',
-							currentSection !== 'gummy' && 'rounded-full hover:bg-white/20'
-						]}>Gummy</a
-					>
-				</li>
-
-				<li>
-					<a
-						href="/household/count"
-						class={[
-							'px-4 py-2',
-							currentSection === 'count' && 'rounded-full bg-white/20 font-bold',
-							currentSection !== 'count' && 'rounded-full hover:bg-white/10'
-						]}>Timer</a
+							currentSection === 'pet' && 'rounded-full bg-white/30 font-bold',
+							currentSection !== 'pet' && 'rounded-full hover:bg-white/20'
+						]}>Pet</a
 					>
 				</li>
 			</ul>
@@ -226,7 +216,7 @@
 		</a>
 
 		<a href="/pet" class={[currentSection === 'pet' && 'text-primary font-semibold']}>
-			<MaterialSymbolsTimer class="size-[1.5em]" />
+			<MaterialSymbolsPets class="size-[1.5em]" />
 			<span class="text-sm tracking-wider">Pet</span>
 		</a>
 	</nav>
