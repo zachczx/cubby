@@ -76,11 +76,11 @@
 
 <div class="grid h-dvh w-full justify-items-center">
 	<div
-		id="topnav"
 		class={[
 			'navbar border-b-base-300/50 bg-base-nav text-primary-content fixed top-0 z-1 min-h-14 items-center border-b pe-4',
 			back ? 'lg:ps-4' : 'ps-4'
 		]}
+		style="view-transition-name: top-nav"
 	>
 		<div class="navbar-start">
 			{#if back}
@@ -190,15 +190,17 @@
 			'bg-base-100 max-lg:min-h-[calc(100vh - 3.5rem - 6rem)] lg:min-h-[calc(100vh - 3.5rem - 1rem)] mt-14 w-full p-4 max-lg:pb-24 lg:grid lg:px-12 lg:pt-12',
 			largeScreenCenter && 'lg:content-center'
 		]}
+		style="view-transition-name: content;"
 	>
 		{@render children?.()}
 	</div>
 
 	<nav
 		class={[
-			'dock border-t-base-content/15 h-20 border-t-2 pb-2 lg:hidden',
+			'dock border-t-base-content/15 fixed h-20 border-t-2 pb-2 lg:hidden',
 			title === 'Login' ? 'hidden' : undefined
 		]}
+		style="view-transition-name: bottom-nav"
 	>
 		<a href="/" class={[currentSection === 'home' && 'text-primary font-semibold']}>
 			<MaterialSymbolsHome class="size-[1.5em]" />
@@ -295,3 +297,15 @@
 		</ul>
 	</div>
 {/snippet}
+
+<style>
+	.dock {
+		& > * {
+			transition: none !important;
+
+			&:focus-within {
+				transform: none;
+			}
+		}
+	}
+</style>

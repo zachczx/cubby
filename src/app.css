@@ -42,6 +42,47 @@
 		font-family: 'Quicksand Variable', sans-serif;
 	}
 
+	/* Start transition */
+
+	@media (width <= 64rem) {
+		@keyframes fade-in {
+			from {
+				opacity: 0;
+			}
+		}
+
+		@keyframes fade-out {
+			to {
+				opacity: 0;
+			}
+		}
+
+		@keyframes slide-from-right {
+			from {
+				transform: translateX(100%);
+			}
+		}
+
+		@keyframes slide-to-left {
+			to {
+				transform: translateX(-100%);
+			}
+		}
+
+		:root::view-transition-old(bottom-nav),
+		:root::view-transition-new(bottom-nav) {
+			animation: none;
+		}
+
+		:root::view-transition-old(content) {
+			animation: 0.3s slide-to-left both;
+		}
+
+		:root::view-transition-new(content) {
+			animation: 0.3s slide-from-right both;
+		}
+	}
+	/* End transition */
 	/* Source: https://css-loaders.com/nature/ */
 
 	.custom-loader {
