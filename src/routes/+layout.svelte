@@ -4,7 +4,7 @@
 	import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
 	import { onNavigate } from '$app/navigation';
 
-	const mainSequence = ['/', '/personal', '/household', '/pet'];
+	const topLevelRoutes = ['/', '/personal', '/household', '/pet'];
 
 	onNavigate((navigation) => {
 		if (!document.startViewTransition) return;
@@ -13,11 +13,11 @@
 
 		// Bottom navbar
 		if (
-			mainSequence.includes(navigation.from?.url.pathname ?? '') &&
-			mainSequence.includes(navigation.to?.url.pathname ?? '')
+			topLevelRoutes.includes(navigation.from?.url.pathname ?? '') &&
+			topLevelRoutes.includes(navigation.to?.url.pathname ?? '')
 		) {
-			const fromIndex = mainSequence.indexOf(navigation.from?.url.pathname ?? '');
-			const toIndex = mainSequence.indexOf(navigation.to?.url.pathname ?? '');
+			const fromIndex = topLevelRoutes.indexOf(navigation.from?.url.pathname ?? '');
+			const toIndex = topLevelRoutes.indexOf(navigation.to?.url.pathname ?? '');
 
 			if (toIndex < fromIndex) {
 				direction = 'back';
