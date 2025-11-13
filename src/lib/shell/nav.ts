@@ -1,9 +1,9 @@
 export const topLevelRoutes = [
-	{ id: 'home', href: '/', label: 'Home' },
-	{ id: 'personal', href: '/personal', label: 'Personal' },
-	{ id: 'household', href: '/household', label: 'Household' },
-	{ id: 'pet', href: '/pet', label: 'Pet' },
-	{ id: 'profile', href: '/profile', label: 'Profile' },
-	{ id: 'login', href: '/login', label: 'Login' },
-	{ id: 'register', href: '/register', label: 'Register' }
+	{ id: 'home', href: '/', label: 'Home', desktopNav: true, mobileNav: true },
+	{ id: 'personal', href: '/personal', label: 'Personal', desktopNav: true, mobileNav: true },
+	{ id: 'household', href: '/household', label: 'Household', desktopNav: true, mobileNav: true },
+	{ id: 'pet', href: '/pet', label: 'Pet', desktopNav: true, mobileNav: true },
+	{ id: 'profile', href: '/profile', label: 'Profile', desktopNav: false, mobileNav: false },
+	{ id: 'login', href: '/login', label: 'Login', desktopNav: false, mobileNav: false },
+	{ id: 'register', href: '/register', label: 'Register', desktopNav: false, mobileNav: false }
 ];

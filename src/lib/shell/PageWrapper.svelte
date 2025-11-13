@@ -117,16 +117,18 @@
 		<div id="desktop-menu" class="navbar-center hidden lg:flex">
 			<ul class="menu menu-horizontal gap-8 px-1 text-lg">
 				{#each topLevelRoutes as route}
-					<li>
-						<a
-							href="/"
-							class={[
-								'px-4 py-2',
-								currentSection === route.id && 'rounded-full bg-white/30 font-bold',
-								currentSection !== route.id && 'rounded-full hover:bg-white/20'
-							]}>{route.label}</a
-						>
-					</li>
+					{#if route.desktopNav}
+						<li>
+							<a
+								href="/"
+								class={[
+									'px-4 py-2',
+									currentSection === route.id && 'rounded-full bg-white/30 font-bold',
+									currentSection !== route.id && 'rounded-full hover:bg-white/20'
+								]}>{route.label}</a
+							>
+						</li>
+					{/if}
 				{/each}
 			</ul>
 		</div>
@@ -171,25 +173,22 @@
 		]}
 		style="view-transition-name: bottom-nav"
 	>
-		<a href="/" class={[currentSection === 'home' && 'text-primary font-semibold']}>
-			<MaterialSymbolsHome class="size-[1.5em]" />
-			<span class="text-sm tracking-wider">Home</span>
-		</a>
-
-		<a href="/personal" class={[currentSection === 'personal' && 'text-primary font-semibold']}>
-			<MaterialSymbolsHealthAndSafety class="size-[1.5em]" />
-			<span class="text-sm tracking-wider">Personal</span>
-		</a>
-
-		<a href="/household" class={[currentSection === 'household' && 'text-primary font-semibold']}>
-			<MaterialSymbolsCleaningServices class="size-[1.5em]" />
-			<span class="text-sm tracking-wider">Household</span>
-		</a>
-
-		<a href="/pet" class={[currentSection === 'pet' && 'text-primary font-semibold']}>
-			<MaterialSymbolsPets class="size-[1.5em]" />
-			<span class="text-sm tracking-wider">Pet</span>
-		</a>
+		{#each topLevelRoutes as route}
+			{#if route.mobileNav}
+				<a href={route.href} aria-current={currentSection === route.id ? 'page' : undefined}>
+					{#if route.id === 'home'}
+						<MaterialSymbolsHome class="size-[1.5em]" />
+					{:else if route.id === 'personal'}
+						<MaterialSymbolsHealthAndSafety class="size-[1.5em]" />
+					{:else if route.id === 'household'}
+						<MaterialSymbolsCleaningServices class="size-[1.5em]" />
+					{:else if route.id === 'pet'}
+						<MaterialSymbolsPets class="size-[1.5em]" />
+					{/if}
+					<span class="text-sm tracking-wider">{route.label}</span>
+				</a>
+			{/if}
+		{/each}
 	</nav>
 </div>
 
@@ -269,11 +268,19 @@
 
 <style>
 	.dock {
-		& > * {
-			transition: none !important;
+		a[aria-current='page'] {
+			font-weight: bold;
+			color: var(--color-primary);
 
-			&:focus-within {
-				transform: none;
+			&::after {
+				view-transition-name: activepage;
+				position: absolute;
+				top: bottom;
+				left: 50%;
+				width: 2rem;
+				transform: translateX(-50%);
+				height: 0.25rem;
+				background-color: var(--color-primary);
 			}
 		}
 	}
