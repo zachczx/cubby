@@ -86,20 +86,22 @@
 			animation: none;
 		}
 
-		[data-direction='forward']:root::view-transition-old(content) {
-			animation: 0.3s slide-to-left ease-in-out;
-		}
+		@media (prefers-reduced-motion: no-preference) {
+			[data-direction='forward']:root::view-transition-old(content) {
+				animation: 0.3s slide-to-left ease-in-out;
+			}
 
-		[data-direction='forward']:root::view-transition-new(content) {
-			animation: 0.3s slide-from-right ease-in-out;
-		}
+			[data-direction='forward']:root::view-transition-new(content) {
+				animation: 0.3s slide-from-right ease-in-out;
+			}
 
-		[data-direction='back']:root::view-transition-old(content) {
-			animation: 0.3s slide-to-right ease-in-out;
-		}
+			[data-direction='back']:root::view-transition-old(content) {
+				animation: 0.3s slide-to-right ease-in-out;
+			}
 
-		[data-direction='back']:root::view-transition-new(content) {
-			animation: 0.3s slide-from-left ease-in-out;
+			[data-direction='back']:root::view-transition-new(content) {
+				animation: 0.3s slide-from-left ease-in-out;
+			}
 		}
 	}
 	/* End transition */
