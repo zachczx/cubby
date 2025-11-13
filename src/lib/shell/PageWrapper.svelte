@@ -20,7 +20,6 @@
 	} from '$lib/queries';
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import dayjs from 'dayjs';
-	import { dirtyTowelDays } from '$lib/logic';
 	import { getNotificationCount, getNotificationStatus } from '$lib/notification';
 	import MaterialSymbolsHome from '$lib/assets/svg/MaterialSymbolsHome.svelte';
 	import MaterialSymbolsHealthCross from '$lib/assets/svg/MaterialSymbolsHealthCross.svelte';

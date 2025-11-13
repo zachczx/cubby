@@ -1,5 +1,4 @@
 import dayjs from 'dayjs';
-import { dirtyTowelDays } from './logic';
 
 const defaultNotificationStatus: NotificationStatus = {
 	show: false,
@@ -28,17 +27,7 @@ export function getNotificationStatus(query: Query): NotificationStatus {
 	const now = dayjs();
 	const leadTimeHours = 6;
 
-	let intervalHours = 0;
-
-	if (
-		lastRecord.collectionName === 'spray' ||
-		lastRecord.collectionName === 'gummy' ||
-		lastRecord.collectionName === 'doggoBath'
-	) {
-		intervalHours = lastRecord.daysToNext * 24;
-	} else if (lastRecord.collectionName === 'towel') {
-		intervalHours = dirtyTowelDays * 24;
-	}
+	const intervalHours = lastRecord.daysToNext * 24;
 
 	const hoursSinceLastRecord = now.diff(dayjs(lastRecord.time), 'hour', true);
 	if (hoursSinceLastRecord >= intervalHours - leadTimeHours) {
