@@ -8,30 +8,44 @@
 	onNavigate((navigation) => {
 		if (!document.startViewTransition) return;
 
-		let direction = 'forward';
+		let direction = '';
 
-		const fromIndex = topLevelRoutes.findIndex(
-			(route) => route.href === navigation.from?.url.pathname
+		const isNoAnimation = topLevelRoutes.noAnimation.some(
+			(route) =>
+				navigation.from?.url.pathname.startsWith(route.href) ||
+				navigation.to?.url.pathname.startsWith(route.href)
 		);
-		const toIndex = topLevelRoutes.findIndex((route) => route.href === navigation.to?.url.pathname);
 
-		if (fromIndex !== -1 && toIndex !== -1) {
-			// Bottom navbar
+		if (!isNoAnimation) {
+			const fromIndex = topLevelRoutes.animation.findIndex(
+				(route) => route.href === navigation.from?.url.pathname
+			);
+			const toIndex = topLevelRoutes.animation.findIndex(
+				(route) => route.href === navigation.to?.url.pathname
+			);
 
-			if (toIndex < fromIndex) {
-				direction = 'back';
-			}
-		} else {
-			// 2nd level routes
-			const fromId = navigation.from?.route.id;
-			const toId = navigation.to?.route.id;
+			if (fromIndex !== -1 && toIndex !== -1) {
+				// Top level route
 
-			const fromLevel = fromId?.split('/');
-			const toLevel = toId?.split('/');
-
-			if (fromLevel && toLevel) {
-				if (fromLevel.length > toLevel.length) {
+				if (toIndex < fromIndex) {
 					direction = 'back';
+				} else {
+					direction = 'forward';
+				}
+			} else {
+				// 2nd level routes
+				const fromId = navigation.from?.route.id;
+				const toId = navigation.to?.route.id;
+
+				const fromLevel = fromId?.split('/');
+				const toLevel = toId?.split('/');
+
+				if (fromLevel && toLevel) {
+					if (fromLevel.length > toLevel.length) {
+						direction = 'back';
+					} else {
+						direction = 'forward';
+					}
 				}
 			}
 		}

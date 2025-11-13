@@ -49,17 +49,23 @@
 	let currentSection = $derived.by(() => {
 		const p = page.url.pathname;
 
-		if (p.includes('personal')) {
-			return 'personal';
-		} else if (p.includes('pet')) {
-			return 'pet';
-		} else if (p.includes('household')) {
-			return 'household';
-		} else if (p.endsWith('')) {
-			return 'home';
-		} else {
-			return '';
+		if (p === '/') return 'home';
+
+		const animation = topLevelRoutes.animation.find(
+			(route) => route.href !== '/' && p.startsWith(route.href)
+		);
+
+		if (animation) {
+			return animation.id;
 		}
+
+		const noAnimation = topLevelRoutes.noAnimation.find((route) => route.href === p);
+
+		if (noAnimation) {
+			return noAnimation.id;
+		}
+
+		return '';
 	});
 
 	const towels = createQuery(createTowelQueryOptions);
@@ -116,7 +122,7 @@
 		</div>
 		<div id="desktop-menu" class="navbar-center hidden lg:flex">
 			<ul class="menu menu-horizontal gap-8 px-1 text-lg">
-				{#each topLevelRoutes as route}
+				{#each topLevelRoutes.animation as route}
 					{#if route.desktopNav}
 						<li>
 							<a
@@ -173,21 +179,11 @@
 		]}
 		style="view-transition-name: bottom-nav"
 	>
-		{#each topLevelRoutes as route}
-			{#if route.mobileNav}
-				<a href={route.href} aria-current={currentSection === route.id ? 'page' : undefined}>
-					{#if route.id === 'home'}
-						<MaterialSymbolsHome class="size-[1.5em]" />
-					{:else if route.id === 'personal'}
-						<MaterialSymbolsHealthAndSafety class="size-[1.5em]" />
-					{:else if route.id === 'household'}
-						<MaterialSymbolsCleaningServices class="size-[1.5em]" />
-					{:else if route.id === 'pet'}
-						<MaterialSymbolsPets class="size-[1.5em]" />
-					{/if}
-					<span class="text-sm tracking-wider">{route.label}</span>
-				</a>
-			{/if}
+		{#each topLevelRoutes.animation as route}
+			<a href={route.href} aria-current={currentSection === route.id ? 'page' : undefined}>
+				<route.icon class="size-[1.5em]" />
+				<span class="text-sm tracking-wider">{route.label}</span>
+			</a>
 		{/each}
 	</nav>
 </div>
