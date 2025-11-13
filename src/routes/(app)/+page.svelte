@@ -247,21 +247,30 @@
 				{/if}
 			</section>
 
-			<section class="grid gap-2 py-2">
+			<section class="grid gap-4 py-2">
 				<h2 class="text-base-content/70 text-lg font-bold">Quick Links</h2>
 				<div class="flex items-center gap-4">
 					<a
 						href="/household/count"
-						class="border-base-300 grid aspect-square w-24 content-center justify-items-center gap-0.5 rounded-3xl border p-4 text-xs font-semibold"
+						class="group focus-within:text-base-content active:text-base-content text-neutral grid aspect-square w-20 content-center justify-items-center gap-1 rounded-3xl p-2 text-sm font-semibold"
 					>
-						<MaterialSymbolsTimer class="size-7" />
+						<div
+							class="text-base-100 bg-neutral/80 group-active:bg-neutral/90 group-focus-within:bg-neutral/90 rounded-xl p-2"
+						>
+							<MaterialSymbolsTimer class="size-7" />
+						</div>
 						Stopwatch</a
 					>
 					<a
 						href="/profile?p=vacations"
-						class="border-base-300 grid aspect-square w-24 content-center justify-items-center gap-0.5 rounded-3xl border p-4 text-xs font-semibold"
+						class="group focus-within:text-base-content active:text-base-content text-neutral grid aspect-square w-20 content-center justify-items-center gap-1 rounded-3xl p-2 text-sm font-semibold"
 					>
-						<MaterialSymbolsFlight class="size-7" />Vacation</a
+						<div
+							class="text-base-100 bg-neutral/80 group-active:bg-neutral/90 group-focus-within:bg-neutral/90 rounded-xl p-2"
+						>
+							<MaterialSymbolsFlight class="size-7" />
+						</div>
+						Vacation</a
 					>
 				</div>
 			</section>
