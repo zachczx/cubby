@@ -1,13 +1,42 @@
 <script lang="ts">
 	import ArkToaster from '$lib/ui/ArkToaster.svelte';
 	import '../app.css';
-	import { pb } from '$lib/pb';
-	import { goto } from '$app/navigation';
 	import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
 	import { onNavigate } from '$app/navigation';
 
+	const mainSequence = ['/', '/personal', '/household', '/pet'];
+
 	onNavigate((navigation) => {
 		if (!document.startViewTransition) return;
+
+		let direction = 'forward';
+
+		// Bottom navbar
+		if (
+			mainSequence.includes(navigation.from?.url.pathname ?? '') &&
+			mainSequence.includes(navigation.to?.url.pathname ?? '')
+		) {
+			const fromIndex = mainSequence.indexOf(navigation.from?.url.pathname ?? '');
+			const toIndex = mainSequence.indexOf(navigation.to?.url.pathname ?? '');
+
+			if (toIndex < fromIndex) {
+				direction = 'back';
+			}
+		} else {
+			const from = navigation.from?.route.id;
+			const to = navigation.to?.route.id;
+
+			const fromLevel = from?.split('/');
+			const toLevel = to?.split('/');
+
+			if (fromLevel && toLevel) {
+				if (fromLevel.length > toLevel.length) {
+					direction = 'back';
+				}
+			}
+		}
+
+		document.documentElement.dataset.direction = direction;
 
 		return new Promise((resolve) => {
 			document.startViewTransition(async () => {

@@ -69,17 +69,37 @@
 			}
 		}
 
+		@keyframes slide-to-right {
+			to {
+				transform: translateX(100%);
+			}
+		}
+
+		@keyframes slide-from-left {
+			from {
+				transform: translateX(-100%);
+			}
+		}
+
 		:root::view-transition-old(bottom-nav),
 		:root::view-transition-new(bottom-nav) {
 			animation: none;
 		}
 
-		:root::view-transition-old(content) {
-			animation: 0.3s slide-to-left both;
+		[data-direction='forward']:root::view-transition-old(content) {
+			animation: 0.3s slide-to-left ease-in-out;
 		}
 
-		:root::view-transition-new(content) {
-			animation: 0.3s slide-from-right both;
+		[data-direction='forward']:root::view-transition-new(content) {
+			animation: 0.3s slide-from-right ease-in-out;
+		}
+
+		[data-direction='back']:root::view-transition-old(content) {
+			animation: 0.3s slide-to-right ease-in-out;
+		}
+
+		[data-direction='back']:root::view-transition-new(content) {
+			animation: 0.3s slide-from-left ease-in-out;
 		}
 	}
 	/* End transition */
