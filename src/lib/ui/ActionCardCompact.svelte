@@ -65,6 +65,9 @@
 				refetch={options.button.refetch}
 				text={options.button.text}
 				compact={true}
+				color={options.notification.level === 'overdue' || options.notification.level === 'due'
+					? 'primary'
+					: 'neutral'}
 				icon={MaterialSymbolsAdd}
 			/>
 		</div>

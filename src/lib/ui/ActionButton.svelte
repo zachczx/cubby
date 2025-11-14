@@ -12,12 +12,14 @@
 		query,
 		refetch,
 		compact = false,
+		color = 'primary',
 		icon: CustomIcon
 	}: {
 		text: string;
 		query: () => Promise<RecordModel>;
 		refetch: () => Promise<void>;
 		compact?: boolean;
+		color?: 'primary' | 'neutral';
 		icon?: Component;
 	} = $props();
 
@@ -53,8 +55,10 @@
 	<button
 		class={[
 			'btn btn-lg flex w-full items-center gap-2 rounded-full',
-			status === 'default' && 'btn-primary',
-			status === 'loading' && 'btn-primary',
+			status === 'default' && color === 'primary' && 'btn-primary',
+			status === 'loading' && color === 'primary' && 'btn-primary',
+			status === 'default' && color === 'neutral' && 'btn-neutral',
+			status === 'loading' && color === 'neutral' && 'btn-neutral',
 			status === 'success' && 'btn-success',
 			status === 'error' && 'btn-error'
 		]}
@@ -81,8 +85,10 @@
 	<button
 		class={[
 			'btn btn-lg flex aspect-square w-full items-center gap-2 rounded-full p-0',
-			status === 'default' && 'btn-primary',
-			status === 'loading' && 'btn-primary',
+			status === 'default' && color === 'primary' && 'btn-primary',
+			status === 'loading' && color === 'primary' && 'btn-primary',
+			status === 'default' && color === 'neutral' && 'btn-neutral',
+			status === 'loading' && color === 'neutral' && 'btn-neutral',
 			status === 'success' && 'btn-success'
 		]}
 		onclick={addHandler}
