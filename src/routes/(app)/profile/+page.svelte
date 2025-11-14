@@ -15,6 +15,7 @@
 	import { page } from '$app/state';
 	import SegmentedControl from '$lib/ui/SegmentedControl.svelte';
 	import type { ChangeEventHandler } from 'svelte/elements';
+	import MaterialSymbolsChevronRight from '$lib/assets/svg/MaterialSymbolsChevronRight.svelte';
 
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
@@ -109,327 +110,44 @@
 	>
 		<div class="overflow-y-auto">
 			<h1 class="text-primary mb-4 text-center text-4xl font-bold max-lg:hidden">Profile</h1>
-			<ul class="grid w-full grid-cols-2 content-center justify-items-center pt-4">
-				<li class="w-full">
-					<button
-						class={[
-							currentTab === 'settings' ? 'border-b-primary font-semibold' : 'border-b-base-300',
-							'w-full cursor-pointer border-b-2 text-center'
-						]}
-						onclick={() => {
-							currentTab = 'settings';
-						}}
-					>
-						Settings</button
-					>
-				</li>
-				<li class="w-full">
-					<button
-						class={[
-							currentTab === 'vacations' ? 'border-b-primary font-semibold' : 'border-b-base-300',
-							'w-full cursor-pointer border-b-2 text-center'
-						]}
-						onclick={() => {
-							currentTab = 'vacations';
-						}}
-					>
-						Vacations</button
-					>
-				</li>
-			</ul>
-
-			<div class="mt-4 grid w-full content-start">
-				{#if currentTab === 'settings'}
-					<div class="px-1">
-						<form class="border-b-base-300 grid border-b pt-2 pb-8 text-lg" {onchange}>
-							<legend class="fieldset-legend pb-4">Days Per Nasal Spray</legend>
-
-							<SegmentedControl items={5}>
-								<label>
-									<input
-										type="radio"
-										bind:group={sprayIntervalDays}
-										value={1}
-										name="sprayIntervalDays"
-									/>1
-								</label>
-								<label>
-									<input
-										type="radio"
-										bind:group={sprayIntervalDays}
-										value={2}
-										name="sprayIntervalDays"
-									/>2
-								</label>
-								<label>
-									<input
-										type="radio"
-										bind:group={sprayIntervalDays}
-										value={3}
-										name="sprayIntervalDays"
-									/>3
-								</label>
-								<label>
-									<input
-										type="radio"
-										bind:group={sprayIntervalDays}
-										value={4}
-										name="sprayIntervalDays"
-									/>4
-								</label>
-								<label>
-									<input
-										type="radio"
-										bind:group={sprayIntervalDays}
-										value={5}
-										name="sprayIntervalDays"
-									/>5
-								</label>
-							</SegmentedControl>
-						</form>
-
-						<form class="border-b-base-300 grid border-b pt-4 pb-8 text-lg" {onchange}>
-							<legend class="fieldset-legend pb-4">Days Per Gummy</legend>
-
-							<SegmentedControl items={5}>
-								<label>
-									<input
-										type="radio"
-										bind:group={gummyIntervalDays}
-										value={1}
-										name="gummyIntervalDays"
-									/>1
-								</label>
-								<label>
-									<input
-										type="radio"
-										bind:group={gummyIntervalDays}
-										value={2}
-										name="gummyIntervalDays"
-									/>2
-								</label>
-								<label>
-									<input
-										type="radio"
-										bind:group={gummyIntervalDays}
-										value={3}
-										name="gummyIntervalDays"
-									/>3
-								</label>
-								<label>
-									<input
-										type="radio"
-										bind:group={gummyIntervalDays}
-										value={4}
-										name="gummyIntervalDays"
-									/>4
-								</label>
-								<label>
-									<input
-										type="radio"
-										bind:group={gummyIntervalDays}
-										value={5}
-										name="gummyIntervalDays"
-									/>5
-								</label>
-							</SegmentedControl>
-						</form>
-
-						<form class="border-b-base-300 grid border-b pt-4 pb-8 text-lg" {onchange}>
-							<legend class="fieldset-legend pb-4">Days Per Towel Wash</legend>
-
-							<SegmentedControl items={5}>
-								<label>
-									<input
-										type="radio"
-										bind:group={towelIntervalDays}
-										value={1}
-										name="towelIntervalDays"
-									/>1
-								</label>
-								<label>
-									<input
-										type="radio"
-										bind:group={towelIntervalDays}
-										value={2}
-										name="towelIntervalDays"
-									/>2
-								</label>
-								<label>
-									<input
-										type="radio"
-										bind:group={towelIntervalDays}
-										value={3}
-										name="towelIntervalDays"
-									/>3
-								</label>
-								<label>
-									<input
-										type="radio"
-										bind:group={towelIntervalDays}
-										value={4}
-										name="towelIntervalDays"
-									/>4
-								</label>
-								<label>
-									<input
-										type="radio"
-										bind:group={towelIntervalDays}
-										value={5}
-										name="towelIntervalDays"
-									/>5
-								</label>
-							</SegmentedControl>
-						</form>
-
-						<form class="border-b-base-300 grid border-b pt-4 pb-8 text-lg" {onchange}>
-							<legend class="fieldset-legend pb-4">Months Per Pet Chewable</legend>
-
-							<SegmentedControl items={3}>
-								<label>
-									<input
-										type="radio"
-										bind:group={doggoChewableIntervalMonths}
-										value={1}
-										name="doggoChewableIntervalMonths"
-									/>Monthly
-								</label>
-								<label>
-									<input
-										type="radio"
-										bind:group={doggoChewableIntervalMonths}
-										value={3}
-										name="doggoChewableIntervalMonths"
-									/>Quarterly
-								</label>
-								<label>
-									<input
-										type="radio"
-										bind:group={doggoChewableIntervalMonths}
-										value={6}
-										name="doggoChewableIntervalMonths"
-									/>Half-Yearly
-								</label>
-							</SegmentedControl>
-						</form>
-
-						<form class="border-b-base-300 grid border-b pt-4 pb-8 text-lg" {onchange}>
-							<legend class="fieldset-legend pb-4">Days Per Pet Bath</legend>
-
-							<SegmentedControl items={5}>
-								<label>
-									<input
-										type="radio"
-										bind:group={doggoBathIntervalDays}
-										value={3}
-										name="doggoBathIntervalDays"
-									/>3
-								</label>
-								<label>
-									<input
-										type="radio"
-										bind:group={doggoBathIntervalDays}
-										value={5}
-										name="doggoBathIntervalDays"
-									/>5
-								</label>
-								<label>
-									<input
-										type="radio"
-										bind:group={doggoBathIntervalDays}
-										value={7}
-										name="doggoBathIntervalDays"
-									/>7
-								</label>
-								<label>
-									<input
-										type="radio"
-										bind:group={doggoBathIntervalDays}
-										value={14}
-										name="doggoBathIntervalDays"
-									/>14
-								</label>
-								<label>
-									<input
-										type="radio"
-										bind:group={doggoBathIntervalDays}
-										value={30}
-										name="doggoBathIntervalDays"
-									/>30
-								</label>
-							</SegmentedControl>
-						</form>
-
-						<form class="flex items-center pt-4 pb-6 text-lg" {onchange}>
-							<legend class="fieldset-legend grow">Sound</legend>
-
-							<input
-								type="checkbox"
-								name="sound"
-								class="toggle toggle-lg toggle-primary"
-								bind:checked={sound}
-							/>
-						</form>
+			<div class="grid w-full content-start">
+				<a
+					href="/profile/interval"
+					class="border-b-base-300 flex items-center border-b pt-4 pb-6 text-lg"
+				>
+					<div class="grow font-semibold">Adjust Default Intervals</div>
+					<div class="flex h-full items-center">
+						<button class="active:bg-neutral/10 cursor-pointer rounded-lg p-1 opacity-75"
+							><MaterialSymbolsChevronRight class="size-7" /></button
+						>
 					</div>
-				{/if}
+				</a>
 
-				{#if currentTab === 'vacations'}
-					<div class="bg-base-200 lg:bg-base-300 mt-4 rounded-xl p-4">
-						<div class="mb-2 flex items-center">
-							<h3 class="text-base-content/70 grow font-semibold uppercase">Recent Vacations</h3>
-							<button
-								class="btn btn-ghost -me-4 flex items-center gap-2 font-normal"
-								onclick={() => vacationsModal.showModal()}
-								aria-label="see all"
-							>
-								View all
-								<!-- <MaterialSymbolsOpenInNew class="size-[1.3em] opacity-75" /> -->
-							</button>
-						</div>
-						<ul class="list-disc">
-							{#if vacations.isSuccess}
-								{#each vacations.data as v}
-									{@const dateTime = formatTime(v.startDateTime, v.endDateTime)}
-									<li class="ms-6 py-0.5">
-										{dateTime}
-									</li>
-								{/each}
-							{/if}
-						</ul>
+				<a
+					href="/profile/vacation"
+					class="border-b-base-300 flex items-center border-b pt-4 pb-6 text-lg"
+				>
+					<div class="grow font-semibold">Manage Vacation Dates</div>
+					<div class="flex h-full items-center">
+						<button class="active:bg-neutral/10 cursor-pointer rounded-lg p-1 opacity-75"
+							><MaterialSymbolsChevronRight class="size-7" /></button
+						>
 					</div>
+				</a>
 
-					<div class="border-b-base-300 border-b pt-4 pb-6 text-lg">
-						<legend class="fieldset-legend pb-4">Start Date</legend>
-
-						<input type="date" name="vacationStart" class="input" bind:value={vacationStart} />
-					</div>
-
-					<div class="border-b-base-300 border-b pt-4 pb-6 text-lg">
-						<legend class="fieldset-legend pb-4">End Date</legend>
-
-						<input type="date" name="vacationEnd" class="input" bind:value={vacationEnd} />
-					</div>
-				{/if}
+				<form class="border-b-base-300 flex items-center border-b pt-4 pb-6 text-lg" {onchange}>
+					<legend class="fieldset-legend grow">Sound</legend>
+					<input
+						type="checkbox"
+						name="sound"
+						class="toggle toggle-lg toggle-primary"
+						bind:checked={sound}
+					/>
+				</form>
 			</div>
+		</div>
+		<div class="mb-4 text-lg">
+			<a href="/logout" class="btn btn-primary btn-outline w-full rounded-full">Logout</a>
 		</div>
 	</div>
 </PageWrapper>
-
-<dialog bind:this={vacationsModal} class="modal">
-	<div class="modal-box">
-		<form method="dialog">
-			<button class="btn btn-sm btn-circle btn-ghost absolute top-2 right-2">✕</button>
-		</form>
-		<h3 class="mb-4 text-lg font-bold uppercase">Recent Vacations</h3>
-		<ul class="list-disc">
-			{#if vacations.isSuccess}
-				{#each vacations.data as v}
-					{@const dateTime = formatTime(v.startDateTime, v.endDateTime)}
-					<li class="ms-6 py-0.5">
-						{dateTime}
-					</li>
-				{/each}
-			{/if}
-		</ul>
-	</div>
-</dialog>
