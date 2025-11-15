@@ -249,7 +249,7 @@
 
 			<section class="grid gap-4 py-2">
 				<h2 class="text-base-content/70 text-lg font-bold">Quick Links</h2>
-				<div class="flex items-center gap-4">
+				<div class="flex items-center gap-6">
 					<a
 						href="/household/count"
 						class="group focus-within:text-base-content active:text-base-content text-neutral grid aspect-square w-20 content-center justify-items-center gap-1 rounded-3xl p-2 text-sm font-semibold"
