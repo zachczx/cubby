@@ -113,12 +113,6 @@ interface NotificationStatus {
 
 type ButtonState = 'default' | 'loading' | 'success' | 'error';
 
-interface TrackerStatuses {
-	ok: string;
-	due: string;
-	overdue: string;
-}
-
 type CollectionName =
 	| 'towel'
 	| 'spray'
@@ -132,7 +126,7 @@ type CollectionName =
 
 interface TrackerPageOptions {
 	collectionName: CollectionName;
-	labels: { pageTitle: string; ctaButtonText: string; statusLabels: TrackerStatuses };
+	labels: { pageTitle: string; ctaButtonText: string };
 	queries: {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		query: () => any;

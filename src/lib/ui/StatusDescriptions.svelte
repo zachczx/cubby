@@ -1,19 +1,32 @@
 <script lang="ts">
-	let {
-		notification,
-		statusLabels
-	}: { notification: NotificationStatus; statusLabels: TrackerStatuses } = $props();
+	import AntDesignExclamationCircleFilled from '$lib/assets/svg/AntDesignExclamationCircleFilled.svelte';
+	import MaterialSymbolsCheckCircle from '$lib/assets/svg/MaterialSymbolsCheckCircle.svelte';
+
+	let { notification }: { notification: NotificationStatus } = $props();
+
+	interface Statuses {
+		ok: string;
+		due: string;
+		overdue: string;
+	}
+
+	const statusLabels: Statuses = {
+		ok: 'Done',
+		due: 'Due',
+		overdue: 'Overdue'
+	};
 </script>
 
-<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
 	{#if notification.level === 'ok'}
-		<div class="h-4 w-4 rounded-full bg-lime-500"></div>
-		<span class="text-lime-500">{statusLabels.ok}</span>
+		<MaterialSymbolsCheckCircle class="size-8 text-lime-600" />
+		<span class="text-lime-600">{statusLabels.ok}</span>
 	{:else if notification.level === 'due'}
-		<div class="h-4 w-4 rounded-full bg-orange-400"></div>
+		<AntDesignExclamationCircleFilled class="text-warning size-13" />
+
 		<span class="text-orange-400">{statusLabels.due}</span>
 	{:else if notification.level === 'overdue'}
-		<div class="h-4 w-4 rounded-full bg-red-700"></div>
+		<AntDesignExclamationCircleFilled class="text-error size-13" />
 		<span class="text-red-700">{statusLabels.overdue}</span>
 	{:else}
 		<span>Nil</span>

@@ -7,7 +7,6 @@
 		collectionName: 'doggoBath',
 		labels: {
 			pageTitle: 'Bath',
-			statusLabels: { ok: 'Bathed', due: 'Due', overdue: 'Overdue' },
 			ctaButtonText: 'Bathed'
 		},
 		queries: {

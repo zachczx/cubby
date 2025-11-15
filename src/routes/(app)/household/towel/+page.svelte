@@ -7,7 +7,6 @@
 		collectionName: 'towel',
 		labels: {
 			pageTitle: 'Towel',
-			statusLabels: { ok: 'Clean', due: 'Due', overdue: 'Overdue' },
 			ctaButtonText: 'Washed'
 		},
 		queries: {

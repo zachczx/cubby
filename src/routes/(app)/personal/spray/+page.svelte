@@ -6,7 +6,6 @@
 		collectionName: 'spray',
 		labels: {
 			pageTitle: 'Spray',
-			statusLabels: { ok: 'Sprayed', due: 'Due', overdue: 'Overdue' },
 			ctaButtonText: 'Sprayed'
 		},
 		queries: {

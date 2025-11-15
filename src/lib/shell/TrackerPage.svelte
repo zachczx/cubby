@@ -244,7 +244,7 @@
 				<div class="flex items-center justify-center text-2xl font-bold">
 					{#if dbRecords.isSuccess}
 						{#if notification}
-							<StatusDescriptions {notification} statusLabels={options.labels.statusLabels} />
+							<StatusDescriptions {notification} />
 						{:else}
 							<div class="flex min-h-20 items-center gap-4 text-2xl font-bold">Nil</div>
 						{/if}

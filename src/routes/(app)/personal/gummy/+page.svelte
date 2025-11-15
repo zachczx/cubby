@@ -6,7 +6,6 @@
 		collectionName: 'gummy',
 		labels: {
 			pageTitle: 'Elderberry',
-			statusLabels: { ok: 'Ate', due: 'Due', overdue: 'Overdue' },
 			ctaButtonText: 'Ate'
 		},
 		queries: {

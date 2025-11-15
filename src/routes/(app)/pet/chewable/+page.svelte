@@ -7,7 +7,6 @@
 		collectionName: 'doggoChewable',
 		labels: {
 			pageTitle: 'Chewable',
-			statusLabels: { ok: 'Fed', due: 'Due', overdue: 'Overdue' },
 			ctaButtonText: 'Fed'
 		},
 		queries: {
