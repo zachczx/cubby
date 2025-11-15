@@ -4,11 +4,32 @@
 	import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
 	import { onNavigate } from '$app/navigation';
 	import { topLevelRoutes } from '$lib/shell/nav';
+	import type { OnNavigate } from '@sveltejs/kit';
 
 	onNavigate((navigation) => {
 		if (!document.startViewTransition) return;
 
+		document.documentElement.dataset.direction = getAnimationStatus(topLevelRoutes, navigation);
+
+		return new Promise((resolve) => {
+			document.startViewTransition(async () => {
+				resolve();
+				await navigation.complete;
+			});
+		});
+	});
+	const queryClient = new QueryClient();
+
+	let { children } = $props();
+
+	type TopLevelRoutes = typeof topLevelRoutes;
+	type TopLevelRoutesKeys = keyof TopLevelRoutes;
+
+	function getAnimationStatus(topLevelRoutes: TopLevelRoutes, navigation: OnNavigate) {
 		let direction = '';
+
+		const isRefreshingHome =
+			navigation.from?.url.pathname === '/' && navigation.to?.url.pathname === '/';
 
 		const isNoAnimation = topLevelRoutes.noAnimation.some(
 			(route) =>
@@ -16,7 +37,7 @@
 				navigation.to?.url.pathname.startsWith(route.href)
 		);
 
-		if (!isNoAnimation) {
+		if (!isRefreshingHome && !isNoAnimation) {
 			const fromIndex = topLevelRoutes.animation.findIndex(
 				(route) => route.href === navigation.from?.url.pathname
 			);
@@ -50,18 +71,8 @@
 			}
 		}
 
-		document.documentElement.dataset.direction = direction;
-
-		return new Promise((resolve) => {
-			document.startViewTransition(async () => {
-				resolve();
-				await navigation.complete;
-			});
-		});
-	});
-	const queryClient = new QueryClient();
-
-	let { children } = $props();
+		return direction;
+	}
 </script>
 
 <QueryClientProvider client={queryClient}>
