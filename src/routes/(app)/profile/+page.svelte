@@ -147,7 +147,7 @@
 			</div>
 		</div>
 		<div class="mb-4 text-lg">
-			<a href="/logout" class="btn btn-primary btn-outline w-full rounded-full">Logout</a>
+			<a href="/logout" class="btn btn-neutral btn-lg w-full rounded-full">Logout</a>
 		</div>
 	</div>
 </PageWrapper>
