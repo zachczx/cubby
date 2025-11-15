@@ -262,7 +262,7 @@
 						Stopwatch</a
 					>
 					<a
-						href="/profile?p=vacations"
+						href="/profile/vacation"
 						class="group focus-within:text-base-content active:text-base-content text-neutral grid aspect-square w-20 content-center justify-items-center gap-1 rounded-3xl p-2 text-sm font-semibold"
 					>
 						<div
