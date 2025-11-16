@@ -78,8 +78,7 @@
 							<span class="text-error font-medium tracking-tight">Due</span>
 						{/if}
 					{:else}
-						<span class="font-medium tracking-tight">Next {dayjs(notification.next).fromNow()}</span
-						>
+						<span class="font-medium tracking-tight">Due {dayjs(notification.next).fromNow()}</span>
 					{/if}
 				{/if}
 			</div>
