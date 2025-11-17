@@ -284,7 +284,7 @@
 								{@const semantic = dayjs(notification.next).fromNow()}
 								{@const formatted = dayjs(notification.next).format('D MMM YYYY')}
 								<p class="text-primary text-2xl font-bold">
-									{semantic?.[0].toUpperCase() + semantic.slice(1, semantic.length)}
+									{semantic}
 								</p>
 								<p>{formatted}</p>
 							{:else}
