@@ -30,7 +30,7 @@ export async function createLogsQuery(options: {
 	intervalUnit: IntervalUnit | undefined;
 }) {
 	const response = await pb.collection('logs').create({
-		tracker: trackerToId(options.collectionName),
+		tracker: trackerNameToId(options.collectionName),
 		user: pb.authStore.record?.id,
 		time: dayjs.tz(new Date(), 'Asia/Singapore'),
 		interval: options.interval,
@@ -106,7 +106,7 @@ const trackers = {
 	towel: 'vvd9jnl0uw8qnie'
 };
 
-export function trackerToId(name: CollectionName): string | null {
+export function trackerNameToId(name: CollectionName): string | null {
 	switch (name) {
 		case 'bedsheet':
 			return trackers.bedsheet;
@@ -125,7 +125,7 @@ export function trackerToId(name: CollectionName): string | null {
 	}
 }
 
-export function idToTracker(id: string): string | undefined {
+export function trackerIdToName(id: string): string | undefined {
 	const finder = Object.entries(trackers).find((item) => id === item[1]);
 
 	if (finder) return finder[0];

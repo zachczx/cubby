@@ -7,11 +7,11 @@
 	import MaterialSymbolsAdd from '$lib/assets/svg/MaterialSymbolsAdd.svelte';
 	import MaterialSymbolsArrowRightAlt from '$lib/assets/svg/MaterialSymbolsArrowRightAlt.svelte';
 	import dayjs from 'dayjs';
-	import { createQuery, useQueryClient, type CreateQueryResult } from '@tanstack/svelte-query';
+	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import {
 		createLogsQuery,
-		logsQueryOptions,
 		logsRefetchOptions,
+		notificationQueryOptions,
 		trackerQueryOptions
 	} from '$lib/queries';
 	import { getNotificationStatus } from '$lib/notification';
@@ -30,7 +30,7 @@
 	}
 
 	const tanstackClient = useQueryClient();
-	const logs = createQuery(() => logsQueryOptions(options.collectionName));
+	const logs = createQuery(() => notificationQueryOptions(options.collectionName));
 	const notification = $derived.by(() => getNotificationStatus(logs));
 
 	const tracker = createQuery(() => trackerQueryOptions(options.collectionName));

@@ -1,6 +1,6 @@
 import type { CreateQueryResult } from '@tanstack/svelte-query';
 import dayjs from 'dayjs';
-import { idToTracker } from './queries';
+import { trackerIdToName } from './queries';
 
 export const defaultNotificationStatus: NotificationStatus = {
 	show: false,
@@ -73,7 +73,7 @@ export function getNotificationStatus(
 }
 
 function getNotificationLabel(record: LogsDB) {
-	switch (idToTracker(record.tracker)) {
+	switch (trackerIdToName(record.tracker)) {
 		case 'spray':
 			return { label: 'Spray your nose!', href: '/personal/spray' };
 		case 'towel':
