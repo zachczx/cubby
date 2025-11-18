@@ -38,14 +38,16 @@ export const topLevelRoutes = {
 			icon: MaterialSymbolsPets
 		}
 	],
-	noAnimation: [
+	topNavAnimation: [
 		{
 			id: 'profile',
 			href: '/profile',
 			label: 'Profile',
 			desktopNav: false,
 			mobileNav: false
-		},
+		}
+	],
+	noAnimation: [
 		{
 			id: 'login',
 			href: '/login',

@@ -54,6 +54,7 @@
 				}
 			} else {
 				// 2nd level routes
+				// Profile and other topNavAnimation would end up here (always -1)
 				const fromId = navigation.from?.route.id;
 				const toId = navigation.to?.route.id;
 
