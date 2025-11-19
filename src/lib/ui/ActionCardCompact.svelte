@@ -15,6 +15,8 @@
 		trackerQueryOptions
 	} from '$lib/queries';
 	import { getNotificationStatus } from '$lib/notification';
+	import MaterialSymbolsRefresh from '$lib/assets/svg/MaterialSymbolsRefresh.svelte';
+	import MaterialSymbolsCheck from '$lib/assets/svg/MaterialSymbolsCheck.svelte';
 
 	let { options }: { options: Options } = $props();
 
@@ -59,9 +61,8 @@
 		<a href={options.route} class="flex grow items-center gap-4">
 			<options.icon class="size-9 opacity-75" />
 			<div>
-				<p class="flex items-center gap-2 text-xl font-bold">
+				<p class="text-xl font-bold">
 					{options.title}
-					<MaterialSymbolsArrowRightAlt class="size-[1em]" />
 				</p>
 				{#if logs.isPending && !logs.data}
 					<div class="custom-loader"></div>
@@ -73,9 +74,9 @@
 				{#if logs.isSuccess}
 					{#if notification.show}
 						{#if notification.level === 'overdue'}
-							<span class="text-error font-medium tracking-tight">Overdue</span>
+							<span class="text-error font-semibold tracking-tight">Overdue</span>
 						{:else if notification.level === 'due'}
-							<span class="text-error font-medium tracking-tight">Due</span>
+							<span class="text-error font-semibold tracking-tight">Due</span>
 						{/if}
 					{:else}
 						<span class="font-medium tracking-tight">Due {dayjs(notification.next).fromNow()}</span>
@@ -89,10 +90,8 @@
 				{refetch}
 				text={options.button.text}
 				compact={true}
-				color={notification.level === 'overdue' || notification.level === 'due'
-					? 'primary'
-					: 'neutral'}
-				icon={MaterialSymbolsAdd}
+				color={'primary'}
+				icon={MaterialSymbolsCheck}
 			/>
 		</div>
 	</div>
