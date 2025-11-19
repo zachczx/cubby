@@ -6,8 +6,8 @@
 	import timezone from 'dayjs/plugin/timezone';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import MaterialSymbolsChevronRight from '$lib/assets/svg/MaterialSymbolsChevronRight.svelte';
-	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
-	import { createUserQueryOptions, logsQueryOptions } from '$lib/queries';
+	import { createQuery, useQueryClient, type CreateQueryResult } from '@tanstack/svelte-query';
+	import { createUserQueryOptions, logsQueryOptions, notificationQueryOptions } from '$lib/queries';
 	import { getNotificationStatus } from '$lib/notification';
 	import { goto } from '$app/navigation';
 	import MaterialSymbolsHealthAndSafety from '$lib/assets/svg/MaterialSymbolsHealthAndSafety.svelte';
@@ -40,55 +40,55 @@
 	// let gummyNotification = $derived.by(() => getNotificationStatus(gummies));
 
 	// Upcoming
-	// const doggoBaths = createQuery(createDoggoBathQueryOptions);
-	// const doggoChewables = createQuery(createDoggoChewableQueryOptions);
+	const doggoBaths = createQuery(() => notificationQueryOptions('doggoBath'));
+	const doggoChewables = createQuery(() => notificationQueryOptions('doggoChewable'));
 
-	// let doggoBathDaysToNext = $derived.by(() => {
-	// 	if (user.isPending) {
-	// 		return undefined;
-	// 	}
+	$inspect(doggoBaths);
 
-	// 	return user.data?.doggoBathIntervalDays;
-	// });
+	let doggoBathDaysToNext = $derived.by(() => {
+		if (user.isPending) {
+			return undefined;
+		}
 
-	// let doggoChewableMonthsToNext = $derived.by(() => {
-	// 	if (user.isPending) {
-	// 		return undefined;
-	// 	}
+		return user.data?.doggoBathIntervalDays;
+	});
 
-	// 	return user.data?.doggoChewableIntervalMonths;
-	// });
+	let doggoChewableMonthsToNext = $derived.by(() => {
+		if (user.isPending) {
+			return undefined;
+		}
 
-	// let doggoBathLast: string = $derived.by(() => {
-	// 	if (doggoBaths.isSuccess && doggoBaths.data.length > 0)
-	// 		return dayjs(doggoBaths.data[0].time).fromNow();
+		return user.data?.doggoChewableIntervalMonths;
+	});
 
-	// 	return '';
-	// });
+	let doggoBathLast: string = $derived.by(() => {
+		if (doggoBaths.isSuccess) return dayjs(doggoBaths.data.time).fromNow();
 
-	// let doggoChewableLast: string = $derived.by(() => {
-	// 	if (doggoChewables.isSuccess && doggoChewables.data.length > 0)
-	// 		return dayjs(doggoChewables.data[0].time).fromNow();
+		return '';
+	});
 
-	// 	return '';
-	// });
+	let doggoChewableLast: string = $derived.by(() => {
+		if (doggoChewables.isSuccess) return dayjs(doggoChewables.data.time).fromNow();
 
-	// const doggoBathCreateQuery = async () =>
-	// 	await pb.collection('doggoBath').create({
-	// 		user: pb.authStore.record?.id,
-	// 		time: dayjs.tz(new Date(), 'Asia/Singapore'),
-	// 		daysToNext: doggoBathDaysToNext
-	// 	});
+		return '';
+	});
 
-	// const doggoChewableCreateQuery = async () =>
-	// 	await pb.collection('doggoChewable').create({
-	// 		user: pb.authStore.record?.id,
-	// 		time: dayjs.tz(new Date(), 'Asia/Singapore'),
-	// 		monthsToNext: doggoChewableMonthsToNext
-	// 	});
+	const doggoBathCreateQuery = async () =>
+		await pb.collection('doggoBath').create({
+			user: pb.authStore.record?.id,
+			time: dayjs.tz(new Date(), 'Asia/Singapore'),
+			daysToNext: doggoBathDaysToNext
+		});
 
-	// let doggoBathNotification = $derived.by(() => getNotificationStatus(doggoBaths));
-	// let doggoChewableNotification = $derived.by(() => getNotificationStatus(doggoChewables));
+	const doggoChewableCreateQuery = async () =>
+		await pb.collection('doggoChewable').create({
+			user: pb.authStore.record?.id,
+			time: dayjs.tz(new Date(), 'Asia/Singapore'),
+			monthsToNext: doggoChewableMonthsToNext
+		});
+
+	let doggoBathNotification = $derived.by(() => getNotificationStatus(doggoBaths));
+	let doggoChewableNotification = $derived.by(() => getNotificationStatus(doggoChewables));
 </script>
 
 <PageWrapper title="Sundry" back={false} {pb}>
@@ -136,7 +136,7 @@
 				></ActionCardCompact>
 			</section>
 
-			<!-- <section class="grid gap-4 py-2">
+			<section class="grid gap-4 py-2">
 				<h2 class="text-base-content/70 text-lg font-bold">Upcoming</h2>
 
 				{#if doggoBathNotification.show}
@@ -165,7 +165,7 @@
 					<EmptyState class="text-neutral h-24 justify-self-center opacity-[0.15]" />
 					<p class="-mt-0.5 text-center">Nothing's coming up!</p>
 				{/if}
-			</section> -->
+			</section>
 
 			<section class="grid gap-4 py-2">
 				<h2 class="text-base-content/70 text-lg font-bold">Quick Links</h2>
@@ -198,9 +198,9 @@
 	</main>
 </PageWrapper>
 
-<!-- {#snippet upcomingCard(options: {
+{#snippet upcomingCard(options: {
 	title: string;
-	query: Query;
+	query: CreateQueryResult<LogsDB, Error>;
 	notification: NotificationStatus;
 	icon: Component;
 	route: string;
@@ -216,9 +216,8 @@
 			<div class="flex grow items-center gap-4">
 				<options.icon class="size-9 opacity-75" />
 				<div>
-					<p class="flex items-center gap-2 text-xl font-bold">
+					<p class="text-xl font-bold">
 						{options.title}
-						<MaterialSymbolsArrowRightAlt class="size-[1em]" />
 					</p>
 					{#if options.query.isPending && !options.query.data}
 						<div class="custom-loader"></div>
@@ -247,4 +246,4 @@
 			</div>
 		</a>
 	</section>
-{/snippet} -->
+{/snippet}
