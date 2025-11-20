@@ -28,6 +28,7 @@
 	import MaterialSymbolsShower from '$lib/assets/svg/MaterialSymbolsShower.svelte';
 	import MaterialSymbolsFlight from '$lib/assets/svg/MaterialSymbolsFlight.svelte';
 	import EmptyState from '$lib/assets/svg/EmptyState.svelte';
+	import EmptyCorgi from '$lib/assets/empty.webp?w=200&enhanced';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
@@ -135,8 +136,8 @@
 				></ActionCardCompact>
 			</section>
 
-			<section class="grid gap-4 py-2">
-				<h2 class="text-base-content/70 text-lg font-bold">Upcoming</h2>
+			<section class="grid gap-0 py-2">
+				<h2 class="text-base-content/70 text-lg font-bold">General Tasks</h2>
 
 				{#if doggoBathNotification.show}
 					{@render upcomingCard({
@@ -161,8 +162,8 @@
 				{/if}
 
 				{#if !doggoBathNotification.show && !doggoChewableNotification.show}
-					<EmptyState class="text-neutral h-24 justify-self-center opacity-[0.15]" />
-					<p class="-mt-0.5 text-center">Nothing's coming up!</p>
+					<enhanced:img src={EmptyCorgi} alt="nothing" class="justify-self-center" />
+					<p class="text-center">No other upcoming tasks!</p>
 				{/if}
 			</section>
 

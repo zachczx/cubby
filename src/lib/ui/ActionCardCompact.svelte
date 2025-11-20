@@ -66,7 +66,7 @@
 <section
 	class={[
 		'border-base-300 grid min-h-18 gap-4 rounded-3xl border px-4 py-2',
-		notification?.show ? 'bg-error/15 outline-error/30 outline' : 'bg-base-100'
+		notification?.show ? 'bg-error/15 outline-error/30 outline' : 'bg-white/70'
 	]}
 >
 	<div class="flex items-center">
@@ -91,7 +91,8 @@
 							<span class="text-error font-semibold tracking-tight">Due</span>
 						{/if}
 					{:else}
-						<span class="font-medium tracking-tight">Due {dayjs(notification?.next).fromNow()}</span
+						<span class="text-neutral/70 font-medium tracking-tight"
+							>Due {dayjs(notification?.next).fromNow()}</span
 						>
 					{/if}
 				{/if}

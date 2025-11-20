@@ -26,7 +26,7 @@
 <section
 	class={[
 		'border-base-300 grid min-h-24 gap-4 rounded-3xl border p-4',
-		options.notification?.show ? 'bg-error/15 outline-error/30 outline' : 'bg-base-100'
+		options.notification?.show ? 'bg-error/15 outline-error/30 outline' : 'bg-white/70'
 	]}
 >
 	<a href={options.route} class="flex items-center">
