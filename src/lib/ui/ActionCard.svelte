@@ -55,9 +55,9 @@
 			</div>
 		</div>
 		<div class="flex h-full items-center">
-			<button class="active:bg-neutral/10 cursor-pointer rounded-lg p-1 opacity-75"
-				><MaterialSymbolsChevronRight class="size-6" /></button
-			>
+			<div class="active:bg-neutral/10 cursor-pointer rounded-lg p-1 opacity-75">
+				<MaterialSymbolsChevronRight class="size-6" />
+			</div>
 		</div>
 	</a>
 	<ActionButton
