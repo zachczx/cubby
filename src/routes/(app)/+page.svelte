@@ -7,7 +7,12 @@
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import MaterialSymbolsChevronRight from '$lib/assets/svg/MaterialSymbolsChevronRight.svelte';
 	import { createQuery, useQueryClient, type CreateQueryResult } from '@tanstack/svelte-query';
-	import { createUserQueryOptions, logsQueryOptions, notificationQueryOptions } from '$lib/queries';
+	import {
+		createUserQueryOptions,
+		logsQueryOptions,
+		notificationQueryOptions,
+		trackerNameToId
+	} from '$lib/queries';
 	import { getNotificationStatus } from '$lib/notification';
 	import { goto } from '$app/navigation';
 	import MaterialSymbolsHealthAndSafety from '$lib/assets/svg/MaterialSymbolsHealthAndSafety.svelte';
@@ -35,38 +40,34 @@
 	const user = createQuery(createUserQueryOptions);
 	const tanstackClient = useQueryClient();
 
-	// let sprayNotification = $derived.by(() => getNotificationStatus(sprays));
-	// let towelNotification = $derived.by(() => getNotificationStatus(towels));
-	// let gummyNotification = $derived.by(() => getNotificationStatus(gummies));
+	const latestLogs = createQuery(notificationQueryOptions);
 
 	// Upcoming
-	const doggoBaths = createQuery(() => notificationQueryOptions('doggoBath'));
-	const doggoChewables = createQuery(() => notificationQueryOptions('doggoChewable'));
-
-	let doggoBathDaysToNext = $derived.by(() => {
-		if (user.isPending) {
-			return undefined;
+	const doggoBath = $derived.by(() => {
+		if (latestLogs.isSuccess) {
+			return latestLogs.data.find((item) => item.tracker === trackerNameToId('doggoBath'));
 		}
-
-		return user.data?.doggoBathIntervalDays;
+		return undefined;
+	});
+	const doggoChewable = $derived.by(() => {
+		if (latestLogs.isSuccess) {
+			return latestLogs.data.find((item) => item.tracker === trackerNameToId('doggoChewable'));
+		}
+		return undefined;
 	});
 
-	let doggoChewableMonthsToNext = $derived.by(() => {
-		if (user.isPending) {
-			return undefined;
-		}
+	let doggoBathDaysToNext = $derived(doggoBath?.interval);
 
-		return user.data?.doggoChewableIntervalMonths;
-	});
+	let doggoChewableMonthsToNext = $derived(doggoChewable?.interval);
 
 	let doggoBathLast: string = $derived.by(() => {
-		if (doggoBaths.isSuccess) return dayjs(doggoBaths.data.time).fromNow();
+		if (doggoBath && doggoBath.time) return dayjs(doggoBath.time).fromNow();
 
 		return '';
 	});
 
 	let doggoChewableLast: string = $derived.by(() => {
-		if (doggoChewables.isSuccess) return dayjs(doggoChewables.data.time).fromNow();
+		if (doggoChewable && doggoChewable.time) return dayjs(doggoChewable.time).fromNow();
 
 		return '';
 	});
@@ -85,8 +86,8 @@
 			monthsToNext: doggoChewableMonthsToNext
 		});
 
-	let doggoBathNotification = $derived.by(() => getNotificationStatus(doggoBaths));
-	let doggoChewableNotification = $derived.by(() => getNotificationStatus(doggoChewables));
+	let doggoBathNotification = $derived.by(() => getNotificationStatus(doggoBath));
+	let doggoChewableNotification = $derived.by(() => getNotificationStatus(doggoChewable));
 </script>
 
 <PageWrapper title="Sundry" back={false} {pb}>
@@ -140,7 +141,7 @@
 				{#if doggoBathNotification.show}
 					{@render upcomingCard({
 						title: 'Bath',
-						query: doggoBaths,
+						data: doggoBath,
 						route: '/pet/bath',
 						icon: MaterialSymbolsShower,
 						last: doggoBathLast,
@@ -151,7 +152,7 @@
 				{#if doggoChewableNotification.show}
 					{@render upcomingCard({
 						title: 'Chewable',
-						query: doggoChewables,
+						data: doggoChewable,
 						route: '/pet/chewable',
 						icon: MaterialSymbolsPill,
 						last: doggoChewableLast,
@@ -198,7 +199,7 @@
 
 {#snippet upcomingCard(options: {
 	title: string;
-	query: CreateQueryResult<LogsDB, Error>;
+	data: LogsDB | undefined;
 	notification: NotificationStatus;
 	icon: Component;
 	route: string;
@@ -217,14 +218,8 @@
 					<p class="text-xl font-bold">
 						{options.title}
 					</p>
-					{#if options.query.isPending && !options.query.data}
-						<div class="custom-loader"></div>
-					{/if}
-					{#if options.query.error}
-						An error has occurred:
-						{options.query.error.message}
-					{/if}
-					{#if options.query.isSuccess}
+
+					{#if options.data}
 						{#if options.notification.show}
 							<span class="text-error font-medium tracking-tight">
 								{#if options.notification.level === 'overdue'}

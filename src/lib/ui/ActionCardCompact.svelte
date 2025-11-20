@@ -13,6 +13,7 @@
 		logsRefetchOptions,
 		notificationQueryOptions,
 		notificationRefetchOptions,
+		trackerIdToName,
 		trackerQueryOptions
 	} from '$lib/queries';
 	import { getNotificationStatus } from '$lib/notification';
@@ -33,8 +34,17 @@
 	}
 
 	const tanstackClient = useQueryClient();
-	const logs = createQuery(() => notificationQueryOptions(options.collectionName));
-	const notification = $derived.by(() => getNotificationStatus(logs));
+	const latestLogs = createQuery(notificationQueryOptions);
+	const notification = $derived.by(() => {
+		if (latestLogs.isSuccess) {
+			const notif = latestLogs.data.find(
+				(item) => trackerIdToName(item.tracker) === options.collectionName
+			);
+			return getNotificationStatus(notif);
+		}
+
+		return undefined;
+	});
 
 	const tracker = createQuery(() => trackerQueryOptions(options.collectionName));
 	let interval = $derived.by(() => (tracker.isSuccess ? tracker.data?.interval : undefined));
@@ -56,7 +66,7 @@
 <section
 	class={[
 		'border-base-300 grid min-h-18 gap-4 rounded-3xl border px-4 py-2',
-		notification.show ? 'bg-error/15 outline-error/30 outline' : 'bg-base-100'
+		notification?.show ? 'bg-error/15 outline-error/30 outline' : 'bg-base-100'
 	]}
 >
 	<div class="flex items-center">
@@ -66,22 +76,23 @@
 				<p class="text-xl font-bold">
 					{options.title}
 				</p>
-				{#if logs.isPending && !logs.data}
+				{#if latestLogs.isPending && !latestLogs.data}
 					<div class="custom-loader"></div>
 				{/if}
-				{#if logs.error}
+				{#if latestLogs.error}
 					An error has occurred:
-					{logs.error.message}
+					{latestLogs.error.message}
 				{/if}
-				{#if logs.isSuccess}
-					{#if notification.show}
+				{#if latestLogs.isSuccess}
+					{#if notification?.show}
 						{#if notification.level === 'overdue'}
 							<span class="text-error font-semibold tracking-tight">Overdue</span>
 						{:else if notification.level === 'due'}
 							<span class="text-error font-semibold tracking-tight">Due</span>
 						{/if}
 					{:else}
-						<span class="font-medium tracking-tight">Due {dayjs(notification.next).fromNow()}</span>
+						<span class="font-medium tracking-tight">Due {dayjs(notification?.next).fromNow()}</span
+						>
 					{/if}
 				{/if}
 			</div>

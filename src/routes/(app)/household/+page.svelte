@@ -11,7 +11,9 @@
 		logsQueryOptions,
 		logsRefetchOptions,
 		createLogsQuery,
-		trackerQueryOptions
+		trackerQueryOptions,
+		notificationQueryOptions,
+		trackerNameToId
 	} from '$lib/queries';
 	import { getNotificationStatus } from '$lib/notification';
 	import { goto } from '$app/navigation';
@@ -50,7 +52,13 @@
 		return '';
 	});
 
-	let towelNotification = $derived.by(() => getNotificationStatus(towels));
+	const latestLogs = createQuery(notificationQueryOptions);
+	let towelNotification = $derived.by(() => {
+		if (!latestLogs.isSuccess) return;
+
+		const towel = latestLogs.data.find((item) => item.tracker === trackerNameToId('towel'));
+		return getNotificationStatus(towel);
+	});
 </script>
 
 <PageWrapper title="Household" {pb}>

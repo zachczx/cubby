@@ -40,15 +40,13 @@ export async function createLogsQuery(options: {
 	return response;
 }
 
-export function notificationQueryOptions(name: CollectionName) {
+export function notificationQueryOptions() {
 	return queryOptions({
 		queryKey: ['notif-' + name, pb.authStore?.record?.id],
-		queryFn: async (): Promise<LogsDB> =>
-			await pb
-				.collection('logs')
-				.getFirstListItem(`user="${pb.authStore?.record?.id}" && tracker.name="${name}"`, {
-					sort: '-time'
-				}),
+		queryFn: async (): Promise<LogsDB[]> =>
+			await pb.collection('latest_logs').getFullList({
+				filter: `user="${pb.authStore?.record?.id}"`
+			}),
 		staleTime: staleTime
 	});
 }
@@ -106,29 +104,20 @@ const trackers = {
 	towel: 'vvd9jnl0uw8qnie'
 };
 
-export function trackerNameToId(name: CollectionName): string | null {
-	switch (name) {
-		case 'bedsheet':
-			return trackers.bedsheet;
-		case 'doggoBath':
-			return trackers.doggoBath;
-		case 'doggoChewable':
-			return trackers.doggoChewable;
-		case 'gummy':
-			return trackers.gummy;
-		case 'spray':
-			return trackers.spray;
-		case 'towel':
-			return trackers.towel;
-		default:
-			return null;
-	}
+function isTrackerKey(key: string): key is keyof typeof trackers {
+	return key in trackers;
 }
 
-export function trackerIdToName(id: string): string | undefined {
+export function trackerNameToId(name: CollectionName): string | null {
+	return name in trackers ? trackers[name as keyof typeof trackers] : null;
+}
+
+export function trackerIdToName(id: string): CollectionName | undefined {
 	const finder = Object.entries(trackers).find((item) => id === item[1]);
 
-	if (finder) return finder[0];
+	if (finder && isTrackerKey(finder[0])) {
+		return finder[0];
+	}
 
 	return undefined;
 }

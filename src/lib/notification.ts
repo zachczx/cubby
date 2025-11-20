@@ -1,4 +1,3 @@
-import type { CreateQueryResult } from '@tanstack/svelte-query';
 import dayjs from 'dayjs';
 import { trackerIdToName } from './queries';
 
@@ -7,25 +6,13 @@ export const defaultNotificationStatus: NotificationStatus = {
 	level: 'ok'
 };
 
-export function getNotificationStatus(
-	query: CreateQueryResult<LogsDB, Error> | CreateQueryResult<LogsDB[], Error>
-): NotificationStatus {
-	if (!query?.isSuccess) return defaultNotificationStatus;
+export function getNotificationStatus(data: LogsDB | undefined): NotificationStatus {
+	if (!data) return defaultNotificationStatus;
 
-	let lastRecord;
+	const notifDetails = getNotificationLabel(data);
 
-	if (Array.isArray(query.data)) {
-		lastRecord = query.data[0] ?? null;
-	} else {
-		lastRecord = query.data ?? null;
-	}
-
-	if (!lastRecord) return defaultNotificationStatus;
-
-	const notifDetails = getNotificationLabel(lastRecord);
-
-	if (lastRecord.intervalUnit === 'month') {
-		const nextDate = dayjs(lastRecord.time).add(lastRecord.interval, 'month');
+	if (data.intervalUnit === 'month') {
+		const nextDate = dayjs(data.time).add(data.interval, 'month');
 		const daysTillNextDate = nextDate.diff(dayjs(), 'day', true);
 
 		if (daysTillNextDate > 1) {
@@ -49,11 +36,11 @@ export function getNotificationStatus(
 		const now = dayjs();
 		const leadTimeHours = 6;
 
-		const intervalHours = lastRecord.interval * 24;
+		const intervalHours = data.interval * 24;
 
-		const nextDate = dayjs(lastRecord.time).add(lastRecord.interval, 'day');
+		const nextDate = dayjs(data.time).add(data.interval, 'day');
 
-		const hoursSinceLastRecord = now.diff(dayjs(lastRecord.time), 'hour', true);
+		const hoursSinceLastRecord = now.diff(dayjs(data.time), 'hour', true);
 		if (hoursSinceLastRecord >= intervalHours - leadTimeHours) {
 			const overdue = hoursSinceLastRecord > intervalHours;
 			return {

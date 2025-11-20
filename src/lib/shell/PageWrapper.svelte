@@ -9,7 +9,7 @@
 	import MaterialSymbolsChevronRight from '$lib/assets/svg/MaterialSymbolsChevronRight.svelte';
 	import MaterialSymbolsCheckCircle from '$lib/assets/svg/MaterialSymbolsCheckCircle.svelte';
 	import MaterialSymbolsNotificationImportant from '$lib/assets/svg/MaterialSymbolsNotificationImportant.svelte';
-	import { notificationQueryOptions } from '$lib/queries';
+	import { notificationQueryOptions, trackerIdToName } from '$lib/queries';
 	import { createQuery, type CreateQueryResult } from '@tanstack/svelte-query';
 
 	import { getNotificationStatus } from '$lib/notification';
@@ -52,28 +52,24 @@
 		return '';
 	});
 
-	const towels = createQuery(() => notificationQueryOptions('towel'));
-	const sprays = createQuery(() => notificationQueryOptions('spray'));
-	const gummies = createQuery(() => notificationQueryOptions('gummy'));
-	const bedsheets = createQuery(() => notificationQueryOptions('bedsheet'));
-	const doggoBaths = createQuery(() => notificationQueryOptions('doggoBath'));
-	const doggoChewables = createQuery(() => notificationQueryOptions('doggoChewable'));
+	const latestLogs = createQuery(notificationQueryOptions);
 
 	interface CollectionNotification {
-		name: CollectionName;
-		logs: CreateQueryResult<LogsDB, Error>;
+		name: CollectionName | undefined;
 		notif: NotificationStatus;
 	}
 
 	let notifications = $derived.by(() => {
-		let collections: CollectionNotification[] = [
-			{ name: 'towel', logs: towels, notif: getNotificationStatus(towels) },
-			{ name: 'spray', logs: sprays, notif: getNotificationStatus(sprays) },
-			{ name: 'gummy', logs: gummies, notif: getNotificationStatus(gummies) },
-			{ name: 'bedsheet', logs: bedsheets, notif: getNotificationStatus(bedsheets) },
-			{ name: 'doggoBath', logs: doggoBaths, notif: getNotificationStatus(doggoBaths) },
-			{ name: 'doggoChewable', logs: doggoChewables, notif: getNotificationStatus(doggoChewables) }
-		];
+		if (!latestLogs.isSuccess) return undefined;
+
+		let collections: CollectionNotification[] = [];
+
+		for (const ll of latestLogs.data) {
+			collections.push({
+				name: trackerIdToName(ll.tracker),
+				notif: getNotificationStatus(ll)
+			});
+		}
 
 		const notifCount = collections.reduce((total, item) => {
 			if (item.notif.show) {
@@ -155,7 +151,9 @@
 		</div>
 		<div class="navbar-end">
 			<div id="mobile-hamburger" class="dropdown flex items-center lg:hidden">
-				{@render notification(notifications)}
+				{#if notifications}
+					{@render notification(notifications)}
+				{/if}
 				<a href="/profile" class="btn btn-ghost -me-4"
 					><MaterialSymbolsSettings class="size-[1.5em]" /></a
 				>
@@ -206,26 +204,26 @@
 {#snippet notification(notifications: Notifications)}
 	<div class="dropdown dropdown-end">
 		<div tabindex="0" role="button" class="btn btn-ghost drawer-button px-2 py-0">
-			{#if notifications.count === 0}
+			{#if notifications?.count === 0}
 				<MaterialSymbolsNotifications class="size-6" />
 			{:else}
 				<MaterialSymbolsNotificationImportant class="size-6" />
 				<span class="absolute top-1 right-1 z-2 size-4 rounded-full bg-red-600 text-xs"
-					>{notifications.count}</span
+					>{notifications?.count}</span
 				>
 			{/if}
 		</div>
 		<ul
 			class="dropdown-content menu rounded-box bg-base-100 text-md text-base-content z-1 w-72 p-2 shadow-lg"
 		>
-			{#if notifications.count === 0}
+			{#if notifications?.count === 0}
 				<li>
 					<div class="flex items-center justify-center gap-2">
 						<MaterialSymbolsCheckCircle class="size-[1.3em]" /><span>No pending items</span>
 					</div>
 				</li>
 			{:else}
-				{#each notifications.collections as collection}
+				{#each notifications?.collections as collection}
 					{#if collection.notif.show}
 						<li>
 							<a href={collection.notif.href} class="flex items-center">

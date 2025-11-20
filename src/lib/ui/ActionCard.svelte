@@ -3,13 +3,14 @@
 	import type { RecordModel } from 'pocketbase';
 	import type { Component } from 'svelte';
 	import ActionButton from './ActionButton.svelte';
+	import type { CreateQueryResult } from '@tanstack/svelte-query';
 
 	let { options }: { options: Options } = $props();
 
 	interface Options {
 		title: string;
-		query: Query;
-		notification: NotificationStatus;
+		query: CreateQueryResult<LogsDB[], Error>;
+		notification: NotificationStatus | undefined;
 		icon: Component;
 		route: string;
 		last: string;
@@ -25,7 +26,7 @@
 <section
 	class={[
 		'border-base-300 grid min-h-24 gap-4 rounded-3xl border p-4',
-		options.notification.show ? 'bg-error/15 outline-error/30 outline' : 'bg-base-100'
+		options.notification?.show ? 'bg-error/15 outline-error/30 outline' : 'bg-base-100'
 	]}
 >
 	<a href={options.route} class="flex items-center">
@@ -41,11 +42,11 @@
 					{options.query.error.message}
 				{/if}
 				{#if options.query.isSuccess}
-					{#if options.notification.show}
+					{#if options.notification?.show}
 						<span class="text-error font-medium tracking-tight">
-							{#if options.notification.level === 'overdue'}
+							{#if options.notification?.level === 'overdue'}
 								Overdue
-							{:else if options.notification.level === 'due'}
+							{:else if options.notification?.level === 'due'}
 								Due
 							{/if}
 						</span>&nbsp;&nbsp;•&nbsp;&nbsp;

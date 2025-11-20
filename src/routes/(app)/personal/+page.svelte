@@ -10,6 +10,8 @@
 		createLogsQuery,
 		logsQueryOptions,
 		logsRefetchOptions,
+		notificationQueryOptions,
+		trackerNameToId,
 		trackerQueryOptions
 	} from '$lib/queries';
 	import { getNotificationStatus } from '$lib/notification';
@@ -68,8 +70,20 @@
 
 	const tanstackClient = useQueryClient();
 
-	let sprayNotification = $derived.by(() => getNotificationStatus(sprays));
-	let gummyNotification = $derived.by(() => getNotificationStatus(gummies));
+	const latestLogs = createQuery(notificationQueryOptions);
+	let sprayNotification = $derived.by(() => {
+		if (!latestLogs.isSuccess) return;
+
+		const spray = latestLogs.data.find((item) => item.tracker === trackerNameToId('spray'));
+		return getNotificationStatus(spray);
+	});
+
+	let gummyNotification = $derived.by(() => {
+		if (!latestLogs.isSuccess) return;
+
+		const gummy = latestLogs.data.find((item) => item.tracker === trackerNameToId('gummy'));
+		return getNotificationStatus(gummy);
+	});
 </script>
 
 <PageWrapper title="Personal" {pb}>

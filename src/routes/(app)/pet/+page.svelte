@@ -10,6 +10,8 @@
 		createLogsQuery,
 		logsQueryOptions,
 		logsRefetchOptions,
+		notificationQueryOptions,
+		trackerNameToId,
 		trackerQueryOptions
 	} from '$lib/queries';
 	import { getNotificationStatus } from '$lib/notification';
@@ -74,8 +76,22 @@
 		return '';
 	});
 
-	let doggoBathNotification = $derived.by(() => getNotificationStatus(doggoBaths));
-	let doggoChewableNotification = $derived.by(() => getNotificationStatus(doggoChewables));
+	const latestLogs = createQuery(notificationQueryOptions);
+	let doggoBathNotification = $derived.by(() => {
+		if (!latestLogs.isSuccess) return;
+
+		const doggoBath = latestLogs.data.find((item) => item.tracker === trackerNameToId('doggoBath'));
+		return getNotificationStatus(doggoBath);
+	});
+
+	let doggoChewableNotification = $derived.by(() => {
+		if (!latestLogs.isSuccess) return;
+
+		const doggoChewable = latestLogs.data.find(
+			(item) => item.tracker === trackerNameToId('doggoChewable')
+		);
+		return getNotificationStatus(doggoChewable);
+	});
 </script>
 
 <PageWrapper title="Pet" {pb}>
