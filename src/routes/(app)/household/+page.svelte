@@ -52,12 +52,10 @@
 		return '';
 	});
 
-	const latestLogs = createQuery(notificationQueryOptions);
 	let towelNotification = $derived.by(() => {
-		if (!latestLogs.isSuccess) return;
-
-		const towel = latestLogs.data.find((item) => item.tracker === trackerNameToId('towel'));
-		return getNotificationStatus(towel);
+		if (!towels.isSuccess || !towels || towels.data.length === 0) return;
+		const latest = towels.data[0];
+		return getNotificationStatus(latest);
 	});
 </script>
 

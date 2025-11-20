@@ -25,20 +25,23 @@
 
 	let sprayButtonStatus: ButtonState = $state('default');
 	let gummyButtonStatus: ButtonState = $state('default');
+	const tanstackClient = useQueryClient();
 
 	const sprays = createQuery(() => logsQueryOptions('spray'));
-	const sprayTracker = createQuery(() => trackerQueryOptions('spray'));
+
 	let sprayInterval = $derived.by(() =>
-		sprayTracker.isSuccess ? sprayTracker.data?.interval : undefined
+		sprays.isSuccess && sprays.data?.length > 0 ? sprays.data?.[0].interval : undefined
 	);
 	let sprayIntervalUnit = $derived.by(() =>
-		sprayTracker.isSuccess ? sprayTracker.data?.intervalUnit : undefined
+		sprays.isSuccess && sprays.data?.length > 0 ? sprays.data?.[0].intervalUnit : undefined
 	);
 	let sprayLast: string = $derived.by(() => {
 		if (sprays.isSuccess && sprays.data.length > 0) return dayjs(sprays.data[0].time).fromNow();
 
 		return '';
 	});
+	$inspect(sprayInterval);
+
 	const createSprayRecord = () =>
 		createLogsQuery({
 			collectionName: 'spray',
@@ -48,12 +51,11 @@
 	const sprayRefetch = async () => await tanstackClient.refetchQueries(logsRefetchOptions('spray'));
 
 	const gummies = createQuery(() => logsQueryOptions('gummy'));
-	const gummyTracker = createQuery(() => trackerQueryOptions('gummy'));
 	let gummyInterval = $derived.by(() =>
-		gummyTracker.isSuccess ? gummyTracker.data?.interval : undefined
+		gummies.isSuccess && gummies.data?.length > 0 ? gummies.data?.[0].interval : undefined
 	);
 	let gummyIntervalUnit = $derived.by(() =>
-		gummyTracker.isSuccess ? gummyTracker.data?.intervalUnit : undefined
+		gummies.isSuccess && gummies.data?.length > 0 ? gummies.data?.[0].intervalUnit : undefined
 	);
 	let gummyLast: string = $derived.by(() => {
 		if (gummies.isSuccess && gummies.data.length > 0) return dayjs(gummies.data[0].time).fromNow();
@@ -68,21 +70,16 @@
 		});
 	const gummyRefetch = async () => await tanstackClient.refetchQueries(logsRefetchOptions('gummy'));
 
-	const tanstackClient = useQueryClient();
-
-	const latestLogs = createQuery(notificationQueryOptions);
 	let sprayNotification = $derived.by(() => {
-		if (!latestLogs.isSuccess) return;
-
-		const spray = latestLogs.data.find((item) => item.tracker === trackerNameToId('spray'));
-		return getNotificationStatus(spray);
+		if (!sprays.isSuccess || !sprays || sprays.data.length === 0) return;
+		const latest = sprays.data[0];
+		return getNotificationStatus(latest);
 	});
 
 	let gummyNotification = $derived.by(() => {
-		if (!latestLogs.isSuccess) return;
-
-		const gummy = latestLogs.data.find((item) => item.tracker === trackerNameToId('gummy'));
-		return getNotificationStatus(gummy);
+		if (!gummies.isSuccess || !gummies || gummies.data.length === 0) return;
+		const latest = gummies.data[0];
+		return getNotificationStatus(latest);
 	});
 </script>
 

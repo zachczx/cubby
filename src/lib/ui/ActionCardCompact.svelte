@@ -59,7 +59,7 @@
 		});
 
 	const refetch = async () => {
-		await tanstackClient.refetchQueries(notificationRefetchOptions(options.collectionName));
+		await tanstackClient.refetchQueries(notificationRefetchOptions());
 	};
 </script>
 

@@ -4,13 +4,19 @@ import dayjs from 'dayjs';
 
 const staleTime = 5 * 60 * 1000;
 
+/** 
+requestKey prevents "Auto-cancellation" errors by pb. Spray was getting loaded twice, with first being cancelled.
+Cause: pb treats simultaneous requests to same endpoint as duplicates, so cancels it.
+Solution: 'requestKey' needed so only the same tracker fetch cancels the previous.
+*/
 export function logsQueryOptions(name: CollectionName) {
 	return queryOptions({
 		queryKey: ['log-' + name, pb.authStore?.record?.id],
 		queryFn: async (): Promise<LogsDB[]> =>
 			await pb.collection('logs').getFullList({
 				filter: `user="${pb.authStore?.record?.id}" && tracker.name="${name}"`,
-				sort: '-time'
+				sort: '-time',
+				requestKey: `${name}-logs`
 			}),
 		staleTime: staleTime
 	});
@@ -42,7 +48,7 @@ export async function createLogsQuery(options: {
 
 export function notificationQueryOptions() {
 	return queryOptions({
-		queryKey: ['notif-' + name, pb.authStore?.record?.id],
+		queryKey: ['notif', pb.authStore?.record?.id],
 		queryFn: async (): Promise<LogsDB[]> =>
 			await pb.collection('latest_logs').getFullList({
 				filter: `user="${pb.authStore?.record?.id}"`
@@ -51,9 +57,9 @@ export function notificationQueryOptions() {
 	});
 }
 
-export function notificationRefetchOptions(name: CollectionName): RefetchQueryFilters {
+export function notificationRefetchOptions(): RefetchQueryFilters {
 	return {
-		queryKey: ['notif-' + name, pb.authStore?.record?.id],
+		queryKey: ['notif', pb.authStore?.record?.id],
 		type: 'active',
 		exact: true
 	};
@@ -65,7 +71,9 @@ export function trackerQueryOptions(name: CollectionName) {
 		queryFn: async (): Promise<TrackerDB> =>
 			await pb
 				.collection('trackers')
-				.getFirstListItem(`user="${pb.authStore?.record?.id}" && name="${name}"`),
+				.getFirstListItem(`user="${pb.authStore?.record?.id}" && name="${name}"`, {
+					requestKey: `${name}-tracker-details`
+				}),
 		staleTime: staleTime
 	});
 }
@@ -81,8 +89,10 @@ export function trackerRefetchOptions(name: CollectionName): RefetchQueryFilters
 export function createUserQueryOptions() {
 	return queryOptions({
 		queryKey: ['users', pb.authStore?.record?.id],
-		queryFn: async (): Promise<UserDB> =>
-			await pb.collection('users').getOne(String(pb.authStore?.record?.id)),
+		queryFn: async (): Promise<UserDB> => {
+			console.log('triggered user');
+			return await pb.collection('users').getOne(String(pb.authStore?.record?.id));
+		},
 		staleTime: staleTime
 	});
 }

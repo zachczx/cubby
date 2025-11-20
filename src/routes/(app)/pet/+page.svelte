@@ -78,19 +78,15 @@
 
 	const latestLogs = createQuery(notificationQueryOptions);
 	let doggoBathNotification = $derived.by(() => {
-		if (!latestLogs.isSuccess) return;
-
-		const doggoBath = latestLogs.data.find((item) => item.tracker === trackerNameToId('doggoBath'));
-		return getNotificationStatus(doggoBath);
+		if (!doggoBaths.isSuccess || !doggoBaths || doggoBaths.data.length === 0) return;
+		const latest = doggoBaths.data[0];
+		return getNotificationStatus(latest);
 	});
 
 	let doggoChewableNotification = $derived.by(() => {
-		if (!latestLogs.isSuccess) return;
-
-		const doggoChewable = latestLogs.data.find(
-			(item) => item.tracker === trackerNameToId('doggoChewable')
-		);
-		return getNotificationStatus(doggoChewable);
+		if (!doggoChewables.isSuccess || !doggoChewables || doggoChewables.data.length === 0) return;
+		const latest = doggoChewables.data[0];
+		return getNotificationStatus(latest);
 	});
 </script>
 
