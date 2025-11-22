@@ -190,9 +190,10 @@
 							{/if}
 						{/each}
 					{:else}
-						<enhanced:img src={EmptyCorgi} alt="nothing" class="justify-self-center" />
-						<p class="text-center">No other upcoming tasks!</p>
-					{/if}
+						<div class="justify-self-center">
+							<enhanced:img src={EmptyCorgi} alt="nothing" />
+							<p class="text-center">No other upcoming tasks!</p>
+						</div>{/if}
 				{/if}
 			</section>
 

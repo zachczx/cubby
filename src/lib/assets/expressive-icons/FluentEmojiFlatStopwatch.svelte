@@ -8,7 +8,7 @@
 	height="1em"
 	viewBox="0 0 32 32"
 	{...props}
-	class={[props.class, '']}
+	class={[props.class, 'opacity-[0.8]']}
 	><!-- Icon from Fluent Emoji Flat by Microsoft Corporation - https://github.com/microsoft/fluentui-emoji/blob/main/LICENSE --><g
 		fill="none"
 		><path

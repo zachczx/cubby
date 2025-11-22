@@ -34,7 +34,6 @@
 
 		try {
 			const result = await query();
-			console.log(result);
 			if (result) {
 				addToast('success', 'Added successfully!');
 				status = 'success';
