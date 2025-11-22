@@ -25,7 +25,7 @@
 	const tanstackClient = useQueryClient();
 	const latestLogs = createQuery(notificationQueryOptions);
 	const notification = $derived.by(() => {
-		if (latestLogs.isSuccess) {
+		if (latestLogs.isSuccess && latestLogs.data) {
 			const notif = latestLogs.data.find(
 				(item) => trackerIdToName(item.tracker) === options.collectionName
 			);
@@ -72,7 +72,7 @@
 					An error has occurred:
 					{latestLogs.error.message}
 				{/if}
-				{#if latestLogs.isSuccess}
+				{#if latestLogs.isSuccess && latestLogs.data?.length > 0}
 					{#if notification?.show}
 						{#if notification.level === 'overdue'}
 							<span class="text-error font-semibold tracking-tight">Overdue</span>
