@@ -4,17 +4,19 @@
 
 	let { notification }: { notification: NotificationStatus } = $props();
 
-	interface Statuses {
+	interface StatusLabels {
 		ok: string;
 		due: string;
 		overdue: string;
 	}
 
-	const statusLabels: Statuses = {
+	const statusLabels: StatusLabels = {
 		ok: 'Done',
 		due: 'Due',
 		overdue: 'Overdue'
 	};
+
+	console.log(notification);
 </script>
 
 <div class="flex items-center gap-2">
