@@ -1,13 +1,18 @@
 import dayjs from 'dayjs';
 import { trackerIdToName } from './queries';
 
+export const emptyNotificationStatus: NotificationStatus = {
+	show: false,
+	level: null
+};
+
 export const defaultNotificationStatus: NotificationStatus = {
 	show: false,
 	level: 'ok'
 };
 
 export function getNotificationStatus(data: LogsDB | undefined): NotificationStatus {
-	if (!data) return defaultNotificationStatus;
+	if (!data) return emptyNotificationStatus;
 
 	const notifDetails = getNotificationLabel(data);
 

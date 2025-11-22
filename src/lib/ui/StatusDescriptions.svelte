@@ -15,8 +15,6 @@
 		due: 'Due',
 		overdue: 'Overdue'
 	};
-
-	console.log(notification);
 </script>
 
 <div class="flex items-center gap-2">

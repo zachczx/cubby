@@ -6,7 +6,8 @@
 		collectionName: 'bedsheet',
 		labels: {
 			pageTitle: 'Bedsheet',
-			ctaButtonText: 'Changed'
+			ctaButtonText: 'Changed',
+			noun: 'change'
 		},
 		calculateGaps: calculateRecordsGapsWithVacation
 	} satisfies TrackerPageOptions;

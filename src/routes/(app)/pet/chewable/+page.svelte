@@ -6,7 +6,8 @@
 		collectionName: 'doggoChewable',
 		labels: {
 			pageTitle: 'Chewable',
-			ctaButtonText: 'Fed'
+			ctaButtonText: 'Fed',
+			noun: 'chewable'
 		},
 		calculateGaps: calculateRecordsGapsWithVacation
 	} satisfies TrackerPageOptions;

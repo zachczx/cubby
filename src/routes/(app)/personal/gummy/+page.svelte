@@ -5,7 +5,8 @@
 		collectionName: 'gummy',
 		labels: {
 			pageTitle: 'Elderberry',
-			ctaButtonText: 'Ate'
+			ctaButtonText: 'Ate',
+			noun: 'gummy'
 		}
 	} satisfies TrackerPageOptions;
 </script>

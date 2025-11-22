@@ -90,18 +90,6 @@
 		};
 	});
 
-	let last: number | undefined = $derived.by(() => {
-		let last;
-		if (dbRecords.isSuccess) {
-			if (dbRecords.data && dbRecords.data.length > 0) {
-				const lastRecord = dayjs(dbRecords.data[0].time);
-				const today = dayjs();
-				last = today.diff(lastRecord, 'hours', true);
-				return last;
-			}
-		}
-	});
-
 	let notification = $derived.by(() => getNotificationStatus(dbRecords.data?.[0] ?? undefined));
 
 	type TabPages = 'overview' | 'stats' | 'calendar';
@@ -116,7 +104,7 @@
 	let records: LogsRecord[] | undefined = $state([]);
 
 	$effect(() => {
-		if (dbRecords.isSuccess && dbRecords.data) {
+		if (dbRecords.isSuccess && dbRecords.data && dbRecords.data?.length > 0) {
 			if (options.calculateGaps) {
 				records = options.calculateGaps(dbRecords.data, vacations.data ?? []);
 			} else {
@@ -262,114 +250,124 @@
 				</li>
 			</ul>
 
-			<div class={['grid w-full gap-8 px-4', currentTab === 'overview' ? undefined : 'hidden']}>
-				<div class="flex items-center justify-center text-2xl font-bold">
-					{#if dbRecords.isSuccess}
-						{#if notification}
-							<StatusDescriptions {notification} />
-						{:else}
-							<div class="flex min-h-20 items-center gap-4 text-2xl font-bold">Nil</div>
-						{/if}
-					{/if}
+			{#if dbRecords.isSuccess && dbRecords.data.length === 0}
+				<div class="mx-4 mt-4 text-center">
+					<p class="font-bold">Ready to track?</p>
+					<p>Log your first {options.labels.noun} to get started.</p>
 				</div>
-
-				<div
-					class="border-base-content/5 bg-primary/10 grid justify-items-center rounded-xl border p-4 shadow"
-				>
-					<h2 class="text-md text-center">Due</h2>
-					<div class="grid min-h-20 content-center justify-items-center">
+			{:else}
+				<div class={['grid w-full gap-8 px-4', currentTab === 'overview' ? undefined : 'hidden']}>
+					<div class="flex items-center justify-center text-2xl font-bold">
 						{#if dbRecords.isSuccess}
 							{#if notification}
-								<!-- {@const semantic = dayjs(notification.next).calendar(dayjs(), dayjsCalendarOptions)} -->
-								{@const semantic = dayjs(notification.next).fromNow()}
-								{@const formatted = dayjs(notification.next).format('D MMM YYYY')}
-								<p class="text-primary text-2xl font-bold">
-									{semantic}
-								</p>
-								<p>{formatted}</p>
+								<StatusDescriptions {notification} />
 							{:else}
 								<div class="flex min-h-20 items-center gap-4 text-2xl font-bold">Nil</div>
 							{/if}
 						{/if}
 					</div>
+
+					<div
+						class="border-base-content/5 bg-primary/10 grid justify-items-center rounded-xl border p-4 shadow"
+					>
+						<h2 class="text-md text-center">Due</h2>
+						<div class="grid min-h-20 content-center justify-items-center">
+							{#if dbRecords.isSuccess}
+								{#if notification && notification.level}
+									<!-- {@const semantic = dayjs(notification.next).calendar(dayjs(), dayjsCalendarOptions)} -->
+									{@const semantic = dayjs(notification.next).fromNow()}
+									{@const formatted = dayjs(notification.next).format('D MMM YYYY')}
+									<p class="text-primary text-2xl font-bold">
+										{semantic}
+									</p>
+									<p>{formatted}</p>
+								{:else}
+									<div class="flex min-h-20 items-center gap-4 text-2xl font-bold">Nil</div>
+								{/if}
+							{/if}
+						</div>
+					</div>
+
+					<TwoColumnCard leftTitle="Frequency" rightTitle="Last">
+						{#snippet left()}
+							{#if tracker.isSuccess && tracker.data}
+								{@const plural = tracker.data.interval > 1 ? true : false}
+								<p>
+									{tracker.data.interval}&nbsp;{plural
+										? tracker.data.intervalUnit + 's'
+										: tracker.data.intervalUnit}
+								</p>
+								<p class="text-base-content/70 text-base font-normal">once</p>
+							{:else}
+								<div class="flex min-h-20 items-center gap-4 text-xl font-bold">Not set yet</div>
+							{/if}
+						{/snippet}
+
+						{#snippet right()}
+							{#if dbRecords.isSuccess}
+								{#if dbRecords.data.length > 0}
+									{@const formatted = dayjs(dbRecords.data[0].time).fromNow(true)}
+									<p>{formatted}</p>
+									<p class="text-base-content/70 text-base font-normal">ago</p>
+								{:else}
+									<div class="flex min-h-20 items-center gap-4 text-xl font-bold">
+										Never recorded
+									</div>
+								{/if}
+							{/if}
+							{#if dbRecords.isPending}
+								<div class="custom-loader"></div>
+							{/if}
+						{/snippet}
+					</TwoColumnCard>
 				</div>
 
-				<TwoColumnCard leftTitle="Frequency" rightTitle="Last">
-					{#snippet left()}
-						{#if tracker.isSuccess}
-							{@const plural = tracker.data.interval > 1 ? true : false}
-							{@const collectionName = dbRecords.data?.[0].tracker}
-							<p>
-								{tracker.data.interval}&nbsp;{plural
-									? tracker.data.intervalUnit + 's'
-									: tracker.data.intervalUnit}
-							</p>
-							<p class="text-base-content/70 text-base font-normal">once</p>
-						{/if}
-					{/snippet}
+				<div class={['grid w-full gap-8 px-4', currentTab === 'stats' ? undefined : 'hidden']}>
+					<div class="border-base-content/5 w-full rounded-lg border p-4 shadow">
+						<h2 class="text-md text-center">Trend</h2>
+						<div>
+							<canvas bind:this={lineChartEl}></canvas>
+						</div>
+					</div>
 
-					{#snippet right()}
-						{#if dbRecords.isSuccess}
-							{#if dbRecords.data.length > 0}
-								{@const formatted = dayjs(dbRecords.data[0].time).fromNow(true)}
-								<p>{formatted}</p>
-								<p class="text-base-content/70 text-base font-normal">ago</p>
-							{:else}
-								<div class="flex min-h-20 items-center gap-4 text-2xl font-bold">Nil</div>
-							{/if}
-						{/if}
-						{#if dbRecords.isPending}
-							<div class="custom-loader"></div>
-						{/if}
-					{/snippet}
-				</TwoColumnCard>
-			</div>
+					<div
+						class="border-base-content/5 grid w-full grid-cols-2 content-center gap-4 rounded-lg border shadow"
+					>
+						<div class="border-r-base-content/15 grid justify-items-center border-r p-4">
+							<h2 class="text-md">Longest Gap</h2>
+							<div class="text-center text-2xl font-bold">
+								{#if longestGap}
+									{longestGap.gap.toFixed(0)} days
+								{:else}
+									N/A
+								{/if}
+							</div>
+						</div>
 
-			<div class={['grid w-full gap-8 px-4', currentTab === 'stats' ? undefined : 'hidden']}>
-				<div class="border-base-content/5 w-full rounded-lg border p-4 shadow">
-					<h2 class="text-md text-center">Trend</h2>
-					<div>
-						<canvas bind:this={lineChartEl}></canvas>
+						<div class="grid justify-items-center p-4">
+							<h2 class="text-md">Average Gap</h2>
+							<div class="text-center text-2xl font-bold">
+								{#if longestGap}
+									{averageGap.toFixed(1)} days
+								{:else}
+									N/A
+								{/if}
+							</div>
+						</div>
 					</div>
 				</div>
 
 				<div
-					class="border-base-content/5 grid w-full grid-cols-2 content-center gap-4 rounded-lg border shadow"
+					class={[
+						'grid w-full grid-cols-[minmax(0,1fr)] overflow-hidden px-4',
+						currentTab === 'calendar' ? undefined : 'hidden'
+					]}
 				>
-					<div class="border-r-base-content/15 grid justify-items-center border-r p-4">
-						<h2 class="text-md">Longest Gap</h2>
-						<div class="text-center text-2xl font-bold">
-							{#if longestGap}
-								{longestGap.gap.toFixed(0)} days
-							{:else}
-								N/A
-							{/if}
-						</div>
-					</div>
-
-					<div class="grid justify-items-center p-4">
-						<h2 class="text-md">Average Gap</h2>
-						<div class="text-center text-2xl font-bold">
-							{#if longestGap}
-								{averageGap.toFixed(1)} days
-							{:else}
-								N/A
-							{/if}
-						</div>
-					</div>
+					{#key dbRecords.data}
+						<Calendar plugins={[DayGrid, Interaction]} options={calendarOptions} />
+					{/key}
 				</div>
-			</div>
-
-			<div
-				class={[
-					'grid w-full grid-cols-[minmax(0,1fr)] overflow-hidden px-4',
-					currentTab === 'calendar' ? undefined : 'hidden'
-				]}
-			>
-				{#key dbRecords.data}
-					<Calendar plugins={[DayGrid, Interaction]} options={calendarOptions} />
-				{/key}
-			</div>
+			{/if}
 		</div>
 	</main>
 </PageWrapper>

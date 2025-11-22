@@ -6,7 +6,8 @@
 		collectionName: 'towel',
 		labels: {
 			pageTitle: 'Towel',
-			ctaButtonText: 'Washed'
+			ctaButtonText: 'Washed',
+			noun: 'wash'
 		},
 		calculateGaps: calculateRecordsGapsWithVacation
 	} satisfies TrackerPageOptions;

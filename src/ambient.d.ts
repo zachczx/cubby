@@ -58,7 +58,7 @@ interface TrackerDB {
 
 interface NotificationStatus {
 	show: boolean;
-	level: 'ok' | 'due' | 'overdue';
+	level: 'ok' | 'due' | 'overdue' | null;
 	next?: string;
 	label?: string | undefined;
 	href?: string | undefined;
@@ -80,7 +80,7 @@ type CollectionName =
 
 interface TrackerPageOptions {
 	collectionName: CollectionName;
-	labels: { pageTitle: string; ctaButtonText: string };
+	labels: { pageTitle: string; ctaButtonText: string; noun: string };
 	calculateGaps?: (records: LogsDB[], vacations: VacationDB[]) => LogsRecord[];
 }
 

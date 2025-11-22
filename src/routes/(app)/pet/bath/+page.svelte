@@ -6,7 +6,8 @@
 		collectionName: 'doggoBath',
 		labels: {
 			pageTitle: 'Bath',
-			ctaButtonText: 'Bathed'
+			ctaButtonText: 'Bathed',
+			noun: 'bath'
 		},
 		calculateGaps: calculateRecordsGapsWithVacation
 	} satisfies TrackerPageOptions;

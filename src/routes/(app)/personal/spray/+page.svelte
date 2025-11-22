@@ -5,7 +5,8 @@
 		collectionName: 'spray',
 		labels: {
 			pageTitle: 'Spray',
-			ctaButtonText: 'Sprayed'
+			ctaButtonText: 'Sprayed',
+			noun: 'spray'
 		}
 	} satisfies TrackerPageOptions;
 </script>
