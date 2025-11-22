@@ -1,46 +1,60 @@
-<script>
+<script lang="ts">
 	import { goto } from '$app/navigation';
 	import MaterialSymbolsVisibilityOffOutline from '$lib/assets/svg/MaterialSymbolsVisibilityOffOutline.svelte';
 	import MaterialSymbolsVisibilityOutline from '$lib/assets/svg/MaterialSymbolsVisibilityOutline.svelte';
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
 	import { pb } from '$lib/pb';
+	import { trackerDefaults } from './tracker-defaults';
 
 	if (pb.authStore.isValid) {
-		goto('/app');
+		goto('/');
 	}
 
-	let email = $state('');
-	let password = $state('');
+	let newUser = $state<Record<string, string>>({
+		email: '',
+		password: ''
+	});
 	let togglePasswordStatus = $state(false);
+	let newUserRecord = $state<Record<string, string>>();
 
 	async function submitHandler() {
 		spinner = true;
-		const cleanEmail = email.toLowerCase().trim();
-		const cleanPassword = password.trim();
+		const cleanEmail = newUser.email.toLowerCase().trim();
+		const cleanPassword = newUser.password.trim();
 		try {
-			const data = {
+			const userData = {
 				email: cleanEmail,
 				emailVisibility: true,
 				password: cleanPassword,
 				passwordConfirm: cleanPassword,
-				sound: true,
-				towelIntervalDays: 5,
-				sprayIntervalDays: 3,
-				gummyIntervalDays: 2,
-				doggoChewableIntervalMonths: 1,
-				doggoBathIntervalDays: 14
+				sound: true
 			};
 
-			const record = await pb.collection('users').create(data);
+			newUserRecord = await pb.collection('users').create(userData);
 		} catch (err) {
 			console.log(err);
 		}
 
 		try {
-			const authData = await pb.collection('users').authWithPassword(email, password);
+			const authData = await pb
+				.collection('users')
+				.authWithPassword(newUser.email, newUser.password);
 			if (authData.token) {
+				const batch = pb.createBatch();
+
+				for (const t of trackerDefaults) {
+					const record = {
+						user: newUserRecord?.id,
+						...t
+					};
+
+					batch.collection('trackers').create(record);
+				}
+
+				await batch.send();
+
 				spinner = false;
-				goto('/app');
+				goto('/');
 			}
 		} catch (err) {
 			console.log(err);
@@ -70,7 +84,7 @@
 				<input
 					type="text"
 					name="email"
-					bind:value={email}
+					bind:value={newUser.email}
 					class="input input-lg w-full"
 					placeholder="Email"
 				/>
@@ -80,7 +94,7 @@
 				<label class="input input-lg w-full gap-4">
 					<input
 						type={togglePasswordStatus ? 'text' : 'password'}
-						bind:value={password}
+						bind:value={newUser.password}
 						placeholder="Password"
 						required
 					/>
