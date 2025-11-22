@@ -23,11 +23,13 @@
 	import ActionCard from '$lib/ui/ActionCard.svelte';
 	import StreamlineColorHotelLaundryFlat from '$lib/assets/expressive-icons/StreamlineColorHotelLaundryFlat.svelte';
 	import FluentEmojiFlatStopwatch from '$lib/assets/expressive-icons/FluentEmojiFlatStopwatch.svelte';
+	import FluentEmojiFlatBed from '$lib/assets/expressive-icons/FluentEmojiFlatBed.svelte';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
 
+	// Towel
 	let towelButtonStatus: ButtonState = $state('default');
 
 	const towels = createQuery(() => logsQueryOptions('towel'));
@@ -59,6 +61,39 @@
 		const latest = towels.data[0];
 		return getNotificationStatus(latest);
 	});
+
+	// Bedsheet
+	let bedsheetButtonStatus: ButtonState = $state('default');
+
+	const bedsheets = createQuery(() => logsQueryOptions('bedsheet'));
+	const bedsheetTracker = createQuery(() => trackerQueryOptions('bedsheet'));
+	let bedsheetInterval = $derived.by(() =>
+		bedsheetTracker.isSuccess ? bedsheetTracker.data?.interval : undefined
+	);
+	let bedsheetIntervalUnit = $derived.by(() =>
+		bedsheetTracker.isSuccess ? bedsheetTracker.data?.intervalUnit : undefined
+	);
+	const createBedsheetRecord = () =>
+		createLogsQuery({
+			collectionName: 'bedsheet',
+			interval: bedsheetInterval,
+			intervalUnit: bedsheetIntervalUnit
+		});
+	const bedsheetRefetch = async () =>
+		await tanstackClient.refetchQueries(logsRefetchOptions('bedsheet'));
+
+	let bedsheetLast: string = $derived.by(() => {
+		if (bedsheets.isSuccess && bedsheets.data.length > 0) {
+			return dayjs(bedsheets.data[0].time).fromNow();
+		}
+		return '';
+	});
+
+	let bedsheetNotification = $derived.by(() => {
+		if (!bedsheets.isSuccess || !bedsheets || bedsheets.data.length === 0) return;
+		const latest = bedsheets.data[0];
+		return getNotificationStatus(latest);
+	});
 </script>
 
 <PageWrapper title="Household" {pb}>
@@ -78,6 +113,23 @@
 							refetch: towelRefetch,
 							status: towelButtonStatus,
 							text: 'Washed'
+						}
+					}}
+				></ActionCard>
+
+				<ActionCard
+					options={{
+						title: 'Change Bedsheets',
+						query: bedsheets,
+						notification: bedsheetNotification,
+						route: '/household/bedsheet',
+						icon: FluentEmojiFlatBed,
+						last: bedsheetLast,
+						button: {
+							query: createBedsheetRecord,
+							refetch: bedsheetRefetch,
+							status: bedsheetButtonStatus,
+							text: 'Changed'
 						}
 					}}
 				></ActionCard>
