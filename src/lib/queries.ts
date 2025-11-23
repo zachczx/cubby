@@ -1,8 +1,10 @@
-import { queryOptions, type RefetchQueryFilters } from '@tanstack/svelte-query';
+import { QueryClient, queryOptions, type RefetchQueryFilters } from '@tanstack/svelte-query';
 import { pb } from './pb';
 import dayjs from 'dayjs';
 
 const staleTime = 5 * 60 * 1000;
+
+export const queryClient = new QueryClient();
 
 /** 
 requestKey prevents "Auto-cancellation" errors by pb. Spray was getting loaded twice, with first being cancelled.
@@ -14,7 +16,7 @@ export function logsQueryOptions(name: CollectionName) {
 		queryKey: ['log-' + name, pb.authStore?.record?.id],
 		queryFn: async (): Promise<LogsDB[]> =>
 			await pb.collection('logs').getFullList({
-				filter: `user="${pb.authStore?.record?.id}" && tracker.name="${name}"`,
+				filter: `tracker.name="${name}"`,
 				sort: '-time',
 				requestKey: `${name}-logs`
 			}),
@@ -31,13 +33,12 @@ export function logsRefetchOptions(name: CollectionName): RefetchQueryFilters {
 }
 
 export async function createLogsQuery(options: {
-	collectionName: CollectionName;
+	trackerId: string;
 	interval: number | undefined;
 	intervalUnit: IntervalUnit | undefined;
 }) {
 	const response = await pb.collection('logs').create({
-		tracker: trackerNameToId(options.collectionName),
-		user: pb.authStore.record?.id,
+		tracker: options.trackerId,
 		time: dayjs.tz(new Date(), 'Asia/Singapore'),
 		interval: options.interval,
 		intervalUnit: options.intervalUnit
@@ -49,10 +50,7 @@ export async function createLogsQuery(options: {
 export function notificationQueryOptions() {
 	return queryOptions({
 		queryKey: ['notif', pb.authStore?.record?.id],
-		queryFn: async (): Promise<LogsDB[]> =>
-			await pb.collection('latest_logs').getFullList({
-				filter: `user="${pb.authStore?.record?.id}"`
-			}),
+		queryFn: async (): Promise<LogsDB[]> => await pb.collection('latest_logs').getFullList(),
 		staleTime: staleTime
 	});
 }
@@ -69,11 +67,9 @@ export function trackerQueryOptions(name: CollectionName) {
 	return queryOptions({
 		queryKey: ['tracker-' + name, pb.authStore?.record?.id],
 		queryFn: async (): Promise<TrackerDB> =>
-			await pb
-				.collection('trackers')
-				.getFirstListItem(`user="${pb.authStore?.record?.id}" && name="${name}"`, {
-					requestKey: `${name}-tracker-details`
-				}),
+			await pb.collection('trackers').getFirstListItem(`name="${name}"`, {
+				requestKey: `${name}-tracker-details`
+			}),
 		staleTime: staleTime
 	});
 }
@@ -104,31 +100,39 @@ export function createUserRefetchOptions(): RefetchQueryFilters {
 	};
 }
 
-const trackers = {
-	bedsheet: 'vk58159wczyxmus',
-	doggoBath: 'hhz09lsfj1o5mbp',
-	doggoChewable: 'h3e3xkbmoxma6dv',
-	gummy: '8t9hsvqah63rs7h',
-	spray: '381t91o03thrvyd',
-	towel: 'vvd9jnl0uw8qnie'
-};
-
-function isTrackerKey(key: string): key is keyof typeof trackers {
-	return key in trackers;
+export function allTrackersQueryOptions() {
+	return queryOptions({
+		queryKey: ['trackers-all', pb.authStore?.record?.id],
+		queryFn: async (): Promise<TrackerDB[]> => await pb.collection('trackers').getFullList(),
+		staleTime: staleTime
+	});
 }
 
-export function trackerNameToId(name: CollectionName): string | null {
-	return name in trackers ? trackers[name as keyof typeof trackers] : null;
+// const trackers = {
+// 	bedsheet: 'vk58159wczyxmus',
+// 	doggoBath: 'hhz09lsfj1o5mbp',
+// 	doggoChewable: 'h3e3xkbmoxma6dv',
+// 	gummy: '8t9hsvqah63rs7h',
+// 	spray: '381t91o03thrvyd',
+// 	towel: 'vvd9jnl0uw8qnie'
+// };
+
+export function trackerNameToId(
+	name: CollectionName,
+	trackers: TrackerDB[] | undefined
+): string | null {
+	if (!trackers) return null;
+
+	return trackers.find((item) => item.name === name)?.id ?? null;
 }
 
-export function trackerIdToName(id: string): CollectionName | undefined {
-	const finder = Object.entries(trackers).find((item) => id === item[1]);
+export function trackerIdToName(
+	id: string,
+	trackers: TrackerDB[] | undefined
+): CollectionName | null {
+	if (!trackers) return null;
 
-	if (finder && isTrackerKey(finder[0])) {
-		return finder[0];
-	}
-
-	return undefined;
+	return trackers.find((item) => id === item.id)?.name ?? null;
 }
 
 export function createVacationQueryOptions() {

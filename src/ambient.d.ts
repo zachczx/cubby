@@ -79,6 +79,7 @@ type CollectionName =
 // Types/Interfaces for TrackerPage component abstraction
 
 interface TrackerPageOptions {
+	trackerId: string;
 	collectionName: CollectionName;
 	labels: { pageTitle: string; ctaButtonText: string; noun: string };
 	calculateGaps?: (records: LogsDB[], vacations: VacationDB[]) => LogsRecord[];
@@ -88,8 +89,9 @@ type Collections = LogsDB | VacationDB;
 
 type CalendarRecord = Collections;
 
-interface ActionCardCompactOptions {
+interface ActionCardOptions {
 	title: string;
+	size?: 'compact' | 'default';
 	collectionName: CollectionName;
 	icon: Component;
 	route: string;

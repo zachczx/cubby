@@ -46,7 +46,7 @@
 	);
 	const query = () =>
 		createLogsQuery({
-			collectionName: options.collectionName,
+			trackerId: tracker.data?.id ?? '',
 			interval: interval,
 			intervalUnit: intervalUnit
 		});

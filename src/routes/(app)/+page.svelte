@@ -8,34 +8,25 @@
 	import MaterialSymbolsChevronRight from '$lib/assets/svg/MaterialSymbolsChevronRight.svelte';
 	import { createQuery, useQueryClient, type CreateQueryResult } from '@tanstack/svelte-query';
 	import {
+		allTrackersQueryOptions,
 		createUserQueryOptions,
 		logsQueryOptions,
 		notificationQueryOptions,
 		trackerNameToId
 	} from '$lib/queries';
 	import { getNotificationStatus } from '$lib/notification';
-	import { goto } from '$app/navigation';
-	import MaterialSymbolsHealthAndSafety from '$lib/assets/svg/MaterialSymbolsHealthAndSafety.svelte';
-	import IconParkSolidBottleOne from '$lib/assets/svg/IconParkSolidBottleOne.svelte';
-	import PhTowelFill from '$lib/assets/svg/PhTowelFill.svelte';
-	import MaterialSymbolsTimer from '$lib/assets/svg/MaterialSymbolsTimer.svelte';
 	import ActionCard from '$lib/ui/ActionCard.svelte';
-	import ActionCardCompact from '$lib/ui/ActionCardCompact.svelte';
-	import { type RecordModel } from 'pocketbase';
-	import { type Component } from 'svelte';
-	import MaterialSymbolsArrowRightAlt from '$lib/assets/svg/MaterialSymbolsArrowRightAlt.svelte';
-	import MaterialSymbolsPill from '$lib/assets/svg/MaterialSymbolsPill.svelte';
-	import MaterialSymbolsShower from '$lib/assets/svg/MaterialSymbolsShower.svelte';
-	import MaterialSymbolsFlight from '$lib/assets/svg/MaterialSymbolsFlight.svelte';
-	import EmptyState from '$lib/assets/svg/EmptyState.svelte';
 	import EmptyCorgi from '$lib/assets/empty.webp?w=200&enhanced';
-	import StreamlineColorHotelLaundryFlat from '$lib/assets/expressive-icons/StreamlineColorHotelLaundryFlat.svelte';
-	import FluentEmojiFlatLotionBottle from '$lib/assets/expressive-icons/FluentEmojiFlatLotionBottle.svelte';
-	import FluentEmojiFlatShield from '$lib/assets/expressive-icons/FluentEmojiFlatShield.svelte';
 	import FluentEmojiFlatStopwatch from '$lib/assets/expressive-icons/FluentEmojiFlatStopwatch.svelte';
 	import FluentEmojiFlatAirplane from '$lib/assets/expressive-icons/FluentEmojiFlatAirplane.svelte';
-	import FluentEmojiFlatBed from '$lib/assets/expressive-icons/FluentEmojiFlatBed.svelte';
-	import FluentEmojiFlatShower from '$lib/assets/expressive-icons/FluentEmojiFlatShower.svelte';
+	import {
+		bedsheet,
+		doggoBath,
+		doggoChewable,
+		gummy,
+		spray,
+		towel
+	} from '$lib/ui/ActionCardDefaults';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
@@ -51,67 +42,26 @@
 	});
 
 	const latestLogs = createQuery(notificationQueryOptions);
+	const trackers = createQuery(allTrackersQueryOptions);
 
-	const options: ActionCardCompactOptions[] = [
+	const options: ActionCardOptions[] = [
+		{ ...towel, size: 'compact', button: { ...towel.button, status: buttonStatuses.towel } },
+		{ ...spray, size: 'compact', button: { ...spray.button, status: buttonStatuses.spray } },
+		{ ...gummy, size: 'compact', button: { ...gummy.button, status: buttonStatuses.gummy } },
 		{
-			collectionName: 'towel',
-			title: 'Wash Towel',
-			route: '/household/towel',
-			icon: StreamlineColorHotelLaundryFlat,
-			button: {
-				text: 'Washed',
-				status: buttonStatuses.towel
-			}
+			...bedsheet,
+			size: 'compact',
+			button: { ...bedsheet.button, status: buttonStatuses.bedsheet }
 		},
 		{
-			collectionName: 'spray',
-			title: 'Spray Nose',
-			route: '/personal/spray',
-			icon: FluentEmojiFlatLotionBottle,
-			button: {
-				text: 'Sprayed',
-				status: buttonStatuses.spray
-			}
+			...doggoBath,
+			size: 'compact',
+			button: { ...doggoBath.button, status: buttonStatuses.doggoBath }
 		},
 		{
-			collectionName: 'gummy',
-			title: 'Elderberry Gummy',
-			route: '/personal/gummy',
-			icon: FluentEmojiFlatShield,
-			button: {
-				text: 'Ate',
-				status: buttonStatuses.gummy
-			}
-		},
-		{
-			collectionName: 'bedsheet',
-			title: 'Bedsheet',
-			route: '/household/bedsheet',
-			icon: FluentEmojiFlatBed,
-			button: {
-				text: 'Changed',
-				status: buttonStatuses.bedsheet
-			}
-		},
-		{
-			collectionName: 'doggoBath',
-			title: 'Bath',
-			route: '/pet/bath',
-			icon: FluentEmojiFlatShower,
-			button: {
-				text: 'Bathed',
-				status: buttonStatuses.doggoBath
-			}
-		},
-		{
-			collectionName: 'doggoChewable',
-			title: 'Chewable',
-			route: '/pet/chewable',
-			icon: FluentEmojiFlatShield,
-			button: {
-				text: 'Fed',
-				status: buttonStatuses.doggoChewable
-			}
+			...doggoChewable,
+			size: 'compact',
+			button: { ...doggoChewable.button, status: buttonStatuses.doggoChewable }
 		}
 	];
 
@@ -124,7 +74,7 @@
 			.filter((task) => important.includes(task.collectionName))
 			.map((task) => {
 				const data = latestLogs.data.find(
-					(log) => log.tracker === trackerNameToId(task.collectionName)
+					(log) => log.tracker === trackerNameToId(task.collectionName, trackers.data)
 				);
 
 				return { ...task, notification: getNotificationStatus(data) };
@@ -134,7 +84,7 @@
 			.filter((task) => !important.includes(task.collectionName))
 			.map((task) => {
 				const data = latestLogs.data.find(
-					(log) => log.tracker === trackerNameToId(task.collectionName)
+					(log) => log.tracker === trackerNameToId(task.collectionName, trackers.data)
 				);
 
 				return { ...task, notification: getNotificationStatus(data) };
@@ -151,9 +101,10 @@
 				<h2 class="text-base-content/70 text-lg font-bold">Important</h2>
 
 				{#each tasks.important as task (task.collectionName)}
-					<ActionCardCompact
+					<ActionCard
 						options={{
 							collectionName: task.collectionName,
+							size: task.size ? task.size : undefined,
 							title: task.title,
 							route: task.route,
 							icon: task.icon,
@@ -162,7 +113,7 @@
 								text: task.button.text
 							}
 						}}
-					></ActionCardCompact>
+					></ActionCard>
 				{/each}
 			</section>
 
@@ -175,7 +126,7 @@
 					{#if show > 0}
 						{#each tasks.general as task (task.collectionName)}
 							{#if task.notification.show}
-								<ActionCardCompact
+								<ActionCard
 									options={{
 										collectionName: task.collectionName,
 										title: task.title,
@@ -186,7 +137,7 @@
 											text: task.button.text
 										}
 									}}
-								></ActionCardCompact>
+								></ActionCard>
 							{/if}
 						{/each}
 					{:else}

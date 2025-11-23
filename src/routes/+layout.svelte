@@ -5,6 +5,7 @@
 	import { onNavigate } from '$app/navigation';
 	import { topLevelRoutes } from '$lib/shell/nav';
 	import type { OnNavigate } from '@sveltejs/kit';
+	import { queryClient } from '$lib/queries';
 
 	onNavigate((navigation) => {
 		if (!document.startViewTransition) return;
@@ -18,7 +19,6 @@
 			});
 		});
 	});
-	const queryClient = new QueryClient();
 
 	let { children } = $props();
 

@@ -5,83 +5,18 @@
 	import utc from 'dayjs/plugin/utc';
 	import timezone from 'dayjs/plugin/timezone';
 	import relativeTime from 'dayjs/plugin/relativeTime';
-	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
-	import {
-		createLogsQuery,
-		logsQueryOptions,
-		logsRefetchOptions,
-		notificationQueryOptions,
-		trackerNameToId,
-		trackerQueryOptions
-	} from '$lib/queries';
-	import { getNotificationStatus } from '$lib/notification';
-	import MaterialSymbolsHealthAndSafety from '$lib/assets/svg/MaterialSymbolsHealthAndSafety.svelte';
-	import IconParkSolidBottleOne from '$lib/assets/svg/IconParkSolidBottleOne.svelte';
-	import ActionCard from '$lib/ui/ActionCard.svelte';
-	import FluentEmojiFlatFaceWithSteamFromNose from '$lib/assets/expressive-icons/FluentEmojiFlatFaceWithSteamFromNose.svelte';
 	import FluentEmojiFlatShield from '$lib/assets/expressive-icons/FluentEmojiFlatShield.svelte';
 	import FluentEmojiFlatLotionBottle from '$lib/assets/expressive-icons/FluentEmojiFlatLotionBottle.svelte';
+	import ActionCard from '$lib/ui/ActionCard.svelte';
+	import { gummy, spray } from '$lib/ui/ActionCardDefaults';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
 
-	let sprayButtonStatus: ButtonState = $state('default');
-	let gummyButtonStatus: ButtonState = $state('default');
-	const tanstackClient = useQueryClient();
-
-	const sprays = createQuery(() => logsQueryOptions('spray'));
-
-	let sprayInterval = $derived.by(() =>
-		sprays.isSuccess && sprays.data?.length > 0 ? sprays.data?.[0].interval : undefined
-	);
-	let sprayIntervalUnit = $derived.by(() =>
-		sprays.isSuccess && sprays.data?.length > 0 ? sprays.data?.[0].intervalUnit : undefined
-	);
-	let sprayLast: string = $derived.by(() => {
-		if (sprays.isSuccess && sprays.data.length > 0) return dayjs(sprays.data[0].time).fromNow();
-
-		return '';
-	});
-
-	const createSprayRecord = () =>
-		createLogsQuery({
-			collectionName: 'spray',
-			interval: sprayInterval,
-			intervalUnit: sprayIntervalUnit
-		});
-	const sprayRefetch = async () => await tanstackClient.refetchQueries(logsRefetchOptions('spray'));
-
-	const gummies = createQuery(() => logsQueryOptions('gummy'));
-	let gummyInterval = $derived.by(() =>
-		gummies.isSuccess && gummies.data?.length > 0 ? gummies.data?.[0].interval : undefined
-	);
-	let gummyIntervalUnit = $derived.by(() =>
-		gummies.isSuccess && gummies.data?.length > 0 ? gummies.data?.[0].intervalUnit : undefined
-	);
-	let gummyLast: string = $derived.by(() => {
-		if (gummies.isSuccess && gummies.data.length > 0) return dayjs(gummies.data[0].time).fromNow();
-
-		return '';
-	});
-	const createGummyRecord = () =>
-		createLogsQuery({
-			collectionName: 'gummy',
-			interval: gummyInterval,
-			intervalUnit: gummyIntervalUnit
-		});
-	const gummyRefetch = async () => await tanstackClient.refetchQueries(logsRefetchOptions('gummy'));
-
-	let sprayNotification = $derived.by(() => {
-		if (!sprays.isSuccess || !sprays || sprays.data.length === 0) return;
-		const latest = sprays.data[0];
-		return getNotificationStatus(latest);
-	});
-
-	let gummyNotification = $derived.by(() => {
-		if (!gummies.isSuccess || !gummies || gummies.data.length === 0) return;
-		const latest = gummies.data[0];
-		return getNotificationStatus(latest);
+	let buttonStatuses = $state<Record<string, ButtonState>>({
+		spray: 'default',
+		gummy: 'default'
 	});
 </script>
 
@@ -91,35 +26,15 @@
 			<div class="grid gap-8 py-4">
 				<ActionCard
 					options={{
-						title: 'Spray Nose',
-						query: sprays,
-						notification: sprayNotification,
-						route: '/personal/spray',
-						icon: FluentEmojiFlatLotionBottle,
-						last: sprayLast,
-						button: {
-							query: createSprayRecord,
-							refetch: sprayRefetch,
-							status: sprayButtonStatus,
-							text: 'Sprayed'
-						}
+						...spray,
+						button: { ...spray.button, status: buttonStatuses.spray }
 					}}
 				></ActionCard>
 
 				<ActionCard
 					options={{
-						title: 'Elderberry Gummy',
-						query: gummies,
-						notification: gummyNotification,
-						route: '/personal/gummy',
-						icon: FluentEmojiFlatShield,
-						last: gummyLast,
-						button: {
-							query: createGummyRecord,
-							refetch: gummyRefetch,
-							status: gummyButtonStatus,
-							text: 'Ate'
-						}
+						...gummy,
+						button: { ...gummy.button, status: buttonStatuses.gummy }
 					}}
 				></ActionCard>
 			</div>

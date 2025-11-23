@@ -1,5 +1,4 @@
 import dayjs from 'dayjs';
-import { trackerIdToName } from './queries';
 
 export const emptyNotificationStatus: NotificationStatus = {
 	show: false,
@@ -13,7 +12,6 @@ export const defaultNotificationStatus: NotificationStatus = {
 
 export function getNotificationStatus(data: LogsDB | undefined): NotificationStatus {
 	if (!data) return emptyNotificationStatus;
-
 	const notifDetails = getNotificationLabel(data);
 
 	if (data.intervalUnit === 'month') {
@@ -64,19 +62,20 @@ export function getNotificationStatus(data: LogsDB | undefined): NotificationSta
 	}
 }
 
-function getNotificationLabel(record: LogsDB) {
-	switch (trackerIdToName(record.tracker)) {
-		case 'spray':
-			return { label: 'Spray your nose!', href: '/personal/spray' };
-		case 'towel':
-			return { label: 'Wash your towel!', href: '/household/towel' };
-		case 'gummy':
-			return { label: 'Eat your gummy!', href: '/personal/gummy' };
-		case 'bedsheet':
-			return { label: 'Change your bedsheet!', href: '/household/bedsheet' };
-		case 'doggoBath':
-			return { label: 'Bathe your doggo!', href: '/pet/bath' };
-		case 'doggoChewable':
-			return { label: 'Feed your doggo chewable!', href: '/pet/chewable' };
-	}
+function getNotificationLabel(latestLog: LogsDB) {
+	return {};
+	// switch (trackerIdToName(latestLog.tracker)) {
+	// 	case 'spray':
+	// 		return { label: 'Spray your nose!', href: '/personal/spray' };
+	// 	case 'towel':
+	// 		return { label: 'Wash your towel!', href: '/household/towel' };
+	// 	case 'gummy':
+	// 		return { label: 'Eat your gummy!', href: '/personal/gummy' };
+	// 	case 'bedsheet':
+	// 		return { label: 'Change your bedsheet!', href: '/household/bedsheet' };
+	// 	case 'doggoBath':
+	// 		return { label: 'Bathe your doggo!', href: '/pet/bath' };
+	// 	case 'doggoChewable':
+	// 		return { label: 'Feed your doggo chewable!', href: '/pet/chewable' };
+	// }
 }

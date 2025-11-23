@@ -1,68 +1,145 @@
 <script lang="ts">
-	import MaterialSymbolsChevronRight from '$lib/assets/svg/MaterialSymbolsChevronRight.svelte';
-	import type { RecordModel } from 'pocketbase';
-	import type { Component } from 'svelte';
 	import ActionButton from './ActionButton.svelte';
-	import type { CreateQueryResult } from '@tanstack/svelte-query';
+	import dayjs from 'dayjs';
+	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
+	import {
+		allTrackersQueryOptions,
+		createLogsQuery,
+		notificationQueryOptions,
+		notificationRefetchOptions,
+		trackerIdToName
+	} from '$lib/queries';
+	import { getNotificationStatus } from '$lib/notification';
+	import MaterialSymbolsCheck from '$lib/assets/svg/MaterialSymbolsCheck.svelte';
+	import MaterialSymbolsChevronRight from '$lib/assets/svg/MaterialSymbolsChevronRight.svelte';
 
-	let { options }: { options: Options } = $props();
+	let { options }: { options: ActionCardOptions } = $props();
 
-	interface Options {
-		title: string;
-		query: CreateQueryResult<LogsDB[], Error>;
-		notification: NotificationStatus | undefined;
-		icon: Component;
-		route: string;
-		last: string;
-		button: {
-			query: () => Promise<RecordModel>;
-			refetch: () => Promise<void>;
-			status: ButtonState;
-			text: string;
-		};
-	}
+	let size = $derived(options.size ?? 'default');
+
+	const tanstackClient = useQueryClient();
+	const latestLogs = createQuery(notificationQueryOptions);
+	const trackers = createQuery(allTrackersQueryOptions);
+	let tracker = $derived.by(() =>
+		trackers.data?.find((tracker) => tracker.name === options.collectionName)
+	);
+	const notification = $derived.by(() => {
+		if (latestLogs.isSuccess && latestLogs.data) {
+			const notif = latestLogs.data.find(
+				(item) => trackerIdToName(item.tracker, trackers.data) === options.collectionName
+			);
+			return getNotificationStatus(notif);
+		}
+
+		return undefined;
+	});
+
+	let interval = $derived(tracker?.interval);
+	let intervalUnit = $derived(tracker?.intervalUnit);
+	const query = () =>
+		createLogsQuery({
+			trackerId: tracker?.id ?? '',
+			interval: interval,
+			intervalUnit: intervalUnit
+		});
+
+	const refetch = async () => {
+		await tanstackClient.refetchQueries(notificationRefetchOptions());
+	};
 </script>
 
-<section
-	class={[
-		'border-base-300 grid min-h-24 gap-4 rounded-3xl border p-4',
-		options.notification?.show ? 'bg-error/15 outline-error/30 outline' : 'bg-white/70'
-	]}
->
-	<a href={options.route} class="flex items-center">
-		<div class="flex grow items-center gap-4">
-			<options.icon class="size-12 opacity-75" />
-			<div>
-				<p class="text-xl font-bold">{options.title}</p>
-				{#if options.query.isPending && !options.query.data}
-					<div class="custom-loader"></div>
-				{/if}
-				{#if options.query.error}
-					An error has occurred:
-					{options.query.error.message}
-				{/if}
-				{#if options.query.isSuccess}
-					{#if options.notification?.show}
-						<span class="text-error font-medium tracking-tight">
-							{#if options.notification?.level === 'overdue'}
-								Overdue
-							{:else if options.notification?.level === 'due'}
-								Due
+{#if size === 'compact'}
+	<section
+		class={[
+			'border-base-300 grid min-h-18 gap-4 rounded-2xl border px-2 py-2',
+			notification?.show ? 'bg-error/15 outline-error/30 outline' : 'bg-white/70'
+		]}
+	>
+		<div class="flex items-center">
+			<a href={options.route} class="flex grow items-center gap-4">
+				<options.icon class="size-9 opacity-75" />
+				<div>
+					<p class="text-xl font-bold">
+						{options.title}
+					</p>
+					{#if latestLogs.isPending && !latestLogs.data}
+						<div class="custom-loader"></div>
+					{/if}
+					{#if latestLogs.error}
+						An error has occurred:
+						{latestLogs.error.message}
+					{/if}
+					{#if latestLogs.isSuccess && latestLogs.data?.length > 0}
+						{#if notification?.show}
+							{#if notification.level === 'overdue'}
+								<span class="text-error font-semibold tracking-tight">Overdue</span>
+							{:else if notification.level === 'due'}
+								<span class="text-error font-semibold tracking-tight">Due</span>
 							{/if}
-						</span>&nbsp;&nbsp;•&nbsp;&nbsp;
-					{/if}<span>{options.last}</span>
-				{/if}
+						{:else}
+							<span class="text-neutral/70 font-medium tracking-tight"
+								>Due {dayjs(notification?.next).fromNow()}</span
+							>
+						{/if}
+					{/if}
+				</div>
+			</a>
+
+			<div class="flex h-full items-center">
+				<ActionButton
+					{query}
+					{refetch}
+					text={options.button.text}
+					compact={true}
+					color={'primary'}
+					icon={MaterialSymbolsCheck}
+					rounded="2xl"
+				/>
 			</div>
 		</div>
-		<div class="flex h-full items-center">
-			<div class="active:bg-neutral/10 cursor-pointer rounded-lg p-1 opacity-75">
-				<MaterialSymbolsChevronRight class="size-6" />
+	</section>
+{/if}
+
+{#if size === 'default'}
+	<section
+		class={[
+			'border-base-300 grid min-h-24 gap-4 rounded-3xl border p-4',
+			notification?.show ? 'bg-error/15 outline-error/30 outline' : 'bg-white/70'
+		]}
+	>
+		<a href={options.route} class="flex items-center">
+			<div class="flex grow items-center gap-4">
+				<options.icon class="size-12 opacity-75" />
+				<div>
+					<p class="text-xl font-bold">{options.title}</p>
+					{#if latestLogs.isPending && !latestLogs.data}
+						<div class="custom-loader"></div>
+					{/if}
+					{#if latestLogs.error}
+						An error has occurred:
+						{latestLogs.error.message}
+					{/if}
+					{#if latestLogs.isSuccess && latestLogs.data?.length > 0}
+						{#if notification?.show}
+							{#if notification.level === 'overdue'}
+								<span class="text-error font-semibold tracking-tight">Overdue</span>
+							{:else if notification.level === 'due'}
+								<span class="text-error font-semibold tracking-tight">Due</span>
+							{/if}
+						{:else}
+							<span class="text-neutral/70 font-medium tracking-tight"
+								>Due {dayjs(notification?.next).fromNow()}</span
+							>
+						{/if}
+					{/if}
+				</div>
 			</div>
-		</div>
-	</a>
-	<ActionButton
-		query={options.button.query}
-		refetch={options.button.refetch}
-		text={options.button.text}
-	/>
-</section>
+			<div class="flex h-full items-center">
+				<div class="active:bg-neutral/10 cursor-pointer rounded-lg p-1 opacity-75">
+					<MaterialSymbolsChevronRight class="size-6" />
+				</div>
+			</div>
+		</a>
+		<ActionButton {query} {refetch} text={options.button.text} />
+	</section>
+{/if}
