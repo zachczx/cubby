@@ -32,13 +32,14 @@ interface LogsDB {
 	collectionName: 'logs';
 	id: string;
 	user: string;
-	tracker: CollectionName;
+	tracker: string;
 	interval: number;
 	intervalUnit: IntervalUnit;
 	time: string;
 	oldId?: string | null;
 	created: string;
 	updated: string;
+	expand?: { tracker?: TrackerDB };
 }
 
 interface LogsRecord extends LogsDB {

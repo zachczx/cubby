@@ -1,21 +1,10 @@
 <script lang="ts">
 	import { page } from '$app/state';
-
 	import type Client from 'pocketbase';
 	import type { Snippet } from 'svelte';
 	import MaterialSymbolsSettings from '$lib/assets/svg/MaterialSymbolsSettings.svelte';
-	import MaterialSymbolsNotifications from '$lib/assets/svg/MaterialSymbolsNotifications.svelte';
-	import MaterialSymbolsWarning from '$lib/assets/svg/MaterialSymbolsWarning.svelte';
-	import MaterialSymbolsChevronRight from '$lib/assets/svg/MaterialSymbolsChevronRight.svelte';
-	import MaterialSymbolsCheckCircle from '$lib/assets/svg/MaterialSymbolsCheckCircle.svelte';
-	import MaterialSymbolsNotificationImportant from '$lib/assets/svg/MaterialSymbolsNotificationImportant.svelte';
-	import { notificationQueryOptions, trackerIdToName } from '$lib/queries';
-	import { createQuery, type CreateQueryResult } from '@tanstack/svelte-query';
-
-	import { getTrackerStatus } from '$lib/notification';
-
 	import { topLevelRoutes } from './nav';
-	import NotificationDropdown from '$lib/ui/NotificationDropdown.svelte';
+	import FeedDropdown from '$lib/ui/FeedDropdown.svelte';
 
 	let {
 		pb,
@@ -118,13 +107,13 @@
 		</div>
 		<div class="navbar-end">
 			<div id="mobile-hamburger" class="dropdown flex items-center lg:hidden">
-				<!-- <NotificationDropdown /> -->
+				<FeedDropdown />
 				<a href="/profile" class="btn btn-ghost -me-4"
 					><MaterialSymbolsSettings class="size-[1.5em]" /></a
 				>
 			</div>
 			<div id="desktop-logout" class="hidden items-center text-sm lg:flex">
-				<!-- <NotificationDropdown /> -->
+				<FeedDropdown />
 				{#if pb.authStore.isValid}
 					<a href="/profile" class="btn btn-ghost"><MaterialSymbolsSettings class="size-6" /></a><a
 						href="/logout"

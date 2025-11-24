@@ -1,6 +1,7 @@
 import { QueryClient, queryOptions, type RefetchQueryFilters } from '@tanstack/svelte-query';
 import { pb } from './pb';
 import dayjs from 'dayjs';
+import type { ListResult } from 'pocketbase';
 
 const staleTime = 5 * 60 * 1000;
 
@@ -58,6 +59,23 @@ export function notificationQueryOptions() {
 export function notificationRefetchOptions(): RefetchQueryFilters {
 	return {
 		queryKey: ['notif', pb.authStore?.record?.id],
+		type: 'active',
+		exact: true
+	};
+}
+
+export function feedQueryOptions() {
+	return queryOptions({
+		queryKey: ['feed', pb.authStore?.record?.id],
+		queryFn: async (): Promise<ListResult<LogsDB>> =>
+			await pb.collection('logs').getList(1, 5, { expand: 'tracker', sort: '-time' }),
+		staleTime: staleTime
+	});
+}
+
+export function feedRefetchOptions(): RefetchQueryFilters {
+	return {
+		queryKey: ['feed', pb.authStore?.record?.id],
 		type: 'active',
 		exact: true
 	};
