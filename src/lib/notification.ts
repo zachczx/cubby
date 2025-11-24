@@ -10,7 +10,7 @@ export const defaultNotificationStatus: NotificationStatus = {
 	level: 'ok'
 };
 
-export function getNotificationStatus(data: LogsDB | undefined): NotificationStatus {
+export function getTrackerStatus(data: LogsDB | undefined): NotificationStatus {
 	if (!data) return emptyNotificationStatus;
 	const notifDetails = getNotificationLabel(data);
 

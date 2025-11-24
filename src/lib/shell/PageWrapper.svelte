@@ -12,7 +12,7 @@
 	import { notificationQueryOptions, trackerIdToName } from '$lib/queries';
 	import { createQuery, type CreateQueryResult } from '@tanstack/svelte-query';
 
-	import { getNotificationStatus } from '$lib/notification';
+	import { getTrackerStatus } from '$lib/notification';
 
 	import { topLevelRoutes } from './nav';
 	import NotificationDropdown from '$lib/ui/NotificationDropdown.svelte';

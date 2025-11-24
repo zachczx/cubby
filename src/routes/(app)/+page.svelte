@@ -14,7 +14,7 @@
 		notificationQueryOptions,
 		trackerNameToId
 	} from '$lib/queries';
-	import { getNotificationStatus } from '$lib/notification';
+	import { getTrackerStatus } from '$lib/notification';
 	import ActionCard from '$lib/ui/ActionCard.svelte';
 	import EmptyCorgi from '$lib/assets/empty.webp?w=200&enhanced';
 	import FluentEmojiFlatStopwatch from '$lib/assets/expressive-icons/FluentEmojiFlatStopwatch.svelte';
@@ -77,7 +77,7 @@
 					(log) => log.tracker === trackerNameToId(task.collectionName, trackers.data)
 				);
 
-				return { ...task, notification: getNotificationStatus(data) };
+				return { ...task, notification: getTrackerStatus(data) };
 			});
 
 		const generalTasks = options
@@ -87,7 +87,7 @@
 					(log) => log.tracker === trackerNameToId(task.collectionName, trackers.data)
 				);
 
-				return { ...task, notification: getNotificationStatus(data) };
+				return { ...task, notification: getTrackerStatus(data) };
 			});
 
 		return { important: importantTasks, general: generalTasks };

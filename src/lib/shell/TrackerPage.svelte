@@ -23,7 +23,7 @@
 	import StatusHeroImage from '$lib/ui/StatusHeroImage.svelte';
 	import ActionButton from '$lib/ui/ActionButton.svelte';
 	import SingleDayModal from '$lib/ui/SingleDayModal.svelte';
-	import { defaultNotificationStatus, getNotificationStatus } from '$lib/notification';
+	import { defaultNotificationStatus, getTrackerStatus } from '$lib/notification';
 
 	dayjs.extend(calendar);
 	dayjs.extend(relativeTime);
@@ -90,7 +90,7 @@
 		};
 	});
 
-	let notification = $derived.by(() => getNotificationStatus(dbRecords.data?.[0] ?? undefined));
+	let notification = $derived.by(() => getTrackerStatus(dbRecords.data?.[0] ?? undefined));
 
 	type TabPages = 'overview' | 'stats' | 'calendar';
 

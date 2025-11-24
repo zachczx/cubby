@@ -9,7 +9,7 @@
 		notificationRefetchOptions,
 		trackerIdToName
 	} from '$lib/queries';
-	import { getNotificationStatus } from '$lib/notification';
+	import { getTrackerStatus } from '$lib/notification';
 	import MaterialSymbolsCheck from '$lib/assets/svg/MaterialSymbolsCheck.svelte';
 	import MaterialSymbolsChevronRight from '$lib/assets/svg/MaterialSymbolsChevronRight.svelte';
 
@@ -28,7 +28,7 @@
 			const notif = latestLogs.data.find(
 				(item) => trackerIdToName(item.tracker, trackers.data) === options.collectionName
 			);
-			return getNotificationStatus(notif);
+			return getTrackerStatus(notif);
 		}
 
 		return undefined;

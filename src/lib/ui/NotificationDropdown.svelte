@@ -22,7 +22,7 @@
 		// for (const ll of latestLogs.data) {
 		// 	collections.push({
 		// 		name: trackerIdToName(ll.tracker),
-		// 		notif: getNotificationStatus(ll)
+		// 		notif: getTrackerStatus(ll)
 		// 	});
 		// }
 
