@@ -76,15 +76,6 @@
 		}
 	});
 
-	let currentTab = $state('settings');
-	let param = $derived(page.url.searchParams.get('p'));
-
-	$effect(() => {
-		if (param === 'vacations') {
-			currentTab = 'vacations';
-		}
-	});
-
 	function formatTime(startDateTime: string, endDateTime: string) {
 		if (!startDateTime || !endDateTime) return;
 

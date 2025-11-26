@@ -27,34 +27,7 @@
 
 	const tanstackClient = useQueryClient();
 
-	let towelIntervalDays = $derived.by(() =>
-		user.isSuccess ? user.data?.towelIntervalDays : undefined
-	);
-	let sprayIntervalDays = $derived.by(() =>
-		user.isSuccess ? user.data?.sprayIntervalDays : undefined
-	);
-	let gummyIntervalDays = $derived.by(() =>
-		user.isSuccess ? user.data?.gummyIntervalDays : undefined
-	);
-	let doggoChewableIntervalMonths = $derived.by(() =>
-		user.isSuccess ? user.data?.doggoChewableIntervalMonths : undefined
-	);
-	let doggoBathIntervalDays = $derived.by(() =>
-		user.isSuccess ? user.data?.doggoBathIntervalDays : undefined
-	);
-
-	let sound = $derived.by(() => (user.isSuccess ? user.data?.sound : undefined));
-
 	let spinner = $state(false);
-
-	let currentTab = $state('settings');
-	let param = $derived(page.url.searchParams.get('p'));
-
-	$effect(() => {
-		if (param === 'vacations') {
-			currentTab = 'vacations';
-		}
-	});
 
 	let vacationStart = $state('');
 	let vacationEnd = $state('');

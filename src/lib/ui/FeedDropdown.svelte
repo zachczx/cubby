@@ -1,12 +1,8 @@
 <script lang="ts">
 	import MaterialSymbolsArrowRightAlt from '$lib/assets/svg/MaterialSymbolsArrowRightAlt.svelte';
 	import MaterialSymbolsCheckCircle from '$lib/assets/svg/MaterialSymbolsCheckCircle.svelte';
-	import MaterialSymbolsChevronRight from '$lib/assets/svg/MaterialSymbolsChevronRight.svelte';
 	import MaterialSymbolsHistory from '$lib/assets/svg/MaterialSymbolsHistory.svelte';
-	import MaterialSymbolsNotificationImportant from '$lib/assets/svg/MaterialSymbolsNotificationImportant.svelte';
-	import MaterialSymbolsNotifications from '$lib/assets/svg/MaterialSymbolsNotifications.svelte';
-	import MaterialSymbolsWarning from '$lib/assets/svg/MaterialSymbolsWarning.svelte';
-	import { feedQueryOptions, notificationQueryOptions, trackerIdToName } from '$lib/queries';
+	import { feedQueryOptions } from '$lib/queries';
 	import { createQuery } from '@tanstack/svelte-query';
 	import dayjs from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
