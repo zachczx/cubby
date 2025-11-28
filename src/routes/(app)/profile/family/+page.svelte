@@ -235,7 +235,7 @@
 							{/if}
 						</button>
 					</form>
-					<p class="text-xs">They need to accept your invitation.</p>
+					<p class="text-xs">They'll need to accept your invitation.</p>
 				{/if}
 			</section>
 
