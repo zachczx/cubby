@@ -25,6 +25,17 @@ export function logsQueryOptions(name: CollectionName) {
 	});
 }
 
+export function allLogsQueryOptions() {
+	return queryOptions({
+		queryKey: ['log-all', pb.authStore?.record?.id],
+		queryFn: async (): Promise<LogsDB[]> =>
+			await pb.collection('logs').getFullList({
+				sort: '-time'
+			}),
+		staleTime: staleTime
+	});
+}
+
 export function logsRefetchOptions(name: CollectionName): RefetchQueryFilters {
 	return {
 		queryKey: ['log-' + name, pb.authStore?.record?.id],
@@ -83,7 +94,7 @@ export function feedRefetchOptions(): RefetchQueryFilters {
 
 export function trackerQueryOptions(name: CollectionName) {
 	return queryOptions({
-		queryKey: ['tracker-' + name, pb.authStore?.record?.id],
+		queryKey: ['tracker' + name, pb.authStore?.record?.id],
 		queryFn: async (): Promise<TrackerDB> =>
 			await pb.collection('trackers').getFirstListItem(`name="${name}"`, {
 				requestKey: `${name}-tracker-details`
@@ -94,10 +105,63 @@ export function trackerQueryOptions(name: CollectionName) {
 
 export function trackerRefetchOptions(name: CollectionName): RefetchQueryFilters {
 	return {
-		queryKey: ['tracker-' + name, pb.authStore?.record?.id],
+		queryKey: ['tracker' + name, pb.authStore?.record?.id],
 		type: 'active',
 		exact: true
 	};
+}
+
+export function familyQueryOptions() {
+	return queryOptions({
+		queryKey: ['family', pb.authStore?.record?.id],
+		queryFn: async (): Promise<FamilyDB> => {
+			const resp: FamilyDB = await pb
+				.collection('families')
+				.getFirstListItem(`members.id?="${pb.authStore?.record?.id}"`, { expand: 'members,owner' });
+			return resp ?? null;
+		},
+		staleTime: staleTime
+	});
+}
+
+export function familyRefetchOptions(): RefetchQueryFilters {
+	return {
+		queryKey: ['family', pb.authStore?.record?.id],
+		type: 'active',
+		exact: true
+	};
+}
+
+export function inviteQueryOptions() {
+	return queryOptions({
+		queryKey: ['invite', pb.authStore?.record?.id],
+		queryFn: async (): Promise<InviteDB> => {
+			const res: InviteDB = await pb
+				.collection('invites')
+				.getFirstListItem(`userEmail="${pb.authStore.record?.email}" && status="pending"`);
+			return res ?? null;
+		},
+		staleTime: staleTime
+	});
+}
+
+export function inviteRefetchOptions(): RefetchQueryFilters {
+	return {
+		queryKey: ['invite', pb.authStore?.record?.id],
+		type: 'active',
+		exact: true
+	};
+}
+
+export function cleanEmail(email: string | undefined): string {
+	if (!email) return '';
+
+	const name = email.split('@')?.[0];
+	const clean = name
+		.split('.')
+		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+		.join(' ');
+	return clean;
 }
 
 export function createUserQueryOptions() {

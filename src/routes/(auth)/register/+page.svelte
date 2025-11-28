@@ -17,6 +17,14 @@
 	let togglePasswordStatus = $state(false);
 	let newUserRecord = $state<Record<string, string>>();
 
+	/**
+	 * Submit handler needs to do a few things:
+	 * 1) Register
+	 * 2) Try logging in
+	 * 3) Create family
+	 * 4) Update user with that family id
+	 * 5) Create default trackers
+	 */
 	async function submitHandler() {
 		spinner = true;
 		const cleanEmail = newUser.email.toLowerCase().trim();
@@ -35,27 +43,38 @@
 			console.log(err);
 		}
 
+		const authData = await pb.collection('users').authWithPassword(newUser.email, newUser.password);
+		if (!authData.token || !newUserRecord) return;
+
+		let familyId = '';
+
 		try {
-			const authData = await pb
-				.collection('users')
-				.authWithPassword(newUser.email, newUser.password);
-			if (authData.token) {
-				const batch = pb.createBatch();
+			const newFamily = await pb.collection('families').create({
+				name: 'Default',
+				'members+': newUserRecord?.id,
+				owner: newUserRecord?.id
+			});
 
-				for (const t of trackerDefaults) {
-					const record = {
-						user: newUserRecord?.id,
-						...t
-					};
+			await pb.collection('users').update(newUserRecord.id, {
+				family: newFamily.id
+			});
 
-					batch.collection('trackers').create(record);
-				}
+			const batch = pb.createBatch();
 
-				await batch.send();
+			for (const t of trackerDefaults) {
+				const record = {
+					user: newUserRecord?.id,
+					family: newFamily.id,
+					...t
+				};
 
-				spinner = false;
-				goto('/');
+				batch.collection('trackers').create(record);
 			}
+
+			await batch.send();
+
+			spinner = false;
+			goto('/');
 		} catch (err) {
 			console.log(err);
 		}

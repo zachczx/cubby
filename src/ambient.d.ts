@@ -57,6 +57,27 @@ interface TrackerDB {
 	updated: string;
 }
 
+interface FamilyDB {
+	id: string;
+	name: string;
+	members: string[];
+	owner: string;
+	created: string;
+	updated: string;
+	expand?: { members?: UserDB[]; owner?: UserDB };
+}
+
+interface InviteDB {
+	id: string;
+	family: string;
+	code: string;
+	familyNameSnapshot: string;
+	status?: 'pending' | 'completed' | null;
+	created: string;
+	updated: string;
+	expand?: { family?: FamilyDB };
+}
+
 interface NotificationStatus {
 	show: boolean;
 	level: 'ok' | 'due' | 'overdue' | null;

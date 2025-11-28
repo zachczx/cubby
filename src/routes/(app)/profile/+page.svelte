@@ -22,26 +22,9 @@
 
 	const user = createQuery(createUserQueryOptions);
 
-	const vacations = createQuery(createVacationQueryOptions);
-
 	const tanstackClient = useQueryClient();
 
 	let sound = $derived.by(() => (user.isSuccess ? user.data?.sound : undefined));
-
-	let spinner = $state(false);
-
-	let currentTab = $state('settings');
-	let param = $derived(page.url.searchParams.get('p'));
-
-	$effect(() => {
-		if (param === 'vacations') {
-			currentTab = 'vacations';
-		}
-	});
-
-	let vacationStart = $state('');
-	let vacationEnd = $state('');
-	let vacationsModal = $state() as HTMLDialogElement;
 
 	function formatTime(startDateTime: string, endDateTime: string) {
 		if (!startDateTime || !endDateTime) return;
@@ -89,6 +72,18 @@
 		<div class="overflow-y-auto">
 			<h1 class="text-primary mb-4 text-center text-4xl font-bold max-lg:hidden">Profile</h1>
 			<div class="grid w-full content-start">
+				<a
+					href="/profile/family"
+					class="border-b-base-300 flex items-center border-b pt-4 pb-6 text-lg"
+				>
+					<div class="grow font-semibold">Manage Family</div>
+					<div class="flex h-full items-center">
+						<button class="active:bg-neutral/10 cursor-pointer rounded-lg p-1 opacity-75"
+							><MaterialSymbolsChevronRight class="size-7" /></button
+						>
+					</div>
+				</a>
+
 				<a
 					href="/profile/interval"
 					class="border-b-base-300 flex items-center border-b pt-4 pb-6 text-lg"
