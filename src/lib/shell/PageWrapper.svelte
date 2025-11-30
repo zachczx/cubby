@@ -5,6 +5,7 @@
 	import MaterialSymbolsSettings from '$lib/assets/svg/MaterialSymbolsSettings.svelte';
 	import { topLevelRoutes } from './nav';
 	import FeedDropdown from '$lib/ui/FeedDropdown.svelte';
+	import FilterDropdown from '$lib/ui/FilterDropdown.svelte';
 
 	let {
 		pb,
@@ -93,7 +94,7 @@
 					{#if route.desktopNav}
 						<li>
 							<a
-								href="/"
+								href={route.href}
 								class={[
 									'px-4 py-2',
 									currentSection === route.id && 'rounded-full bg-white/30 font-bold',
@@ -108,17 +109,18 @@
 		<div class="navbar-end">
 			<div id="mobile-hamburger" class="dropdown flex items-center lg:hidden">
 				<FeedDropdown />
-				<a href="/profile" class="btn btn-ghost -me-4"
-					><MaterialSymbolsSettings class="size-[1.5em]" /></a
+				<FilterDropdown />
+				<a href="/profile" class="btn btn-ghost -me-4 px-2 py-0"
+					><MaterialSymbolsSettings class="size-6" /></a
 				>
 			</div>
 			<div id="desktop-logout" class="hidden items-center text-sm lg:flex">
 				<FeedDropdown />
+				<FilterDropdown />
 				{#if pb.authStore.isValid}
-					<a href="/profile" class="btn btn-ghost"><MaterialSymbolsSettings class="size-6" /></a><a
-						href="/logout"
-						class="btn btn-outline btn-sm ms-2">Logout</a
-					>
+					<a href="/profile" class="btn btn-ghost px-2 py-0"
+						><MaterialSymbolsSettings class="size-6" /></a
+					><a href="/logout" class="btn btn-outline btn-sm ms-2">Logout</a>
 				{:else}
 					<a href="/register" class="underline">Register</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a
 						href="/login"
