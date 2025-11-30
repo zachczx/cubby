@@ -20,14 +20,7 @@
 	import EmptyCorgi from '$lib/assets/empty.webp?w=200&enhanced';
 	import FluentEmojiFlatStopwatch from '$lib/assets/expressive-icons/FluentEmojiFlatStopwatch.svelte';
 	import FluentEmojiFlatAirplane from '$lib/assets/expressive-icons/FluentEmojiFlatAirplane.svelte';
-	import {
-		bedsheet,
-		doggoBath,
-		doggoChewable,
-		gummy,
-		spray,
-		towel
-	} from '$lib/ui/ActionCardDefaults';
+	import { bedsheet, bath, chewable, gummy, spray, towel } from '$lib/ui/ActionCardDefaults';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
@@ -38,8 +31,8 @@
 		spray: 'default',
 		gummy: 'default',
 		bedsheet: 'default',
-		doggoBath: 'default',
-		doggoChewable: 'default'
+		bath: 'default',
+		chewable: 'default'
 	});
 
 	const latestLogs = createQuery(notificationQueryOptions);
@@ -56,14 +49,14 @@
 			button: { ...bedsheet.button, status: buttonStatuses.bedsheet }
 		},
 		{
-			...doggoBath,
+			...bath,
 			size: 'compact',
-			button: { ...doggoBath.button, status: buttonStatuses.doggoBath }
+			button: { ...bath.button, status: buttonStatuses.bath }
 		},
 		{
-			...doggoChewable,
+			...chewable,
 			size: 'compact',
-			button: { ...doggoChewable.button, status: buttonStatuses.doggoChewable }
+			button: { ...chewable.button, status: buttonStatuses.chewable }
 		}
 	];
 

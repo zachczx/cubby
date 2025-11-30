@@ -58,18 +58,18 @@
 		}
 	});
 
-	let doggoChewableInterval = $derived.by(() => {
+	let chewableInterval = $derived.by(() => {
 		if (trackers.isSuccess) {
-			const rec = trackers.data?.find((item) => item.name === 'doggoChewable');
+			const rec = trackers.data?.find((item) => item.name === 'chewable');
 			if (rec) {
 				return rec.interval;
 			}
 		}
 	});
 
-	let doggoBathInterval = $derived.by(() => {
+	let bathInterval = $derived.by(() => {
 		if (trackers.isSuccess) {
-			const rec = trackers.data?.find((item) => item.name === 'doggoBath');
+			const rec = trackers.data?.find((item) => item.name === 'bath');
 			if (rec) {
 				return rec.interval;
 			}
@@ -199,25 +199,25 @@
 							<label>
 								<input
 									type="radio"
-									bind:group={doggoChewableInterval}
+									bind:group={chewableInterval}
 									value={1}
-									name="doggoChewable"
+									name="chewable"
 								/>Monthly
 							</label>
 							<label>
 								<input
 									type="radio"
-									bind:group={doggoChewableInterval}
+									bind:group={chewableInterval}
 									value={3}
-									name="doggoChewable"
+									name="chewable"
 								/>Quarterly
 							</label>
 							<label>
 								<input
 									type="radio"
-									bind:group={doggoChewableInterval}
+									bind:group={chewableInterval}
 									value={6}
-									name="doggoChewable"
+									name="chewable"
 								/>Half-Yearly
 							</label>
 						</SegmentedControl>
@@ -228,19 +228,19 @@
 
 						<SegmentedControl items={5}>
 							<label>
-								<input type="radio" bind:group={doggoBathInterval} value={3} name="doggoBath" />3
+								<input type="radio" bind:group={bathInterval} value={3} name="bath" />3
 							</label>
 							<label>
-								<input type="radio" bind:group={doggoBathInterval} value={5} name="doggoBath" />5
+								<input type="radio" bind:group={bathInterval} value={5} name="bath" />5
 							</label>
 							<label>
-								<input type="radio" bind:group={doggoBathInterval} value={7} name="doggoBath" />7
+								<input type="radio" bind:group={bathInterval} value={7} name="bath" />7
 							</label>
 							<label>
-								<input type="radio" bind:group={doggoBathInterval} value={14} name="doggoBath" />14
+								<input type="radio" bind:group={bathInterval} value={14} name="bath" />14
 							</label>
 							<label>
-								<input type="radio" bind:group={doggoBathInterval} value={30} name="doggoBath" />30
+								<input type="radio" bind:group={bathInterval} value={30} name="bath" />30
 							</label>
 						</SegmentedControl>
 					</form>

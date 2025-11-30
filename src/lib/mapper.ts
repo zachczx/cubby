@@ -20,10 +20,10 @@ export function getTrackerIcon(trackerName: string): Component {
 		case 'bedsheet':
 			return FluentEmojiFlatBed;
 
-		case 'doggoBath':
+		case 'bath':
 			return FluentEmojiFlatShower;
 
-		case 'doggoChewable':
+		case 'chewable':
 			return FluentEmojiFlatShield;
 
 		default:

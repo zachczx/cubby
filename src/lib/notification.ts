@@ -82,9 +82,9 @@ function getNotificationLabel(latestLog: LogsDB) {
 	// 		return { label: 'Eat your gummy!', href: '/personal/gummy' };
 	// 	case 'bedsheet':
 	// 		return { label: 'Change your bedsheet!', href: '/household/bedsheet' };
-	// 	case 'doggoBath':
+	// 	case 'bath':
 	// 		return { label: 'Bathe your doggo!', href: '/pet/bath' };
-	// 	case 'doggoChewable':
+	// 	case 'chewable':
 	// 		return { label: 'Feed your doggo chewable!', href: '/pet/chewable' };
 	// }
 }

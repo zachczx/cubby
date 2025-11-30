@@ -276,18 +276,18 @@ export function createVacationRefetchOptions(): RefetchQueryFilters {
 
 // export function createDoggoChewableQueryOptions() {
 // 	return queryOptions({
-// 		queryKey: ['doggoChewables', pb.authStore?.record?.id],
+// 		queryKey: ['chewables', pb.authStore?.record?.id],
 // 		queryFn: async (): Promise<DoggoChewableDB[]> =>
-// 			await pb.collection('doggoChewable').getFullList({ sort: '-time' }),
+// 			await pb.collection('chewable').getFullList({ sort: '-time' }),
 // 		staleTime: staleTime
 // 	});
 // }
 
 // export function createDoggoBathQueryOptions() {
 // 	return queryOptions({
-// 		queryKey: ['doggoBaths', pb.authStore?.record?.id],
+// 		queryKey: ['baths', pb.authStore?.record?.id],
 // 		queryFn: async (): Promise<DoggoBathDB[]> =>
-// 			await pb.collection('doggoBath').getFullList({ sort: '-time' }),
+// 			await pb.collection('bath').getFullList({ sort: '-time' }),
 // 		staleTime: staleTime
 // 	});
 // }
@@ -318,7 +318,7 @@ export function createVacationRefetchOptions(): RefetchQueryFilters {
 
 // export function createDoggoChewableRefetchOptions(): RefetchQueryFilters {
 // 	return {
-// 		queryKey: ['doggoChewables', pb.authStore?.record?.id],
+// 		queryKey: ['chewables', pb.authStore?.record?.id],
 // 		type: 'active',
 // 		exact: true
 // 	};
@@ -326,7 +326,7 @@ export function createVacationRefetchOptions(): RefetchQueryFilters {
 
 // export function createDoggoBathRefetchOptions(): RefetchQueryFilters {
 // 	return {
-// 		queryKey: ['doggoBaths', pb.authStore?.record?.id],
+// 		queryKey: ['baths', pb.authStore?.record?.id],
 // 		type: 'active',
 // 		exact: true
 // 	};

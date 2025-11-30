@@ -99,8 +99,8 @@ type ButtonState = 'default' | 'loading' | 'success' | 'error';
 // 	| 'user'
 // 	| 'bedsheet'
 // 	| 'vacation'
-// 	| 'doggoBath'
-// 	| 'doggoChewable';
+// 	| 'bath'
+// 	| 'chewable';
 
 // Types/Interfaces for TrackerPage component abstraction
 

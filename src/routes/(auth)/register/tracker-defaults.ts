@@ -9,7 +9,7 @@ export const trackerDefaults = [
 		pinned: false
 	},
 	{
-		name: 'doggoBath',
+		name: 'bath',
 		display: 'Bath',
 		interval: 14,
 		intervalUnit: 'day',
@@ -18,7 +18,7 @@ export const trackerDefaults = [
 		pinned: false
 	},
 	{
-		name: 'doggoChewable',
+		name: 'chewable',
 		display: 'Nexgard',
 		interval: 1,
 		intervalUnit: 'month',

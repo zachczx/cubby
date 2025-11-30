@@ -44,8 +44,8 @@ export const bedsheet: ActionCardOptions = {
 	}
 };
 
-export const doggoBath: ActionCardOptions = {
-	collectionName: 'doggoBath',
+export const bath: ActionCardOptions = {
+	collectionName: 'bath',
 	title: 'Bath',
 	route: '/pet/bath',
 	icon: FluentEmojiFlatShower,
@@ -54,8 +54,8 @@ export const doggoBath: ActionCardOptions = {
 	}
 };
 
-export const doggoChewable: ActionCardOptions = {
-	collectionName: 'doggoChewable',
+export const chewable: ActionCardOptions = {
+	collectionName: 'chewable',
 	title: 'Chewable',
 	route: '/pet/chewable',
 	icon: FluentEmojiFlatShield,
