@@ -98,12 +98,12 @@
 								options={{
 									collectionName: log.trackerName,
 									size: 'compact',
-									title: log.trackerData?.display ?? '',
+									title: log.trackerData?.display,
 									route: `/${log.trackerData.category}/${log.trackerData.id}`,
 									icon: getTrackerIcon(log.trackerName),
 									button: {
 										status: buttonStatuses?.[log.trackerName],
-										text: log.trackerData?.actionLabel ?? ''
+										text: log.trackerData?.actionLabel
 									}
 								}}
 							></ActionCard>
@@ -131,12 +131,12 @@
 								options={{
 									collectionName: log.trackerName,
 									size: 'compact',
-									title: log.trackerData?.display ?? '',
+									title: log.trackerData?.display,
 									route: `/${log.trackerData.category}/${log.trackerData.id}`,
 									icon: getTrackerIcon(log.trackerName),
 									button: {
 										status: buttonStatuses?.[log.trackerName],
-										text: log.trackerData?.actionLabel ?? ''
+										text: log.trackerData?.actionLabel
 									}
 								}}
 							></ActionCard>
