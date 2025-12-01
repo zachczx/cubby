@@ -7,11 +7,8 @@
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import MaterialSymbolsChevronRight from '$lib/assets/svg/MaterialSymbolsChevronRight.svelte';
 	import { goto } from '$app/navigation';
-	import StreamlineColorHotelLaundryFlat from '$lib/assets/expressive-icons/StreamlineColorHotelLaundryFlat.svelte';
 	import FluentEmojiFlatStopwatch from '$lib/assets/expressive-icons/FluentEmojiFlatStopwatch.svelte';
-	import FluentEmojiFlatBed from '$lib/assets/expressive-icons/FluentEmojiFlatBed.svelte';
 	import ActionCard from '$lib/ui/ActionCard.svelte';
-	import { towel } from '$lib/ui/ActionCardDefaults';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { allTrackersQueryOptions } from '$lib/queries';
 	import { getTrackerIcon } from '$lib/mapper.js';

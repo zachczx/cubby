@@ -5,92 +5,37 @@
 	import utc from 'dayjs/plugin/utc';
 	import timezone from 'dayjs/plugin/timezone';
 	import relativeTime from 'dayjs/plugin/relativeTime';
-	import MaterialSymbolsChevronRight from '$lib/assets/svg/MaterialSymbolsChevronRight.svelte';
-	import { createQuery, useQueryClient, type CreateQueryResult } from '@tanstack/svelte-query';
+	import { createQuery } from '@tanstack/svelte-query';
 	import {
 		allLogsQueryOptions,
 		allTrackersQueryOptions,
-		createUserQueryOptions,
-		logsQueryOptions,
-		notificationQueryOptions,
-		trackerNameToId
+		notificationQueryOptions
 	} from '$lib/queries';
 	import { getTrackerStatus } from '$lib/notification';
 	import ActionCard from '$lib/ui/ActionCard.svelte';
 	import EmptyCorgi from '$lib/assets/empty.webp?w=200&enhanced';
 	import FluentEmojiFlatStopwatch from '$lib/assets/expressive-icons/FluentEmojiFlatStopwatch.svelte';
 	import FluentEmojiFlatAirplane from '$lib/assets/expressive-icons/FluentEmojiFlatAirplane.svelte';
-	import { bedsheet, bath, chewable, gummy, spray, towel } from '$lib/ui/ActionCardDefaults';
+	import { getTrackerIcon } from '$lib/mapper';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
 
-	let buttonStatuses = $state<Record<string, ButtonState>>({
-		towel: 'default',
-		spray: 'default',
-		gummy: 'default',
-		bedsheet: 'default',
-		bath: 'default',
-		chewable: 'default'
-	});
-
 	const latestLogs = createQuery(notificationQueryOptions);
 	const trackersDb = createQuery(allTrackersQueryOptions);
 	const allLogsDb = createQuery(allLogsQueryOptions);
 
-	const options: ActionCardOptions[] = [
-		{ ...towel, size: 'compact', button: { ...towel.button, status: buttonStatuses.towel } },
-		{ ...spray, size: 'compact', button: { ...spray.button, status: buttonStatuses.spray } },
-		{ ...gummy, size: 'compact', button: { ...gummy.button, status: buttonStatuses.gummy } },
-		{
-			...bedsheet,
-			size: 'compact',
-			button: { ...bedsheet.button, status: buttonStatuses.bedsheet }
-		},
-		{
-			...bath,
-			size: 'compact',
-			button: { ...bath.button, status: buttonStatuses.bath }
-		},
-		{
-			...chewable,
-			size: 'compact',
-			button: { ...chewable.button, status: buttonStatuses.chewable }
+	let buttonStatuses = $derived.by(() => {
+		if (!trackersDb.isSuccess || !trackersDb.data) return;
+
+		const statuses = <Record<string, ButtonState>>{};
+
+		for (const t of trackersDb.data) {
+			statuses[t.name] = 'default';
 		}
-	];
-
-	// let tasks = $derived.by(() => {
-	// 	if (!latestLogs.isSuccess || !latestLogs.data) return { important: [], general: [] };
-
-	// 	const importantTasks = trackersDb
-	// 		.filter((tracker) => tracker.pinned)
-	// 		.map((task) => {
-	// 			const data = latestLogs.data.find(
-	// 				(log) => log.tracker === trackerNameToId(task.collectionName, trackers.data)
-	// 			);
-
-	// 			return { ...task, notification: getTrackerStatus(data) };
-	// 		});
-
-	// 	const generalTasks = options
-	// 		.filter((task) => !important.includes(task.collectionName))
-	// 		.map((task) => {
-	// 			const data = latestLogs.data.find(
-	// 				(log) => log.tracker === trackerNameToId(task.collectionName, trackers.data)
-	// 			);
-
-	// 			return { ...task, notification: getTrackerStatus(data) };
-	// 		});
-
-	// 	return { important: importantTasks, general: generalTasks };
-	// });
-
-	//////////////////////////////////////
-	//////////////////////////////////////
-	//////////////////////////////////////
-	//////////////////////////////////////
-	//////////////////////////////////////
+		return statuses;
+	});
 
 	let trackers = $derived.by(() => {
 		if (!trackersDb.isSuccess || !trackersDb.data) return { pinned: [], general: [] };
@@ -110,12 +55,10 @@
 		for (const t of trackers.pinned) {
 			const logData = allLogsDb.data.filter((log) => t.id === log.tracker);
 			const trackerData = trackers.pinned.find((tracker) => tracker.id === t.id);
-			const config = options.find((opt) => opt.collectionName === trackerData?.name);
 			const mergedData = {
 				trackerName: t.name,
 				trackerData: trackerData,
 				logData: logData,
-				config: config,
 				notification: getTrackerStatus(logData)
 			};
 			pinned.push(mergedData);
@@ -124,12 +67,10 @@
 		for (const t of trackers.general) {
 			const logData = allLogsDb.data.filter((log) => t.id === log.tracker);
 			const trackerData = trackers.general.find((tracker) => tracker.id === t.id);
-			const config = options.find((opt) => opt.collectionName === trackerData?.name);
 			const mergedData = {
 				trackerName: t.name,
 				trackerData: trackerData,
 				logData: logData,
-				config: config,
 				notification: getTrackerStatus(logData)
 			};
 			general.push(mergedData);
@@ -154,9 +95,9 @@
 									size: 'compact',
 									title: log.trackerData?.display ?? '',
 									route: `/${log.trackerData.category}/${log.trackerData.id}`,
-									icon: log.config?.icon ?? '',
+									icon: getTrackerIcon(log.trackerName),
 									button: {
-										status: buttonStatuses[log.trackerName],
+										status: buttonStatuses?.[log.trackerName],
 										text: log.trackerData?.actionLabel ?? ''
 									}
 								}}
@@ -183,9 +124,9 @@
 									size: 'compact',
 									title: log.trackerData?.display ?? '',
 									route: `/${log.trackerData.category}/${log.trackerData.id}`,
-									icon: log.config?.icon ?? '',
+									icon: getTrackerIcon(log.trackerName),
 									button: {
-										status: buttonStatuses[log.trackerName],
+										status: buttonStatuses?.[log.trackerName],
 										text: log.trackerData?.actionLabel ?? ''
 									}
 								}}
