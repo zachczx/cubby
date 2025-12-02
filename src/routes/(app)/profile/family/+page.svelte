@@ -95,6 +95,7 @@
 		const inviteResponse = await pb.collection('invites').create({
 			family: family.data.id,
 			familyNameSnapshot: family.data?.name,
+			ownerEmailSnapshot: family.data.expand?.owner?.email,
 			userEmail: invitee,
 			status: 'pending'
 		});

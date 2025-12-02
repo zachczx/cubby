@@ -69,26 +69,17 @@
 					<MaterialSymbolsPersonAdd class="ms-2.5 size-12" />
 				</div>
 				<h2 class="text-2xl font-bold">
-					You've been invited to "{currentInvite.data?.familyNameSnapshot}" Family!
+					You've been invited to {currentInvite.data?.ownerEmailSnapshot}'s family!
 				</h2>
 				<ul class="ms-6 list-disc space-y-2">
-					{#if currentUserTrackerCounts && currentUserTrackerCounts > 0}
-						<li>All of your existing log data will be deleted.</li>
-						<li>
-							You have <span class="text-error font-bold">{currentUserTrackerCounts} records</span> to
-							be deleted.
-						</li>
-						<li>This action cannot be undone.</li>
-						<li>Future activity will be saved to the new family.</li>
-					{:else}
-						<li>Future activity will be saved to the new family.</li>
-						<li>Your account is empty, so no data will be lost.</li>
-					{/if}
+					<li>You can see and use the family's trackers.</li>
+					<li>You can leave the family any time.</li>
+					<li>Your personal trackers will remain private unless you share them.</li>
 				</ul>
 			</div>
 			<div class="grid grid-cols-1 gap-4">
 				<button class="btn btn-primary btn-lg" onclick={() => confirmJoinFamily()}
-					>Join New Family</button
+					>Accept Invite</button
 				>
 				<form method="dialog" class="">
 					<button class="btn btn-outline btn-primary btn-lg w-full">Cancel</button>

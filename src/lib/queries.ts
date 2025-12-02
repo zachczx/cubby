@@ -172,7 +172,9 @@ export function inviteQueryOptions() {
 		queryFn: async (): Promise<InviteDB> => {
 			const res: InviteDB = await pb
 				.collection('invites')
-				.getFirstListItem(`userEmail="${pb.authStore.record?.email}" && status="pending"`);
+				.getFirstListItem(`userEmail="${pb.authStore.record?.email}" && status="pending"`, {
+					expand: 'family'
+				});
 			return res ?? null;
 		},
 		staleTime: staleTime

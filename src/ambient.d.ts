@@ -78,6 +78,7 @@ interface InviteDB {
 	family: string;
 	code: string;
 	familyNameSnapshot: string;
+	ownerEmailSnapshot: string;
 	status?: 'pending' | 'completed' | null;
 	created: string;
 	updated: string;
