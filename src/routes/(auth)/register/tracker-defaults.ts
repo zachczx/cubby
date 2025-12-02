@@ -6,7 +6,8 @@ export const trackerDefaults = [
 		intervalUnit: 'day',
 		category: 'household',
 		actionLabel: 'Changed',
-		pinned: false
+		pinned: false,
+		show: true
 	},
 	{
 		name: 'bath',
@@ -15,7 +16,8 @@ export const trackerDefaults = [
 		intervalUnit: 'day',
 		category: 'pet',
 		actionLabel: 'Bathed',
-		pinned: false
+		pinned: false,
+		show: true
 	},
 	{
 		name: 'chewable',
@@ -24,7 +26,8 @@ export const trackerDefaults = [
 		intervalUnit: 'month',
 		category: 'pet',
 		actionLabel: 'Fed',
-		pinned: false
+		pinned: false,
+		show: true
 	},
 	{
 		name: 'gummy',
@@ -33,7 +36,8 @@ export const trackerDefaults = [
 		intervalUnit: 'day',
 		category: 'personal',
 		actionLabel: 'Ate',
-		pinned: true
+		pinned: true,
+		show: true
 	},
 	{
 		name: 'spray',
@@ -42,7 +46,8 @@ export const trackerDefaults = [
 		intervalUnit: 'day',
 		category: 'personal',
 		actionLabel: 'Sprayed',
-		pinned: true
+		pinned: true,
+		show: true
 	},
 	{
 		name: 'towel',
@@ -51,6 +56,7 @@ export const trackerDefaults = [
 		intervalUnit: 'day',
 		category: 'household',
 		actionLabel: 'Washed',
-		pinned: true
+		pinned: true,
+		show: true
 	}
 ] as const;
