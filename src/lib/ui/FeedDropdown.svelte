@@ -30,6 +30,7 @@
 				</div>
 			</li>
 		{:else if feedItems?.items && feedItems?.items.length > 0}
+			<div class="text-base-content/70 px-3 py-2 font-medium uppercase">Recent Actions</div>
 			{#each feedItems?.items as item}
 				{@const fromNow = dayjs(item.time).fromNow()}
 				<li class="border-b-base-content/10 border-b py-1 last:border-b-0">
