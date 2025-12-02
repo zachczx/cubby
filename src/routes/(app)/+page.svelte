@@ -81,7 +81,7 @@
 	});
 </script>
 
-<PageWrapper title="Sundry" back={false} {pb}>
+<PageWrapper title="Cubby" back={false} {pb}>
 	<main class="h-full">
 		<div id="mobile" class="grid w-full max-w-lg gap-8 justify-self-center lg:text-base">
 			<section class="grid gap-4 py-2">

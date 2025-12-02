@@ -43,7 +43,7 @@
 		return '';
 	});
 
-	const defaultTitle = 'Sundry';
+	const defaultTitle = 'Cubby';
 </script>
 
 <svelte:head>
@@ -87,7 +87,7 @@
 				</button>
 			{/if}
 
-			<a class="hidden text-xl font-bold lg:flex" href="/">Sundry</a>
+			<a class="hidden text-xl font-bold lg:flex" href="/">Cubby</a>
 			<span class="text-xl font-bold lg:hidden">{title ? title : defaultTitle}</span>
 		</div>
 		<div id="desktop-menu" class="navbar-center hidden lg:flex">

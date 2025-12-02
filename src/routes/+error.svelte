@@ -4,7 +4,7 @@
 	import Oops from '$lib/assets/oops.webp?w=400;300&enhanced';
 </script>
 
-<PageWrapper title="Sundry" {pb}>
+<PageWrapper title="Cubby" {pb}>
 	<div class="grid h-full content-center justify-items-center gap-4">
 		<enhanced:img
 			src={Oops}

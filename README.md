@@ -1,1 +1,1 @@
-# Sundry app
+# Cubby app

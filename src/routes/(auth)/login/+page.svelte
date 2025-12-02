@@ -48,7 +48,7 @@
 			<h1
 				class="text-primary mb-4 text-center text-5xl font-bold tracking-tighter lg:mb-12 lg:text-9xl"
 			>
-				Sundry
+				Cubby
 			</h1>
 
 			<fieldset class="fieldset">

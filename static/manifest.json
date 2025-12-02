@@ -1,6 +1,6 @@
 {
-	"name": "Sundry",
-	"short_name": "Sundry",
+	"name": "Cubby",
+	"short_name": "Cubby",
 	"description": "Track the little things.",
 	"start_url": "/",
 	"display": "standalone",
