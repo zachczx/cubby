@@ -92,7 +92,7 @@
 					<SkeletonActionCard size="compact" />
 					<SkeletonActionCard size="compact" />
 				{:else if logs.pinned && logs.pinned.length > 0}
-					{#each logs.pinned as log (log.trackerName)}
+					{#each logs.pinned as log (log.trackerData?.id)}
 						<ActionCard
 							options={{
 								trackerName: log.trackerName,
@@ -124,7 +124,7 @@
 						<SkeletonActionCard size="compact" />
 						<SkeletonActionCard size="compact" />
 					{:else if logs.general && logs.general.length > 0}
-						{#each logs.general as log, i (log.trackerName)}
+						{#each logs.general as log, i (log.trackerData?.id)}
 							<ActionCard
 								options={{
 									trackerName: log.trackerName,
