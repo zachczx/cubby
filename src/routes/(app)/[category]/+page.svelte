@@ -11,7 +11,7 @@
 	import ActionCard from '$lib/ui/ActionCard.svelte';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { allTrackersQueryOptions } from '$lib/queries';
-	import { getTrackerIcon } from '$lib/mapper.js';
+	import { getFamilyColor, getTrackerIcon } from '$lib/mapper.js';
 	import SkeletonActionCard from '$lib/ui/SkeletonActionCard.svelte';
 	import EmptyCorgi from '$lib/assets/empty.webp?w=200&enhanced';
 
@@ -37,7 +37,34 @@
 	let currentTrackers = $derived.by(() => {
 		if (!trackersDb.isSuccess || !trackersDb.data) return;
 
-		return trackersDb.data.filter((tracker) => tracker.category === data.category);
+		const filtered = trackersDb.data.filter(
+			(tracker) => tracker.category === data.category && tracker.show
+		);
+
+		let s = new Set<string>();
+
+		for (const t of filtered) {
+			const owner = t.expand?.family?.owner;
+			const familyId = t.expand?.family?.id;
+
+			if (owner !== pb.authStore.record?.id && familyId) {
+				s.add(familyId);
+			}
+		}
+
+		const familyIds = Array.from(s);
+
+		const coloredTrackers: TrackerColored[] = filtered.map((tracker) => {
+			if (tracker.expand?.family?.owner === pb.authStore.record?.id) {
+				const color = 'green';
+				return { ...tracker, color };
+			}
+
+			const color = getFamilyColor(tracker.expand?.family?.id, familyIds);
+			return { ...tracker, color };
+		});
+
+		return coloredTrackers;
 	});
 </script>
 
@@ -52,7 +79,7 @@
 					{#each currentTrackers as tracker}
 						<ActionCard
 							options={{
-								collectionName: tracker.name,
+								tracker: tracker,
 								title: tracker.display,
 								route: `/${tracker.category}/${tracker.id}`,
 								icon: getTrackerIcon(tracker.name),
