@@ -5,6 +5,7 @@
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
 	import { pb } from '$lib/pb';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
+	import Logo from '$lib/assets/logo.webp?w=600&enhanced';
 
 	if (pb.authStore.isValid) {
 		goto('/');
@@ -45,30 +46,22 @@
 <PageWrapper title="Login" {pb}>
 	<form class="grid h-full w-full max-w-sm content-center justify-self-center">
 		<div class="lg:bg-base-200 w-full rounded-2xl lg:p-8 lg:shadow-md">
-			<h1
-				class="text-primary mb-4 text-center text-5xl font-bold tracking-tighter lg:mb-12 lg:text-9xl"
+			<!-- <h1
+				class="text-primary mb-4 text-center text-7xl font-bold tracking-tighter lg:mb-12 lg:text-9xl"
 			>
 				Cubby
-			</h1>
+			</h1> -->
+			<enhanced:img src={Logo} alt="logo" />
 
-			<fieldset class="fieldset">
-				<input
-					type="text"
-					name="email"
-					bind:value={email}
-					class="input input-lg w-full"
-					placeholder="Email"
-				/>
+			<fieldset class="fieldset mt-2">
+				<legend class="fieldset-legend -mb-2 text-lg opacity-50">Email</legend>
+				<input type="text" name="email" bind:value={email} class="input input-lg w-full" />
 			</fieldset>
 
 			<fieldset class="fieldset mt-2">
+				<legend class="fieldset-legend -mb-2 text-lg opacity-50">Password</legend>
 				<label class="input validator input-lg w-full gap-4">
-					<input
-						type={togglePasswordStatus ? 'text' : 'password'}
-						bind:value={password}
-						placeholder="Password"
-						required
-					/>
+					<input type={togglePasswordStatus ? 'text' : 'password'} bind:value={password} required />
 					<button type="button" class="cursor-pointer" onclick={togglePassword}>
 						{#if togglePasswordStatus}
 							<MaterialSymbolsVisibilityOffOutline class="size-[1.3em] opacity-75" />
@@ -78,14 +71,17 @@
 					</button>
 				</label>
 			</fieldset>
-			<button class="btn btn-lg btn-primary mt-4 w-full" onclick={() => submitHandler()}>
+			<button
+				class="btn btn-lg btn-primary full mt-8 w-full rounded-full"
+				onclick={() => submitHandler()}
+			>
 				{#if !spinner}
 					Login
 				{:else}
 					<span class="loading loading-md loading-spinner"></span>
 				{/if}
 			</button>
-			<div class="mt-8 text-center">
+			<div class="mt-8 text-center text-lg">
 				Don't have an account? <a href="/register" class="text-primary font-bold">Create one.</a>
 			</div>
 		</div>
