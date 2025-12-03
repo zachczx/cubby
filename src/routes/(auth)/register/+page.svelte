@@ -5,6 +5,7 @@
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
 	import { pb } from '$lib/pb';
 	import { trackerDefaults } from './tracker-defaults';
+	import Logo from '$lib/assets/logo.webp?w=600&enhanced';
 
 	if (pb.authStore.isValid) {
 		goto('/');
@@ -12,7 +13,8 @@
 
 	let newUser = $state<Record<string, string>>({
 		email: '',
-		password: ''
+		password: '',
+		name: ''
 	});
 	let togglePasswordStatus = $state(false);
 	let newUserRecord = $state<Record<string, string>>();
@@ -29,8 +31,10 @@
 		spinner = true;
 		const cleanEmail = newUser.email.toLowerCase().trim();
 		const cleanPassword = newUser.password.trim();
+		const cleanName = newUser.name.trim();
 		try {
 			const userData = {
+				name: cleanName,
 				email: cleanEmail,
 				emailVisibility: true,
 				password: cleanPassword,
@@ -93,27 +97,30 @@
 <PageWrapper title="Register" {pb}>
 	<form class="grid h-full w-full max-w-sm content-center justify-self-center">
 		<div class="lg:bg-base-200 w-full rounded-2xl lg:p-8 lg:shadow-md">
-			<h1
-				class="text-primary mb-4 text-center text-5xl font-bold tracking-tighter lg:mb-12 lg:text-9xl"
+			<!-- <h1
+				class="text-primary mb-4 text-center text-7xl font-bold tracking-tighter lg:mb-12 lg:text-9xl"
 			>
 				Cubby
-			</h1>
-			<fieldset class="fieldset">
+			</h1> -->
+			<enhanced:img src={Logo} alt="logo" />
+
+			<fieldset class="fieldset mt-2">
+				<legend class="fieldset-legend -mb-2 text-lg opacity-50">Email</legend>
 				<input
 					type="text"
 					name="email"
 					bind:value={newUser.email}
 					class="input input-lg w-full"
-					placeholder="Email"
+					required
 				/>
 			</fieldset>
 
 			<fieldset class="fieldset mt-2">
+				<legend class="fieldset-legend -mb-2 text-lg opacity-50">Password</legend>
 				<label class="input input-lg w-full gap-4">
 					<input
 						type={togglePasswordStatus ? 'text' : 'password'}
 						bind:value={newUser.password}
-						placeholder="Password"
 						required
 					/>
 					<button type="button" class="cursor-pointer" onclick={togglePassword}>
@@ -125,14 +132,29 @@
 					</button>
 				</label>
 			</fieldset>
-			<button class="btn btn-lg btn-primary mt-4 w-full" onclick={() => submitHandler()}>
+
+			<fieldset class="fieldset mt-2">
+				<legend class="fieldset-legend -mb-2 text-lg opacity-50">Name</legend>
+				<input
+					type="text"
+					name="name"
+					bind:value={newUser.name}
+					class="input input-lg w-full"
+					required
+				/>
+			</fieldset>
+
+			<button
+				class="btn btn-lg btn-primary mt-8 w-full rounded-full"
+				onclick={() => submitHandler()}
+			>
 				{#if !spinner}
 					Register
 				{:else}
 					<span class="loading loading-md loading-spinner"></span>
 				{/if}
 			</button>
-			<div class="mt-8 text-center">
+			<div class="mt-8 text-center text-lg">
 				Have an account? <a href="/login" class="text-primary font-bold">Login here.</a>
 			</div>
 		</div>
