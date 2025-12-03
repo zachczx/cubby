@@ -48,12 +48,7 @@
 	}
 
 	let modal = $state<HTMLDialogElement>();
-
-	let currentUserTrackerCounts = $derived.by(() => {
-		if (!userAllLogs.isSuccess) return;
-
-		return userAllLogs.data.length;
-	});
+	let spinner = $state(false);
 </script>
 
 <PageWrapper title="Join Family" {pb} largeScreenCenter={true}>
@@ -78,8 +73,12 @@
 				</ul>
 			</div>
 			<div class="grid grid-cols-1 gap-4">
-				<button class="btn btn-primary btn-lg" onclick={() => confirmJoinFamily()}
-					>Accept Invite</button
+				<button
+					class="btn btn-primary btn-lg"
+					onclick={() => {
+						spinner = true;
+						confirmJoinFamily();
+					}}>Accept Invite</button
 				>
 				<form method="dialog" class="">
 					<button class="btn btn-outline btn-primary btn-lg w-full">Cancel</button>
