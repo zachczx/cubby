@@ -16,7 +16,7 @@
 	import EmptyCorgi from '$lib/assets/empty.webp?w=200&enhanced';
 	import FluentEmojiFlatStopwatch from '$lib/assets/expressive-icons/FluentEmojiFlatStopwatch.svelte';
 	import FluentEmojiFlatAirplane from '$lib/assets/expressive-icons/FluentEmojiFlatAirplane.svelte';
-	import { getTrackerIcon } from '$lib/mapper';
+	import { getFamilyColor, getTrackerIcon } from '$lib/mapper';
 	import SkeletonActionCard from '$lib/ui/SkeletonActionCard.svelte';
 
 	dayjs.extend(relativeTime);
@@ -41,8 +41,31 @@
 	let trackers = $derived.by(() => {
 		if (!trackersDb.isSuccess || !trackersDb.data) return { pinned: [], general: [] };
 
-		const pinned = trackersDb.data.filter((tracker) => tracker.pinned);
-		const general = trackersDb.data.filter((tracker) => !tracker.pinned);
+		let s = new Set<string>();
+
+		for (const t of trackersDb.data) {
+			const owner = t.expand?.family?.owner;
+			const familyId = t.expand?.family?.id;
+
+			if (owner !== pb.authStore.record?.id && familyId) {
+				s.add(familyId);
+			}
+		}
+
+		const familyIds = Array.from(s);
+
+		const coloredTrackers: TrackerColored[] = trackersDb.data.map((tracker) => {
+			if (tracker.expand?.family?.owner === pb.authStore.record?.id) {
+				const color = 'green';
+				return { ...tracker, color };
+			}
+
+			const color = getFamilyColor(tracker.expand?.family?.id, familyIds);
+			return { ...tracker, color };
+		});
+
+		const pinned = coloredTrackers.filter((tracker) => tracker.pinned && tracker.show);
+		const general = coloredTrackers.filter((tracker) => !tracker.pinned && tracker.show);
 
 		return { pinned: pinned, general: general };
 	});
@@ -56,6 +79,8 @@
 		for (const t of trackers.pinned) {
 			const logData = allLogsDb.data.filter((log) => t.id === log.tracker);
 			const trackerData = trackers.pinned.find((tracker) => tracker.id === t.id);
+			if (!trackerData) continue;
+
 			const mergedData = {
 				trackerName: t.name,
 				trackerData: trackerData,
@@ -68,6 +93,8 @@
 		for (const t of trackers.general) {
 			const logData = allLogsDb.data.filter((log) => t.id === log.tracker);
 			const trackerData = trackers.general.find((tracker) => tracker.id === t.id);
+			if (!trackerData) continue;
+
 			const mergedData = {
 				trackerName: t.name,
 				trackerData: trackerData,
@@ -79,6 +106,8 @@
 
 		return { pinned: pinned, general: general };
 	});
+
+	// $inspect(trackers);
 </script>
 
 <PageWrapper title="Cubby" back={false} {pb}>
@@ -95,7 +124,7 @@
 					{#each logs.pinned as log (log.trackerData?.id)}
 						<ActionCard
 							options={{
-								trackerName: log.trackerName,
+								tracker: log.trackerData,
 								size: 'compact',
 								title: log.trackerData?.display,
 								route: `/${log.trackerData?.category}/${log.trackerData?.id}`,
@@ -127,7 +156,7 @@
 						{#each logs.general as log, i (log.trackerData?.id)}
 							<ActionCard
 								options={{
-									trackerName: log.trackerName,
+									tracker: log.trackerData,
 									size: 'list',
 									title: log.trackerData?.display,
 									route: `/${log.trackerData?.category}/${log.trackerData?.id}`,

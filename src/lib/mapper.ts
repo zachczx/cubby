@@ -30,3 +30,32 @@ export function getTrackerIcon(trackerName: string): Component {
 			return FluentEmojiFlatBookmarkTabs;
 	}
 }
+
+export function getFamilyColor(id: string | undefined, familyIds: string[]): string {
+	if (!id || !familyIds.includes(id)) return '';
+
+	const idx = familyIds.indexOf(id);
+
+	switch (idx) {
+		case 0:
+			return 'blue';
+
+		case 1:
+			return 'purple';
+
+		case 2:
+			return 'red';
+
+		case 3:
+			return 'teal';
+
+		case 4:
+			return 'orange';
+
+		case 5:
+			return 'lime';
+
+		default:
+			return 'slate';
+	}
+}

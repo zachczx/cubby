@@ -46,11 +46,15 @@ interface LogsRecord extends LogsDB {
 	gap: number;
 }
 
+interface TrackerColored extends TrackerDB {
+	color: string;
+}
+
 interface TrackerDB {
 	id: string;
 	user: string;
 	family: string;
-	name: CollectionName;
+	name: string;
 	display: string;
 	interval: number;
 	intervalUnit: IntervalUnit;
@@ -125,7 +129,7 @@ type CalendarRecord = Collections;
 interface ActionCardOptions {
 	title: string | undefined;
 	size?: 'compact' | 'default' | 'list';
-	trackerName: string;
+	tracker: TrackerDB | TrackerColored;
 	icon: Component;
 	route: string;
 	lastChild?: boolean;

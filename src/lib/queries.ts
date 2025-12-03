@@ -30,7 +30,7 @@ export function allTrackersQueryOptions() {
 	return queryOptions({
 		queryKey: ['trackers-all', pb.authStore?.record?.id],
 		queryFn: async (): Promise<TrackerDB[]> =>
-			await pb.collection('trackers').getFullList({ sort: 'display', expand: 'family' }),
+			await pb.collection('trackers').getFullList({ sort: 'display', expand: 'family.owner' }),
 		staleTime: staleTime
 	});
 }
@@ -146,12 +146,11 @@ export function trackerRefetchOptions(name: string): RefetchQueryFilters {
 export function familyQueryOptions() {
 	return queryOptions({
 		queryKey: ['family', pb.authStore?.record?.id],
-		queryFn: async (): Promise<FamilyDB> => {
-			const resp: FamilyDB = await pb
-				.collection('families')
-				.getFirstListItem(`members.id?="${pb.authStore?.record?.id}" && enabled=true`, {
-					expand: 'members,owner'
-				});
+		queryFn: async (): Promise<FamilyDB[]> => {
+			const resp: FamilyDB[] = await pb.collection('families').getFullList({
+				filter: `members.id?="${pb.authStore?.record?.id}" && enabled=true`,
+				expand: 'members,owner'
+			});
 			return resp ?? null;
 		},
 		staleTime: staleTime
@@ -193,10 +192,9 @@ export function cleanEmail(email: string | undefined): string {
 	if (!email) return '';
 
 	const name = email.split('@')?.[0];
-	const clean = name
-		.split('.')
-		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-		.join(' ');
+	const maxLength = name.length > 11 ? 11 : name.length;
+	const clean = name.slice(0, maxLength);
+
 	return clean;
 }
 
