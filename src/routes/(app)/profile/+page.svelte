@@ -27,21 +27,6 @@
 
 	let sound = $derived.by(() => (user.isSuccess ? user.data?.sound : undefined));
 
-	function formatTime(startDateTime: string, endDateTime: string) {
-		if (!startDateTime || !endDateTime) return;
-
-		const s = dayjs(startDateTime);
-		const e = dayjs(endDateTime);
-
-		if (s.get('month') === e.get('month')) {
-			if (s.get('date') === e.get('date')) {
-				return s.format('D MMM YYYY');
-			}
-			return s.format('D') + ' – ' + e.format('D MMM YYYY');
-		}
-		return s.format('D MMM YYYY') + ' – ' + e.format('D MMM YYYY');
-	}
-
 	async function onchange(evt: Event) {
 		const target = evt.target;
 

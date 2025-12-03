@@ -106,8 +106,6 @@
 
 		return { pinned: pinned, general: general };
 	});
-
-	// $inspect(trackers);
 </script>
 
 <PageWrapper title="Cubby" back={false} {pb}>

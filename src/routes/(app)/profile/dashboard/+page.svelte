@@ -40,9 +40,6 @@
 
 		try {
 			await pb.collection('trackers').update(tracker.id, { show: newValue });
-
-			// await tanstackClient.refetchQueries(allTrackersRefetchOptions());
-			// await tanstackClient.refetchQueries(allLogsRefetchOptions());
 		} catch {
 			addToast('error', 'Error toggling filter!');
 		}
@@ -56,8 +53,6 @@
 		try {
 			await pb.collection('trackers').update(tracker.id, { pinned: newValue });
 			console.log('finished');
-			// await tanstackClient.refetchQueries(allTrackersRefetchOptions());
-			// await tanstackClient.refetchQueries(allLogsRefetchOptions());
 			if (newValue) {
 				addToast('success', 'Pinned!');
 			} else {
@@ -81,20 +76,8 @@
 			trackers[t.family].push(t);
 		}
 
-		// return [...trackersDb.data]
-		// 	.filter((tracker) => tracker)
-		// 	.sort((a, b) => {
-		// 		if (a.pinned !== b.pinned) {
-		// 			return a.pinned ? -1 : 1;
-		// 		}
-
-		// 		return a.display.localeCompare(b.display);
-		// 	});
-
 		return trackers;
 	});
-
-	$inspect(trackers);
 </script>
 
 <PageWrapper title="Customize Dashboard" {pb} largeScreenCenter={true}>
