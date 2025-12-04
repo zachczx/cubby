@@ -58,9 +58,9 @@
 		<div class="overflow-y-auto">
 			<h1 class="text-primary mb-4 text-center text-4xl font-bold max-lg:hidden">Profile</h1>
 			<div class="grid w-full content-start">
-				{@render menuItem('dashboard', 'Customize Dashboard')}
+				{@render menuItem('active', 'Active Trackers')}
+				{@render menuItem('schedule', 'Tracker Schedules')}
 				{@render menuItem('family', 'Manage Family')}
-				{@render menuItem('interval', 'Change Tracking Intervals')}
 				{@render menuItem('vacation', 'Manage Vacation Dates')}
 
 				<form class="border-b-base-300 flex items-center border-b pt-4 pb-6 text-lg" {onchange}>

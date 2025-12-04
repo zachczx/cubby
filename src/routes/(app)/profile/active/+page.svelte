@@ -80,7 +80,7 @@
 	});
 </script>
 
-<PageWrapper title="Customize Dashboard" {pb} largeScreenCenter={true}>
+<PageWrapper title="Active Trackers" {pb} largeScreenCenter={true}>
 	<div
 		class="lg:bg-base-200 grid w-full rounded-2xl lg:h-min lg:max-w-lg lg:justify-self-center lg:p-8 lg:shadow-md"
 	>
