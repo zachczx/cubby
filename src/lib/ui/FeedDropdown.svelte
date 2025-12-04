@@ -26,7 +26,9 @@
 		{#if !feedItems || feedItems?.items?.length === 0}
 			<li>
 				<div class="flex items-center justify-center gap-2">
-					<MaterialSymbolsCheckCircle class="size-[1.3em]" /><span>No pending items</span>
+					<MaterialSymbolsCheckCircle class="size-[1.3em]" /><span
+						>No records yet, start tracking now!</span
+					>
 				</div>
 			</li>
 		{:else if feedItems?.items && feedItems?.items.length > 0}
