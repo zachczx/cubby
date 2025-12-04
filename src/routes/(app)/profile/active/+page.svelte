@@ -18,6 +18,8 @@
 	import MaterialSymbolsKeepOutline from '$lib/assets/svg/MaterialSymbolsKeepOutline.svelte';
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
 	import { preventDefault } from 'svelte/legacy';
+	import MaterialSymbolsVisibilityOutline from '$lib/assets/svg/MaterialSymbolsVisibilityOutline.svelte';
+	import MaterialSymbolsVisibilityOffOutline from '$lib/assets/svg/MaterialSymbolsVisibilityOffOutline.svelte';
 
 	dayjs.extend(relativeTime);
 
@@ -36,10 +38,11 @@
 	async function checkHandler(tracker: TrackerDB) {
 		const newValue = !tracker.show;
 		updateLocalCache(tracker.id, { show: newValue });
-		console.log(newValue);
 
 		try {
 			await pb.collection('trackers').update(tracker.id, { show: newValue });
+
+			addToast('success', 'Saved!');
 		} catch {
 			addToast('error', 'Error toggling filter!');
 		}
@@ -48,7 +51,6 @@
 	async function pinHandler(tracker: TrackerDB) {
 		const newValue = !tracker.pinned;
 		updateLocalCache(tracker.id, { pinned: newValue });
-		console.log(newValue);
 
 		try {
 			await pb.collection('trackers').update(tracker.id, { pinned: newValue });
@@ -84,9 +86,7 @@
 	<div
 		class="lg:bg-base-200 grid w-full rounded-2xl lg:h-min lg:max-w-lg lg:justify-self-center lg:p-8 lg:shadow-md"
 	>
-		<h1 class="text-primary mb-4 text-center text-4xl font-bold max-lg:hidden">
-			Customize Dashboard
-		</h1>
+		<h1 class="text-primary mb-4 text-center text-4xl font-bold max-lg:hidden">Active Trackers</h1>
 
 		<div class="grid gap-8">
 			{#each Object.values(trackers) as trackerList}
@@ -127,17 +127,25 @@
 				<MaterialSymbolsKeepOutline class="size-[1.5em] opacity-30 group-hover:opacity-75" />
 			{/if}
 		</button>
-		<label class="flex w-full items-center py-2"
+		<label class="flex w-full cursor-pointer items-center"
 			><div class="grow font-medium">
 				{tracker.display}
 			</div>
 			<input
 				type="checkbox"
-				class="toggle toggle-sm toggle-success"
+				class="peer hidden"
 				checked={tracker.show}
 				onchange={() => checkHandler(tracker)}
-			/></label
-		>
+			/>
+			<div
+				class="hover:bg-neutral/20 active:bg-neutral/20 hidden rounded-lg p-2 peer-checked:block"
+			>
+				<MaterialSymbolsVisibilityOutline class="size-6" />
+			</div>
+			<div class="hover:bg-neutral/20 active:bg-neutral/20 rounded-lg p-2 peer-checked:hidden">
+				<MaterialSymbolsVisibilityOffOutline class="size-6" />
+			</div>
+		</label>
 	</div>
 {/snippet}
 
@@ -159,3 +167,15 @@
 		</button>
 	</li>
 {/snippet}
+
+<input type="checkbox" class="hidden" /><svg class="hidden"></svg><svg class="hidden"></svg>
+
+<style>
+	input[type='checkbox']:checked + svg {
+		margin-inline-end: 3rem;
+	}
+
+	input[type='checkbox']:checked + svg + svg {
+		display: none;
+	}
+</style>
