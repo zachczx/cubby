@@ -37,7 +37,11 @@
 	let currentTrackers = $derived.by(() => {
 		if (!trackersDb.isSuccess || !trackersDb.data) return;
 
-		return getColoredTrackers(trackersDb.data);
+		const categoryTrackers = trackersDb.data.filter(
+			(tracker) => tracker.category === data.category
+		);
+
+		return getColoredTrackers(categoryTrackers);
 	});
 </script>
 
