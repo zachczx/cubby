@@ -57,6 +57,13 @@
 	const refetch = async () => {
 		await tanstackClient.refetchQueries(notificationRefetchOptions());
 	};
+
+	let bgColor = $derived(
+		'color' in options.tracker ? 'bg-' + options.tracker.color + '-200' : undefined
+	);
+	let textColor = $derived(
+		'color' in options.tracker ? 'text-' + options.tracker.color + '-600' : undefined
+	);
 </script>
 
 {#if size === 'list'}
@@ -73,41 +80,9 @@
 					<div
 						class="text-base-content/90 flex items-center gap-2 align-baseline text-lg font-bold"
 					>
-						{options.title}
-						{#if options.tracker?.expand?.family?.expand?.owner}
-							{@const owner = options.tracker?.expand?.family?.expand?.owner}
-							{#if owner.id !== pb.authStore.record?.id}
-								<span
-									class={[
-										'flex aspect-square size-5 items-center justify-center rounded-full bg-blue-200 p-0 text-sm font-bold text-blue-600',
-										'btn-neutral opacity-75'
-									]}
-								>
-									{owner.name.charAt(0)}
-								</span>
-							{/if}
-						{/if}
+						{@render ownerBadge(options)}
 					</div>
-					{#if latestLogs.isPending && !latestLogs.data}
-						<div class="custom-loader"></div>
-					{/if}
-					{#if latestLogs.error}
-						An error has occurred:
-						{latestLogs.error.message}
-					{/if}
-					{#if latestLogs.isSuccess && latestLogs.data?.length > 0}
-						{#if notification?.show}
-							{#if notification.level === 'overdue'}
-								<span class="text-error font-bold tracking-tight">Overdue</span>
-							{:else if notification.level === 'due'}
-								<span class="text-warning font-medium tracking-tight">Due</span>
-							{/if}
-						{:else}
-							<span class="text-neutral/70 text-sm font-medium tracking-tight"
-								>Due {dayjs(notification?.next).fromNow()}</span
-							>
-						{/if}
-					{/if}
+					{@render notificationLogic()}
 				</div>
 			</div>
 
@@ -127,46 +102,9 @@
 					<div
 						class="text-base-content/90 flex items-center gap-2 align-baseline text-lg font-bold"
 					>
-						{options.title}
-						{#if options.tracker?.expand?.family?.expand?.owner}
-							{@const owner = options.tracker?.expand?.family?.expand?.owner}
-							{#if owner.id !== pb.authStore.record?.id}
-								{@const bgColor =
-									'color' in options.tracker ? 'bg-' + options.tracker.color + '-200' : undefined}
-								{@const textColor =
-									'color' in options.tracker ? 'text-' + options.tracker.color + '-600' : undefined}
-								<span
-									class={[
-										'flex aspect-square size-5 items-center justify-center rounded-full p-0 text-sm font-bold',
-										bgColor,
-										textColor
-									]}
-								>
-									{owner.name.charAt(0)}
-								</span>
-							{/if}
-						{/if}
+						{@render ownerBadge(options)}
 					</div>
-					{#if latestLogs.isPending && !latestLogs.data}
-						<div class="custom-loader"></div>
-					{/if}
-					{#if latestLogs.error}
-						An error has occurred:
-						{latestLogs.error.message}
-					{/if}
-					{#if latestLogs.isSuccess && latestLogs.data?.length > 0}
-						{#if notification?.show}
-							{#if notification.level === 'overdue'}
-								<span class="text-error font-bold tracking-tight">Overdue</span>
-							{:else if notification.level === 'due'}
-								<span class="text-warning font-medium tracking-tight">Due</span>
-							{/if}
-						{:else}
-							<span class="text-neutral/70 font-medium tracking-tight"
-								>Due {dayjs(notification?.next).fromNow()}</span
-							>
-						{/if}
-					{/if}
+					{@render notificationLogic()}
 				</div>
 			</a>
 
@@ -194,46 +132,9 @@
 					<div
 						class="text-base-content/90 flex items-center gap-2 align-baseline text-lg font-bold"
 					>
-						{options.title}
-						{#if options.tracker?.expand?.family?.expand?.owner}
-							{@const owner = options.tracker?.expand?.family?.expand?.owner}
-							{#if owner.id !== pb.authStore.record?.id}
-								{@const bgColor =
-									'color' in options.tracker ? 'bg-' + options.tracker.color + '-200' : undefined}
-								{@const textColor =
-									'color' in options.tracker ? 'text-' + options.tracker.color + '-600' : undefined}
-								<span
-									class={[
-										'flex aspect-square size-5 items-center justify-center rounded-full p-0 text-sm font-bold',
-										bgColor,
-										textColor
-									]}
-								>
-									{owner.name.charAt(0)}
-								</span>
-							{/if}
-						{/if}
+						{@render ownerBadge(options)}
 					</div>
-					{#if latestLogs.isPending && !latestLogs.data}
-						<div class="custom-loader"></div>
-					{/if}
-					{#if latestLogs.error}
-						An error has occurred:
-						{latestLogs.error.message}
-					{/if}
-					{#if latestLogs.isSuccess && latestLogs.data?.length > 0}
-						{#if notification?.show}
-							{#if notification.level === 'overdue'}
-								<span class="text-error font-bold tracking-tight">Overdue</span>
-							{:else if notification.level === 'due'}
-								<span class="text-warning font-medium tracking-tight">Due</span>
-							{/if}
-						{:else}
-							<span class="text-neutral/70 font-medium tracking-tight"
-								>Due {dayjs(notification?.next).fromNow()}</span
-							>
-						{/if}
-					{/if}
+					{@render notificationLogic()}
 				</div>
 			</div>
 			<div class="flex h-full items-center">
@@ -245,3 +146,44 @@
 		<ActionButton {query} {refetch} text={options.button.text} />
 	</section>
 {/if}
+
+{#snippet ownerBadge(options: ActionCardOptions)}
+	{options.title}
+	{#if options.tracker?.expand?.family?.expand?.owner}
+		{@const owner = options.tracker?.expand?.family?.expand?.owner}
+		{#if owner.id !== pb.authStore.record?.id}
+			<span
+				class={[
+					'flex aspect-square size-5 items-center justify-center rounded-full p-0 text-sm font-bold',
+					bgColor,
+					textColor
+				]}
+			>
+				{owner.name.charAt(0)}
+			</span>
+		{/if}
+	{/if}
+{/snippet}
+
+{#snippet notificationLogic()}
+	{#if latestLogs.isPending && !latestLogs.data}
+		<div class="custom-loader"></div>
+	{/if}
+	{#if latestLogs.error}
+		An error has occurred:
+		{latestLogs.error.message}
+	{/if}
+	{#if latestLogs.isSuccess && latestLogs.data?.length > 0}
+		{#if notification?.show}
+			{#if notification.level === 'overdue'}
+				<span class="text-error font-bold tracking-tight">Overdue</span>
+			{:else if notification.level === 'due'}
+				<span class="text-warning font-medium tracking-tight">Due</span>
+			{/if}
+		{:else}
+			<span class="text-neutral/70 font-medium tracking-tight"
+				>Due {dayjs(notification?.next).fromNow()}</span
+			>
+		{/if}
+	{/if}
+{/snippet}
