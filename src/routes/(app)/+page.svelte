@@ -16,7 +16,7 @@
 	import EmptyCorgi from '$lib/assets/empty.webp?w=200&enhanced';
 	import FluentEmojiFlatStopwatch from '$lib/assets/expressive-icons/FluentEmojiFlatStopwatch.svelte';
 	import FluentEmojiFlatAirplane from '$lib/assets/expressive-icons/FluentEmojiFlatAirplane.svelte';
-	import { getFamilyColor, getTrackerIcon } from '$lib/mapper';
+	import { getColoredTrackers, getFamilyColor, getTrackerIcon } from '$lib/mapper';
 	import SkeletonActionCard from '$lib/ui/SkeletonActionCard.svelte';
 
 	dayjs.extend(relativeTime);
@@ -41,28 +41,7 @@
 	let trackers = $derived.by(() => {
 		if (!trackersDb.isSuccess || !trackersDb.data) return { pinned: [], general: [] };
 
-		let s = new Set<string>();
-
-		for (const t of trackersDb.data) {
-			const owner = t.expand?.family?.owner;
-			const familyId = t.expand?.family?.id;
-
-			if (owner !== pb.authStore.record?.id && familyId) {
-				s.add(familyId);
-			}
-		}
-
-		const familyIds = Array.from(s);
-
-		const coloredTrackers: TrackerColored[] = trackersDb.data.map((tracker) => {
-			if (tracker.expand?.family?.owner === pb.authStore.record?.id) {
-				const color = 'green';
-				return { ...tracker, color };
-			}
-
-			const color = getFamilyColor(tracker.expand?.family?.id, familyIds);
-			return { ...tracker, color };
-		});
+		const coloredTrackers = getColoredTrackers(trackersDb.data);
 
 		const pinned = coloredTrackers.filter((tracker) => tracker.pinned && tracker.show);
 		const general = coloredTrackers.filter((tracker) => !tracker.pinned && tracker.show);

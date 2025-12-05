@@ -5,6 +5,7 @@ import FluentEmojiFlatLotionBottle from './assets/expressive-icons/FluentEmojiFl
 import FluentEmojiFlatShield from './assets/expressive-icons/FluentEmojiFlatShield.svelte';
 import FluentEmojiFlatShower from './assets/expressive-icons/FluentEmojiFlatShower.svelte';
 import StreamlineColorHotelLaundryFlat from './assets/expressive-icons/StreamlineColorHotelLaundryFlat.svelte';
+import { pb } from './pb';
 
 export function getTrackerIcon(trackerName: string): Component {
 	switch (trackerName) {
@@ -58,4 +59,31 @@ export function getFamilyColor(id: string | undefined, familyIds: string[]): str
 		default:
 			return 'slate';
 	}
+}
+
+export function getColoredTrackers(trackers: TrackerDB[]): TrackerColored[] {
+	const s = new Set<string>();
+
+	for (const t of trackers) {
+		const owner = t.expand?.family?.owner;
+		const familyId = t.expand?.family?.id;
+
+		if (owner !== pb.authStore.record?.id && familyId) {
+			s.add(familyId);
+		}
+	}
+
+	const familyIds = Array.from(s);
+
+	const coloredTrackers: TrackerColored[] = trackers.map((tracker) => {
+		if (tracker.expand?.family?.owner === pb.authStore.record?.id) {
+			const color = 'green';
+			return { ...tracker, color };
+		}
+
+		const color = getFamilyColor(tracker.expand?.family?.id, familyIds);
+		return { ...tracker, color };
+	});
+
+	return coloredTrackers;
 }
