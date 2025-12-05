@@ -10,81 +10,68 @@ export const defaultNotificationStatus: NotificationStatus = {
 	level: 'ok'
 };
 
+const leadTimeHours = 6;
+const dueThresholdDays = 1;
+
+function createStatus(
+	level: NotificationStatus['level'],
+	nextDate: dayjs.Dayjs,
+	show = false
+): NotificationStatus {
+	const baseStatus = show ? { show: true, level } : defaultNotificationStatus;
+	return {
+		...baseStatus,
+		next: nextDate.toString()
+	};
+}
+
+function getLatestRecord(data: LogsDB | LogsDB[] | undefined): LogsDB | null {
+	if (!data) return null;
+	return Array.isArray(data) ? data[0] : data;
+}
+
+function calculateNextDate(record: LogsDB): dayjs.Dayjs {
+	return dayjs(record.time).add(record.interval, record.intervalUnit);
+}
+
+function getMonthlyStatus(record: LogsDB) {
+	const nextDate = calculateNextDate(record);
+	const daysRemaining = nextDate.diff(dayjs(), 'day', true);
+
+	if (daysRemaining > dueThresholdDays) {
+		return createStatus('ok', nextDate);
+	}
+
+	if (daysRemaining > 0) {
+		return createStatus('due', nextDate, true);
+	}
+
+	return createStatus('overdue', nextDate, true);
+}
+
+function getDailyStatus(record: LogsDB) {
+	const nextDate = calculateNextDate(record);
+	const intervalHours = record.interval * 24;
+
+	const hoursSinceLastRecord = dayjs().diff(dayjs(record.time), 'hour', true);
+
+	const windowToNotify = intervalHours - leadTimeHours;
+	if (hoursSinceLastRecord < windowToNotify) {
+		return createStatus('ok', nextDate);
+	}
+
+	const isOverdue = hoursSinceLastRecord > intervalHours;
+	return createStatus(isOverdue ? 'overdue' : 'due', nextDate, true);
+}
+
 export function getTrackerStatus(data: LogsDB | LogsDB[] | undefined): NotificationStatus {
 	if (!data) return emptyNotificationStatus;
 
-	let singleRecord = {} as LogsDB;
-	if (Array.isArray(data) && data.length > 0) {
-		singleRecord = data[0];
-	}
-	if (!Array.isArray(data)) {
-		singleRecord = data;
+	const record = getLatestRecord(data);
+
+	if (!record) {
+		return emptyNotificationStatus;
 	}
 
-	const notifDetails = getNotificationLabel(singleRecord);
-
-	if (singleRecord.intervalUnit === 'month') {
-		const nextDate = dayjs(singleRecord.time).add(singleRecord.interval, 'month');
-		const daysTillNextDate = nextDate.diff(dayjs(), 'day', true);
-
-		if (daysTillNextDate > 1) {
-			return { ...defaultNotificationStatus, next: nextDate.toString() };
-		} else if (daysTillNextDate <= 1 && daysTillNextDate > 0) {
-			return {
-				show: true,
-				level: 'due',
-				next: nextDate.toString(),
-				...notifDetails
-			};
-		} else {
-			return {
-				show: true,
-				level: 'overdue',
-				next: nextDate.toString(),
-				...notifDetails
-			};
-		}
-	} else {
-		const now = dayjs();
-		const leadTimeHours = 6;
-
-		const intervalHours = singleRecord.interval * 24;
-
-		const nextDate = dayjs(singleRecord.time).add(singleRecord.interval, 'day');
-
-		const hoursSinceLastRecord = now.diff(dayjs(singleRecord.time), 'hour', true);
-		if (hoursSinceLastRecord >= intervalHours - leadTimeHours) {
-			const overdue = hoursSinceLastRecord > intervalHours;
-			return {
-				show: true,
-				level: overdue ? 'overdue' : 'due',
-				next: nextDate.toString(),
-				...notifDetails
-			};
-		}
-
-		return {
-			...defaultNotificationStatus,
-			next: nextDate.toString(),
-			...notifDetails
-		};
-	}
-}
-
-function getNotificationLabel(latestLog: LogsDB) {
-	return {};
-	// switch (trackerIdToName(latestLog.tracker)) {
-	// 	case 'spray':
-	// 		return { label: 'Spray your nose!', href: '/personal/spray' };
-	// 	case 'towel':
-	// 		return { label: 'Wash your towel!', href: '/household/towel' };
-	// 	case 'gummy':
-	// 		return { label: 'Eat your gummy!', href: '/personal/gummy' };
-	// 	case 'bedsheet':
-	// 		return { label: 'Change your bedsheet!', href: '/household/bedsheet' };
-	// 	case 'bath':
-	// 		return { label: 'Bathe your doggo!', href: '/pet/bath' };
-	// 	case 'chewable':
-	// 		return { label: 'Feed your doggo chewable!', href: '/pet/chewable' };
-	// }
+	return record.intervalUnit === 'month' ? getMonthlyStatus(record) : getDailyStatus(record);
 }
