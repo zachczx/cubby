@@ -7,29 +7,17 @@ import FluentEmojiFlatShower from './assets/expressive-icons/FluentEmojiFlatShow
 import StreamlineColorHotelLaundryFlat from './assets/expressive-icons/StreamlineColorHotelLaundryFlat.svelte';
 import { pb } from './pb';
 
+const trackerIcons: Record<string, Component> = {
+	towel: StreamlineColorHotelLaundryFlat,
+	spray: FluentEmojiFlatLotionBottle,
+	gummy: FluentEmojiFlatShield,
+	bedsheet: FluentEmojiFlatBed,
+	bath: FluentEmojiFlatShower,
+	chewable: FluentEmojiFlatShield
+};
+
 export function getTrackerIcon(trackerName: string): Component {
-	switch (trackerName) {
-		case 'towel':
-			return StreamlineColorHotelLaundryFlat;
-
-		case 'spray':
-			return FluentEmojiFlatLotionBottle;
-
-		case 'gummy':
-			return FluentEmojiFlatShield;
-
-		case 'bedsheet':
-			return FluentEmojiFlatBed;
-
-		case 'bath':
-			return FluentEmojiFlatShower;
-
-		case 'chewable':
-			return FluentEmojiFlatShield;
-
-		default:
-			return FluentEmojiFlatBookmarkTabs;
-	}
+	return trackerIcons[trackerName] || FluentEmojiFlatBookmarkTabs;
 }
 
 export function getFamilyColor(id: string | undefined, familyIds: string[]): string {
