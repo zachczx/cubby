@@ -11,7 +11,7 @@
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import {
 		trackerQueryOptions,
-		createVacationQueryOptions,
+		vacationQueryOptions,
 		createLogsQuery,
 		logsRefetchOptions,
 		logsQueryOptions
@@ -37,7 +37,7 @@
 
 	const tanstackClient = useQueryClient();
 	const dbRecords = createQuery(() => logsQueryOptions(options.collectionName));
-	const vacations = createQuery(createVacationQueryOptions);
+	const vacations = createQuery(vacationQueryOptions);
 
 	const tracker = createQuery(() => trackerQueryOptions(options.collectionName));
 	let interval = $derived.by(() => (tracker.isSuccess ? tracker.data?.interval : undefined));

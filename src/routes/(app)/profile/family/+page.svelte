@@ -8,10 +8,10 @@
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import {
 		cleanEmail,
-		createUserQueryOptions,
-		createUserRefetchOptions,
-		createVacationQueryOptions,
-		createVacationRefetchOptions,
+		userQueryOptions,
+		userRefetchOptions,
+		vacationQueryOptions,
+		vacationRefetchOptions,
 		familyQueryOptions,
 		familyRefetchOptions,
 		inviteQueryOptions
@@ -34,7 +34,7 @@
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
 
-	const user = createQuery(createUserQueryOptions);
+	const user = createQuery(userQueryOptions);
 	const families = createQuery(familyQueryOptions);
 	const currentInvite = createQuery(inviteQueryOptions);
 	const tanstackClient = useQueryClient();
@@ -61,7 +61,7 @@
 			// if (result.id) {
 			// 	addToast('success', 'Added successfully!');
 			// 	spinner = false;
-			// 	await tanstackClient.refetchQueries(createVacationRefetchOptions());
+			// 	await tanstackClient.refetchQueries(vacationRefetchOptions());
 			// }
 		} catch (err) {
 			console.log(err);

@@ -7,10 +7,10 @@
 	import timezone from 'dayjs/plugin/timezone';
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import {
-		createUserQueryOptions,
-		createUserRefetchOptions,
-		createVacationQueryOptions,
-		createVacationRefetchOptions
+		userQueryOptions,
+		userRefetchOptions,
+		vacationQueryOptions,
+		vacationRefetchOptions
 	} from '$lib/queries';
 	import { page } from '$app/state';
 	import SegmentedControl from '$lib/ui/SegmentedControl.svelte';
@@ -19,9 +19,9 @@
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
 
-	const user = createQuery(createUserQueryOptions);
+	const user = createQuery(userQueryOptions);
 
-	const vacations = createQuery(createVacationQueryOptions);
+	const vacations = createQuery(vacationQueryOptions);
 
 	const tanstackClient = useQueryClient();
 
@@ -107,7 +107,7 @@
 
 				if (!response.status) {
 					addToast('success', 'Saved!');
-					await tanstackClient.refetchQueries(createUserRefetchOptions());
+					await tanstackClient.refetchQueries(userRefetchOptions());
 				}
 			} catch (err) {
 				addToast('error', 'Error saving!');

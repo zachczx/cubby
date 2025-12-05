@@ -146,11 +146,7 @@
 				<h2 class="text-base-content/70 text-lg font-bold">Other Tasks</h2>
 
 				<div class="border-base-300/50 rounded-2xl border bg-white/70">
-					{#if allLogsDb.isPending}
-						<SkeletonActionCard size="compact" />
-						<SkeletonActionCard size="compact" />
-						<SkeletonActionCard size="compact" />
-					{:else if logs.general && logs.general.length > 0}
+					{#if allLogsDb.isSuccess && allLogsDb.data && logs.general && logs.general.length > 0}
 						{#each logs.general as log, i (log.trackerData?.id)}
 							<ActionCard
 								options={{
@@ -167,11 +163,15 @@
 								}}
 							></ActionCard>
 						{/each}
-					{:else}
+					{:else if allLogsDb.isSuccess && allLogsDb.data && logs.general && logs.general.length === 0}
 						<div class="justify-self-center">
 							<enhanced:img src={EmptyCorgi} alt="nothing" />
 							<p class="text-center">No tasks!</p>
 						</div>
+					{:else}
+						<SkeletonActionCard size="compact" />
+						<SkeletonActionCard size="compact" />
+						<SkeletonActionCard size="compact" />
 					{/if}
 				</div>
 			</section>

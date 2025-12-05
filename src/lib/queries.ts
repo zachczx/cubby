@@ -4,73 +4,89 @@ import dayjs from 'dayjs';
 import type { ListResult } from 'pocketbase';
 
 const staleTime = 5 * 60 * 1000;
-
+const rootKey = [pb.authStore?.record?.id];
 export const queryClient = new QueryClient();
 
-export function allLogsQueryOptions() {
-	return queryOptions({
-		queryKey: ['logs-all', pb.authStore?.record?.id],
-		queryFn: async (): Promise<LogsDB[]> =>
-			await pb.collection('logs').getFullList({
-				sort: '-time'
+function createQueryFactory<T>(key: string[], queryFn: () => Promise<T>) {
+	return {
+		options: () =>
+			queryOptions<T>({
+				queryKey: [...rootKey, ...key],
+				queryFn,
+				staleTime: staleTime
 			}),
-		staleTime: staleTime
-	});
-}
 
-export function allLogsRefetchOptions(): RefetchQueryFilters {
-	return {
-		queryKey: ['logs-all', pb.authStore?.record?.id],
-		type: 'active',
-		exact: true
+		refetch: (): RefetchQueryFilters => ({
+			queryKey: [...rootKey, ...key],
+			type: 'active',
+			exact: true
+		})
 	};
 }
 
-export function allTrackersQueryOptions() {
-	return queryOptions({
-		queryKey: ['trackers-all', pb.authStore?.record?.id],
-		queryFn: async (): Promise<TrackerDB[]> =>
-			await pb.collection('trackers').getFullList({ sort: 'display', expand: 'family.owner' }),
-		staleTime: staleTime
-	});
-}
+const allLogsQuery = createQueryFactory(
+	['logs-all'],
+	async (): Promise<LogsDB[]> =>
+		await pb.collection('logs').getFullList({
+			sort: '-time'
+		})
+);
+export const allLogsQueryOptions = allLogsQuery.options;
+export const allLogsRefetchOptions = allLogsQuery.refetch;
 
-export function allTrackersRefetchOptions(): RefetchQueryFilters {
-	return {
-		queryKey: ['trackers-all', pb.authStore?.record?.id],
-		type: 'active',
-		exact: true
-	};
-}
+const allTrackersQuery = createQueryFactory(
+	['allTrackers'],
+	async (): Promise<TrackerDB[]> =>
+		await pb.collection('trackers').getFullList({ sort: 'display', expand: 'family.owner' })
+);
+export const allTrackersQueryOptions = allTrackersQuery.options;
+export const allTrackersRefetchOptions = allTrackersQuery.refetch;
+
+const notificationQuery = createQueryFactory(
+	['notification'],
+	async (): Promise<LogsDB[]> =>
+		await pb.collection('latest_logs').getFullList({ expand: 'tracker' })
+);
+export const notificationQueryOptions = notificationQuery.options;
+export const notificationRefetchOptions = notificationQuery.refetch;
+
+const feedQuery = createQueryFactory(
+	['feed'],
+	async (): Promise<ListResult<LogsDB>> =>
+		await pb.collection('logs').getList(1, 5, { expand: 'tracker', sort: '-time' })
+);
+export const feedQueryOptions = feedQuery.options;
+export const feedRefetchOptions = feedQuery.refetch;
 
 /** 
 requestKey prevents "Auto-cancellation" errors by pb. Spray was getting loaded twice, with first being cancelled.
 Cause: pb treats simultaneous requests to same endpoint as duplicates, so cancels it.
 Solution: 'requestKey' needed so only the same tracker fetch cancels the previous.
 */
-export function logsQueryOptions(name: string | undefined) {
-	return queryOptions({
-		queryKey: ['log-' + name, pb.authStore?.record?.id],
-		queryFn: async (): Promise<LogsDB[]> => {
-			if (!name) return [];
+const getLogsFactory = (name: string | undefined) => {
+	const safeName = name ?? '';
 
-			return await pb.collection('logs').getFullList({
-				filter: `tracker.name="${name}"`,
-				sort: '-time',
-				requestKey: `${name}-logs`
-			});
-		},
-		staleTime: staleTime
+	return createQueryFactory(['log', safeName], async (): Promise<TrackerDB[] | []> => {
+		if (!name) return [];
+
+		return await pb.collection('logs').getFullList({
+			filter: `tracker.name="${name}"`,
+			sort: '-time',
+			requestKey: `${name}`
+		});
 	});
-}
+};
 
-export function logsRefetchOptions(name: string | undefined): RefetchQueryFilters {
+export const logsQueryOptions = (name: string | undefined) => {
+	const factory = getLogsFactory(name);
+
 	return {
-		queryKey: ['log-' + name, pb.authStore?.record?.id],
-		type: 'active',
-		exact: true
+		...factory.options(),
+		enabled: !!name
 	};
-}
+};
+
+export const logsRefetchOptions = (name: string | undefined) => getLogsFactory(name).refetch();
 
 export async function createLogsQuery(options: {
 	trackerId: string;
@@ -87,106 +103,58 @@ export async function createLogsQuery(options: {
 	return response;
 }
 
-export function notificationQueryOptions() {
-	return queryOptions({
-		queryKey: ['notif', pb.authStore?.record?.id],
-		queryFn: async (): Promise<LogsDB[]> =>
-			await pb.collection('latest_logs').getFullList({ expand: 'tracker' }),
-		staleTime: staleTime
+const getTrackerFactory = (name: string | undefined) => {
+	const safeName = name ?? '';
+
+	return createQueryFactory(['log', safeName], async (): Promise<TrackerDB | null> => {
+		if (!name) return null;
+
+		return await pb.collection('trackers').getFirstListItem(`name="${name}"`, {
+			requestKey: `${name}-tracker-details`
+		});
 	});
-}
+};
+export const trackerQueryOptions = (name: string | undefined) => {
+	const factory = getTrackerFactory(name);
 
-export function notificationRefetchOptions(): RefetchQueryFilters {
-	return {
-		queryKey: ['notif', pb.authStore?.record?.id],
-		type: 'active',
-		exact: true
-	};
-}
+	return { ...factory.options(), enabled: !!name };
+};
+export const trackerRefetchOptions = (name: string) => getTrackerFactory(name).refetch();
 
-export function feedQueryOptions() {
-	return queryOptions({
-		queryKey: ['feed', pb.authStore?.record?.id],
-		queryFn: async (): Promise<ListResult<LogsDB>> =>
-			await pb.collection('logs').getList(1, 5, { expand: 'tracker', sort: '-time' }),
-		staleTime: staleTime
+const familyQuery = createQueryFactory(['family'], async (): Promise<FamilyDB[]> => {
+	const resp: FamilyDB[] = await pb.collection('families').getFullList({
+		filter: `members.id?="${pb.authStore?.record?.id}" && enabled=true`,
+		expand: 'members,owner'
 	});
-}
+	return resp ?? null;
+});
+export const familyQueryOptions = familyQuery.options;
+export const familyRefetchOptions = familyQuery.refetch;
 
-export function feedRefetchOptions(): RefetchQueryFilters {
-	return {
-		queryKey: ['feed', pb.authStore?.record?.id],
-		type: 'active',
-		exact: true
-	};
-}
+const inviteQuery = createQueryFactory(['invite'], async (): Promise<InviteDB> => {
+	const res: InviteDB = await pb
+		.collection('invites')
+		.getFirstListItem(`userEmail="${pb.authStore.record?.email}" && status="pending"`, {
+			expand: 'family'
+		});
+	return res ?? null;
+});
+export const inviteQueryOptions = inviteQuery.options;
+export const inviteRefetchOptions = inviteQuery.refetch;
 
-export function trackerQueryOptions(name: string | undefined) {
-	return queryOptions({
-		queryKey: ['tracker' + name, pb.authStore?.record?.id],
-		queryFn: async (): Promise<TrackerDB | null> => {
-			if (!name) return null;
+const userQuery = createQueryFactory(['users'], async (): Promise<UserDB> => {
+	return await pb.collection('users').getOne(String(pb.authStore?.record?.id));
+});
+export const userQueryOptions = userQuery.options;
+export const userRefetchOptions = userQuery.refetch;
 
-			return await pb.collection('trackers').getFirstListItem(`name="${name}"`, {
-				requestKey: `${name}-tracker-details`
-			});
-		},
-		staleTime: staleTime
-	});
-}
-
-export function trackerRefetchOptions(name: string): RefetchQueryFilters {
-	return {
-		queryKey: ['tracker' + name, pb.authStore?.record?.id],
-		type: 'active',
-		exact: true
-	};
-}
-
-export function familyQueryOptions() {
-	return queryOptions({
-		queryKey: ['family', pb.authStore?.record?.id],
-		queryFn: async (): Promise<FamilyDB[]> => {
-			const resp: FamilyDB[] = await pb.collection('families').getFullList({
-				filter: `members.id?="${pb.authStore?.record?.id}" && enabled=true`,
-				expand: 'members,owner'
-			});
-			return resp ?? null;
-		},
-		staleTime: staleTime
-	});
-}
-
-export function familyRefetchOptions(): RefetchQueryFilters {
-	return {
-		queryKey: ['family', pb.authStore?.record?.id],
-		type: 'active',
-		exact: true
-	};
-}
-
-export function inviteQueryOptions() {
-	return queryOptions({
-		queryKey: ['invite', pb.authStore?.record?.id],
-		queryFn: async (): Promise<InviteDB> => {
-			const res: InviteDB = await pb
-				.collection('invites')
-				.getFirstListItem(`userEmail="${pb.authStore.record?.email}" && status="pending"`, {
-					expand: 'family'
-				});
-			return res ?? null;
-		},
-		staleTime: staleTime
-	});
-}
-
-export function inviteRefetchOptions(): RefetchQueryFilters {
-	return {
-		queryKey: ['invite', pb.authStore?.record?.id],
-		type: 'active',
-		exact: true
-	};
-}
+const vacationQuery = createQueryFactory(
+	['vacations'],
+	async (): Promise<VacationDB[]> =>
+		await pb.collection('vacation').getFullList({ sort: '-startDateTime' })
+);
+export const vacationQueryOptions = vacationQuery.options;
+export const vacationRefetchOptions = vacationQuery.refetch;
 
 export function cleanEmail(email: string | undefined): string {
 	if (!email) return '';
@@ -196,24 +164,6 @@ export function cleanEmail(email: string | undefined): string {
 	const clean = name.slice(0, maxLength);
 
 	return clean;
-}
-
-export function createUserQueryOptions() {
-	return queryOptions({
-		queryKey: ['users', pb.authStore?.record?.id],
-		queryFn: async (): Promise<UserDB> => {
-			return await pb.collection('users').getOne(String(pb.authStore?.record?.id));
-		},
-		staleTime: staleTime
-	});
-}
-
-export function createUserRefetchOptions(): RefetchQueryFilters {
-	return {
-		queryKey: ['users', pb.authStore?.record?.id],
-		type: 'active',
-		exact: true
-	};
 }
 
 export function trackerNameToId(name: string, trackers: TrackerDB[] | undefined): string | null {
@@ -227,107 +177,3 @@ export function trackerIdToName(id: string, trackers: TrackerDB[] | undefined): 
 
 	return trackers.find((item) => id === item.id)?.name ?? null;
 }
-
-export function createVacationQueryOptions() {
-	return queryOptions({
-		queryKey: ['vacations', pb.authStore?.record?.id],
-		queryFn: async (): Promise<VacationDB[]> =>
-			await pb.collection('vacation').getFullList({ sort: '-startDateTime' }),
-		staleTime: staleTime
-	});
-}
-
-export function createVacationRefetchOptions(): RefetchQueryFilters {
-	return {
-		queryKey: ['vacations', pb.authStore?.record?.id],
-		type: 'active',
-		exact: true
-	};
-}
-
-// Legacy
-
-// export function createTowelQueryOptions() {
-// 	return queryOptions({
-// 		queryKey: ['towels', pb.authStore?.record?.id],
-// 		queryFn: async (): Promise<TowelDB[]> =>
-// 			await pb.collection('towel').getFullList({ sort: '-time' }),
-// 		staleTime: staleTime
-// 	});
-// }
-
-// export function createSprayQueryOptions() {
-// 	return queryOptions({
-// 		queryKey: ['sprays', pb.authStore?.record?.id],
-// 		queryFn: async (): Promise<SprayDB[]> =>
-// 			await pb.collection('spray').getFullList({ sort: '-time' }),
-// 		staleTime: staleTime
-// 	});
-// }
-
-// export function createGummyQueryOptions() {
-// 	return queryOptions({
-// 		queryKey: ['gummies', pb.authStore?.record?.id],
-// 		queryFn: async (): Promise<GummyDB[]> =>
-// 			await pb.collection('gummy').getFullList({ sort: '-time' }),
-// 		staleTime: staleTime
-// 	});
-// }
-
-// export function createDoggoChewableQueryOptions() {
-// 	return queryOptions({
-// 		queryKey: ['chewables', pb.authStore?.record?.id],
-// 		queryFn: async (): Promise<DoggoChewableDB[]> =>
-// 			await pb.collection('chewable').getFullList({ sort: '-time' }),
-// 		staleTime: staleTime
-// 	});
-// }
-
-// export function createDoggoBathQueryOptions() {
-// 	return queryOptions({
-// 		queryKey: ['baths', pb.authStore?.record?.id],
-// 		queryFn: async (): Promise<DoggoBathDB[]> =>
-// 			await pb.collection('bath').getFullList({ sort: '-time' }),
-// 		staleTime: staleTime
-// 	});
-// }
-
-// export function createTowelRefetchOptions(): RefetchQueryFilters {
-// 	return {
-// 		queryKey: ['towels', pb.authStore?.record?.id],
-// 		type: 'active',
-// 		exact: true
-// 	};
-// }
-
-// export function createSprayRefetchOptions(): RefetchQueryFilters {
-// 	return {
-// 		queryKey: ['sprays', pb.authStore?.record?.id],
-// 		type: 'active',
-// 		exact: true
-// 	};
-// }
-
-// export function createGummyRefetchOptions(): RefetchQueryFilters {
-// 	return {
-// 		queryKey: ['gummies', pb.authStore?.record?.id],
-// 		type: 'active',
-// 		exact: true
-// 	};
-// }
-
-// export function createDoggoChewableRefetchOptions(): RefetchQueryFilters {
-// 	return {
-// 		queryKey: ['chewables', pb.authStore?.record?.id],
-// 		type: 'active',
-// 		exact: true
-// 	};
-// }
-
-// export function createDoggoBathRefetchOptions(): RefetchQueryFilters {
-// 	return {
-// 		queryKey: ['baths', pb.authStore?.record?.id],
-// 		type: 'active',
-// 		exact: true
-// 	};
-// }
