@@ -159,7 +159,7 @@
 				<h2 class="text-base-content/70 text-lg font-bold">Quick Links</h2>
 				<div class="flex items-center gap-2">
 					<a
-						href="/household/count"
+						href="/count"
 						class="active:bg-neutral/10 focus-within:bg-neutral/10 focus-within:text-base-content active:text-base-content text-neutral grid aspect-square w-24 content-center justify-items-center gap-1 rounded-2xl p-2 text-sm font-semibold"
 					>
 						<FluentEmojiFlatStopwatch class="size-8" />
