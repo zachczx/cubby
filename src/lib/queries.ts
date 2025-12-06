@@ -106,7 +106,7 @@ export async function createLogsQuery(options: {
 const getTrackerFactory = (name: string | undefined) => {
 	const safeName = name ?? '';
 
-	return createQueryFactory(['log', safeName], async (): Promise<TrackerDB | null> => {
+	return createQueryFactory(['trackers', safeName], async (): Promise<TrackerDB | null> => {
 		if (!name) return null;
 
 		return await pb.collection('trackers').getFirstListItem(`name="${name}"`, {
