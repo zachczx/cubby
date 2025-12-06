@@ -66,7 +66,7 @@ Solution: 'requestKey' needed so only the same tracker fetch cancels the previou
 const getLogsFactory = (name: string | undefined) => {
 	const safeName = name ?? '';
 
-	return createQueryFactory(['log', safeName], async (): Promise<TrackerDB[] | []> => {
+	return createQueryFactory(['logs', safeName], async (): Promise<LogsDB[] | []> => {
 		if (!name) return [];
 
 		return await pb.collection('logs').getFullList({
