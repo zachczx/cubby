@@ -63,30 +63,31 @@ requestKey prevents "Auto-cancellation" errors by pb. Spray was getting loaded t
 Cause: pb treats simultaneous requests to same endpoint as duplicates, so cancels it.
 Solution: 'requestKey' needed so only the same tracker fetch cancels the previous.
 */
-const getLogsFactory = (name: string | undefined) => {
-	const safeName = name ?? '';
+const getLogsFactory = (trackerId: string | undefined) => {
+	const safeTrackerId = trackerId ?? '';
 
-	return createQueryFactory(['logs', safeName], async (): Promise<LogsDB[] | []> => {
-		if (!name) return [];
+	return createQueryFactory(['logs', safeTrackerId], async (): Promise<LogsDB[] | []> => {
+		if (!trackerId) return [];
 
 		return await pb.collection('logs').getFullList({
-			filter: `tracker.name="${name}"`,
+			filter: `tracker.id="${trackerId}"`,
 			sort: '-time',
-			requestKey: `${name}`
+			requestKey: `${trackerId}`
 		});
 	});
 };
 
-export const logsQueryOptions = (name: string | undefined) => {
-	const factory = getLogsFactory(name);
+export const logsQueryOptions = (trackerId: string | undefined) => {
+	const factory = getLogsFactory(trackerId);
 
 	return {
 		...factory.options(),
-		enabled: !!name
+		enabled: !!trackerId
 	};
 };
 
-export const logsRefetchOptions = (name: string | undefined) => getLogsFactory(name).refetch();
+export const logsRefetchOptions = (trackerId: string | undefined) =>
+	getLogsFactory(trackerId).refetch();
 
 export async function createLogsQuery(options: {
 	trackerId: string;
@@ -103,23 +104,23 @@ export async function createLogsQuery(options: {
 	return response;
 }
 
-const getTrackerFactory = (name: string | undefined) => {
-	const safeName = name ?? '';
+const getTrackerFactory = (trackerId: string | undefined) => {
+	const safeTrackerId = trackerId ?? '';
 
-	return createQueryFactory(['trackers', safeName], async (): Promise<TrackerDB | null> => {
-		if (!name) return null;
+	return createQueryFactory(['trackers', safeTrackerId], async (): Promise<TrackerDB | null> => {
+		if (!trackerId) return null;
 
-		return await pb.collection('trackers').getFirstListItem(`name="${name}"`, {
-			requestKey: `${name}-tracker-details`
+		return await pb.collection('trackers').getFirstListItem(`id="${trackerId}"`, {
+			requestKey: `${trackerId}-tracker-details`
 		});
 	});
 };
-export const trackerQueryOptions = (name: string | undefined) => {
-	const factory = getTrackerFactory(name);
+export const trackerQueryOptions = (trackerId: string | undefined) => {
+	const factory = getTrackerFactory(trackerId);
 
-	return { ...factory.options(), enabled: !!name };
+	return { ...factory.options(), enabled: !!trackerId };
 };
-export const trackerRefetchOptions = (name: string) => getTrackerFactory(name).refetch();
+export const trackerRefetchOptions = (trackerId: string) => getTrackerFactory(trackerId).refetch();
 
 const familyQuery = createQueryFactory(['family'], async (): Promise<FamilyDB[]> => {
 	const resp: FamilyDB[] = await pb.collection('families').getFullList({

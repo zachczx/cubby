@@ -36,10 +36,10 @@
 	let modal = $state<HTMLDialogElement>();
 
 	const tanstackClient = useQueryClient();
-	const dbRecords = createQuery(() => logsQueryOptions(options.collectionName));
+	const dbRecords = createQuery(() => logsQueryOptions(options.tracker?.id));
 	const vacations = createQuery(vacationQueryOptions);
 
-	const tracker = createQuery(() => trackerQueryOptions(options.collectionName));
+	const tracker = createQuery(() => trackerQueryOptions(options.tracker?.id));
 	let interval = $derived.by(() => (tracker.isSuccess ? tracker.data?.interval : undefined));
 	let intervalUnit = $derived.by(() =>
 		tracker.isSuccess ? tracker.data?.intervalUnit : undefined
@@ -52,7 +52,7 @@
 		});
 
 	const refetch = async () =>
-		await tanstackClient.refetchQueries(logsRefetchOptions(options.collectionName));
+		await tanstackClient.refetchQueries(logsRefetchOptions(options.tracker?.id));
 
 	let times = $derived.by(() => getCalendarEntries(dbRecords, options.labels.ctaButtonText));
 	let vacationTimes = $derived.by(() => getCalendarEntries(vacations, 'Vacation', '✈️'));
