@@ -6,7 +6,7 @@
 	import timezone from 'dayjs/plugin/timezone';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import { addToast } from './ArkToaster.svelte';
-	import { trackerNameToId } from '../queries';
+	import { logsRefetchOptions, trackerNameToId } from '../queries';
 	import MaterialSymbolsCheck from '../assets/svg/MaterialSymbolsCheck.svelte';
 	import MaterialSymbolsArrowRightAlt from '../assets/svg/MaterialSymbolsArrowRightAlt.svelte';
 
@@ -17,13 +17,11 @@
 	let {
 		tracker,
 		interval,
-		intervalUnit,
-		tanstackClient
+		intervalUnit
 	}: {
 		tracker: TrackerDB | undefined;
 		interval: number | undefined;
 		intervalUnit: string | undefined;
-		tanstackClient: QueryClient;
 	} = $props();
 
 	let buttonStatus: 'default' | 'loading' | 'success' = $state('default');
@@ -46,6 +44,8 @@
 		return ts;
 	});
 
+	const tanstackClient = useQueryClient();
+
 	async function addHandler() {
 		buttonStatus = 'loading';
 
@@ -62,13 +62,12 @@
 			addToast('success', 'Added successfully!');
 			buttonStatus = 'success';
 
+			await tanstackClient.refetchQueries(logsRefetchOptions(tracker?.name));
+
 			setTimeout(() => {
 				buttonStatus = 'default';
 			}, 3000);
 		}
-
-		// TODO add refetch queries
-		// await tanstackClient.refetchQueries(createDoggoChewableRefetchOptions());
 	}
 </script>
 
