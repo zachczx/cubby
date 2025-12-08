@@ -218,7 +218,7 @@
 			<ActionButton {query} {refetch} text={options.labels.ctaButtonText} />
 
 			<div class="flex justify-start">
-				<CustomDateModal tracker={options.tracker} {tanstackClient} {interval} {intervalUnit} />
+				<CustomDateModal tracker={options.tracker} {interval} {intervalUnit} />
 			</div>
 		</div>
 
