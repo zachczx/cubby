@@ -99,21 +99,10 @@ interface NotificationStatus {
 
 type ButtonState = 'default' | 'loading' | 'success' | 'error';
 
-// type CollectionName =
-// 	| 'towel'
-// 	| 'spray'
-// 	| 'gummy'
-// 	| 'user'
-// 	| 'bedsheet'
-// 	| 'vacation'
-// 	| 'bath'
-// 	| 'chewable';
-
 // Types/Interfaces for TrackerPage component abstraction
 
 interface TrackerPageOptions {
 	tracker: TrackerDB | undefined;
-	collectionName: string | undefined;
 	labels: {
 		pageTitle: string | undefined;
 		ctaButtonText: string | undefined;
