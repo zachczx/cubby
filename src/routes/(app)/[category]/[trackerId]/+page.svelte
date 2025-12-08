@@ -17,7 +17,6 @@
 	let options = $derived.by(() => {
 		return {
 			tracker: currentTracker,
-			collectionName: currentTracker?.name ?? 'Loading...',
 			labels: {
 				pageTitle: currentTracker?.display ?? 'Loading...',
 				ctaButtonText: currentTracker?.actionLabel ?? 'Loading...',
