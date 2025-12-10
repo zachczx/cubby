@@ -1,3 +1,3 @@
 import PocketBase from 'pocketbase';
 
-export const pb = new PocketBase('https://pocket.cczzxx.com');
+export const pb = new PocketBase('https://pocket.cubby.dev');
