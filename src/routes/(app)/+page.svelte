@@ -104,6 +104,7 @@
 								tracker: log.trackerData,
 								size: 'compact',
 								title: log.trackerData?.display,
+								logs: log.logData,
 								route: `/${log.trackerData?.category}/${log.trackerData?.id}`,
 								icon: getTrackerIcon(log.trackerName),
 								button: {
@@ -132,6 +133,7 @@
 									tracker: log.trackerData,
 									size: 'list',
 									title: log.trackerData?.display,
+									logs: log.logData,
 									route: `/${log.trackerData?.category}/${log.trackerData?.id}`,
 									icon: getTrackerIcon(log.trackerName),
 									lastChild: i === logs.general.length - 1 ? true : undefined,

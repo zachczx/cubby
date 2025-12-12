@@ -9,6 +9,7 @@
 	import MaterialSymbolsCheck from '../assets/svg/MaterialSymbolsCheck.svelte';
 	import MaterialSymbolsArrowRightAlt from '../assets/svg/MaterialSymbolsArrowRightAlt.svelte';
 	import type { RecordModel } from 'pocketbase';
+	import { getAllLogsQueryKey } from '../queries';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
@@ -46,13 +47,10 @@
 
 	const tanstackClient = useQueryClient();
 	export const insertNewLogToCache = (newLog: RecordModel) =>
-		tanstackClient.setQueryData(
-			[pb.authStore.record?.id, 'logs-all'],
-			(oldLogs: LogsDB[] | undefined) => {
-				if (!oldLogs) return [newLog];
-				return [newLog, ...oldLogs];
-			}
-		);
+		tanstackClient.setQueryData(getAllLogsQueryKey(), (oldLogs: LogsDB[] | undefined) => {
+			if (!oldLogs) return [newLog];
+			return [newLog, ...oldLogs];
+		});
 
 	async function addHandler() {
 		buttonStatus = 'loading';

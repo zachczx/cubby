@@ -64,7 +64,7 @@ function getDailyStatus(record: LogsDB) {
 	return createStatus(isOverdue ? 'overdue' : 'due', nextDate, true);
 }
 
-export function getTrackerStatus(data: LogsDB | LogsDB[] | undefined): NotificationStatus {
+export function getTrackerStatus(data: LogsDB[] | undefined): NotificationStatus {
 	if (!data) return emptyNotificationStatus;
 
 	const record = getLatestRecord(data);

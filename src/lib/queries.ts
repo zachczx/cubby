@@ -7,6 +7,12 @@ const staleTime = 5 * 60 * 1000;
 const rootKey = [pb.authStore?.record?.id];
 export const queryClient = new QueryClient();
 
+// Helper to get the current rootKey (useful for manual cache updates)
+export const getRootKey = () => [pb.authStore?.record?.id];
+
+// Helper to get the allLogs query key
+export const getAllLogsQueryKey = () => [...getRootKey(), 'logs-all'];
+
 function createQueryFactory<T>(key: string[], queryFn: () => Promise<T>) {
 	return {
 		options: () =>

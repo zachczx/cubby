@@ -119,6 +119,7 @@ interface ActionCardOptions {
 	title: string | undefined;
 	size?: 'compact' | 'default' | 'list';
 	tracker: TrackerDB | TrackerColored;
+	logs: LogsDB[] | undefined;
 	icon: Component;
 	route: string;
 	lastChild?: boolean;

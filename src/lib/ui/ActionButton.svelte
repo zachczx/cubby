@@ -6,7 +6,7 @@
 	import { useQueryClient, type RefetchQueryFilters } from '@tanstack/svelte-query';
 	import type { Component } from 'svelte';
 	import MaterialSymbolsExclamation from '$lib/assets/svg/MaterialSymbolsExclamation.svelte';
-	import { allLogsRefetchOptions } from '$lib/queries';
+	import { getAllLogsQueryKey } from '$lib/queries';
 	import { pb } from '$lib/pb';
 
 	let {
@@ -31,13 +31,10 @@
 
 	const tanstackClient = useQueryClient();
 	export const insertNewLogToCache = (newLog: RecordModel) =>
-		tanstackClient.setQueryData(
-			[pb.authStore.record?.id, 'logs-all'],
-			(oldLogs: LogsDB[] | undefined) => {
-				if (!oldLogs) return [newLog];
-				return [newLog, ...oldLogs];
-			}
-		);
+		tanstackClient.setQueryData(getAllLogsQueryKey(), (oldLogs: LogsDB[] | undefined) => {
+			if (!oldLogs) return [newLog];
+			return [newLog, ...oldLogs];
+		});
 
 	async function addHandler() {
 		status = 'loading';

@@ -27,23 +27,14 @@
 	});
 
 	let size = $derived(options.size ?? 'default');
+	let logs = $derived(options.logs);
 
-	const tanstackClient = useQueryClient();
-	const latestLogs = createQuery(notificationQueryOptions);
 	const trackers = createQuery(allTrackersQueryOptions);
 	let tracker = $derived.by(() =>
 		trackers.data?.find((tracker) => tracker.name === options.tracker?.name)
 	);
-	const notification = $derived.by(() => {
-		if (latestLogs.isSuccess && latestLogs.data) {
-			const notif = latestLogs.data.find(
-				(item) => trackerIdToName(item.tracker, trackers.data) === options.tracker?.name
-			);
-			return getTrackerStatus(notif);
-		}
 
-		return undefined;
-	});
+	let notification = $derived.by(() => (logs ? getTrackerStatus(logs) : undefined));
 
 	let interval = $derived(tracker?.interval);
 	let intervalUnit = $derived(tracker?.intervalUnit);
@@ -53,10 +44,6 @@
 			interval: interval,
 			intervalUnit: intervalUnit
 		});
-
-	const refetch = async () => {
-		await tanstackClient.refetchQueries(notificationRefetchOptions());
-	};
 
 	let bgColor = $derived(
 		'color' in options.tracker ? 'bg-' + options.tracker.color + '-200' : undefined
@@ -111,7 +98,6 @@
 			<div class="flex h-full items-center">
 				<ActionButton
 					{query}
-					{refetch}
 					text={options.button.text}
 					compact={true}
 					color={'primary'}
@@ -143,7 +129,7 @@
 				</div>
 			</div>
 		</a>
-		<ActionButton {query} {refetch} text={options.button.text} />
+		<ActionButton {query} text={options.button.text} />
 	</section>
 {/if}
 
@@ -166,14 +152,14 @@
 {/snippet}
 
 {#snippet notificationLogic()}
-	{#if latestLogs.isPending && !latestLogs.data}
+	<!-- {#if latestLogs.isPending && !latestLogs.data}
 		<div class="custom-loader"></div>
-	{/if}
+	{/if} 
 	{#if latestLogs.error}
 		An error has occurred:
 		{latestLogs.error.message}
-	{/if}
-	{#if latestLogs.isSuccess && latestLogs.data?.length > 0}
+	{/if}-->
+	{#if logs}
 		{#if notification?.show}
 			{#if notification.level === 'overdue'}
 				<span class="text-error font-bold tracking-tight">Overdue</span>
