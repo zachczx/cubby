@@ -6,16 +6,18 @@ import FluentEmojiFlatShield from './assets/expressive-icons/FluentEmojiFlatShie
 import FluentEmojiFlatShower from './assets/expressive-icons/FluentEmojiFlatShower.svelte';
 import StreamlineColorHotelLaundryFlat from './assets/expressive-icons/StreamlineColorHotelLaundryFlat.svelte';
 import { pb } from './pb';
-import FluentEmojiFlatTooth from './assets/expressive-icons/FluentEmojiFlatTooth.svelte';
+import FluentEmojiFlatTShirt from './assets/expressive-icons/FluentEmojiFlatTShirt.svelte';
+import StreamlineColorToothFlat from './assets/expressive-icons/StreamlineColorToothFlat.svelte';
 
 const trackerIcons: Record<string, Component> = {
-	towel: StreamlineColorHotelLaundryFlat,
+	towel: FluentEmojiFlatTShirt,
 	spray: FluentEmojiFlatLotionBottle,
 	gummy: FluentEmojiFlatShield,
 	bedsheet: FluentEmojiFlatBed,
 	petBath: FluentEmojiFlatShower,
 	petChewable: FluentEmojiFlatShield,
-	dentalCleaning: FluentEmojiFlatTooth
+	dentalCleaning: StreamlineColorToothFlat,
+	washingMachine: StreamlineColorHotelLaundryFlat
 };
 
 export function getTrackerIcon(trackerName: string): Component {

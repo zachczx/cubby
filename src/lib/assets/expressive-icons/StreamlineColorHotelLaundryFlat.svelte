@@ -8,7 +8,7 @@
 	height="1em"
 	viewBox="0 0 14 14"
 	{...props}
-	class={[props.class]}
+	class={[props.class, 'opacity-[.7] hue-rotate-30']}
 	><!-- Icon from Streamline color by Streamline - https://creativecommons.org/licenses/by/4.0/ --><g
 		fill="none"
 		><path
