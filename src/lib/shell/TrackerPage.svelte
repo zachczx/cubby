@@ -13,9 +13,7 @@
 		trackerQueryOptions,
 		vacationQueryOptions,
 		createLogsQuery,
-		logsRefetchOptions,
-		logsQueryOptions,
-		allLogsRefetchOptions
+		allLogsQueryOptions
 	} from '$lib/queries';
 	import { getCalendarEntries } from '$lib/calendar';
 	import CustomDateModal from '$lib/ui/CustomDateModal.svelte';
@@ -24,7 +22,7 @@
 	import StatusHeroImage from '$lib/ui/StatusHeroImage.svelte';
 	import ActionButton from '$lib/ui/ActionButton.svelte';
 	import SingleDayModal from '$lib/ui/SingleDayModal.svelte';
-	import { defaultNotificationStatus, getTrackerStatus } from '$lib/notification';
+	import { getTrackerStatus } from '$lib/notification';
 
 	dayjs.extend(calendar);
 	dayjs.extend(relativeTime);
@@ -36,8 +34,14 @@
 	let singleDay: LogsDB[] | undefined = $state([]);
 	let modal = $state<HTMLDialogElement>();
 
-	const tanstackClient = useQueryClient();
-	const dbRecords = createQuery(() => logsQueryOptions(options.tracker?.id));
+	const allLogsDb = createQuery(allLogsQueryOptions);
+
+	let currentTrackerLogs = $derived.by(() => {
+		if (!allLogsDb.isSuccess || !allLogsDb.data || !options.tracker) return [];
+
+		return allLogsDb.data.filter((log) => log.tracker === options.tracker?.id);
+	});
+
 	const vacations = createQuery(vacationQueryOptions);
 
 	const tracker = createQuery(() => trackerQueryOptions(options.tracker?.id));
@@ -52,11 +56,10 @@
 			intervalUnit: intervalUnit
 		});
 
-	const refetch = async () =>
-		await tanstackClient.refetchQueries(logsRefetchOptions(options.tracker?.id));
-
-	let times = $derived.by(() => getCalendarEntries(dbRecords, options.labels.ctaButtonText));
-	let vacationTimes = $derived.by(() => getCalendarEntries(vacations, 'Vacation', '✈️'));
+	let times = $derived.by(() =>
+		getCalendarEntries(currentTrackerLogs, options.labels.ctaButtonText)
+	);
+	let vacationTimes = $derived.by(() => getCalendarEntries(vacations.data, 'Vacation', '✈️'));
 
 	let calendarOptions: Calendar.Options = $derived.by(() => {
 		return {
@@ -73,16 +76,16 @@
 				return dayjs(date).format('MMMM YYYY');
 			},
 			dateClick: async (info) => {
-				if (dbRecords.isSuccess) {
-					singleDay = dbRecords.data.filter((day) => {
+				if (currentTrackerLogs && currentTrackerLogs.length > 0) {
+					singleDay = currentTrackerLogs.filter((day) => {
 						return dayjs(day.time).get('date') == dayjs(info.date).get('date');
 					});
 					modal?.showModal();
 				}
 			},
 			eventClick: async (info) => {
-				if (dbRecords.isSuccess) {
-					singleDay = dbRecords.data.filter((day) => {
+				if (currentTrackerLogs && currentTrackerLogs.length > 0) {
+					singleDay = currentTrackerLogs.filter((day) => {
 						return dayjs(day.time).get('date') == dayjs(info.event.start).get('date');
 					});
 					modal?.showModal();
@@ -91,7 +94,7 @@
 		};
 	});
 
-	let notification = $derived.by(() => getTrackerStatus(dbRecords.data?.[0] ?? undefined));
+	let notification = $derived.by(() => getTrackerStatus(currentTrackerLogs?.[0] ?? undefined));
 
 	type TabPages = 'overview' | 'stats' | 'calendar';
 
@@ -105,11 +108,11 @@
 	let records: LogsRecord[] | undefined = $state([]);
 
 	$effect(() => {
-		if (dbRecords.isSuccess && dbRecords.data && dbRecords.data?.length > 0) {
+		if (currentTrackerLogs && currentTrackerLogs.length > 0) {
 			if (options.calculateGaps) {
-				records = options.calculateGaps(dbRecords.data, vacations.data ?? []);
+				records = options.calculateGaps(currentTrackerLogs, vacations.data ?? []);
 			} else {
-				records = dbRecords.data.map((record, i, allRecords) => {
+				records = currentTrackerLogs.map((record, i, allRecords) => {
 					const nextRecord = allRecords[i + 1];
 					const gap = nextRecord ? dayjs(record.time).diff(nextRecord.time, 'day', true) : 0;
 					return { ...record, gap };
@@ -168,7 +171,13 @@
 	let lineChart: Chart | undefined = $state();
 
 	$effect(() => {
-		if (lineChartEl && dbRecords.isSuccess && currentTab === 'stats' && !lineChart) {
+		if (
+			lineChartEl &&
+			currentTrackerLogs &&
+			currentTrackerLogs.length > 0 &&
+			currentTab === 'stats' &&
+			!lineChart
+		) {
 			lineChart = new Chart(lineChartEl, {
 				type: 'line',
 				options: { plugins: { legend: { display: false } } },
@@ -208,7 +217,7 @@
 <PageWrapper title={options.labels.pageTitle} {pb}>
 	<main class="grid w-full max-w-xl content-start justify-items-center gap-4 justify-self-center">
 		<div class="grid w-full content-start justify-items-center gap-4">
-			{#if dbRecords.isSuccess}
+			{#if currentTrackerLogs && currentTrackerLogs.length > 0}
 				<StatusHeroImage {notification} />
 			{:else}
 				<div class="avatar relative mt-2 mb-4">
@@ -216,7 +225,7 @@
 				</div>
 			{/if}
 
-			<ActionButton {query} {refetch} text={options.labels.ctaButtonText} />
+			<ActionButton {query} text={options.labels.ctaButtonText} />
 
 			<div class="flex justify-start">
 				<CustomDateModal tracker={options.tracker} {interval} {intervalUnit} />
@@ -250,7 +259,7 @@
 				</li>
 			</ul>
 
-			{#if dbRecords.isSuccess && dbRecords.data.length === 0}
+			{#if currentTrackerLogs && currentTrackerLogs.length === 0}
 				<div class="mx-4 mt-4 text-center">
 					<p class="font-bold">Ready to track?</p>
 					<p>Log your first {options.labels.noun} to get started.</p>
@@ -258,12 +267,10 @@
 			{:else}
 				<div class={['grid w-full gap-8 px-4', currentTab === 'overview' ? undefined : 'hidden']}>
 					<div class="flex items-center justify-center text-2xl font-bold">
-						{#if dbRecords.isSuccess}
-							{#if notification}
-								<StatusDescriptions {notification} />
-							{:else}
-								<div class="flex min-h-20 items-center gap-4 text-2xl font-bold">Nil</div>
-							{/if}
+						{#if notification}
+							<StatusDescriptions {notification} />
+						{:else}
+							<div class="flex min-h-20 items-center gap-4 text-2xl font-bold">Nil</div>
 						{/if}
 					</div>
 
@@ -272,18 +279,16 @@
 					>
 						<h2 class="text-md text-center">Due</h2>
 						<div class="grid min-h-20 content-center justify-items-center">
-							{#if dbRecords.isSuccess}
-								{#if notification && notification.level}
-									<!-- {@const semantic = dayjs(notification.next).calendar(dayjs(), dayjsCalendarOptions)} -->
-									{@const semantic = dayjs(notification.next).fromNow()}
-									{@const formatted = dayjs(notification.next).format('D MMM YYYY')}
-									<p class="text-primary text-2xl font-bold">
-										{semantic}
-									</p>
-									<p>{formatted}</p>
-								{:else}
-									<div class="flex min-h-20 items-center gap-4 text-2xl font-bold">Nil</div>
-								{/if}
+							{#if notification && notification.level}
+								<!-- {@const semantic = dayjs(notification.next).calendar(dayjs(), dayjsCalendarOptions)} -->
+								{@const semantic = dayjs(notification.next).fromNow()}
+								{@const formatted = dayjs(notification.next).format('D MMM YYYY')}
+								<p class="text-primary text-2xl font-bold">
+									{semantic}
+								</p>
+								<p>{formatted}</p>
+							{:else}
+								<div class="flex min-h-20 items-center gap-4 text-2xl font-bold">Nil</div>
 							{/if}
 						</div>
 					</div>
@@ -304,9 +309,9 @@
 						{/snippet}
 
 						{#snippet right()}
-							{#if dbRecords.isSuccess}
-								{#if dbRecords.data.length > 0}
-									{@const formatted = dayjs(dbRecords.data[0].time).fromNow(true)}
+							{#if currentTrackerLogs && currentTrackerLogs.length > 0}
+								{#if currentTrackerLogs.length > 0}
+									{@const formatted = dayjs(currentTrackerLogs[0].time).fromNow(true)}
 									<p>
 										{#if formatted === 'a few seconds'}
 											seconds
@@ -321,7 +326,7 @@
 									</div>
 								{/if}
 							{/if}
-							{#if dbRecords.isPending}
+							{#if allLogsDb.isPending}
 								<div class="custom-loader"></div>
 							{/if}
 						{/snippet}
@@ -369,7 +374,7 @@
 						currentTab === 'calendar' ? undefined : 'hidden'
 					]}
 				>
-					{#key dbRecords.data}
+					{#key currentTrackerLogs}
 						<Calendar plugins={[DayGrid, Interaction]} options={calendarOptions} />
 					{/key}
 				</div>

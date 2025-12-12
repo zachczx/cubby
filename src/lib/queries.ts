@@ -63,31 +63,31 @@ requestKey prevents "Auto-cancellation" errors by pb. Spray was getting loaded t
 Cause: pb treats simultaneous requests to same endpoint as duplicates, so cancels it.
 Solution: 'requestKey' needed so only the same tracker fetch cancels the previous.
 */
-const getLogsFactory = (trackerId: string | undefined) => {
-	const safeTrackerId = trackerId ?? '';
+// const getLogsFactory = (trackerId: string | undefined) => {
+// 	const safeTrackerId = trackerId ?? '';
 
-	return createQueryFactory(['logs', safeTrackerId], async (): Promise<LogsDB[] | []> => {
-		if (!trackerId) return [];
+// 	return createQueryFactory(['logs', safeTrackerId], async (): Promise<LogsDB[] | []> => {
+// 		if (!trackerId) return [];
 
-		return await pb.collection('logs').getFullList({
-			filter: `tracker.id="${trackerId}"`,
-			sort: '-time',
-			requestKey: `${trackerId}`
-		});
-	});
-};
+// 		return await pb.collection('logs').getFullList({
+// 			filter: `tracker.id="${trackerId}"`,
+// 			sort: '-time',
+// 			requestKey: `${trackerId}`
+// 		});
+// 	});
+// };
 
-export const logsQueryOptions = (trackerId: string | undefined) => {
-	const factory = getLogsFactory(trackerId);
+// export const logsQueryOptions = (trackerId: string | undefined) => {
+// 	const factory = getLogsFactory(trackerId);
 
-	return {
-		...factory.options(),
-		enabled: !!trackerId
-	};
-};
+// 	return {
+// 		...factory.options(),
+// 		enabled: !!trackerId
+// 	};
+// };
 
-export const logsRefetchOptions = (trackerId: string | undefined) =>
-	getLogsFactory(trackerId).refetch();
+// export const logsRefetchOptions = (trackerId: string | undefined) =>
+// 	getLogsFactory(trackerId).refetch();
 
 export async function createLogsQuery(options: {
 	trackerId: string;

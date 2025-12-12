@@ -6,9 +6,9 @@
 	import timezone from 'dayjs/plugin/timezone';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import { addToast } from './ArkToaster.svelte';
-	import { allLogsRefetchOptions, logsRefetchOptions, trackerNameToId } from '../queries';
 	import MaterialSymbolsCheck from '../assets/svg/MaterialSymbolsCheck.svelte';
 	import MaterialSymbolsArrowRightAlt from '../assets/svg/MaterialSymbolsArrowRightAlt.svelte';
+	import type { RecordModel } from 'pocketbase';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
@@ -25,11 +25,6 @@
 	} = $props();
 
 	let buttonStatus: 'default' | 'loading' | 'success' = $state('default');
-
-	const tanstackClient = useQueryClient();
-	const refetchAllLogs = async () => {
-		await tanstackClient.refetchQueries(allLogsRefetchOptions());
-	};
 
 	let dialog = $state() as HTMLDialogElement;
 	let date = $state('');
@@ -49,6 +44,16 @@
 		return ts;
 	});
 
+	const tanstackClient = useQueryClient();
+	export const insertNewLogToCache = (newLog: RecordModel) =>
+		tanstackClient.setQueryData(
+			[pb.authStore.record?.id, 'logs-all'],
+			(oldLogs: LogsDB[] | undefined) => {
+				if (!oldLogs) return [newLog];
+				return [newLog, ...oldLogs];
+			}
+		);
+
 	async function addHandler() {
 		buttonStatus = 'loading';
 
@@ -65,8 +70,7 @@
 			addToast('success', 'Added successfully!');
 			buttonStatus = 'success';
 
-			await tanstackClient.refetchQueries(logsRefetchOptions(tracker?.name));
-			refetchAllLogs();
+			await insertNewLogToCache(result);
 
 			setTimeout(() => {
 				buttonStatus = 'default';

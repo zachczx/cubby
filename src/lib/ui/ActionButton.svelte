@@ -7,11 +7,11 @@
 	import type { Component } from 'svelte';
 	import MaterialSymbolsExclamation from '$lib/assets/svg/MaterialSymbolsExclamation.svelte';
 	import { allLogsRefetchOptions } from '$lib/queries';
+	import { pb } from '$lib/pb';
 
 	let {
 		text,
 		query,
-		refetch,
 		compact = false,
 		color = 'primary',
 		rounded = 'full',
@@ -20,7 +20,6 @@
 	}: {
 		text: string | undefined;
 		query: () => Promise<RecordModel>;
-		refetch: () => Promise<void>;
 		compact?: boolean;
 		color?: 'primary' | 'neutral';
 		rounded?: 'full' | '3xl' | '2xl' | 'xl' | 'lg' | 'md' | 'sm' | 'xs';
@@ -31,9 +30,14 @@
 	let status: ButtonState = $state('default');
 
 	const tanstackClient = useQueryClient();
-	const refetchAllLogs = async () => {
-		await tanstackClient.refetchQueries(allLogsRefetchOptions());
-	};
+	export const insertNewLogToCache = (newLog: RecordModel) =>
+		tanstackClient.setQueryData(
+			[pb.authStore.record?.id, 'logs-all'],
+			(oldLogs: LogsDB[] | undefined) => {
+				if (!oldLogs) return [newLog];
+				return [newLog, ...oldLogs];
+			}
+		);
 
 	async function addHandler() {
 		status = 'loading';
@@ -43,14 +47,12 @@
 			if (result) {
 				addToast('success', 'Added successfully!');
 				status = 'success';
-				refetchAllLogs();
+				await insertNewLogToCache(result);
 
 				setTimeout(() => {
 					status = 'default';
 				}, 3000);
 			}
-
-			await refetch();
 		} catch (err) {
 			console.log(err);
 			status = 'error';
