@@ -6,7 +6,7 @@
 	import timezone from 'dayjs/plugin/timezone';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import { addToast } from './ArkToaster.svelte';
-	import { logsRefetchOptions, trackerNameToId } from '../queries';
+	import { allLogsRefetchOptions, logsRefetchOptions, trackerNameToId } from '../queries';
 	import MaterialSymbolsCheck from '../assets/svg/MaterialSymbolsCheck.svelte';
 	import MaterialSymbolsArrowRightAlt from '../assets/svg/MaterialSymbolsArrowRightAlt.svelte';
 
@@ -26,6 +26,11 @@
 
 	let buttonStatus: 'default' | 'loading' | 'success' = $state('default');
 
+	const tanstackClient = useQueryClient();
+	const refetchAllLogs = async () => {
+		await tanstackClient.refetchQueries(allLogsRefetchOptions());
+	};
+
 	let dialog = $state() as HTMLDialogElement;
 	let date = $state('');
 	let time = $state('');
@@ -44,8 +49,6 @@
 		return ts;
 	});
 
-	const tanstackClient = useQueryClient();
-
 	async function addHandler() {
 		buttonStatus = 'loading';
 
@@ -63,6 +66,7 @@
 			buttonStatus = 'success';
 
 			await tanstackClient.refetchQueries(logsRefetchOptions(tracker?.name));
+			refetchAllLogs();
 
 			setTimeout(() => {
 				buttonStatus = 'default';

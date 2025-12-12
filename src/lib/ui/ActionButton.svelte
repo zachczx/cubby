@@ -3,9 +3,10 @@
 	import type { RecordModel, RecordOptions, RecordService } from 'pocketbase';
 	import type { MouseEventHandler } from 'svelte/elements';
 	import { addToast } from './ArkToaster.svelte';
-	import type { RefetchQueryFilters } from '@tanstack/svelte-query';
+	import { useQueryClient, type RefetchQueryFilters } from '@tanstack/svelte-query';
 	import type { Component } from 'svelte';
 	import MaterialSymbolsExclamation from '$lib/assets/svg/MaterialSymbolsExclamation.svelte';
+	import { allLogsRefetchOptions } from '$lib/queries';
 
 	let {
 		text,
@@ -29,6 +30,11 @@
 
 	let status: ButtonState = $state('default');
 
+	const tanstackClient = useQueryClient();
+	const refetchAllLogs = async () => {
+		await tanstackClient.refetchQueries(allLogsRefetchOptions());
+	};
+
 	async function addHandler() {
 		status = 'loading';
 
@@ -37,6 +43,7 @@
 			if (result) {
 				addToast('success', 'Added successfully!');
 				status = 'success';
+				refetchAllLogs();
 
 				setTimeout(() => {
 					status = 'default';
