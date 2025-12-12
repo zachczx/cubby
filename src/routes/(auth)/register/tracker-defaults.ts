@@ -10,8 +10,8 @@ export const trackerDefaults = [
 		show: true
 	},
 	{
-		name: 'bath',
-		display: 'Bath',
+		name: 'petBath',
+		display: 'petBath',
 		interval: 14,
 		intervalUnit: 'day',
 		category: 'pet',
@@ -20,7 +20,7 @@ export const trackerDefaults = [
 		show: true
 	},
 	{
-		name: 'chewable',
+		name: 'petChewable',
 		display: 'Nexgard',
 		interval: 1,
 		intervalUnit: 'month',

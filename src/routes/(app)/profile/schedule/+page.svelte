@@ -58,18 +58,18 @@
 		}
 	});
 
-	let chewableInterval = $derived.by(() => {
+	let petChewableInterval = $derived.by(() => {
 		if (trackers.isSuccess) {
-			const rec = trackers.data?.find((item) => item.name === 'chewable');
+			const rec = trackers.data?.find((item) => item.name === 'petChewable');
 			if (rec) {
 				return rec.interval;
 			}
 		}
 	});
 
-	let bathInterval = $derived.by(() => {
+	let petBathInterval = $derived.by(() => {
 		if (trackers.isSuccess) {
-			const rec = trackers.data?.find((item) => item.name === 'bath');
+			const rec = trackers.data?.find((item) => item.name === 'petBath');
 			if (rec) {
 				return rec.interval;
 			}
@@ -195,54 +195,54 @@
 					</form>
 
 					<form class="border-b-base-300 grid border-b pt-4 pb-8 text-lg" {onchange}>
-						<legend class="fieldset-legend pb-4">Months Per Pet Chewable</legend>
+						<legend class="fieldset-legend pb-4">Months Per Pet petChewable</legend>
 
 						<SegmentedControl items={3}>
 							<label>
 								<input
 									type="radio"
-									bind:group={chewableInterval}
+									bind:group={petChewableInterval}
 									value={1}
-									name="chewable"
+									name="petChewable"
 								/>Monthly
 							</label>
 							<label>
 								<input
 									type="radio"
-									bind:group={chewableInterval}
+									bind:group={petChewableInterval}
 									value={3}
-									name="chewable"
+									name="petChewable"
 								/>Quarterly
 							</label>
 							<label>
 								<input
 									type="radio"
-									bind:group={chewableInterval}
+									bind:group={petChewableInterval}
 									value={6}
-									name="chewable"
+									name="petChewable"
 								/>Half-Yearly
 							</label>
 						</SegmentedControl>
 					</form>
 
 					<form class="border-b-base-300 grid border-b pt-4 pb-8 text-lg" {onchange}>
-						<legend class="fieldset-legend pb-4">Days Per Pet Bath</legend>
+						<legend class="fieldset-legend pb-4">Days Per Pet petBath</legend>
 
 						<SegmentedControl items={5}>
 							<label>
-								<input type="radio" bind:group={bathInterval} value={3} name="bath" />3
+								<input type="radio" bind:group={petBathInterval} value={3} name="petBath" />3
 							</label>
 							<label>
-								<input type="radio" bind:group={bathInterval} value={5} name="bath" />5
+								<input type="radio" bind:group={petBathInterval} value={5} name="petBath" />5
 							</label>
 							<label>
-								<input type="radio" bind:group={bathInterval} value={7} name="bath" />7
+								<input type="radio" bind:group={petBathInterval} value={7} name="petBath" />7
 							</label>
 							<label>
-								<input type="radio" bind:group={bathInterval} value={14} name="bath" />14
+								<input type="radio" bind:group={petBathInterval} value={14} name="petBath" />14
 							</label>
 							<label>
-								<input type="radio" bind:group={bathInterval} value={30} name="bath" />30
+								<input type="radio" bind:group={petBathInterval} value={30} name="petBath" />30
 							</label>
 						</SegmentedControl>
 					</form>
