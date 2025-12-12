@@ -14,7 +14,8 @@
 		vacationQueryOptions,
 		createLogsQuery,
 		logsRefetchOptions,
-		logsQueryOptions
+		logsQueryOptions,
+		allLogsRefetchOptions
 	} from '$lib/queries';
 	import { getCalendarEntries } from '$lib/calendar';
 	import CustomDateModal from '$lib/ui/CustomDateModal.svelte';
@@ -306,7 +307,13 @@
 							{#if dbRecords.isSuccess}
 								{#if dbRecords.data.length > 0}
 									{@const formatted = dayjs(dbRecords.data[0].time).fromNow(true)}
-									<p>{formatted}</p>
+									<p>
+										{#if formatted === 'a few seconds'}
+											seconds
+										{:else}
+											{formatted}
+										{/if}
+									</p>
 									<p class="text-base-content/70 text-base font-normal">ago</p>
 								{:else}
 									<div class="flex min-h-20 items-center gap-4 text-xl font-bold">
