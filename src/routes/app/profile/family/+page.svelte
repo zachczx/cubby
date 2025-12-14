@@ -125,7 +125,7 @@
 			if (result) {
 				addToast('success', 'Successfully left family!');
 				await tanstackClient.refetchQueries(familyRefetchOptions());
-				goto('/profile/family');
+				goto('/app/profile/family');
 			}
 		} catch (err) {
 			console.log(err);
@@ -178,7 +178,7 @@
 							class="border-base-300 bg-info text-info-content grid min-h-18 gap-4 rounded-2xl border p-4 text-lg font-semibold"
 						>
 							<a
-								href="/profile/family/invite?i={currentInvite.data.family}"
+								href="/app/profile/family/invite?i={currentInvite.data.family}"
 								class="flex items-center gap-4"
 								><MdiAlertCircle class="size-[2em]" />You received an invite <MaterialSymbolsArrowRightAlt
 									class="-ms-3 size-[1.3em]"

@@ -70,7 +70,7 @@
 
 					{#if data.category === 'household'}
 						<div class="border-base-300 grid min-h-24 gap-4 rounded-3xl border bg-white/70 p-4">
-							<a href="/household/count" class="flex items-center">
+							<a href="/app/household/count" class="flex items-center">
 								<div class="flex grow items-center gap-4">
 									<FluentEmojiFlatStopwatch class="size-12 opacity-75" />
 
@@ -86,7 +86,7 @@
 							</a>
 							<button
 								class="btn btn-lg btn-primary flex w-full items-center gap-2 rounded-full"
-								onclick={() => goto('/household/count?start=true')}
+								onclick={() => goto('/app/household/count?start=true')}
 							>
 								Start Timer
 							</button>

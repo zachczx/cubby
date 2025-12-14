@@ -23,10 +23,10 @@
 	let currentSection = $derived.by(() => {
 		const p = page.url.pathname;
 
-		if (p === '/') return 'home';
+		if (p === '/app' || p === '/app/') return 'home';
 
 		const animation = topLevelRoutes.animation.find(
-			(route) => route.href !== '/' && p.startsWith(route.href)
+			(route) => route.href !== '/app' && p.startsWith(route.href)
 		);
 
 		if (animation) {
@@ -87,7 +87,7 @@
 					</button>
 				{/if}
 
-				<a class="hidden text-xl font-bold lg:flex" href="/">Cubby</a>
+				<a class="hidden text-xl font-bold lg:flex" href="/app">Cubby</a>
 				<span class="text-xl font-bold lg:hidden">{title ? title : defaultTitle}</span>
 			</div>
 			<div id="desktop-menu" class="navbar-center hidden lg:flex">
@@ -111,16 +111,16 @@
 			<div class="lg:navbar-end">
 				<div id="mobile-hamburger" class="dropdown flex items-center lg:hidden">
 					<FeedDropdown />
-					<a href="/profile" class="btn btn-ghost px-2 py-0"
+					<a href="/app/profile" class="btn btn-ghost px-2 py-0"
 						><MaterialSymbolsSettings class="size-6" /></a
 					>
 				</div>
 				<div id="desktop-logout" class="hidden items-center text-sm lg:flex">
 					<FeedDropdown />
 					{#if pb.authStore.isValid}
-						<a href="/profile" class="btn btn-ghost px-2 py-0"
+						<a href="/app/profile" class="btn btn-ghost px-2 py-0"
 							><MaterialSymbolsSettings class="size-6" /></a
-						><a href="/logout" class="btn btn-outline btn-sm ms-2">Logout</a>
+						><a href="/app/logout" class="btn btn-outline btn-sm ms-2">Logout</a>
 					{:else}
 						<a href="/register" class="underline">Register</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a
 							href="/login"
