@@ -91,7 +91,7 @@
 							options={{
 								tracker: log.trackerData,
 								title: log.trackerData.display,
-								route: `/${log.trackerData.category}/${log.trackerData.id}`,
+								route: `/app/${log.trackerData.category}/${log.trackerData.id}`,
 								logs: log.logData,
 								icon: getTrackerIcon(log.trackerData.name),
 								button: {
