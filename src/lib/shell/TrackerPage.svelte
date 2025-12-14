@@ -94,7 +94,7 @@
 		};
 	});
 
-	let notification = $derived.by(() => getTrackerStatus(currentTrackerLogs?.[0] ?? undefined));
+	let notification = $derived.by(() => getTrackerStatus(currentTrackerLogs));
 
 	type TabPages = 'overview' | 'stats' | 'calendar';
 
