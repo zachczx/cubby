@@ -7,7 +7,7 @@ export const topLevelRoutes = {
 	animation: [
 		{
 			id: 'home',
-			href: '/',
+			href: '/app',
 			label: 'Home',
 			desktopNav: true,
 			mobileNav: true,
@@ -15,7 +15,7 @@ export const topLevelRoutes = {
 		},
 		{
 			id: 'personal',
-			href: '/personal',
+			href: '/app/personal',
 			label: 'Personal',
 			desktopNav: true,
 			mobileNav: true,
@@ -23,7 +23,7 @@ export const topLevelRoutes = {
 		},
 		{
 			id: 'household',
-			href: '/household',
+			href: '/app/household',
 			label: 'Household',
 			desktopNav: true,
 			mobileNav: true,
@@ -31,7 +31,7 @@ export const topLevelRoutes = {
 		},
 		{
 			id: 'pet',
-			href: '/pet',
+			href: '/app/pet',
 			label: 'Pet',
 			desktopNav: true,
 			mobileNav: true,
@@ -41,7 +41,7 @@ export const topLevelRoutes = {
 	topNavAnimation: [
 		{
 			id: 'profile',
-			href: '/profile',
+			href: '/app/profile',
 			label: 'Profile',
 			desktopNav: false,
 			mobileNav: false

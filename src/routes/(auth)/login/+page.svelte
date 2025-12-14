@@ -8,7 +8,7 @@
 	import Logo from '$lib/assets/logo.webp?w=600&enhanced';
 
 	if (pb.authStore.isValid) {
-		goto('/');
+		goto('/app');
 	}
 
 	let email = $state('');
@@ -25,7 +25,7 @@
 			if (authData.token) {
 				addToast('success', 'Logged in successfully!');
 				spinner = false;
-				goto('/');
+				goto('/app');
 			}
 		} catch (err) {
 			console.log(err);

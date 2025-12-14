@@ -41,7 +41,7 @@
 			await tanstackClient.refetchQueries(inviteRefetchOptions());
 
 			addToast('success', 'Joined family!');
-			goto('/profile/family');
+			goto('/app/profile/family');
 		} catch (err) {
 			console.log(err);
 		}

@@ -8,7 +8,7 @@
 	import Logo from '$lib/assets/logo.webp?w=600&enhanced';
 
 	if (pb.authStore.isValid) {
-		goto('/');
+		goto('/app');
 	}
 
 	let newUser = $state<Record<string, string>>({
@@ -76,10 +76,10 @@
 			await batch.send();
 
 			spinner = false;
-			goto('/');
+			goto('/app');
 		} catch (err) {
 			console.log(err);
-			goto('/error');
+			goto('/app/error');
 		}
 	}
 
