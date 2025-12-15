@@ -5,6 +5,7 @@ export const trackerDefaults = [
 		interval: 14,
 		intervalUnit: 'day',
 		category: 'household',
+		kind: 'task',
 		actionLabel: 'Changed',
 		pinned: false,
 		show: true
@@ -15,6 +16,7 @@ export const trackerDefaults = [
 		interval: 14,
 		intervalUnit: 'day',
 		category: 'pet',
+		kind: 'task',
 		actionLabel: 'Bathed',
 		pinned: false,
 		show: true
@@ -25,6 +27,7 @@ export const trackerDefaults = [
 		interval: 1,
 		intervalUnit: 'month',
 		category: 'pet',
+		kind: 'task',
 		actionLabel: 'Fed',
 		pinned: false,
 		show: true
@@ -35,6 +38,7 @@ export const trackerDefaults = [
 		interval: 2,
 		intervalUnit: 'day',
 		category: 'personal',
+		kind: 'task',
 		actionLabel: 'Ate',
 		pinned: true,
 		show: true
@@ -45,6 +49,7 @@ export const trackerDefaults = [
 		interval: 3,
 		intervalUnit: 'day',
 		category: 'personal',
+		kind: 'task',
 		actionLabel: 'Sprayed',
 		pinned: true,
 		show: true
@@ -55,6 +60,7 @@ export const trackerDefaults = [
 		interval: 5,
 		intervalUnit: 'day',
 		category: 'household',
+		kind: 'task',
 		actionLabel: 'Washed',
 		pinned: true,
 		show: true

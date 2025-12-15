@@ -58,7 +58,8 @@ interface TrackerDB {
 	display: string;
 	interval: number;
 	intervalUnit: IntervalUnit;
-	category: string;
+	category: 'household' | 'personal' | 'pet';
+	kind: 'task' | 'subscription';
 	actionLabel: string;
 	pinned: boolean;
 	show: boolean;
