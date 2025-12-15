@@ -105,7 +105,7 @@
 								size: 'compact',
 								title: log.trackerData?.display,
 								logs: log.logData,
-								route: `/${log.trackerData?.category}/${log.trackerData?.id}`,
+								route: `/app/${log.trackerData?.category}/${log.trackerData?.id}`,
 								icon: getTrackerIcon(log.trackerName),
 								button: {
 									status: buttonStatuses?.[log.trackerName],
@@ -134,7 +134,7 @@
 									size: 'list',
 									title: log.trackerData?.display,
 									logs: log.logData,
-									route: `/${log.trackerData?.category}/${log.trackerData?.id}`,
+									route: `/app/${log.trackerData?.category}/${log.trackerData?.id}`,
 									icon: getTrackerIcon(log.trackerName),
 									lastChild: i === logs.general.length - 1 ? true : undefined,
 									button: {

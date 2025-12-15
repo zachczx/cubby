@@ -82,7 +82,7 @@
 
 {#snippet menuItem(href: string, title: string)}
 	<a
-		href={'/profile/' + href}
+		href={'/app/profile/' + href}
 		class="border-b-base-300 flex items-center border-b pt-4 pb-6 text-lg"
 	>
 		<div class="grow font-semibold">{title}</div>
