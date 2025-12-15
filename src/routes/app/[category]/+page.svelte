@@ -89,6 +89,7 @@
 					{#each logs as log}
 						<ActionCard
 							options={{
+								size: 'compact',
 								tracker: log.trackerData,
 								title: log.trackerData.display,
 								route: `/app/${log.trackerData.category}/${log.trackerData.id}`,
