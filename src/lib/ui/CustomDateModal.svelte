@@ -28,8 +28,8 @@
 	let buttonStatus: 'default' | 'loading' | 'success' = $state('default');
 
 	let dialog = $state() as HTMLDialogElement;
-	let date = $state('');
-	let time = $state('');
+	let date = $state(dayjs().format('YYYY-MM-DD'));
+	let time = $state(dayjs().format('HH:mm:ss'));
 	let timestamp = $derived.by(() => {
 		if (!date || !time) return '';
 
