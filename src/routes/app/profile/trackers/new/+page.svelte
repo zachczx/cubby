@@ -14,7 +14,8 @@
 		vacationRefetchOptions,
 		familyQueryOptions,
 		familyRefetchOptions,
-		inviteQueryOptions
+		inviteQueryOptions,
+		allTrackersRefetchOptions
 	} from '$lib/queries';
 	import { page } from '$app/state';
 	import SegmentedControl from '$lib/ui/SegmentedControl.svelte';
@@ -30,6 +31,8 @@
 	import MdiAlertCircle from '$lib/assets/svg/MdiAlertCircle.svelte';
 	import MaterialSymbolsMoreVert from '$lib/assets/svg/MaterialSymbolsMoreVert.svelte';
 	import MaterialSymbolsPersonRemove from '$lib/assets/svg/MaterialSymbolsPersonRemove.svelte';
+	import ActionButton from '$lib/ui/ActionButton.svelte';
+	import NumberInput from '$lib/ui/NumberInput.svelte';
 
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
@@ -52,23 +55,19 @@
 
 	let modals = $state<HTMLDialogElement[]>([]);
 
-	async function addHandler() {
+	async function addTracker() {
 		if (!user.isSuccess) return;
 		spinner = true;
+		const clean = { ...inputTrackerDetails, name: camelCaseName, interval: intervalString };
 
 		try {
-			// const start = dayjs.tz(vacationStart, 'Asia/Singapore');
-			// const end = dayjs.tz(vacationEnd, 'Asia/Singapore');
-			// const result = await pb.collection('vacation').create({
-			// 	user: pb.authStore.record?.id,
-			// 	startDateTime: start,
-			// 	endDateTime: end
-			// });
-			// if (result.id) {
-			// 	addToast('success', 'Added successfully!');
-			// 	spinner = false;
-			// 	await tanstackClient.refetchQueries(vacationRefetchOptions());
-			// }
+			const result: TrackerDB = await pb.collection('trackers').create(clean);
+			if (result.id) {
+				addToast('success', 'Added successfully!');
+				await tanstackClient.refetchQueries(allTrackersRefetchOptions());
+				spinner = false;
+				goto(`/app/${result.category}`);
+			}
 		} catch (err) {
 			console.log(err);
 		}
@@ -79,9 +78,9 @@
 		family: '',
 		name: '',
 		display: '',
-		interval: 7,
+		interval: '',
 		intervalUnit: 'day',
-		category: '',
+		category: 'personal',
 		actionLabel: '',
 		pinned: false,
 		show: true
@@ -93,7 +92,18 @@
 		}
 	});
 
-	$inspect(inputTrackerDetails);
+	function toCamelCase(text: string): string {
+		const words = text.split(' ').map((word, idx) => {
+			if (idx === 0) return word.toLowerCase();
+
+			return word.charAt(0).toUpperCase() + word.slice(1);
+		});
+
+		return words.join('');
+	}
+
+	let camelCaseName = $derived(toCamelCase(inputTrackerDetails.display));
+	let intervalString = $state('1');
 </script>
 
 <PageWrapper title="Add Tracker" {pb} largeScreenCenter={true}>
@@ -102,36 +112,120 @@
 	>
 		<h1 class="text-primary mb-4 text-center text-4xl font-bold max-lg:hidden">Add Tracker</h1>
 
-		<div class="grid w-full content-start gap-8">
+		<form class="grid w-full content-start gap-4" onsubmit={() => addTracker()}>
 			<fieldset class="fieldset mt-2">
-				<legend class="fieldset-legend -mb-2 text-lg opacity-50">Name</legend>
-				<input
-					type="text"
-					name="name"
-					bind:value={inputTrackerDetails.name}
-					class="input input-lg w-full"
-				/>
-			</fieldset>
-
-			<fieldset class="fieldset mt-2">
-				<legend class="fieldset-legend -mb-2 text-lg opacity-50">Display</legend>
+				<legend class="fieldset-legend -mb-2 text-lg opacity-50">Display Name</legend>
 				<input
 					type="text"
 					name="display"
+					placeholder="Give your new tracker a name"
 					bind:value={inputTrackerDetails.display}
 					class="input input-lg w-full"
 				/>
 			</fieldset>
 
 			<fieldset class="fieldset mt-2">
+				<legend class="fieldset-legend -mb-2 text-lg opacity-50">Category</legend>
+
+				<SegmentedControl items={3}>
+					<label>
+						<input
+							type="radio"
+							bind:group={inputTrackerDetails.category}
+							value="personal"
+							name="category"
+						/>Personal
+					</label>
+					<label>
+						<input
+							type="radio"
+							bind:group={inputTrackerDetails.category}
+							value="household"
+							name="category"
+						/>Household
+					</label>
+					<label>
+						<input
+							type="radio"
+							bind:group={inputTrackerDetails.category}
+							value="pet"
+							name="category"
+						/>Pet
+					</label>
+				</SegmentedControl>
+			</fieldset>
+
+			<fieldset class="fieldset mt-2">
 				<legend class="fieldset-legend -mb-2 text-lg opacity-50">Interval</legend>
+				<NumberInput bind:value={intervalString} />
+			</fieldset>
+
+			<fieldset class="fieldset mt-2">
+				<legend class="fieldset-legend -mb-2 text-lg opacity-50">Frequency</legend>
+
+				<SegmentedControl items={3}>
+					<label>
+						<input
+							type="radio"
+							bind:group={inputTrackerDetails.intervalUnit}
+							value="day"
+							name="intervalUnit"
+						/>Day
+					</label>
+					<label>
+						<input
+							type="radio"
+							bind:group={inputTrackerDetails.intervalUnit}
+							value="month"
+							name="intervalUnit"
+						/>Month
+					</label>
+					<label>
+						<input
+							type="radio"
+							bind:group={inputTrackerDetails.intervalUnit}
+							value="year"
+							name="intervalUnit"
+						/>Year
+					</label>
+				</SegmentedControl>
+			</fieldset>
+
+			<fieldset class="fieldset mt-2">
+				<legend class="fieldset-legend -mb-2 text-lg opacity-50"
+					>Button Action Label (optional)</legend
+				>
 				<input
 					type="text"
-					name="interval"
-					bind:value={inputTrackerDetails.interval}
+					name="actionLabel"
+					placeholder="E.g., Washed, Fed, Paid."
+					bind:value={inputTrackerDetails.actionLabel}
 					class="input input-lg w-full"
 				/>
 			</fieldset>
-		</div>
+
+			<fieldset class="fieldset mt-2">
+				<legend class="fieldset-legend -mb-2 text-lg opacity-50">Pinned</legend>
+				<SegmentedControl items={2}>
+					<label>
+						<input
+							type="radio"
+							bind:group={inputTrackerDetails.pinned}
+							value={true}
+							name="pinned"
+						/>Yes
+					</label>
+					<label>
+						<input
+							type="radio"
+							bind:group={inputTrackerDetails.pinned}
+							value={false}
+							name="pinned"
+						/>No
+					</label>
+				</SegmentedControl>
+			</fieldset>
+			<button class="btn btn-primary btn-lg mt-8 w-full rounded-full">Save</button>
+		</form>
 	</div>
 </PageWrapper>
