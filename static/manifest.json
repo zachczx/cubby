@@ -2,7 +2,7 @@
 	"name": "Cubby",
 	"short_name": "Cubby",
 	"description": "Track the little things.",
-	"start_url": "/",
+	"start_url": "/app",
 	"display": "standalone",
 	"background_color": "#f5f1e8",
 	"icons": [
