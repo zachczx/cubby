@@ -28,9 +28,11 @@
 					border-start-end-radius: var(--join-se, var(--radius-field) /* var(--radius-field) */);
 					border-end-end-radius: var(--join-ee, var(--radius-field) /* var(--radius-field) */);
 				}
-				border: 1px solid rgba();
+
 				height: var(--size);
-				outline: var(--border) solid #0000;
+
+				border: 2px solid #d6cecb;
+
 				position: relative;
 				display: inline-flex;
 				align-items: center;
@@ -45,9 +47,13 @@
 				); */
 				--size: calc(var(--size-field, 0.25rem) * 10);
 
+				&:not(:first-child) {
+					border-left: 0;
+				}
+
 				&:has(input:checked) {
-					color: var(--color-neutral-content);
-					background-color: var(--color-neutral);
+					color: var(--color-primary);
+					background-color: rgba(245, 249, 249, 0.5);
 					font-weight: 600;
 				}
 				&:has(input:not(checked)) {
