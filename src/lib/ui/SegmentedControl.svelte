@@ -53,12 +53,12 @@
 
 				&:has(input:checked) {
 					color: var(--color-primary);
-					background-color: rgba(245, 249, 249, 0.5);
+					background-color: rgba(245, 249, 249, 1);
 					font-weight: 600;
 				}
 				&:has(input:not(checked)) {
 					color: var(--color-base-content);
-					background-color: var(--color-base-100);
+					background-color: var(--color-base-input);
 				}
 
 				input {
