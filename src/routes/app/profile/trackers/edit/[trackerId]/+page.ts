@@ -5,3 +5,5 @@ export const load: PageLoad = async ({ params }) => {
 
 	return { trackerId };
 };
+
+export const prerender = false;
