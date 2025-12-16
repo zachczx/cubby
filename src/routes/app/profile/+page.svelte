@@ -64,7 +64,7 @@
 				{@render menuItem('family', 'Manage Family')}
 				{@render menuItem('vacation', 'Manage Vacation Dates')}
 
-				<form class="border-b-base-300 flex items-center border-b pt-4 pb-6 text-lg" {onchange}>
+				<form class="border-b-base-300 flex items-center border-b py-6 text-lg" {onchange}>
 					<legend class="fieldset-legend grow">Sound</legend>
 					<input
 						type="checkbox"
@@ -84,7 +84,7 @@
 {#snippet menuItem(href: string, title: string)}
 	<a
 		href={'/app/profile/' + href}
-		class="border-b-base-300 flex items-center border-b pt-4 pb-6 text-lg"
+		class="border-b-base-300 flex items-center border-b py-6 text-lg"
 	>
 		<div class="grow font-semibold">{title}</div>
 		<div class="flex h-full items-center">

@@ -76,7 +76,7 @@
 
 {#snippet menuItem(tracker: TrackerDB)}
 	<div
-		class="border-b-base-300/50 flex items-center gap-2 border-b pt-4 pb-6 last-of-type:border-b-0 last-of-type:pb-0"
+		class="border-b-base-300/50 flex items-center gap-2 border-b py-6 last-of-type:border-b-0 last-of-type:pb-0"
 	>
 		<a
 			href="/app/profile/trackers/edit/{tracker.id}"

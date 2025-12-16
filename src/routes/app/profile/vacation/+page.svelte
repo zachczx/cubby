@@ -124,7 +124,7 @@
 					</ul>
 				</div>
 
-				<div class="border-b-base-300 border-b pt-4 pb-6 text-lg">
+				<div class="border-b-base-300 border-b py-6 text-lg">
 					<legend class="fieldset-legend pb-4">Start Date</legend>
 
 					<input
@@ -135,7 +135,7 @@
 					/>
 				</div>
 
-				<div class="border-b-base-300 border-b pt-4 pb-6 text-lg">
+				<div class="border-b-base-300 border-b py-6 text-lg">
 					<legend class="fieldset-legend pb-4">End Date</legend>
 
 					<input type="date" name="vacationEnd" class="input input-lg" bind:value={vacationEnd} />
