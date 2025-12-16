@@ -81,6 +81,7 @@
 		interval: '',
 		intervalUnit: 'day',
 		category: 'personal',
+		kind: 'action',
 		actionLabel: '',
 		pinned: false,
 		show: true
@@ -106,15 +107,15 @@
 	let intervalString = $state('1');
 </script>
 
-<PageWrapper title="Add Tracker" {pb} largeScreenCenter={true}>
+<PageWrapper title="New Tracker" {pb} largeScreenCenter={true}>
 	<div
 		class="lg:bg-base-200 grid w-full rounded-2xl lg:h-min lg:max-w-lg lg:justify-self-center lg:p-8 lg:shadow-md"
 	>
 		<h1 class="text-primary mb-4 text-center text-4xl font-bold max-lg:hidden">Add Tracker</h1>
 
 		<form class="grid w-full content-start gap-4" onsubmit={() => addTracker()}>
-			<fieldset class="fieldset mt-2">
-				<legend class="fieldset-legend -mb-2 text-lg opacity-50">Display Name</legend>
+			<fieldset class="fieldset">
+				<legend class="fieldset-legend -mb-2 text-lg">Display Name</legend>
 				<input
 					type="text"
 					name="display"
@@ -125,7 +126,7 @@
 			</fieldset>
 
 			<fieldset class="fieldset mt-2">
-				<legend class="fieldset-legend -mb-2 text-lg opacity-50">Category</legend>
+				<legend class="fieldset-legend -mb-2 text-lg">Category</legend>
 
 				<SegmentedControl items={3}>
 					<label>
@@ -156,12 +157,35 @@
 			</fieldset>
 
 			<fieldset class="fieldset mt-2">
-				<legend class="fieldset-legend -mb-2 text-lg opacity-50">Interval</legend>
+				<legend class="fieldset-legend -mb-2 text-lg">Type of Tracker</legend>
+
+				<SegmentedControl items={2}>
+					<label>
+						<input
+							type="radio"
+							bind:group={inputTrackerDetails.kind}
+							value="task"
+							name="kind"
+						/>Task
+					</label>
+					<label>
+						<input
+							type="radio"
+							bind:group={inputTrackerDetails.kind}
+							value="subscription"
+							name="kind"
+						/>Subscription
+					</label>
+				</SegmentedControl>
+			</fieldset>
+
+			<fieldset class="fieldset mt-2">
+				<legend class="fieldset-legend -mb-2 text-lg">Interval</legend>
 				<NumberInput bind:value={intervalString} />
 			</fieldset>
 
 			<fieldset class="fieldset mt-2">
-				<legend class="fieldset-legend -mb-2 text-lg opacity-50">Frequency</legend>
+				<legend class="fieldset-legend -mb-2 text-lg">Frequency</legend>
 
 				<SegmentedControl items={3}>
 					<label>
@@ -192,9 +216,7 @@
 			</fieldset>
 
 			<fieldset class="fieldset mt-2">
-				<legend class="fieldset-legend -mb-2 text-lg opacity-50"
-					>Button Action Label (optional)</legend
-				>
+				<legend class="fieldset-legend -mb-2 text-lg">Button Action Label (optional)</legend>
 				<input
 					type="text"
 					name="actionLabel"
@@ -204,28 +226,16 @@
 				/>
 			</fieldset>
 
-			<fieldset class="fieldset mt-2">
-				<legend class="fieldset-legend -mb-2 text-lg opacity-50">Pinned</legend>
-				<SegmentedControl items={2}>
-					<label>
-						<input
-							type="radio"
-							bind:group={inputTrackerDetails.pinned}
-							value={true}
-							name="pinned"
-						/>Yes
-					</label>
-					<label>
-						<input
-							type="radio"
-							bind:group={inputTrackerDetails.pinned}
-							value={false}
-							name="pinned"
-						/>No
-					</label>
-				</SegmentedControl>
-			</fieldset>
-			<button class="btn btn-primary btn-lg mt-8 w-full rounded-full">Save</button>
+			<label class="flex items-center py-2">
+				<div class="fieldset-legend grow text-lg font-bold">Pinned</div>
+				<input
+					type="checkbox"
+					class="toggle toggle-lg"
+					bind:checked={inputTrackerDetails.pinned}
+					name="pinned"
+				/>
+			</label>
+			<button class="btn btn-primary btn-lg mt-4 w-full rounded-full">Save</button>
 		</form>
 	</div>
 </PageWrapper>
