@@ -60,19 +60,10 @@
 			<div class="grid w-full content-start">
 				<!-- {@render menuItem('active', 'Active Trackers')}
 				{@render menuItem('schedule', 'Tracker Schedules')} -->
-				{@render menuItem('trackers', 'Manage Trackers')}
-				{@render menuItem('family', 'Manage Family')}
-				{@render menuItem('vacation', 'Manage Vacation Dates')}
 
-				<form class="border-b-base-300 flex items-center border-b pt-4 pb-6 text-lg" {onchange}>
-					<legend class="fieldset-legend grow">Sound</legend>
-					<input
-						type="checkbox"
-						name="sound"
-						class="toggle toggle-lg toggle-primary"
-						bind:checked={sound}
-					/>
-				</form>
+				{@render menuItem('new', 'New Tracker')}
+				{@render menuItem('edit', 'Edit Tracker')}
+				{@render menuItem('active', 'Toggle Trackers Visibility')}
 			</div>
 		</div>
 		<div class="text-lg">
@@ -83,7 +74,7 @@
 
 {#snippet menuItem(href: string, title: string)}
 	<a
-		href={'/app/profile/' + href}
+		href={'/app/profile/trackers/' + href}
 		class="border-b-base-300 flex items-center border-b pt-4 pb-6 text-lg"
 	>
 		<div class="grow font-semibold">{title}</div>

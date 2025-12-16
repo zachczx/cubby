@@ -91,7 +91,7 @@
 		<div class="grid gap-8">
 			{#each Object.values(trackers) as trackerList}
 				<section
-					class="border-base-300 grid min-h-18 content-start rounded-2xl border bg-white/70 p-4"
+					class="border-base-300 grid min-h-18 content-start rounded-2xl border bg-white/70 p-6"
 				>
 					{#if trackerList && trackerList.length > 0}
 						<h2 class="flex items-center gap-4 text-xl font-bold">

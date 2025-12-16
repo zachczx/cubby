@@ -81,7 +81,7 @@
 <PageWrapper title={data.category.charAt(0).toUpperCase() + data.category.slice(1)} {pb}>
 	<main class="h-full">
 		<div id="mobile" class="grid w-full max-w-lg gap-8 justify-self-center lg:text-base">
-			<div class="grid gap-8 py-4">
+			<div class="grid gap-4 py-4">
 				{#if trackersDb.isPending}
 					<SkeletonActionCard />
 					<SkeletonActionCard />
