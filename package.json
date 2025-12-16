@@ -51,6 +51,7 @@
 		"@capacitor/android": "^8.0.0",
 		"@capacitor/app": "^8.0.0",
 		"@capacitor/core": "^8.0.0",
+		"@fontsource-variable/nunito": "^5.2.7",
 		"@fontsource-variable/quicksand": "^5.2.10",
 		"@sveltejs/adapter-static": "^3.0.10",
 		"@tanstack/svelte-query": "^6.0.10",
