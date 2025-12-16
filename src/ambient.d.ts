@@ -63,6 +63,7 @@ interface TrackerDB {
 	actionLabel: string;
 	pinned: boolean;
 	show: boolean;
+	icon: string | undefined;
 	created: string;
 	updated: string;
 	expand?: { family?: FamilyDB };

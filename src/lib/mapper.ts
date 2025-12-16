@@ -8,20 +8,23 @@ import StreamlineColorHotelLaundryFlat from './assets/expressive-icons/Streamlin
 import { pb } from './pb';
 import FluentEmojiFlatTShirt from './assets/expressive-icons/FluentEmojiFlatTShirt.svelte';
 import StreamlineColorToothFlat from './assets/expressive-icons/StreamlineColorToothFlat.svelte';
+import FluentEmojiFlatZzz from './assets/expressive-icons/FluentEmojiFlatZzz.svelte';
 
 const trackerIcons: Record<string, Component> = {
-	towel: FluentEmojiFlatTShirt,
-	spray: FluentEmojiFlatLotionBottle,
-	gummy: FluentEmojiFlatShield,
-	bedsheet: FluentEmojiFlatBed,
-	petBath: FluentEmojiFlatShower,
-	petChewable: FluentEmojiFlatShield,
-	dentalCleaning: StreamlineColorToothFlat,
-	washingMachine: StreamlineColorHotelLaundryFlat
+	tshirt: FluentEmojiFlatTShirt,
+	bottle: FluentEmojiFlatLotionBottle,
+	bed: FluentEmojiFlatBed,
+	shower: FluentEmojiFlatShower,
+	shield: FluentEmojiFlatShield,
+	tooth: StreamlineColorToothFlat,
+	washer: StreamlineColorHotelLaundryFlat,
+	zzz: FluentEmojiFlatZzz
 };
 
-export function getTrackerIcon(trackerName: string): Component {
-	return trackerIcons[trackerName] || FluentEmojiFlatBookmarkTabs;
+export function getTrackerIcon(iconName: string | undefined): Component {
+	if (!iconName) return FluentEmojiFlatBookmarkTabs;
+
+	return trackerIcons[iconName] || FluentEmojiFlatBookmarkTabs;
 }
 
 export function getFamilyColor(id: string | undefined, familyIds: string[]): string {

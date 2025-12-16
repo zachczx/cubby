@@ -94,7 +94,7 @@
 								title: log.trackerData.display,
 								route: `/app/${log.trackerData.category}/${log.trackerData.id}`,
 								logs: log.logData,
-								icon: getTrackerIcon(log.trackerData.name),
+								icon: getTrackerIcon(log.trackerData.icon),
 								button: {
 									text: log.trackerData.actionLabel,
 									status: buttonStatuses?.[log.trackerData.name]
