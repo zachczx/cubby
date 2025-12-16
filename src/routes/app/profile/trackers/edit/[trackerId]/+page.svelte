@@ -64,25 +64,13 @@
 		family: '',
 		name: '',
 		display: '',
-		interval: 1,
+		interval: 0,
 		intervalUnit: 'day',
 		category: 'personal',
 		kind: 'action',
 		actionLabel: '',
 		pinned: false,
 		show: true
-	});
-
-	$effect(() => {
-		if (userOwnedFamily) {
-			inputTrackerDetails.family = userOwnedFamily;
-		}
-
-		if (inputTrackerDetails.id === '') {
-			if (trackersDb.isSuccess && trackersDb.data && currentTracker) {
-				inputTrackerDetails = { ...currentTracker };
-			}
-		}
 	});
 
 	function toCamelCase(text: string): string {
@@ -97,6 +85,19 @@
 
 	let camelCaseName = $derived(toCamelCase(inputTrackerDetails.display));
 	let intervalString = $state('1');
+
+	$effect(() => {
+		if (userOwnedFamily) {
+			inputTrackerDetails.family = userOwnedFamily;
+		}
+
+		if (inputTrackerDetails.id === '') {
+			if (trackersDb.isSuccess && trackersDb.data && currentTracker) {
+				inputTrackerDetails = { ...currentTracker };
+				intervalString = String(currentTracker.interval);
+			}
+		}
+	});
 </script>
 
 <PageWrapper title="New Tracker" {pb} largeScreenCenter={true}>
