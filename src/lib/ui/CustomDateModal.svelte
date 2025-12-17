@@ -29,7 +29,7 @@
 
 	let dialog = $state() as HTMLDialogElement;
 	let date = $state(dayjs().format('YYYY-MM-DD'));
-	let time = $state(dayjs().format('HH:mm:ss'));
+	let time = $state(dayjs().format('HH:mm'));
 	let timestamp = $derived.by(() => {
 		if (!date || !time) return '';
 
