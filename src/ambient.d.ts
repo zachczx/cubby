@@ -50,20 +50,25 @@ interface TrackerColored extends TrackerDB {
 	color: string;
 }
 
-interface TrackerDB {
-	id: string;
+interface TrackerInput {
 	user: string;
 	family: string;
 	name: string;
 	display: string;
-	interval: number;
+	interval: string;
 	intervalUnit: IntervalUnit;
 	category: 'household' | 'personal' | 'pet';
 	kind: 'task' | 'subscription';
 	actionLabel: string;
 	pinned: boolean;
 	show: boolean;
-	icon: string | undefined;
+	icon: string;
+	startDate?: string;
+	cost?: number | undefined;
+}
+
+interface TrackerDB extends TrackerInput {
+	id: string;
 	created: string;
 	updated: string;
 	expand?: { family?: FamilyDB };

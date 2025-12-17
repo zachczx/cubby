@@ -9,44 +9,42 @@
 	import {
 		userQueryOptions,
 		familyQueryOptions,
-		inviteQueryOptions,
 		allTrackersRefetchOptions,
 		allTrackersQueryOptions
 	} from '$lib/queries';
-	import SegmentedControl from '$lib/ui/SegmentedControl.svelte';
 	import { goto } from '$app/navigation';
-	import NumberInput from '$lib/ui/NumberInput.svelte';
+	import TrackerForm from '../../TrackerForm.svelte';
 
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
 
 	let { data } = $props();
-	const user = createQuery(userQueryOptions);
-	const families = createQuery(familyQueryOptions);
-	const tanstackClient = useQueryClient();
-	const trackersDb = createQuery(allTrackersQueryOptions);
 
+	const user = createQuery(userQueryOptions);
+	const tanstackClient = useQueryClient();
+	const families = createQuery(familyQueryOptions);
+	let userOwnedFamily = $derived.by(() => {
+		if (families.isSuccess && families.data) {
+			return families.data.find((family) => family.owner === pb.authStore.record?.id)?.id;
+		}
+	});
+	const trackersDb = createQuery(allTrackersQueryOptions);
 	let currentTracker = $derived.by(() => {
 		if (trackersDb.isSuccess && trackersDb.data) {
 			return trackersDb.data.find((t) => t.id === data.trackerId);
 		}
 	});
 
-	let userOwnedFamily = $derived.by(() => {
-		if (families.isSuccess && families.data) {
-			return families.data.find((family) => family.owner === pb.authStore.record?.id)?.id;
-		}
-	});
-
 	let spinner = $state(false);
 
-	async function addTracker() {
+	async function editTracker(inputTrackerDetails: TrackerInput) {
 		if (!user.isSuccess) return;
 		spinner = true;
-		const clean = { ...inputTrackerDetails, name: camelCaseName, interval: intervalString };
 
 		try {
-			const result: TrackerDB = await pb.collection('trackers').create(clean);
+			const result: TrackerDB = await pb
+				.collection('trackers')
+				.update(data.trackerId, { ...inputTrackerDetails });
 			if (result.id) {
 				addToast('success', 'Added successfully!');
 				await tanstackClient.refetchQueries(allTrackersRefetchOptions());
@@ -57,47 +55,6 @@
 			console.log(err);
 		}
 	}
-
-	let inputTrackerDetails = $state({
-		id: '',
-		user: pb.authStore.record?.id ?? '',
-		family: '',
-		name: '',
-		display: '',
-		interval: 0,
-		intervalUnit: 'day',
-		category: 'personal',
-		kind: 'action',
-		actionLabel: '',
-		pinned: false,
-		show: true
-	});
-
-	function toCamelCase(text: string): string {
-		const words = text.split(' ').map((word, idx) => {
-			if (idx === 0) return word.toLowerCase();
-
-			return word.charAt(0).toUpperCase() + word.slice(1);
-		});
-
-		return words.join('');
-	}
-
-	let camelCaseName = $derived(toCamelCase(inputTrackerDetails.display));
-	let intervalString = $state('1');
-
-	$effect(() => {
-		if (userOwnedFamily) {
-			inputTrackerDetails.family = userOwnedFamily;
-		}
-
-		if (inputTrackerDetails.id === '') {
-			if (trackersDb.isSuccess && trackersDb.data && currentTracker) {
-				inputTrackerDetails = { ...currentTracker };
-				intervalString = String(currentTracker.interval);
-			}
-		}
-	});
 </script>
 
 <PageWrapper title="New Tracker" {pb} largeScreenCenter={true}>
@@ -106,129 +63,12 @@
 	>
 		<h1 class="text-primary mb-4 text-center text-4xl font-bold max-lg:hidden">Add Tracker</h1>
 
-		<form class="grid w-full content-start gap-4" onsubmit={() => addTracker()}>
-			<fieldset class="fieldset">
-				<legend class="fieldset-legend -mb-2 text-lg">Display Name</legend>
-				<input
-					type="text"
-					name="display"
-					placeholder="Give your new tracker a name"
-					bind:value={inputTrackerDetails.display}
-					class="input input-lg w-full"
-				/>
-			</fieldset>
-
-			<fieldset class="fieldset mt-2">
-				<legend class="fieldset-legend -mb-2 text-lg">Category</legend>
-
-				<SegmentedControl items={3}>
-					<label>
-						<input
-							type="radio"
-							bind:group={inputTrackerDetails.category}
-							value="personal"
-							name="category"
-						/>Personal
-					</label>
-					<label>
-						<input
-							type="radio"
-							bind:group={inputTrackerDetails.category}
-							value="household"
-							name="category"
-						/>Household
-					</label>
-					<label>
-						<input
-							type="radio"
-							bind:group={inputTrackerDetails.category}
-							value="pet"
-							name="category"
-						/>Pet
-					</label>
-				</SegmentedControl>
-			</fieldset>
-
-			<fieldset class="fieldset mt-2">
-				<legend class="fieldset-legend -mb-2 text-lg">Type of Tracker</legend>
-
-				<SegmentedControl items={2}>
-					<label>
-						<input
-							type="radio"
-							bind:group={inputTrackerDetails.kind}
-							value="task"
-							name="kind"
-						/>Task
-					</label>
-					<label>
-						<input
-							type="radio"
-							bind:group={inputTrackerDetails.kind}
-							value="subscription"
-							name="kind"
-						/>Subscription
-					</label>
-				</SegmentedControl>
-			</fieldset>
-
-			<fieldset class="fieldset mt-2">
-				<legend class="fieldset-legend -mb-2 text-lg">Interval</legend>
-				<NumberInput bind:value={intervalString} />
-			</fieldset>
-
-			<fieldset class="fieldset mt-2">
-				<legend class="fieldset-legend -mb-2 text-lg">Frequency</legend>
-
-				<SegmentedControl items={3}>
-					<label>
-						<input
-							type="radio"
-							bind:group={inputTrackerDetails.intervalUnit}
-							value="day"
-							name="intervalUnit"
-						/>Day
-					</label>
-					<label>
-						<input
-							type="radio"
-							bind:group={inputTrackerDetails.intervalUnit}
-							value="month"
-							name="intervalUnit"
-						/>Month
-					</label>
-					<label>
-						<input
-							type="radio"
-							bind:group={inputTrackerDetails.intervalUnit}
-							value="year"
-							name="intervalUnit"
-						/>Year
-					</label>
-				</SegmentedControl>
-			</fieldset>
-
-			<fieldset class="fieldset mt-2">
-				<legend class="fieldset-legend -mb-2 text-lg">Button Action Label (optional)</legend>
-				<input
-					type="text"
-					name="actionLabel"
-					placeholder="E.g., Washed, Fed, Paid."
-					bind:value={inputTrackerDetails.actionLabel}
-					class="input input-lg w-full"
-				/>
-			</fieldset>
-
-			<label class="flex items-center py-2">
-				<div class="fieldset-legend grow text-lg font-bold">Pinned</div>
-				<input
-					type="checkbox"
-					class="toggle toggle-lg"
-					bind:checked={inputTrackerDetails.pinned}
-					name="pinned"
-				/>
-			</label>
-			<button class="btn btn-primary btn-lg mt-4 w-full rounded-full">Save</button>
-		</form>
+		{#if trackersDb.isPending}
+			Loading
+		{:else if trackersDb.isSuccess && trackersDb.data && currentTracker}
+			<TrackerForm onsubmit={editTracker} {currentTracker} />
+		{:else}
+			Error!
+		{/if}
 	</div>
 </PageWrapper>
