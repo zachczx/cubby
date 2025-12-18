@@ -48,10 +48,8 @@
 </script>
 
 <PageWrapper title="Edit Tracker" {pb} largeScreenCenter={true}>
-	<div
-		class="lg:bg-base-200 grid w-full rounded-2xl lg:h-min lg:max-w-lg lg:justify-self-center lg:p-8 lg:shadow-md"
-	>
-		<h1 class="text-primary mb-4 text-center text-4xl font-bold max-lg:hidden">Active Trackers</h1>
+	<div class="grid w-full rounded-2xl lg:h-min lg:max-w-lg lg:justify-self-center lg:p-8">
+		<h1 class="text-primary mb-4 text-center text-4xl font-bold max-lg:hidden">Edit Trackers</h1>
 
 		<div class="grid gap-8">
 			{#each Object.values(trackers) as trackerList}
