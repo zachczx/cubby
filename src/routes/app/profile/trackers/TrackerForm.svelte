@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { pb } from '$lib/pb';
 	import { userQueryOptions } from '$lib/queries';
+	import { addToast } from '$lib/ui/ArkToaster.svelte';
 	import NumberInput from '$lib/ui/NumberInput.svelte';
 	import SegmentedControl from '$lib/ui/SegmentedControl.svelte';
 	import { createQuery } from '@tanstack/svelte-query';
@@ -9,7 +10,7 @@
 		onsubmit,
 		currentTracker
 	}: {
-		onsubmit: (trackerDetails: TrackerInput) => Promise<void>;
+		onsubmit: (trackerDetails: TrackerInput) => Promise<TrackerDB> | Promise<void>;
 		currentTracker?: TrackerDB;
 	} = $props();
 
@@ -43,16 +44,13 @@
 		show: true
 	});
 
-	$inspect(inputTrackerDetails);
-
 	let camelCaseName = $derived(toCamelCase(inputTrackerDetails.display));
 
 	let clean = $derived.by(() => ({ ...inputTrackerDetails, name: camelCaseName }));
 
 	async function handleSubmission() {
 		try {
-			const resp = await onsubmit(clean);
-			console.log(resp);
+			await onsubmit(clean);
 		} catch (err) {
 			console.log(err);
 		}
