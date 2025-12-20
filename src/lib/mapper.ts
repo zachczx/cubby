@@ -27,6 +27,10 @@ export function getTrackerIcon(iconName: string | undefined): Component {
 	return trackerIcons[iconName] || FluentEmojiFlatBookmarkTabs;
 }
 
+export function getAllTrackerIcons() {
+	return trackerIcons;
+}
+
 export function getFamilyColor(id: string | undefined, familyIds: string[]): string {
 	if (!id || !familyIds.includes(id)) return '';
 

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { getAllTrackerIcons } from '$lib/mapper';
 	import { pb } from '$lib/pb';
 	import { userQueryOptions } from '$lib/queries';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
@@ -64,6 +65,8 @@
 			loadedTrackerId = currentTracker.id;
 		}
 	});
+
+	let icons = getAllTrackerIcons();
 </script>
 
 <form class="grid w-full content-start gap-4" onsubmit={() => handleSubmission()}>
@@ -164,6 +167,29 @@
 	</fieldset>
 
 	<fieldset class="fieldset mt-2">
+		<legend class="fieldset-legend -mb-2 text-lg">Icon</legend>
+
+		<div class="flex flex-wrap content-start justify-items-center">
+			{#each Object.entries(icons) as [key, IconComponent]}
+				<label class="">
+					<input
+						type="radio"
+						bind:group={inputTrackerDetails.icon}
+						value={key}
+						name="intervalUnit"
+						class="peer hidden"
+					/>
+					<div
+						class="peer-checked:bg-bg-checked aspect-square rounded-xl p-4 text-4xl not-peer-checked:saturate-[0.2] peer-checked:outline peer-checked:outline-green-200"
+					>
+						<IconComponent />
+					</div>
+				</label>
+			{/each}
+		</div>
+	</fieldset>
+
+	<fieldset class="fieldset mt-2">
 		<legend class="fieldset-legend -mb-2 text-lg">Button Action Label (optional)</legend>
 		<input
 			type="text"
@@ -183,5 +209,6 @@
 			name="pinned"
 		/>
 	</label>
+
 	<button class="btn btn-primary btn-lg mt-4 w-full rounded-full">Save</button>
 </form>

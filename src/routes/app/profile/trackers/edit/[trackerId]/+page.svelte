@@ -14,6 +14,7 @@
 	} from '$lib/queries';
 	import { goto } from '$app/navigation';
 	import TrackerForm from '../../TrackerForm.svelte';
+	import MaterialSymbolsDelete from '$lib/assets/svg/MaterialSymbolsDelete.svelte';
 
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
@@ -55,6 +56,25 @@
 			console.log(err);
 		}
 	}
+
+	async function deleteTracker() {
+		if (!user.isSuccess) return;
+		spinner = true;
+
+		try {
+			const result = await pb.collection('trackers').delete(data.trackerId);
+			if (result) {
+				addToast('success', 'Deleted successfully!');
+				await tanstackClient.refetchQueries(allTrackersRefetchOptions());
+				spinner = false;
+				goto(`/app/profile/trackers/edit`);
+			}
+		} catch (err) {
+			console.log(err);
+		}
+	}
+
+	let deleteModal = $state<HTMLDialogElement>();
 </script>
 
 <PageWrapper title="Edit Tracker" {pb} largeScreenCenter={true}>
@@ -68,5 +88,38 @@
 		{:else}
 			Error!
 		{/if}
+
+		<button
+			class="btn btn-error btn-lg btn-soft mt-2 w-full rounded-full"
+			onclick={() => deleteModal?.showModal()}>Delete Tracker</button
+		>
 	</div>
 </PageWrapper>
+
+<dialog bind:this={deleteModal} class="modal modal-bottom sm:modal-middle">
+	<div class="modal-box grid gap-8">
+		<div
+			class="bg-primary/10 text-error flex aspect-square size-20 items-center justify-center justify-self-center overflow-hidden rounded-full"
+		>
+			<MaterialSymbolsDelete class="size-12" />
+		</div>
+		<h2 class="text-2xl font-bold">Confirm Deletion</h2>
+
+		<ul class="ms-6 list-disc space-y-2">
+			<li>You will delete all of your logs in this tracker.</li>
+			<li>This action is permanent.</li>
+		</ul>
+		<div class="grid grid-cols-1 gap-4">
+			<button
+				class="btn btn-error btn-lg rounded-full"
+				onclick={() => {
+					spinner = true;
+					deleteTracker();
+				}}>Confirm Deletion</button
+			>
+			<form method="dialog" class="">
+				<button class="btn btn-outline btn-primary btn-lg w-full rounded-full">Cancel</button>
+			</form>
+		</div>
+	</div>
+</dialog>

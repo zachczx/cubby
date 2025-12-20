@@ -53,7 +53,7 @@
 
 				&:has(input:checked) {
 					color: var(--color-primary);
-					background-color: rgba(245, 249, 249, 1);
+					background-color: var(--color-bg-checked);
 					font-weight: 600;
 				}
 				&:has(input:not(checked)) {
