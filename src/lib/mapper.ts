@@ -9,6 +9,8 @@ import { pb } from './pb';
 import FluentEmojiFlatTShirt from './assets/expressive-icons/FluentEmojiFlatTShirt.svelte';
 import StreamlineColorToothFlat from './assets/expressive-icons/StreamlineColorToothFlat.svelte';
 import FluentEmojiFlatZzz from './assets/expressive-icons/FluentEmojiFlatZzz.svelte';
+import FluentEmojiFlatElectricPlug from './assets/expressive-icons/FluentEmojiFlatElectricPlug.svelte';
+import FluentEmojiFlatSyringe from './assets/expressive-icons/FluentEmojiFlatSyringe.svelte';
 
 const trackerIcons: Record<string, Component> = {
 	tshirt: FluentEmojiFlatTShirt,
@@ -18,7 +20,9 @@ const trackerIcons: Record<string, Component> = {
 	shield: FluentEmojiFlatShield,
 	tooth: StreamlineColorToothFlat,
 	washer: StreamlineColorHotelLaundryFlat,
-	zzz: FluentEmojiFlatZzz
+	zzz: FluentEmojiFlatZzz,
+	electricPlug: FluentEmojiFlatElectricPlug,
+	syringe: FluentEmojiFlatSyringe
 };
 
 export function getTrackerIcon(iconName: string | undefined): Component {
