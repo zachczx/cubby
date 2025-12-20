@@ -12,6 +12,7 @@ export const defaultNotificationStatus: NotificationStatus = {
 
 const leadTimeHours = 6;
 const dueThresholdDays = 1;
+const dueThresholdWeeks = 1;
 
 function createStatus(
 	level: NotificationStatus['level'],
@@ -32,6 +33,21 @@ function getLatestRecord(data: LogsDB | LogsDB[] | undefined): LogsDB | null {
 
 function calculateNextDate(record: LogsDB): dayjs.Dayjs {
 	return dayjs(record.time).add(record.interval, record.intervalUnit);
+}
+
+function getYearlyStatus(record: LogsDB) {
+	const nextDate = calculateNextDate(record);
+	const weeksRemaining = nextDate.diff(dayjs(), 'week', true);
+
+	if (weeksRemaining > dueThresholdWeeks) {
+		return createStatus('ok', nextDate);
+	}
+
+	if (weeksRemaining > 0) {
+		return createStatus('due', nextDate, true);
+	}
+
+	return createStatus('overdue', nextDate, true);
 }
 
 function getMonthlyStatus(record: LogsDB) {
@@ -73,5 +89,12 @@ export function getTrackerStatus(data: LogsDB[] | undefined): NotificationStatus
 		return emptyNotificationStatus;
 	}
 
-	return record.intervalUnit === 'month' ? getMonthlyStatus(record) : getDailyStatus(record);
+	if (record.intervalUnit === 'month') {
+		return getMonthlyStatus(record);
+	}
+	if (record.intervalUnit === 'year') {
+		return getYearlyStatus(record);
+	}
+
+	return getDailyStatus(record);
 }
