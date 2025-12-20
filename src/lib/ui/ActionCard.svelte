@@ -41,7 +41,7 @@
 	const query = () =>
 		createLogsQuery({
 			trackerId: tracker?.id ?? '',
-			interval: interval,
+			interval: Number(interval),
 			intervalUnit: intervalUnit
 		});
 
