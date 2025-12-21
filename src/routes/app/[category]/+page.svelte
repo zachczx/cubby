@@ -102,31 +102,6 @@
 							}}
 						></ActionCard>
 					{/each}
-
-					{#if data.category === 'household'}
-						<div class="border-base-300 grid min-h-24 gap-4 rounded-3xl border bg-white/70 p-4">
-							<a href="/app/household/count" class="flex items-center">
-								<div class="flex grow items-center gap-4">
-									<FluentEmojiFlatStopwatch class="size-12 opacity-75" />
-
-									<div>
-										<p class="text-xl font-bold">Timer</p>
-									</div>
-								</div>
-								<div class="flex h-full items-center">
-									<button class="active:bg-neutral/10 cursor-pointer rounded-lg p-1 opacity-75"
-										><MaterialSymbolsChevronRight class="size-6" /></button
-									>
-								</div>
-							</a>
-							<button
-								class="btn btn-lg btn-primary flex w-full items-center gap-2 rounded-full"
-								onclick={() => goto('/app/household/count?start=true')}
-							>
-								Start Timer
-							</button>
-						</div>
-					{/if}
 				{:else}
 					<div class="justify-self-center">
 						<enhanced:img src={EmptyCorgi} alt="nothing" />
