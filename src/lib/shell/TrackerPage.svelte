@@ -217,7 +217,7 @@
 <PageWrapper title={options.labels.pageTitle} {pb}>
 	<main class="grid w-full max-w-xl content-start justify-items-center gap-4 justify-self-center">
 		<div class="grid w-full content-start justify-items-center gap-4">
-			{#if currentTrackerLogs && currentTrackerLogs.length > 0}
+			{#if currentTrackerLogs}
 				<StatusHeroImage {notification} />
 			{:else}
 				<div class="avatar relative mt-2 mb-4">
