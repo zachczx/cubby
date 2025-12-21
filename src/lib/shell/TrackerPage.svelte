@@ -262,7 +262,7 @@
 			{#if currentTrackerLogs && currentTrackerLogs.length === 0}
 				<div class="mx-4 mt-4 text-center">
 					<p class="font-bold">Ready to track?</p>
-					<p>Log your first {options.labels.noun} to get started.</p>
+					<p>Start by adding a log.</p>
 				</div>
 			{:else}
 				<div class={['grid w-full gap-8 px-4', currentTab === 'overview' ? undefined : 'hidden']}>
