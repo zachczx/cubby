@@ -21,7 +21,7 @@
 		intervalUnit
 	}: {
 		tracker: TrackerDB | undefined;
-		interval: string | undefined;
+		interval: number | undefined;
 		intervalUnit: string | undefined;
 	} = $props();
 

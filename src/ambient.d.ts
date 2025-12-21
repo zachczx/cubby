@@ -69,6 +69,7 @@ interface TrackerInput {
 
 interface TrackerDB extends TrackerInput {
 	id: string;
+	interval: number;
 	created: string;
 	updated: string;
 	expand?: { family?: FamilyDB };
