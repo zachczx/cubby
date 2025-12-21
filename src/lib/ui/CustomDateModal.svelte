@@ -21,7 +21,7 @@
 		intervalUnit
 	}: {
 		tracker: TrackerDB | undefined;
-		interval: number | undefined;
+		interval: string | undefined;
 		intervalUnit: string | undefined;
 	} = $props();
 
@@ -59,7 +59,7 @@
 			tracker: tracker?.id,
 			user: pb.authStore.record?.id,
 			time: dayjs.tz(timestamp, 'Asia/Singapore'),
-			interval: interval,
+			interval: Number(interval),
 			intervalUnit: intervalUnit
 		});
 
