@@ -11,6 +11,7 @@ import StreamlineColorToothFlat from './assets/expressive-icons/StreamlineColorT
 import FluentEmojiFlatZzz from './assets/expressive-icons/FluentEmojiFlatZzz.svelte';
 import FluentEmojiFlatElectricPlug from './assets/expressive-icons/FluentEmojiFlatElectricPlug.svelte';
 import FluentEmojiFlatSyringe from './assets/expressive-icons/FluentEmojiFlatSyringe.svelte';
+import FluentEmojiFlatCreditCard from './assets/expressive-icons/FluentEmojiFlatCreditCard.svelte';
 
 const trackerIcons: Record<string, Component> = {
 	tshirt: FluentEmojiFlatTShirt,
@@ -22,7 +23,8 @@ const trackerIcons: Record<string, Component> = {
 	washer: StreamlineColorHotelLaundryFlat,
 	zzz: FluentEmojiFlatZzz,
 	electricPlug: FluentEmojiFlatElectricPlug,
-	syringe: FluentEmojiFlatSyringe
+	syringe: FluentEmojiFlatSyringe,
+	creditCard: FluentEmojiFlatCreditCard
 };
 
 export function getTrackerIcon(iconName: string | undefined): Component {
