@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { QueryClient, useQueryClient } from '@tanstack/svelte-query';
 	import { pb } from '../pb';
-	import dayjs from 'dayjs';
+	import dayjs, { type ManipulateType } from 'dayjs';
 	import utc from 'dayjs/plugin/utc';
 	import timezone from 'dayjs/plugin/timezone';
 	import relativeTime from 'dayjs/plugin/relativeTime';
@@ -75,6 +75,21 @@
 			}, 3000);
 		}
 	}
+
+	function setTime(newHour: number, newMinute: number) {
+		time = dayjs().hour(newHour).minute(newMinute).format('HH:mm');
+	}
+
+	function changeTime(direction: string, diff: number, unit: ManipulateType) {
+		if (direction === 'add') {
+			time = dayjs(timestamp).add(diff, unit).format('HH:mm');
+			return;
+		}
+
+		time = dayjs(timestamp).subtract(diff, unit).format('HH:mm');
+	}
+
+	$inspect(time);
 </script>
 
 <button
@@ -89,12 +104,32 @@
 	<div class="modal-box">
 		<h3 class="mb-8 text-xl font-bold">Add Custom Date</h3>
 
-		<fieldset class="fieldset mb-8">
-			<div class="grid grid-cols-2 gap-2">
-				<input type="date" class="input input-lg w-full" bind:value={date} required />
-				<input type="time" class="input input-lg w-full" bind:value={time} required />
+		<div class="mb-8">
+			<fieldset class="fieldset mb-4">
+				<div class="grid grid-cols-2 gap-2">
+					<input type="date" class="input input-lg w-full" bind:value={date} required />
+					<input type="time" class="input input-lg w-full" bind:value={time} required />
+				</div>
+			</fieldset>
+
+			<div class="grid grid-cols-4 gap-2">
+				<button
+					class="btn btn-outline btn-sm rounded-full opacity-75"
+					onclick={() => changeTime('subtract', 30, 'minute')}>-30m</button
+				>
+				<button class="btn btn-outline btn-sm rounded-full opacity-75" onclick={() => setTime(8, 0)}
+					>8am</button
+				>
+				<button
+					class="btn btn-outline btn-sm rounded-full opacity-75"
+					onclick={() => setTime(20, 0)}>8pm</button
+				>
+				<button
+					class="btn btn-outline btn-sm rounded-full opacity-75"
+					onclick={() => changeTime('add', 30, 'minute')}>+30m</button
+				>
 			</div>
-		</fieldset>
+		</div>
 
 		<button
 			class={[
