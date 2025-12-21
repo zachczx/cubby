@@ -20,7 +20,11 @@ export default ts.config(
 		languageOptions: {
 			globals: { ...globals.browser, ...globals.node }
 		},
-		rules: { 'no-undef': 'off' }
+		rules: {
+			'no-undef': 'off',
+			'no-unused-vars': ['warn', { args: 'all' }],
+			'@typescript-eslint/no-unused-vars': ['warn', { args: 'all' }]
+		}
 	},
 	{
 		files: ['**/*.svelte', '**/*.svelte.ts', '**/*.svelte.js'],
