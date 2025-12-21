@@ -60,7 +60,10 @@
 	$effect(() => {
 		if (currentTracker && loadedTrackerId === '') {
 			const { id, ...currentTrackerLessId } = currentTracker;
-			inputTrackerDetails = { ...currentTrackerLessId };
+			inputTrackerDetails = {
+				...currentTrackerLessId,
+				interval: String(currentTrackerLessId.interval)
+			};
 			intervalString = String(currentTracker.interval);
 			loadedTrackerId = currentTracker.id;
 		}
