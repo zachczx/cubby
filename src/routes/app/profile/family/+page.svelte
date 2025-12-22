@@ -30,6 +30,7 @@
 	import MdiAlertCircle from '$lib/assets/svg/MdiAlertCircle.svelte';
 	import MaterialSymbolsMoreVert from '$lib/assets/svg/MaterialSymbolsMoreVert.svelte';
 	import MaterialSymbolsPersonRemove from '$lib/assets/svg/MaterialSymbolsPersonRemove.svelte';
+	import { resolve } from '$app/paths';
 
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
@@ -125,7 +126,7 @@
 			if (result) {
 				addToast('success', 'Successfully left family!');
 				await tanstackClient.refetchQueries(familyRefetchOptions());
-				goto('/app/profile/family');
+				goto(resolve('/app/profile/family'));
 			}
 		} catch (err) {
 			console.log(err);
@@ -150,7 +151,7 @@
 		<div class="grid w-full content-start gap-8">
 			<nav class="flex items-center gap-2">
 				{#if families.isSuccess}
-					{#each families.data as family}
+					{#each families.data as family (family.id)}
 						<button
 							onclick={() => {
 								section = family.id;
@@ -171,14 +172,14 @@
 				{/if}
 			</nav>
 
-			{#each families.data as family}
+			{#each families.data as family (family.id)}
 				{#if family.id === section}
 					{#if currentInvite.isSuccess && currentInvite.data && currentInvite.data.status !== 'completed'}
 						<section
 							class="border-base-300 bg-info text-info-content grid min-h-18 gap-4 rounded-2xl border p-4 text-lg font-semibold"
 						>
 							<a
-								href="/app/profile/family/invite?i={currentInvite.data.family}"
+								href={resolve(`/app/profile/family/invite?i=${currentInvite.data.family}`)}
 								class="flex items-center gap-4"
 								><MdiAlertCircle class="size-[2em]" />You received an invite <MaterialSymbolsArrowRightAlt
 									class="-ms-3 size-[1.3em]"
@@ -195,7 +196,7 @@
 
 						<ul class="grid list-disc">
 							{#if families.isSuccess && families.data}
-								{#each family.expand?.members as member, i}
+								{#each family.expand?.members as member, i (member.id)}
 									<li class="flex items-center">
 										<div class="flex grow items-center gap-2 py-1">
 											<MaterialSymbolsPerson class="me-2" />
@@ -292,8 +293,8 @@
 </PageWrapper>
 
 {#if families.isSuccess && families.data}
-	{#each families.data as family}
-		{#each family.expand?.members as member, i}
+	{#each families.data as family (family.id)}
+		{#each family.expand?.members as member, i (member.id)}
 			<dialog bind:this={modals[i]} class="modal modal-bottom sm:modal-middle">
 				<div class="modal-box grid gap-8">
 					<div

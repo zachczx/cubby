@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import MaterialSymbolsPersonAdd from '$lib/assets/svg/MaterialSymbolsPersonAdd.svelte';
 	import MaterialSymbolsWarning from '$lib/assets/svg/MaterialSymbolsWarning.svelte';
@@ -41,7 +42,7 @@
 			await tanstackClient.refetchQueries(inviteRefetchOptions());
 
 			addToast('success', 'Joined family!');
-			goto('/app/profile/family');
+			goto(resolve('/app/profile/family'));
 		} catch (err) {
 			console.log(err);
 		}

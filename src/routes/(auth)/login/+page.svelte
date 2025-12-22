@@ -6,9 +6,10 @@
 	import { pb } from '$lib/pb';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
 	import Logo from '$lib/assets/logo.webp?w=600&enhanced';
+	import { resolve } from '$app/paths';
 
 	if (pb.authStore.isValid) {
-		goto('/app');
+		goto(resolve('/app'));
 	}
 
 	let email = $state('');
@@ -25,7 +26,7 @@
 			if (authData.token) {
 				addToast('success', 'Logged in successfully!');
 				spinner = false;
-				goto('/app');
+				goto(resolve('/app'));
 			}
 		} catch (err) {
 			console.log(err);

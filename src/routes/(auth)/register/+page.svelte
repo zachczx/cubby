@@ -6,9 +6,10 @@
 	import { pb } from '$lib/pb';
 	import { trackerDefaults } from './tracker-defaults';
 	import Logo from '$lib/assets/logo.webp?w=600&enhanced';
+	import { resolve } from '$app/paths';
 
 	if (pb.authStore.isValid) {
-		goto('/app');
+		goto(resolve('/app'));
 	}
 
 	let newUser = $state<Record<string, string>>({
@@ -76,10 +77,10 @@
 			await batch.send();
 
 			spinner = false;
-			goto('/app');
+			goto(resolve('/app'));
 		} catch (err) {
 			console.log(err);
-			goto('/app/error');
+			goto(resolve('/app/error'));
 		}
 	}
 

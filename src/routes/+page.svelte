@@ -1,16 +1,17 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import Logo from '$lib/assets/logo.webp?w=200&enhanced';
 	import { pb } from '$lib/pb';
 	import { onMount } from 'svelte';
 
 	onMount(() => {
 		if (pb.authStore.isValid) {
-			setTimeout(() => goto('/app'), 2000);
+			setTimeout(() => goto(resolve('/app')), 2000);
 		}
 
 		if (!pb.authStore.isValid) {
-			setTimeout(() => goto('/login'), 2000);
+			setTimeout(() => goto(resolve('/login')), 2000);
 		}
 	});
 </script>
