@@ -61,6 +61,25 @@
 		return map;
 	});
 
+	let latestLogs: LogsDB[] = $derived.by(() => {
+		if (!allLogsDb.isSuccess || !allLogsDb.data || !currentTrackers) return [];
+
+		const trackerMap = new Map(currentTrackers.map((t) => [t.id, t]));
+
+		// Use flatMap to transform logs AND filter out any without matching trackers in one step.
+		// Returns [] to skip logs where tracker is undefined (flatmap flattens empty [], so nothing added), so I dont need a separate
+		// .filter() for null values + verbose type guards. TypeScript automatically infers the correct type.
+		return allLogsDb.data
+			.filter((log) => trackerMap.has(log.tracker))
+			.slice(0, 5)
+			.flatMap((log) => {
+				const tracker = currentTrackers?.find((tracker) => tracker.id === log.tracker);
+				if (!tracker) return [];
+
+				return [{ ...log, expand: { tracker: { ...tracker } } }];
+			});
+	});
+
 	let logs = $derived.by(() => {
 		if (!trackersDb.isSuccess || !trackersDb.data || !allLogsDb.isSuccess || !allLogsDb.data)
 			return;
@@ -86,7 +105,7 @@
 					<SkeletonActionCard />
 					<SkeletonActionCard />
 				{:else if logs && logs.length > 0}
-					{#each logs as log}
+					{#each logs as log (log.trackerData.id)}
 						<ActionCard
 							options={{
 								size: 'compact',
@@ -109,6 +128,38 @@
 					</div>
 				{/if}
 			</div>
+
+			<section class="mt-4 grid gap-4 py-2">
+				<h2 class="text-base-content/70 text-lg font-bold">Recent Activity</h2>
+
+				<div class="border-base-300/50 rounded-2xl border bg-white/70">
+					{#if latestLogs && latestLogs.length > 0}
+						{#each latestLogs as log, i (log.id)}
+							{@const fromNow = dayjs(log.time).fromNow()}
+							<div class={['border-b-base-300/50 grid gap-4 border-b px-2 py-1']}>
+								<div class="flex items-center p-2">
+									<div class="flex grow items-center gap-4">
+										<div class="flex items-center gap-2 align-baseline">
+											{log.expand?.tracker?.display}
+										</div>
+									</div>
+
+									<div class="text-base-content/70 flex h-full items-center">{fromNow}</div>
+								</div>
+							</div>
+						{/each}
+					{:else if !latestLogs || latestLogs.length === 0}
+						<div class="justify-self-center">
+							<enhanced:img src={EmptyCorgi} alt="nothing" />
+							<p class="text-center">No tasks!</p>
+						</div>
+					{:else}
+						<SkeletonActionCard size="compact" />
+						<SkeletonActionCard size="compact" />
+						<SkeletonActionCard size="compact" />
+					{/if}
+				</div>
+			</section>
 		</div>
 	</main>
 </PageWrapper>
