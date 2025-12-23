@@ -95,31 +95,43 @@
 			};
 		});
 	});
+
+	let tasks = $derived.by(() => {
+		if (!logs) return;
+		return logs.filter((log) => log.trackerData.kind === 'task');
+	});
+
+	let subscriptions = $derived.by(() => {
+		if (!logs) return;
+		return logs.filter((log) => log.trackerData.kind === 'subscription');
+	});
 </script>
 
 <PageWrapper title={data.category.charAt(0).toUpperCase() + data.category.slice(1)} {pb}>
 	<main class="h-full">
 		<div id="mobile" class="grid w-full max-w-lg gap-8 justify-self-center lg:text-base">
-			<div class="grid gap-4 py-4">
+			<section class="grid gap-4 py-4">
 				{#if trackersDb.isPending}
 					<SkeletonActionCard />
 					<SkeletonActionCard />
-				{:else if logs && logs.length > 0}
-					{#each logs as log (log.trackerData.id)}
-						<ActionCard
-							options={{
-								size: 'compact',
-								tracker: log.trackerData,
-								title: log.trackerData.display,
-								route: `/app/${log.trackerData.category}/${log.trackerData.id}`,
-								logs: log.logData,
-								icon: getTrackerIcon(log.trackerData.icon),
-								button: {
-									text: log.trackerData.actionLabel,
-									status: buttonStatuses?.[log.trackerData.name]
-								}
-							}}
-						></ActionCard>
+				{:else if tasks && tasks.length > 0}
+					{#each tasks as task (task.trackerData.id)}
+						{#if task.trackerData.kind === 'task'}
+							<ActionCard
+								options={{
+									size: 'compact',
+									tracker: task.trackerData,
+									title: task.trackerData.display,
+									route: `/app/${task.trackerData.category}/${task.trackerData.id}`,
+									logs: task.logData,
+									icon: getTrackerIcon(task.trackerData.icon),
+									button: {
+										text: task.trackerData.actionLabel,
+										status: buttonStatuses?.[task.trackerData.name]
+									}
+								}}
+							></ActionCard>
+						{/if}
 					{/each}
 				{:else}
 					<div class="justify-self-center">
@@ -127,9 +139,34 @@
 						<p class="text-center">Nothing being tracked!</p>
 					</div>
 				{/if}
-			</div>
+			</section>
 
-			<section class="mt-4 grid gap-4 py-2">
+			{#if subscriptions && subscriptions.length > 0}
+				<section class="grid gap-4 py-2">
+					<h2 class="text-base-content/70 text-lg font-bold">Subscriptions</h2>
+
+					{#each subscriptions as subscription (subscription.trackerData.id)}
+						{#if subscription.trackerData.kind === 'subscription'}
+							<ActionCard
+								options={{
+									size: 'compact',
+									tracker: subscription.trackerData,
+									title: subscription.trackerData.display,
+									route: `/app/${subscription.trackerData.category}/${subscription.trackerData.id}`,
+									logs: subscription.logData,
+									icon: getTrackerIcon(subscription.trackerData.icon),
+									button: {
+										text: subscription.trackerData.actionLabel,
+										status: buttonStatuses?.[subscription.trackerData.name]
+									}
+								}}
+							></ActionCard>
+						{/if}
+					{/each}
+				</section>
+			{/if}
+
+			<section class="grid gap-4 py-2">
 				<h2 class="text-base-content/70 text-lg font-bold">Recent Activity</h2>
 
 				<div class="border-base-300/50 rounded-2xl border bg-white/70">
