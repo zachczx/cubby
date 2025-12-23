@@ -11,13 +11,17 @@
 		children,
 		title,
 		back = true,
-		largeScreenCenter
+		largeScreenCenter,
+		focusedScreen = false,
+		focusedScreenAction
 	}: {
 		pb: Client;
 		children: Snippet;
 		title: string | undefined;
 		back?: boolean;
 		largeScreenCenter?: boolean;
+		focusedScreen?: boolean;
+		focusedScreenAction?: Snippet;
 	} = $props();
 
 	let currentSection = $derived.by(() => {
@@ -143,7 +147,7 @@
 		{@render children?.()}
 	</div>
 
-	{#if pb.authStore.isValid}
+	{#if pb.authStore.isValid && !focusedScreen}
 		<nav
 			class={[
 				'dock border-t-base-content/15 fixed h-20 border-t-2 pb-2 lg:hidden',
