@@ -110,7 +110,7 @@
 			</div>
 			<div class="lg:navbar-end">
 				<div id="mobile-hamburger" class="dropdown flex items-center lg:hidden">
-					<FeedDropdown />
+					<!-- <FeedDropdown /> -->
 					<a href="/app/profile" class="btn btn-ghost px-2 py-0"
 						><MaterialSymbolsSettings class="size-6" /></a
 					>
