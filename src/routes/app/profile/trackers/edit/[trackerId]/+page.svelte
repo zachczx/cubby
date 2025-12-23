@@ -90,7 +90,7 @@
 		{/if}
 
 		<button
-			class="btn btn-error btn-lg btn-soft mt-2 w-full rounded-full"
+			class="btn btn-error btn-lg btn-soft mt-4 w-full rounded-full"
 			onclick={() => deleteModal?.showModal()}>Delete Tracker</button
 		>
 	</div>
