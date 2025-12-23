@@ -135,7 +135,7 @@
 	<div
 		class={[
 			'bg-base-100 max-lg:min-h-[calc(100vh - 3.5rem - 6rem)] lg:min-h-[calc(100vh - 3.5rem - 1rem)] w-full p-4 max-lg:pb-24 lg:grid lg:px-12 ',
-			pb.authStore.isValid && 'mt-14 lg:pt-4',
+			pb.authStore.isValid && 'mt-14 lg:pt-12',
 			largeScreenCenter && 'lg:content-center'
 		]}
 		style="view-transition-name: content;"
