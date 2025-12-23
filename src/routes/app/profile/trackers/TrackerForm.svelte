@@ -172,7 +172,7 @@
 	<fieldset class="fieldset mt-2">
 		<legend class="fieldset-legend -mb-2 text-lg">Icon</legend>
 
-		<div class="flex flex-wrap content-start justify-items-center">
+		<div class="flex flex-wrap items-start justify-between">
 			{#each Object.entries(icons) as [key, IconComponent]}
 				<label class="">
 					<input
