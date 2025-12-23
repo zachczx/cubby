@@ -88,8 +88,6 @@
 
 		time = dayjs(timestamp).subtract(diff, unit).format('HH:mm');
 	}
-
-	$inspect(time);
 </script>
 
 <button
