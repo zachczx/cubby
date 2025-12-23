@@ -1,4 +1,5 @@
 <script lang="ts">
+	import MaterialSymbolsAttachMoney from '$lib/assets/svg/MaterialSymbolsAttachMoney.svelte';
 	import { getAllTrackerIcons } from '$lib/mapper';
 	import { pb } from '$lib/pb';
 	import { userQueryOptions } from '$lib/queries';
@@ -6,6 +7,7 @@
 	import NumberInput from '$lib/ui/NumberInput.svelte';
 	import SegmentedControl from '$lib/ui/SegmentedControl.svelte';
 	import { createQuery } from '@tanstack/svelte-query';
+	import { slide } from 'svelte/transition';
 
 	let {
 		onsubmit,
@@ -80,6 +82,7 @@
 			name="display"
 			placeholder="Give your new tracker a name"
 			bind:value={inputTrackerDetails.display}
+			autocomplete="off"
 			class="input input-lg w-full"
 		/>
 	</fieldset>
@@ -132,6 +135,24 @@
 			</label>
 		</SegmentedControl>
 	</fieldset>
+
+	{#if inputTrackerDetails.kind === 'subscription'}
+		<fieldset transition:slide={{ duration: 200 }} class="fieldset mt-2">
+			<legend class="fieldset-legend -mb-2 text-lg">Cost (optional)</legend>
+			<label class="input input-lg flex w-full items-center">
+				<MaterialSymbolsAttachMoney class="size-[1.3em] opacity-50" />
+				<input
+					type="number"
+					min="0"
+					step="0.01"
+					name="cost"
+					bind:value={inputTrackerDetails.cost}
+					class="grow"
+					autocomplete="off"
+				/></label
+			>
+		</fieldset>
+	{/if}
 
 	<fieldset class="fieldset mt-2">
 		<legend class="fieldset-legend -mb-2 text-lg">Interval</legend>
@@ -200,6 +221,7 @@
 			placeholder="E.g., Washed, Fed, Paid."
 			bind:value={inputTrackerDetails.actionLabel}
 			class="input input-lg w-full"
+			autocomplete="off"
 		/>
 	</fieldset>
 
