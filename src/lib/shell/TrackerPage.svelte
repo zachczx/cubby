@@ -90,6 +90,16 @@
 					});
 					modal?.showModal();
 				}
+			},
+			// eventContent(info) {
+			// 	return info.timeText;
+			// }
+			eventTimeFormat(start) {
+				// if (start === end) {
+				// 	return dayjs(start).format('HH:mm');
+				// }
+				// return dayjs(start).format('D/M HH:mm') + '—' + dayjs(end).format('D/M HH:mm');
+				return dayjs(start).format('HH:mm');
 			}
 		};
 	});

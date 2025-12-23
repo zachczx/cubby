@@ -30,7 +30,7 @@ export function getCalendarEntries(
 			times.push({
 				start: t.toDate(),
 				end: t.toDate(),
-				title: icon ? `— ${icon} ${title}` : `— ${title}`
+				title: icon ? `— ${icon} ${title}` : ``
 			});
 		}
 	}
