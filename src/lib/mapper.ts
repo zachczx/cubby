@@ -12,6 +12,8 @@ import FluentEmojiFlatZzz from './assets/expressive-icons/FluentEmojiFlatZzz.sve
 import FluentEmojiFlatElectricPlug from './assets/expressive-icons/FluentEmojiFlatElectricPlug.svelte';
 import FluentEmojiFlatSyringe from './assets/expressive-icons/FluentEmojiFlatSyringe.svelte';
 import FluentEmojiFlatCreditCard from './assets/expressive-icons/FluentEmojiFlatCreditCard.svelte';
+import StreamlineFlexColorSubscriptionCashflowFlat from './assets/expressive-icons/StreamlineFlexColorSubscriptionCashflowFlat.svelte';
+import FluentEmojiFlatDvd from './assets/expressive-icons/FluentEmojiFlatDvd.svelte';
 
 const trackerIcons: Record<string, Component> = {
 	tshirt: FluentEmojiFlatTShirt,
@@ -24,7 +26,9 @@ const trackerIcons: Record<string, Component> = {
 	zzz: FluentEmojiFlatZzz,
 	electricPlug: FluentEmojiFlatElectricPlug,
 	syringe: FluentEmojiFlatSyringe,
-	creditCard: FluentEmojiFlatCreditCard
+	creditCard: FluentEmojiFlatCreditCard,
+	subscription: StreamlineFlexColorSubscriptionCashflowFlat,
+	software: FluentEmojiFlatDvd
 };
 
 export function getTrackerIcon(iconName: string | undefined): Component {
