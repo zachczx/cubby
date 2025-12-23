@@ -195,7 +195,7 @@
 
 		<div class="grid grid-cols-4 justify-items-center">
 			{#each Object.entries(icons) as [key, IconComponent]}
-				<label class="">
+				<label class="cursor-pointer">
 					<input
 						type="radio"
 						bind:group={inputTrackerDetails.icon}
@@ -204,7 +204,7 @@
 						class="peer hidden"
 					/>
 					<div
-						class="peer-checked:bg-bg-checked aspect-square rounded-xl p-4 text-4xl not-peer-checked:saturate-[0.2] peer-checked:outline peer-checked:outline-green-200"
+						class="peer-checked:bg-bg-checked/60 aspect-square rounded-xl p-4 text-4xl not-peer-checked:saturate-[0.2] peer-checked:outline peer-checked:outline-green-200 hover:bg-white/80"
 					>
 						<IconComponent />
 					</div>
