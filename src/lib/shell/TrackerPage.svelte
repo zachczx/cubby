@@ -383,7 +383,7 @@
 	</main>
 </PageWrapper>
 
-<SingleDayModal {modal} {singleDay} />
+<SingleDayModal bind:modal {singleDay} />
 
 <style>
 	.tracker-tabs {

@@ -3,7 +3,7 @@
 	import dayjs from 'dayjs';
 
 	let {
-		modal,
+		modal = $bindable(),
 		singleDay
 	}: {
 		modal: HTMLDialogElement | undefined;
