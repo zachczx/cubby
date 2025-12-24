@@ -230,3 +230,39 @@
 @utility input {
 	background-color: var(--color-base-input);
 }
+
+@utility tracker-tabs {
+	li {
+		position: relative;
+		padding-bottom: 0.25rem;
+
+		&::after {
+			position: absolute;
+			content: '';
+			bottom: 0;
+			left: 50%;
+			width: 100%;
+			transform: translateX(-50%);
+			height: 0.125rem;
+
+			background-color: var(--color-base-300);
+		}
+
+		&[aria-current='page'] {
+			font-weight: bold;
+		}
+
+		&[aria-current='page']::after {
+			/* view-transition-name: active-tab; */
+			position: absolute;
+			content: '';
+			bottom: 0px;
+			left: 50%;
+			width: 100%;
+			transform: translateX(-50%);
+			height: 0.125rem;
+
+			background-color: var(--color-primary);
+		}
+	}
+}
