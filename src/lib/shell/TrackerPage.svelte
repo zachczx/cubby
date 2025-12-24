@@ -23,6 +23,7 @@
 	import ActionButton from '$lib/ui/ActionButton.svelte';
 	import SingleDayModal from '$lib/ui/SingleDayModal.svelte';
 	import { getTrackerStatus } from '$lib/notification';
+	import { tick } from 'svelte';
 
 	dayjs.extend(calendar);
 	dayjs.extend(relativeTime);
@@ -31,7 +32,6 @@
 
 	let { options }: { options: TrackerPageOptions } = $props();
 
-	let singleDay: LogsDB[] | undefined = $state([]);
 	let modal = $state<HTMLDialogElement>();
 
 	const allLogsDb = createQuery(allLogsQueryOptions);
@@ -65,6 +65,13 @@
 		return dayjs(first).isSame(second, 'day');
 	}
 
+	let selectedDate = $state<string | Date>('');
+
+	let singleDay = $derived.by(() => {
+		if (!selectedDate || !currentTrackerLogs || currentTrackerLogs.length === 0) return [];
+		return currentTrackerLogs.filter((log) => isSameDate(selectedDate, log.time));
+	});
+
 	let calendarOptions: Calendar.Options = $derived.by(() => {
 		return {
 			view: 'dayGridMonth',
@@ -81,13 +88,15 @@
 			},
 			dateClick: async (info) => {
 				if (currentTrackerLogs && currentTrackerLogs.length > 0) {
-					singleDay = currentTrackerLogs.filter((log) => isSameDate(info.date, log.time));
+					selectedDate = info.date;
+					await tick();
 					modal?.showModal();
 				}
 			},
 			eventClick: async (info) => {
 				if (currentTrackerLogs && currentTrackerLogs.length > 0) {
-					singleDay = currentTrackerLogs.filter((log) => isSameDate(info.event.start, log.time));
+					selectedDate = info.event.start;
+					await tick();
 					modal?.showModal();
 				}
 			},
