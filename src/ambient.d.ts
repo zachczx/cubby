@@ -36,7 +36,6 @@ interface LogsDB {
 	interval: number;
 	intervalUnit: IntervalUnit;
 	time: string;
-	oldId?: string | null;
 	created: string;
 	updated: string;
 	expand?: { tracker?: TrackerDB };
