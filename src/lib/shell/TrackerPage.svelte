@@ -61,6 +61,10 @@
 	);
 	let vacationTimes = $derived.by(() => getCalendarEntries(vacations.data, 'Vacation', '✈️'));
 
+	function isSameDate(first: Date | string, second: Date | string): boolean {
+		return dayjs(first).isSame(second, 'day');
+	}
+
 	let calendarOptions: Calendar.Options = $derived.by(() => {
 		return {
 			view: 'dayGridMonth',
@@ -77,28 +81,17 @@
 			},
 			dateClick: async (info) => {
 				if (currentTrackerLogs && currentTrackerLogs.length > 0) {
-					singleDay = currentTrackerLogs.filter((day) => {
-						return dayjs(day.time).get('date') == dayjs(info.date).get('date');
-					});
+					singleDay = currentTrackerLogs.filter((log) => isSameDate(info.date, log.time));
 					modal?.showModal();
 				}
 			},
 			eventClick: async (info) => {
 				if (currentTrackerLogs && currentTrackerLogs.length > 0) {
-					singleDay = currentTrackerLogs.filter((day) => {
-						return dayjs(day.time).get('date') == dayjs(info.event.start).get('date');
-					});
+					singleDay = currentTrackerLogs.filter((log) => isSameDate(info.event.start, log.time));
 					modal?.showModal();
 				}
 			},
-			// eventContent(info) {
-			// 	return info.timeText;
-			// }
 			eventTimeFormat(start) {
-				// if (start === end) {
-				// 	return dayjs(start).format('HH:mm');
-				// }
-				// return dayjs(start).format('D/M HH:mm') + '—' + dayjs(end).format('D/M HH:mm');
 				return dayjs(start).format('HH:mm');
 			}
 		};
@@ -394,41 +387,3 @@
 </PageWrapper>
 
 <SingleDayModal bind:modal {singleDay} />
-
-<style>
-	.tracker-tabs {
-		li {
-			position: relative;
-			padding-bottom: 0.25rem;
-
-			&::after {
-				position: absolute;
-				content: '';
-				bottom: 0;
-				left: 50%;
-				width: 100%;
-				transform: translateX(-50%);
-				height: 0.125rem;
-
-				background-color: var(--color-base-300);
-			}
-
-			&[aria-current='page'] {
-				font-weight: bold;
-			}
-
-			&[aria-current='page']::after {
-				/* view-transition-name: active-tab; */
-				position: absolute;
-				content: '';
-				bottom: 0px;
-				left: 50%;
-				width: 100%;
-				transform: translateX(-50%);
-				height: 0.125rem;
-
-				background-color: var(--color-primary);
-			}
-		}
-	}
-</style>
