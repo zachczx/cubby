@@ -23,6 +23,8 @@
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
 
+	let generalTrackersUpcomingDaysToShow = $state(14);
+
 	const latestLogs = createQuery(notificationQueryOptions);
 	const trackersDb = createQuery(allTrackersQueryOptions);
 	const allLogsDb = createQuery(allLogsQueryOptions);
@@ -80,6 +82,14 @@
 				logData: logData,
 				notification: getTrackerStatus(logData)
 			};
+
+			if (
+				dayjs(mergedData.notification.next).diff(dayjs(), 'day', true) >
+				generalTrackersUpcomingDaysToShow
+			) {
+				continue;
+			}
+
 			general.push(mergedData);
 		}
 
@@ -124,7 +134,36 @@
 
 			<section class="grid gap-4 py-2">
 				<h2 class="text-base-content/70 text-lg font-bold">Other Tasks</h2>
-
+				<div class="flex items-center gap-2">
+					<button
+						class={[
+							'btn-soft btn btn-sm rounded-full',
+							generalTrackersUpcomingDaysToShow === 7 && 'btn-primary'
+						]}
+						onclick={() => (generalTrackersUpcomingDaysToShow = 7)}>1 week</button
+					>
+					<button
+						class={[
+							'btn-soft btn btn-sm rounded-full',
+							generalTrackersUpcomingDaysToShow === 14 && 'btn-primary'
+						]}
+						onclick={() => (generalTrackersUpcomingDaysToShow = 14)}>2 weeks</button
+					>
+					<button
+						class={[
+							'btn-soft btn btn-sm rounded-full',
+							generalTrackersUpcomingDaysToShow === 31 && 'btn-primary'
+						]}
+						onclick={() => (generalTrackersUpcomingDaysToShow = 31)}>1 month</button
+					>
+					<button
+						class={[
+							'btn-soft btn btn-sm rounded-full',
+							generalTrackersUpcomingDaysToShow === 183 && 'btn-primary'
+						]}
+						onclick={() => (generalTrackersUpcomingDaysToShow = 183)}>6 months</button
+					>
+				</div>
 				<div class="border-base-300/50 rounded-2xl border bg-white/70">
 					{#if allLogsDb.isSuccess && allLogsDb.data && logs.general && logs.general.length > 0}
 						{#each logs.general as log, i (log.trackerData?.id)}
