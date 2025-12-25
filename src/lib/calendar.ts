@@ -21,7 +21,11 @@ export function getCalendarEntries(
 			const end = dayjs.utc(r.endDateTime);
 			times.push({
 				start: start.toDate(),
-				end: end.toDate(),
+				/**
+				 * Add 1 second duration to ensure events display in calendar grid.
+				 * Zero-duration events at midnight (12:00am) fail to render due to day boundary ambiguity.
+				 */
+				end: end.add(1, 'second').toDate(),
 				title: icon ? `— ${icon} ${title}` : `— ${title}`,
 				backgroundColor: 'var(--color-neutral)' // vacation color
 			});
@@ -29,7 +33,10 @@ export function getCalendarEntries(
 			const t = dayjs.utc(r.time);
 			times.push({
 				start: t.toDate(),
-				end: t.toDate(),
+				/**
+				 * Ditto above
+				 */
+				end: t.add(1, 'second').toDate(),
 				title: icon ? `— ${icon} ${title}` : ``
 			});
 		}
