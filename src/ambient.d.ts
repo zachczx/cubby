@@ -49,6 +49,8 @@ interface TrackerColored extends TrackerDB {
 	color: string;
 }
 
+type Kind = 'task' | 'subscription';
+
 interface TrackerInput {
 	user: string;
 	family: string;
@@ -57,7 +59,7 @@ interface TrackerInput {
 	interval: string;
 	intervalUnit: IntervalUnit;
 	category: 'household' | 'personal' | 'pet';
-	kind: 'task' | 'subscription';
+	kind: Kind;
 	actionLabel: string;
 	pinned: boolean;
 	show: boolean;

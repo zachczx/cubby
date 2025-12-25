@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { calculateRecordsGapsWithVacation } from '$lib/overlap';
 	import { allTrackersQueryOptions } from '$lib/queries';
+	import SubscriptionPage from '$lib/shell/SubscriptionPage.svelte';
 	import TrackerPage from '$lib/shell/TrackerPage.svelte';
 	import { createQuery } from '@tanstack/svelte-query';
 
@@ -27,4 +28,10 @@
 	});
 </script>
 
-<TrackerPage {options}></TrackerPage>
+{#if trackersDb.isPending}
+	Loading..............
+{:else if currentTracker?.kind === 'task'}
+	<TrackerPage {options}></TrackerPage>
+{:else}
+	<SubscriptionPage {options}></SubscriptionPage>
+{/if}

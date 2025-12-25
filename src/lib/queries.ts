@@ -34,7 +34,8 @@ const allLogsQuery = createQueryFactory(
 	['logs-all'],
 	async (): Promise<LogsDB[]> =>
 		await pb.collection('logs').getFullList({
-			sort: '-time'
+			sort: '-time',
+			expand: 'tracker'
 		})
 );
 export const allLogsQueryOptions = allLogsQuery.options;

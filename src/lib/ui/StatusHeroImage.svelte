@@ -3,42 +3,50 @@
 	import AntDesignExclamationCircleFilled from '$lib/assets/svg/AntDesignExclamationCircleFilled.svelte';
 	import EmptyState from '$lib/assets/svg/EmptyState.svelte';
 	import MaterialSymbolsCheckCircle from '$lib/assets/svg/MaterialSymbolsCheckCircle.svelte';
-	let { notification }: { notification: NotificationStatus } = $props();
+	let { notification, kind = 'task' }: { notification: NotificationStatus; kind?: Kind } = $props();
 </script>
 
 {#if notification}
-	<div class="avatar relative mt-2 mb-4">
-		<div class="w-40 rounded-full shadow-md">
-			<enhanced:img
-				src={hero}
-				alt="hero"
-				class={[
-					notification.level === 'due' && 'saturate-75',
-					notification.level === 'overdue' && 'saturate-50'
-				]}
-				fetchpriority="high"
-			/>
+	{#if kind === 'task'}
+		<div class="avatar relative mt-2 mb-4">
+			<div class="w-40 rounded-full shadow-md">
+				<enhanced:img
+					src={hero}
+					alt="hero"
+					class={[
+						notification.level === 'due' && 'saturate-75',
+						notification.level === 'overdue' && 'saturate-50'
+					]}
+					fetchpriority="high"
+				/>
+			</div>
+			{#if notification.level === 'ok'}
+				<div
+					class="bg-base-100 absolute top-2 -right-4 flex size-14 items-center justify-center rounded-full"
+				>
+					<MaterialSymbolsCheckCircle class="text-success size-13" />
+				</div>
+			{:else if notification.level === 'due'}
+				<div
+					class="bg-base-100 absolute top-2 -right-4 flex size-14 items-center justify-center rounded-full"
+				>
+					<AntDesignExclamationCircleFilled class="text-warning size-13" />
+				</div>
+			{:else if notification.level === 'overdue'}
+				<div
+					class="bg-base-100 absolute top-2 -right-4 flex size-14 items-center justify-center rounded-full"
+				>
+					<AntDesignExclamationCircleFilled class="text-error size-13" />
+				</div>
+			{/if}
 		</div>
-		{#if notification.level === 'ok'}
-			<div
-				class="bg-base-100 absolute top-2 -right-4 flex size-14 items-center justify-center rounded-full"
-			>
-				<MaterialSymbolsCheckCircle class="text-success size-13" />
+	{:else}
+		<div class="avatar relative mt-2 mb-4">
+			<div class="w-40 rounded-full shadow-md">
+				<enhanced:img src={hero} alt="hero" fetchpriority="high" />
 			</div>
-		{:else if notification.level === 'due'}
-			<div
-				class="bg-base-100 absolute top-2 -right-4 flex size-14 items-center justify-center rounded-full"
-			>
-				<AntDesignExclamationCircleFilled class="text-warning size-13" />
-			</div>
-		{:else if notification.level === 'overdue'}
-			<div
-				class="bg-base-100 absolute top-2 -right-4 flex size-14 items-center justify-center rounded-full"
-			>
-				<AntDesignExclamationCircleFilled class="text-error size-13" />
-			</div>
-		{/if}
-	</div>
+		</div>
+	{/if}
 {:else}
 	<EmptyState class="text-primary/30 my-4" />
 {/if}
