@@ -163,6 +163,13 @@
 						]}
 						onclick={() => (generalTrackersUpcomingDaysToShow = 183)}>6 months</button
 					>
+					<button
+						class={[
+							'btn-soft btn btn-sm rounded-full',
+							generalTrackersUpcomingDaysToShow === 9999 && 'btn-primary'
+						]}
+						onclick={() => (generalTrackersUpcomingDaysToShow = 183)}>All</button
+					>
 				</div>
 				<div class="border-base-300/50 rounded-2xl border bg-white/70">
 					{#if allLogsDb.isSuccess && allLogsDb.data && logs.general && logs.general.length > 0}
