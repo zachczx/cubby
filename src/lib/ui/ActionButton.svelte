@@ -59,28 +59,22 @@
 			}, 3000);
 		}
 	}
+
+	function getButtonClasses() {
+		return [
+			'btn btn-lg flex items-center gap-2',
+			`rounded-${rounded}`,
+			(status === 'default' || status === 'loading') && `btn-${color}`,
+			status === 'success' && 'btn-success',
+			status === 'error' && 'btn-error',
+			className
+		];
+	}
 </script>
 
 {#if !compact}
 	<button
-		class={[
-			'btn btn-lg flex w-full items-center gap-2',
-			rounded === '3xl' && 'rounded-3xl',
-			rounded === '2xl' && 'rounded-2xl',
-			rounded === 'xl' && 'rounded-xl',
-			rounded === 'lg' && 'rounded-lg',
-			rounded === 'md' && 'rounded-md',
-			rounded === 'sm' && 'rounded-sm',
-			rounded === 'xs' && 'rounded-xs',
-			rounded === 'full' && 'rounded-full',
-			status === 'default' && color === 'primary' && 'btn-primary',
-			status === 'loading' && color === 'primary' && 'btn-primary',
-			status === 'default' && color === 'neutral' && 'btn-neutral',
-			status === 'loading' && color === 'neutral' && 'btn-neutral',
-			status === 'success' && 'btn-success',
-			status === 'error' && 'btn-error',
-			className
-		]}
+		class={['btn btn-lg flex w-full items-center gap-2', getButtonClasses()]}
 		onclick={addHandler}
 	>
 		{#if status === 'success'}
@@ -102,23 +96,7 @@
 	</button>
 {:else}
 	<button
-		class={[
-			'btn btn-lg flex aspect-square w-full items-center gap-2 p-0',
-			rounded === '3xl' && 'rounded-3xl',
-			rounded === '2xl' && 'rounded-2xl',
-			rounded === 'xl' && 'rounded-xl',
-			rounded === 'lg' && 'rounded-lg',
-			rounded === 'md' && 'rounded-md',
-			rounded === 'sm' && 'rounded-sm',
-			rounded === 'xs' && 'rounded-xs',
-			rounded === 'full' && 'rounded-full',
-			status === 'default' && color === 'primary' && 'btn-primary',
-			status === 'loading' && color === 'primary' && 'btn-primary',
-			status === 'default' && color === 'neutral' && 'btn-neutral',
-			status === 'loading' && color === 'neutral' && 'btn-neutral',
-			status === 'success' && 'btn-success',
-			className
-		]}
+		class={['btn btn-lg flex aspect-square w-full items-center gap-2 p-0', getButtonClasses()]}
 		onclick={addHandler}
 	>
 		{#if status === 'loading'}
