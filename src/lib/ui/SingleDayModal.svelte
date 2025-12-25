@@ -94,7 +94,7 @@
 					</form>
 				</div>
 			</div>
-			<div class="py-4">
+			<div class="grid gap-2 py-4">
 				{#each logs as log}
 					{@const formatted = dayjs(log.time).format('hh:mma')}
 					{#if editMode[log.id]}
