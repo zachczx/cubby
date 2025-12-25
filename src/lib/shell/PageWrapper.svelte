@@ -4,7 +4,6 @@
 	import type { Snippet } from 'svelte';
 	import MaterialSymbolsSettings from '$lib/assets/svg/MaterialSymbolsSettings.svelte';
 	import { topLevelRoutes } from './nav';
-	import FeedDropdown from '$lib/ui/FeedDropdown.svelte';
 
 	let {
 		pb,
@@ -114,13 +113,11 @@
 			</div>
 			<div class="lg:navbar-end">
 				<div id="mobile-hamburger" class="dropdown flex items-center lg:hidden">
-					<!-- <FeedDropdown /> -->
 					<a href="/app/profile" class="btn btn-ghost px-2 py-0"
 						><MaterialSymbolsSettings class="size-6" /></a
 					>
 				</div>
 				<div id="desktop-logout" class="hidden items-center text-sm lg:flex">
-					<FeedDropdown />
 					{#if pb.authStore.isValid}
 						<a href="/app/profile" class="btn btn-ghost px-2 py-0"
 							><MaterialSymbolsSettings class="size-6" /></a
