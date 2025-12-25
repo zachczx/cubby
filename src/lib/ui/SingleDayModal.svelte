@@ -20,7 +20,11 @@
 		singleDay: LogsDB[] | undefined;
 	} = $props();
 
-	let logs = $derived(singleDay);
+	let logs = $derived.by(() => {
+		if (!singleDay) return [];
+
+		return singleDay.sort((a, b) => dayjs(a.time).diff(dayjs(b.time)));
+	});
 
 	async function deleteHandler(id: string) {
 		if (!id) return;
