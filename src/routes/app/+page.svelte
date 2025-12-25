@@ -5,11 +5,13 @@
 	import utc from 'dayjs/plugin/utc';
 	import timezone from 'dayjs/plugin/timezone';
 	import relativeTime from 'dayjs/plugin/relativeTime';
-	import { createQuery } from '@tanstack/svelte-query';
+	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import {
 		allLogsQueryOptions,
 		allTrackersQueryOptions,
-		notificationQueryOptions
+		getUserQueryKey,
+		notificationQueryOptions,
+		userQueryOptions
 	} from '$lib/queries';
 	import { getTrackerStatus } from '$lib/notification';
 	import ActionCard from '$lib/ui/ActionCard.svelte';
@@ -18,16 +20,23 @@
 	import FluentEmojiFlatAirplane from '$lib/assets/expressive-icons/FluentEmojiFlatAirplane.svelte';
 	import { getColoredTrackers, getFamilyColor, getTrackerIcon } from '$lib/mapper';
 	import SkeletonActionCard from '$lib/ui/SkeletonActionCard.svelte';
+	import type { RecordModel } from 'pocketbase';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
 
-	let generalTrackersUpcomingDaysToShow = $state(14);
-
 	const latestLogs = createQuery(notificationQueryOptions);
 	const trackersDb = createQuery(allTrackersQueryOptions);
 	const allLogsDb = createQuery(allLogsQueryOptions);
+	const userOptions = createQuery(userQueryOptions);
+	const tanstackClient = useQueryClient();
+
+	let generalTasksUpcomingDays = $derived.by(() => {
+		if (!userOptions.isSuccess || !userOptions.data) return 14;
+
+		return userOptions.data.generalTasksUpcomingDays;
+	});
 
 	let buttonStatuses = $derived.by(() => {
 		if (!trackersDb.isSuccess || !trackersDb.data) return;
@@ -84,8 +93,7 @@
 			};
 
 			if (
-				dayjs(mergedData.notification.next).diff(dayjs(), 'day', true) >
-				generalTrackersUpcomingDaysToShow
+				dayjs(mergedData.notification.next).diff(dayjs(), 'day', true) > generalTasksUpcomingDays
 			) {
 				continue;
 			}
@@ -95,6 +103,32 @@
 
 		return { pinned: pinned, general: general };
 	});
+
+	const viewButtons = [
+		{ days: 7, description: '1 week' },
+		{ days: 14, description: '2 weeks' },
+		{ days: 31, description: '1 month' },
+		{ days: 183, description: '6 months' },
+		{ days: 9999, description: 'All' }
+	];
+
+	async function generalTasksViewBtnHandler(numberDays: number) {
+		if (!pb.authStore.record) return;
+
+		generalTasksUpcomingDays = numberDays;
+
+		await pb
+			.collection('users')
+			.update(pb.authStore.record.id, { generalTasksUpcomingDays: numberDays });
+	}
+
+	/**
+	 * For optimistic updates of UI.
+	 */
+	// const updateUserCache = (newLog: RecordModel) =>
+	// 	tanstackClient.setQueryData(getUserQueryKey(), (oldLogs: LogsDB[] | undefined) => {
+	// 		return [newLog];
+	// 	});
 </script>
 
 <PageWrapper title="Cubby" back={false} {pb}>
@@ -135,41 +169,15 @@
 			<section class="grid gap-4 py-2">
 				<h2 class="text-base-content/70 text-lg font-bold">Other Tasks</h2>
 				<div class="flex items-center gap-2">
-					<button
-						class={[
-							'btn-soft btn btn-sm rounded-full',
-							generalTrackersUpcomingDaysToShow === 7 && 'btn-primary'
-						]}
-						onclick={() => (generalTrackersUpcomingDaysToShow = 7)}>1 week</button
-					>
-					<button
-						class={[
-							'btn-soft btn btn-sm rounded-full',
-							generalTrackersUpcomingDaysToShow === 14 && 'btn-primary'
-						]}
-						onclick={() => (generalTrackersUpcomingDaysToShow = 14)}>2 weeks</button
-					>
-					<button
-						class={[
-							'btn-soft btn btn-sm rounded-full',
-							generalTrackersUpcomingDaysToShow === 31 && 'btn-primary'
-						]}
-						onclick={() => (generalTrackersUpcomingDaysToShow = 31)}>1 month</button
-					>
-					<button
-						class={[
-							'btn-soft btn btn-sm rounded-full',
-							generalTrackersUpcomingDaysToShow === 183 && 'btn-primary'
-						]}
-						onclick={() => (generalTrackersUpcomingDaysToShow = 183)}>6 months</button
-					>
-					<button
-						class={[
-							'btn-soft btn btn-sm rounded-full',
-							generalTrackersUpcomingDaysToShow === 9999 && 'btn-primary'
-						]}
-						onclick={() => (generalTrackersUpcomingDaysToShow = 183)}>All</button
-					>
+					{#each viewButtons as btn}
+						<button
+							class={[
+								'btn-soft btn btn-sm rounded-full',
+								generalTasksUpcomingDays === btn.days && 'btn-primary'
+							]}
+							onclick={() => generalTasksViewBtnHandler(btn.days)}>{btn.description}</button
+						>
+					{/each}
 				</div>
 				<div class="border-base-300/50 rounded-2xl border bg-white/70">
 					{#if allLogsDb.isSuccess && allLogsDb.data && logs.general && logs.general.length > 0}

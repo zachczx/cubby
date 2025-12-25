@@ -40,7 +40,8 @@
 				emailVisibility: true,
 				password: cleanPassword,
 				passwordConfirm: cleanPassword,
-				sound: true
+				sound: true,
+				generalTasksUpcomingDays: 14
 			};
 
 			newUserRecord = await pb.collection('users').create(userData);

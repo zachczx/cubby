@@ -155,6 +155,7 @@ const userQuery = createQueryFactory(['users'], async (): Promise<UserDB> => {
 });
 export const userQueryOptions = userQuery.options;
 export const userRefetchOptions = userQuery.refetch;
+export const getUserQueryKey = () => [...getRootKey(), 'users'];
 
 const vacationQuery = createQueryFactory(
 	['vacations'],

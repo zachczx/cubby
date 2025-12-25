@@ -10,6 +10,7 @@ interface UserDB {
 	name: string;
 	avatar: string;
 	sound: boolean;
+	generalTasksUpcomingDays: number;
 	created: string;
 	updated: string;
 }
