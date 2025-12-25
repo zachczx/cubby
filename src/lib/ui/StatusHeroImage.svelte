@@ -1,5 +1,6 @@
 <script lang="ts">
-	import hero from '$lib/assets/hero.webp?w=600&enhanced';
+	import hero from '$lib/assets/hero.webp?w=250&enhanced';
+	import heroSubscription from '$lib/assets/hero-subscription.webp?w=250&enhanced';
 	import AntDesignExclamationCircleFilled from '$lib/assets/svg/AntDesignExclamationCircleFilled.svelte';
 	import EmptyState from '$lib/assets/svg/EmptyState.svelte';
 	import MaterialSymbolsCheckCircle from '$lib/assets/svg/MaterialSymbolsCheckCircle.svelte';
@@ -43,7 +44,7 @@
 	{:else}
 		<div class="avatar relative mt-2 mb-4">
 			<div class="w-40 rounded-full shadow-md">
-				<enhanced:img src={hero} alt="hero" fetchpriority="high" />
+				<enhanced:img src={heroSubscription} alt="hero" class="scale-110" fetchpriority="high" />
 			</div>
 		</div>
 	{/if}
