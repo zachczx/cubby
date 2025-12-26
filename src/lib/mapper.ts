@@ -46,28 +46,8 @@ export function getFamilyColor(id: string | undefined, familyIds: string[]): str
 
 	const idx = familyIds.indexOf(id);
 
-	switch (idx) {
-		case 0:
-			return 'blue';
-
-		case 1:
-			return 'purple';
-
-		case 2:
-			return 'red';
-
-		case 3:
-			return 'teal';
-
-		case 4:
-			return 'orange';
-
-		case 5:
-			return 'lime';
-
-		default:
-			return 'slate';
-	}
+	const colors = ['blue', 'purple', 'red', 'teal', 'orange', 'lime'];
+	return colors[idx] ?? 'slate';
 }
 
 export function getColoredTrackers(trackers: TrackerDB[]): TrackerColored[] {
