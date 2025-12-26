@@ -45,10 +45,10 @@
 
 	const starColors = ['#ff7f50', '#ffb347', '#ffd700', '#98fb98', '#87ceeb'];
 
-	function generateStarPositions(): { x: number; y: number }[] {
+	function generateStarPositions(count: number): { x: number; y: number }[] {
 		const centerX = 50;
 		const centerY = 50;
-		const starCount = 5;
+		const starCount = count;
 		const angleOffset = Math.random() * 72; // Random rotation
 
 		return Array.from({ length: starCount }, (_, i) => {
@@ -71,7 +71,7 @@
 			if (result) {
 				isCelebrating = true;
 				if (celebrate) {
-					starPositions = generateStarPositions();
+					starPositions = generateStarPositions(compact ? 6 : 10);
 					showStars = true;
 
 					setTimeout(() => {
@@ -111,7 +111,7 @@
 	}
 </script>
 
-<div class="relative w-full">
+<div class="relative w-full" style="--star-size: {compact ? '12px' : '20px'}">
 	{#if showStars}
 		{#each starPositions as pos, i}
 			<div
@@ -183,8 +183,8 @@
 
 	.star-pop {
 		position: absolute;
-		width: 12px;
-		height: 12px;
+		width: var(--star-size);
+		height: var(--star-size);
 		opacity: 0;
 		animation: appear-stay-fade 1.5s ease-out forwards;
 		z-index: 20;
