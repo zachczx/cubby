@@ -3,7 +3,6 @@
 	import { getAllTrackerIcons } from '$lib/mapper';
 	import { pb } from '$lib/pb';
 	import { userQueryOptions } from '$lib/queries';
-	import { addToast } from '$lib/ui/ArkToaster.svelte';
 	import NumberInput from '$lib/ui/NumberInput.svelte';
 	import SegmentedControl from '$lib/ui/SegmentedControl.svelte';
 	import { createQuery } from '@tanstack/svelte-query';

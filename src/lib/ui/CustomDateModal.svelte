@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { QueryClient, useQueryClient } from '@tanstack/svelte-query';
+	import { useQueryClient } from '@tanstack/svelte-query';
 	import { pb } from '../pb';
 	import dayjs, { type ManipulateType } from 'dayjs';
 	import utc from 'dayjs/plugin/utc';

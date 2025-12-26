@@ -6,22 +6,11 @@
 	import utc from 'dayjs/plugin/utc';
 	import timezone from 'dayjs/plugin/timezone';
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
-	import {
-		userQueryOptions,
-		userRefetchOptions,
-		vacationQueryOptions,
-		vacationRefetchOptions
-	} from '$lib/queries';
-	import { page } from '$app/state';
+	import { userQueryOptions, userRefetchOptions, vacationQueryOptions } from '$lib/queries';
 	import SegmentedControl from '$lib/ui/SegmentedControl.svelte';
-	import type { ChangeEventHandler } from 'svelte/elements';
 
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
-
-	const user = createQuery(userQueryOptions);
-
-	const vacations = createQuery(vacationQueryOptions);
 
 	const tanstackClient = useQueryClient();
 

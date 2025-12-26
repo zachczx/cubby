@@ -19,10 +19,8 @@
 
 <script lang="ts">
 	import { Toast, Toaster } from '@ark-ui/svelte/toast';
-	import MaterialSymbolsCheck from '$lib/assets/svg/MaterialSymbolsCheck.svelte';
 	import MaterialSymbolsClose from '$lib/assets/svg/MaterialSymbolsClose.svelte';
 	import MaterialSymbolsCheckCircle from '$lib/assets/svg/MaterialSymbolsCheckCircle.svelte';
-	import { SafeArea } from '@capacitor-community/safe-area';
 </script>
 
 <div>

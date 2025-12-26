@@ -6,17 +6,8 @@
 	import utc from 'dayjs/plugin/utc';
 	import timezone from 'dayjs/plugin/timezone';
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
-	import {
-		userQueryOptions,
-		userRefetchOptions,
-		vacationQueryOptions,
-		vacationRefetchOptions
-	} from '$lib/queries';
-	import { page } from '$app/state';
-	import SegmentedControl from '$lib/ui/SegmentedControl.svelte';
-	import type { ChangeEventHandler } from 'svelte/elements';
+	import { userQueryOptions, userRefetchOptions } from '$lib/queries';
 	import MaterialSymbolsChevronRight from '$lib/assets/svg/MaterialSymbolsChevronRight.svelte';
-	import { MenuItem } from '@ark-ui/svelte';
 
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
@@ -58,8 +49,6 @@
 		<div class="overflow-y-auto">
 			<h1 class="text-primary mb-4 text-center text-4xl font-bold max-lg:hidden">Profile</h1>
 			<div class="grid w-full content-start">
-				<!-- {@render menuItem('active', 'Active Trackers')}
-				{@render menuItem('schedule', 'Tracker Schedules')} -->
 				{@render menuItem('trackers', 'Manage Trackers')}
 				{@render menuItem('family', 'Manage Family')}
 				{@render menuItem('vacation', 'Manage Vacation Dates')}

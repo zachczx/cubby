@@ -5,19 +5,12 @@
 	import MaterialSymbolsPersonAdd from '$lib/assets/svg/MaterialSymbolsPersonAdd.svelte';
 	import MaterialSymbolsWarning from '$lib/assets/svg/MaterialSymbolsWarning.svelte';
 	import { pb } from '$lib/pb';
-	import {
-		allLogsQueryOptions,
-		familyQueryOptions,
-		familyRefetchOptions,
-		inviteQueryOptions,
-		inviteRefetchOptions
-	} from '$lib/queries';
+	import { allLogsQueryOptions, inviteQueryOptions, inviteRefetchOptions } from '$lib/queries';
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 
 	const destinationFamilyId = page.url.searchParams.get('i') ?? '';
-	const userAllLogs = createQuery(allLogsQueryOptions);
 	const currentInvite = createQuery(inviteQueryOptions);
 	const tanstackClient = useQueryClient();
 

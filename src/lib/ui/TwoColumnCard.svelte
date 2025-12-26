@@ -3,11 +3,6 @@
 	import MaterialSymbolsNestClockFarsightAnalogOutline from '$lib/assets/svg/MaterialSymbolsNestClockFarsightAnalogOutline.svelte';
 	import type { Snippet } from 'svelte';
 
-	interface ContentPart {
-		title: string;
-		content: Snippet;
-	}
-
 	let {
 		left,
 		leftTitle,

@@ -1,34 +1,16 @@
 <script lang="ts">
-	import MaterialSymbolsArrowRightAlt from '$lib/assets/svg/MaterialSymbolsArrowRightAlt.svelte';
-	import MaterialSymbolsCheckCircle from '$lib/assets/svg/MaterialSymbolsCheckCircle.svelte';
 	import MaterialSymbolsFilterList from '$lib/assets/svg/MaterialSymbolsFilterList.svelte';
-	import MaterialSymbolsHistory from '$lib/assets/svg/MaterialSymbolsHistory.svelte';
 	import { pb } from '$lib/pb';
-	import {
-		allLogsRefetchOptions,
-		allTrackersQueryOptions,
-		allTrackersRefetchOptions,
-		feedQueryOptions
-	} from '$lib/queries';
+	import { allTrackersQueryOptions } from '$lib/queries';
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import dayjs from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
-	import { addToast } from '$lib/ui/ArkToaster.svelte';
-	import MaterialSymbolsKeep from '$lib/assets/svg/MaterialSymbolsKeep.svelte';
-	import MaterialSymbolsKeepOutline from '$lib/assets/svg/MaterialSymbolsKeepOutline.svelte';
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
-	import { preventDefault } from 'svelte/legacy';
-	import MaterialSymbolsVisibilityOutline from '$lib/assets/svg/MaterialSymbolsVisibilityOutline.svelte';
-	import MaterialSymbolsVisibilityOffOutline from '$lib/assets/svg/MaterialSymbolsVisibilityOffOutline.svelte';
-	import MaterialSymbolsEdit from '$lib/assets/svg/MaterialSymbolsEdit.svelte';
 	import MaterialSymbolsChevronRight from '$lib/assets/svg/MaterialSymbolsChevronRight.svelte';
 
 	dayjs.extend(relativeTime);
 
 	const trackersDb = createQuery(allTrackersQueryOptions);
-	const queryKey = allTrackersQueryOptions().queryKey;
-
-	const tanstackClient = useQueryClient();
 
 	let trackers = $derived.by(() => {
 		if (!trackersDb.isSuccess || !trackersDb.data) return [];

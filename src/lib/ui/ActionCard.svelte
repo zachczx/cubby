@@ -1,19 +1,11 @@
 <script lang="ts">
 	import ActionButton from './ActionButton.svelte';
 	import dayjs from 'dayjs';
-	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
-	import {
-		allTrackersQueryOptions,
-		createLogsQuery,
-		notificationQueryOptions,
-		notificationRefetchOptions,
-		trackerIdToName
-	} from '$lib/queries';
+	import { createQuery } from '@tanstack/svelte-query';
+	import { allTrackersQueryOptions, createLogsQuery } from '$lib/queries';
 	import { getTrackerStatus } from '$lib/notification';
 	import MaterialSymbolsCheck from '$lib/assets/svg/MaterialSymbolsCheck.svelte';
 	import MaterialSymbolsChevronRight from '$lib/assets/svg/MaterialSymbolsChevronRight.svelte';
-	import MaterialSymbolsWarning from '$lib/assets/svg/MaterialSymbolsWarning.svelte';
-	import MaterialSymbolsExclamation from '$lib/assets/svg/MaterialSymbolsExclamation.svelte';
 	import { onMount } from 'svelte';
 	import { error } from '@sveltejs/kit';
 	import { pb } from '$lib/pb';

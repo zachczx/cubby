@@ -1,9 +1,7 @@
 <script lang="ts">
-	import MaterialSymbolsCheck from '$lib/assets/svg/MaterialSymbolsCheck.svelte';
 	import MaterialSymbolsClose from '$lib/assets/svg/MaterialSymbolsClose.svelte';
 	import MaterialSymbolsDelete from '$lib/assets/svg/MaterialSymbolsDelete.svelte';
 	import MaterialSymbolsEdit from '$lib/assets/svg/MaterialSymbolsEdit.svelte';
-	import MaterialSymbolsSave from '$lib/assets/svg/MaterialSymbolsSave.svelte';
 	import { pb } from '$lib/pb';
 	import dayjs from 'dayjs';
 	import { addToast } from './ArkToaster.svelte';

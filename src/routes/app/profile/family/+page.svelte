@@ -9,24 +9,14 @@
 	import {
 		cleanEmail,
 		userQueryOptions,
-		userRefetchOptions,
-		vacationQueryOptions,
-		vacationRefetchOptions,
 		familyQueryOptions,
 		familyRefetchOptions,
 		inviteQueryOptions
 	} from '$lib/queries';
-	import { page } from '$app/state';
-	import SegmentedControl from '$lib/ui/SegmentedControl.svelte';
-	import type { ChangeEventHandler } from 'svelte/elements';
-	import MaterialSymbolsDelete from '$lib/assets/svg/MaterialSymbolsDelete.svelte';
-	import { goto, invalidateAll } from '$app/navigation';
+	import { goto } from '$app/navigation';
 	import MaterialSymbolsPerson from '$lib/assets/svg/MaterialSymbolsPerson.svelte';
 	import MaterialSymbolsCheck from '$lib/assets/svg/MaterialSymbolsCheck.svelte';
-	import MaterialSymbolsFamilyGroup from '$lib/assets/svg/MaterialSymbolsFamilyGroup.svelte';
 	import MaterialSymbolsArrowRightAlt from '$lib/assets/svg/MaterialSymbolsArrowRightAlt.svelte';
-	import MaterialSymbolsShare from '$lib/assets/svg/MaterialSymbolsShare.svelte';
-	import MaterialSymbolsExclamation from '$lib/assets/svg/MaterialSymbolsExclamation.svelte';
 	import MdiAlertCircle from '$lib/assets/svg/MdiAlertCircle.svelte';
 	import MaterialSymbolsMoreVert from '$lib/assets/svg/MaterialSymbolsMoreVert.svelte';
 	import MaterialSymbolsPersonRemove from '$lib/assets/svg/MaterialSymbolsPersonRemove.svelte';

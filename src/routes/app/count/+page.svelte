@@ -7,14 +7,13 @@
 	import { pb } from '$lib/pb';
 	import { Capacitor } from '@capacitor/core';
 	import { userQueryOptions } from '$lib/queries';
-	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
+	import { createQuery } from '@tanstack/svelte-query';
 	import { page } from '$app/state';
 	import { beforeNavigate } from '$app/navigation';
 	import SegmentedControl from '$lib/ui/SegmentedControl.svelte';
 	dayjs.extend(duration);
 
 	const user = createQuery(userQueryOptions);
-	const tanstackClient = useQueryClient();
 
 	const tickingSoundPath = '/soft-ticking.mp3';
 

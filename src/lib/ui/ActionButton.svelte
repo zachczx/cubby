@@ -1,13 +1,10 @@
 <script lang="ts">
 	import MaterialSymbolsCheck from '$lib/assets/svg/MaterialSymbolsCheck.svelte';
-	import type { RecordModel, RecordOptions, RecordService } from 'pocketbase';
-	import type { MouseEventHandler } from 'svelte/elements';
+	import type { RecordModel } from 'pocketbase';
 	import { addToast } from './ArkToaster.svelte';
-	import { useQueryClient, type RefetchQueryFilters } from '@tanstack/svelte-query';
+	import { useQueryClient } from '@tanstack/svelte-query';
 	import type { Component } from 'svelte';
-	import MaterialSymbolsExclamation from '$lib/assets/svg/MaterialSymbolsExclamation.svelte';
 	import { getAllLogsQueryKey } from '$lib/queries';
-	import { pb } from '$lib/pb';
 
 	let {
 		text,

@@ -6,17 +6,8 @@
 	import utc from 'dayjs/plugin/utc';
 	import timezone from 'dayjs/plugin/timezone';
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
-	import {
-		userQueryOptions,
-		userRefetchOptions,
-		vacationQueryOptions,
-		vacationRefetchOptions
-	} from '$lib/queries';
-	import { page } from '$app/state';
-	import SegmentedControl from '$lib/ui/SegmentedControl.svelte';
-	import type { ChangeEventHandler } from 'svelte/elements';
+	import { userQueryOptions, userRefetchOptions } from '$lib/queries';
 	import MaterialSymbolsChevronRight from '$lib/assets/svg/MaterialSymbolsChevronRight.svelte';
-	import { MenuItem } from '@ark-ui/svelte';
 
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
@@ -24,8 +15,6 @@
 	const user = createQuery(userQueryOptions);
 
 	const tanstackClient = useQueryClient();
-
-	let sound = $derived.by(() => (user.isSuccess ? user.data?.sound : undefined));
 
 	async function onchange(evt: Event) {
 		const target = evt.target;

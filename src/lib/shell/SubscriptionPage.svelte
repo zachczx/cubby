@@ -5,23 +5,11 @@
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import timezone from 'dayjs/plugin/timezone';
 	import calendar from 'dayjs/plugin/calendar';
-	import { Calendar, DayGrid, Interaction } from '@event-calendar/core';
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
-	import Chart from 'chart.js/auto';
-	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
-	import {
-		trackerQueryOptions,
-		vacationQueryOptions,
-		createLogsQuery,
-		allLogsQueryOptions
-	} from '$lib/queries';
-	import { getCalendarEntries } from '$lib/calendar';
-	import CustomDateModal from '$lib/ui/CustomDateModal.svelte';
-	import StatusDescriptions from '$lib/ui/StatusDescriptions.svelte';
+	import { createQuery } from '@tanstack/svelte-query';
+	import { trackerQueryOptions, createLogsQuery, allLogsQueryOptions } from '$lib/queries';
 	import TwoColumnCard from '$lib/ui/TwoColumnCard.svelte';
 	import StatusHeroImage from '$lib/ui/StatusHeroImage.svelte';
-	import ActionButton from '$lib/ui/ActionButton.svelte';
-	import SingleDayModal from '$lib/ui/SingleDayModal.svelte';
 	import { getTrackerStatus } from '$lib/notification';
 
 	dayjs.extend(calendar);

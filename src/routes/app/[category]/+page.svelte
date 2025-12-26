@@ -5,13 +5,10 @@
 	import utc from 'dayjs/plugin/utc';
 	import timezone from 'dayjs/plugin/timezone';
 	import relativeTime from 'dayjs/plugin/relativeTime';
-	import MaterialSymbolsChevronRight from '$lib/assets/svg/MaterialSymbolsChevronRight.svelte';
-	import { goto } from '$app/navigation';
-	import FluentEmojiFlatStopwatch from '$lib/assets/expressive-icons/FluentEmojiFlatStopwatch.svelte';
 	import ActionCard from '$lib/ui/ActionCard.svelte';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { allLogsQueryOptions, allTrackersQueryOptions } from '$lib/queries';
-	import { getColoredTrackers, getFamilyColor, getTrackerIcon } from '$lib/mapper.js';
+	import { getColoredTrackers, getTrackerIcon } from '$lib/mapper.js';
 	import SkeletonActionCard from '$lib/ui/SkeletonActionCard.svelte';
 	import EmptyCorgi from '$lib/assets/empty.webp?w=200&enhanced';
 	import { getTrackerStatus } from '$lib/notification.js';

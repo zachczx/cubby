@@ -8,7 +8,7 @@
 	import { Calendar, DayGrid, Interaction } from '@event-calendar/core';
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
 	import Chart from 'chart.js/auto';
-	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
+	import { createQuery } from '@tanstack/svelte-query';
 	import {
 		trackerQueryOptions,
 		vacationQueryOptions,

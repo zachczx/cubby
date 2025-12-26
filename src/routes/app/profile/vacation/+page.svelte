@@ -6,18 +6,9 @@
 	import utc from 'dayjs/plugin/utc';
 	import timezone from 'dayjs/plugin/timezone';
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
-	import {
-		userQueryOptions,
-		userRefetchOptions,
-		vacationQueryOptions,
-		vacationRefetchOptions
-	} from '$lib/queries';
-	import { page } from '$app/state';
-	import SegmentedControl from '$lib/ui/SegmentedControl.svelte';
-	import type { ChangeEventHandler } from 'svelte/elements';
+	import { userQueryOptions, vacationQueryOptions, vacationRefetchOptions } from '$lib/queries';
 	import MaterialSymbolsDelete from '$lib/assets/svg/MaterialSymbolsDelete.svelte';
 	import { invalidateAll } from '$app/navigation';
-	import MaterialSymbolsFlightTakeoff from '$lib/assets/svg/MaterialSymbolsFlightTakeoff.svelte';
 
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
