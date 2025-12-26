@@ -21,25 +21,17 @@
 					fetchpriority="high"
 				/>
 			</div>
-			{#if notification.level === 'ok'}
-				<div
-					class="bg-base-100 absolute top-2 -right-4 flex size-14 items-center justify-center rounded-full"
-				>
+			<div
+				class="bg-base-100 absolute top-2 -right-4 flex size-14 items-center justify-center rounded-full"
+			>
+				{#if notification.level === 'ok'}
 					<MaterialSymbolsCheckCircle class="text-success size-13" />
-				</div>
-			{:else if notification.level === 'due'}
-				<div
-					class="bg-base-100 absolute top-2 -right-4 flex size-14 items-center justify-center rounded-full"
-				>
+				{:else if notification.level === 'due'}
 					<AntDesignExclamationCircleFilled class="text-warning size-13" />
-				</div>
-			{:else if notification.level === 'overdue'}
-				<div
-					class="bg-base-100 absolute top-2 -right-4 flex size-14 items-center justify-center rounded-full"
-				>
+				{:else if notification.level === 'overdue'}
 					<AntDesignExclamationCircleFilled class="text-error size-13" />
-				</div>
-			{/if}
+				{/if}
+			</div>
 		</div>
 	{:else}
 		<div class="avatar relative mt-2 mb-4">
