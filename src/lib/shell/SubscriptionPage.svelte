@@ -28,16 +28,6 @@
 	});
 
 	const tracker = createQuery(() => trackerQueryOptions(options.tracker?.id));
-	let interval = $derived.by(() => (tracker.isSuccess ? tracker.data?.interval : undefined));
-	let intervalUnit = $derived.by(() =>
-		tracker.isSuccess ? tracker.data?.intervalUnit : undefined
-	);
-	const query = () =>
-		createLogsQuery({
-			trackerId: tracker.data?.id ?? '',
-			interval: interval,
-			intervalUnit: intervalUnit
-		});
 
 	let notification = $derived.by(() => getTrackerStatus(currentTrackerLogs));
 
@@ -88,12 +78,6 @@
 					<div class="skeleton aspect-square w-40 rounded-full shadow-md"></div>
 				</div>
 			{/if}
-
-			<!-- <ActionButton {query} text={options.labels.ctaButtonText} /> -->
-
-			<!-- <div class="flex justify-start">
-				<CustomDateModal tracker={options.tracker} {interval} {intervalUnit} />
-			</div> -->
 		</div>
 
 		<div class="grid w-full content-start gap-8 pt-4 pb-8">
@@ -106,12 +90,6 @@
 						Overview</button
 					>
 				</li>
-
-				<!-- <li class="w-full" aria-current={currentTab === 'stats' ? 'page' : undefined}>
-					<button class="w-full cursor-pointer text-center" onclick={() => (currentTab = 'stats')}>
-						Stats</button
-					>
-				</li> -->
 
 				<li class="w-full" aria-current={currentTab === 'history' ? 'page' : undefined}>
 					<button
@@ -136,7 +114,6 @@
 						<h2 class="text-md text-center">Next Charge</h2>
 						<div class="grid min-h-20 content-center justify-items-center">
 							{#if notification && notification.level}
-								<!-- {@const semantic = dayjs(notification.next).calendar(dayjs(), dayjsCalendarOptions)} -->
 								{@const semantic = dayjs(notification.next).fromNow()}
 								{@const formatted = dayjs(notification.next).format('D MMM YYYY')}
 								<p class="text-primary text-2xl font-bold">
