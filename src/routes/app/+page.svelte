@@ -63,7 +63,7 @@
 
 		return {
 			pinned: classifyTrackers(trackers.pinned, allLogsDb.data, 'pinned'),
-			general: classifyTrackers(trackers.pinned, allLogsDb.data, 'general')
+			general: classifyTrackers(trackers.general, allLogsDb.data, 'general')
 		};
 	});
 
