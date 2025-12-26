@@ -31,6 +31,8 @@
 
 	let status: ButtonState = $state('default');
 	let isCelebrating = $state(false);
+	let showStars = $state(false);
+	let starPositions: { x: number; y: number }[] = [];
 
 	const tanstackClient = useQueryClient();
 	export const insertNewLogToCache = (newLog: RecordModel) =>
@@ -39,69 +41,25 @@
 			return [newLog, ...oldLogs];
 		});
 
-	/**
-	 * Confetti
-	 */
-
 	let buttonRef = $state<HTMLButtonElement>();
 
-	interface Options {
-		spread: number;
-		startVelocity?: number;
-		decay?: number;
-		scalar?: number;
-		zIndex?: number;
-		origin: Point;
-		gravity?: number;
-	}
+	const starColors = ['#ff7f50', '#ffb347', '#ffd700', '#98fb98', '#87ceeb'];
 
-	type Point = { x: number; y: number };
+	function generateStarPositions(): { x: number; y: number }[] {
+		const centerX = 50;
+		const centerY = 50;
+		const starCount = 5;
+		const angleOffset = Math.random() * 72; // Random rotation
 
-	const count = 150;
+		return Array.from({ length: starCount }, (_, i) => {
+			const angle = (i * (360 / starCount) + angleOffset) * (Math.PI / 180);
+			// More randomness: some stars closer (45%), some farther out (70%)
+			const distance = 45 + Math.random() * 20;
 
-	function triggerConfetti() {
-		if (!buttonRef) return;
-
-		const rect = buttonRef.getBoundingClientRect();
-		const x = (rect.left + rect.width / 2) / window.innerWidth;
-		const y = (rect.top + rect.height / 2) / window.innerHeight;
-
-		const origin = { x, y };
-
-		if (compact) {
-			fire(0.25, { spread: 26, startVelocity: 25, origin, gravity: 0.31 });
-			fire(0.2, { spread: 60, startVelocity: 15, origin, gravity: 0.3 });
-			fire(0.35, {
-				spread: 100,
-				startVelocity: 10,
-				decay: 0.91,
-				scalar: 0.8,
-				origin,
-				gravity: 0.5
-			});
-			fire(0.1, { spread: 120, startVelocity: 15, decay: 0.92, scalar: 1.2, origin, gravity: 0.6 });
-			fire(0.1, { spread: 120, startVelocity: 20, origin, gravity: 0.7 });
-		} else {
-			fire(0.25, { spread: 26, startVelocity: 55, origin });
-			fire(0.2, { spread: 60, origin });
-			fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8, origin });
-			fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2, origin });
-			fire(0.1, { spread: 120, startVelocity: 45, origin });
-		}
-	}
-
-	function fire(particleRatio: number, opts: Options) {
-		confetti({
-			...opts,
-			colors: [
-				'#ff7f50', // Coral (bright accent)
-				'#ffb347', // Pastel orange
-				'#ffd700', // Gold
-				'#98fb98', // Pale green
-				'#87ceeb' // Sky blue
-			],
-			particleCount: Math.floor(count * particleRatio),
-			zIndex: 1000
+			return {
+				x: centerX + Math.cos(angle) * distance,
+				y: centerY + Math.sin(angle) * distance
+			};
 		});
 	}
 
@@ -111,10 +69,16 @@
 		try {
 			const result = await query();
 			if (result) {
-				if (celebrate) {
-					triggerConfetti();
-				}
 				isCelebrating = true;
+				if (celebrate) {
+					starPositions = generateStarPositions();
+					showStars = true;
+
+					setTimeout(() => {
+						showStars = false;
+					}, 2000);
+				}
+
 				addToast('success', 'Added successfully!');
 				status = 'success';
 				await insertNewLogToCache(result);
@@ -147,44 +111,60 @@
 	}
 </script>
 
-{#if !compact}
-	<button
-		class={['btn btn-lg flex w-full items-center gap-2', getButtonClasses()]}
-		onclick={addHandler}
-		bind:this={buttonRef}
-	>
-		{#if status === 'success'}
-			<MaterialSymbolsCheck class="size-6" />Added!
-		{/if}
-		{#if status === 'loading'}
-			<span class="loading loading-spinner loading-md"></span>
-		{/if}
-		{#if status === 'error'}
-			Error!
-		{/if}
-		{#if status !== 'success' && status !== 'loading' && status !== 'error'}
-			{#if text}
-				{text}
-			{:else}
-				Submit
+<div class="relative w-full">
+	{#if showStars}
+		{#each starPositions as pos, i}
+			<div
+				class="star-pop"
+				style="
+					left: {pos.x}%;
+					top: {pos.y}%;
+					background: {starColors[i % starColors.length]};
+					animation-delay: {i * 0.08}s;
+				"
+			></div>
+		{/each}
+	{/if}
+
+	{#if !compact}
+		<button
+			class={['btn btn-lg flex w-full items-center gap-2', getButtonClasses()]}
+			onclick={addHandler}
+			bind:this={buttonRef}
+		>
+			{#if status === 'success'}
+				<MaterialSymbolsCheck class="size-6" />Added!
 			{/if}
-		{/if}
-	</button>
-{:else}
-	<button
-		class={['btn btn-lg flex aspect-square w-full items-center gap-2 p-0', getButtonClasses()]}
-		onclick={addHandler}
-		bind:this={buttonRef}
-	>
-		{#if status === 'loading'}
-			<span class="loading loading-spinner loading-md"></span>
-		{:else if CustomIcon && status !== 'success'}
-			<CustomIcon class="size-8" />
-		{:else}
-			<MaterialSymbolsCheck class="size-8" />
-		{/if}
-	</button>
-{/if}
+			{#if status === 'loading'}
+				<span class="loading loading-spinner loading-md"></span>
+			{/if}
+			{#if status === 'error'}
+				Error!
+			{/if}
+			{#if status !== 'success' && status !== 'loading' && status !== 'error'}
+				{#if text}
+					{text}
+				{:else}
+					Submit
+				{/if}
+			{/if}
+		</button>
+	{:else}
+		<button
+			class={['btn btn-lg flex aspect-square w-full items-center gap-2 p-0', getButtonClasses()]}
+			onclick={addHandler}
+			bind:this={buttonRef}
+		>
+			{#if status === 'loading'}
+				<span class="loading loading-spinner loading-md"></span>
+			{:else if CustomIcon && status !== 'success'}
+				<CustomIcon class="size-8" />
+			{:else}
+				<MaterialSymbolsCheck class="size-8" />
+			{/if}
+		</button>
+	{/if}
+</div>
 
 <style>
 	@keyframes glow {
@@ -199,5 +179,45 @@
 
 	.isCelebrating {
 		animation: glow 0.5s ease-in-out 3;
+	}
+
+	.star-pop {
+		position: absolute;
+		width: 12px;
+		height: 12px;
+		opacity: 0;
+		animation: appear-stay-fade 1.5s ease-out forwards;
+		z-index: 20;
+		clip-path: polygon(
+			50% 0%,
+			61% 35%,
+			98% 35%,
+			68% 57%,
+			79% 91%,
+			50% 70%,
+			21% 91%,
+			32% 57%,
+			2% 35%,
+			39% 35%
+		);
+	}
+
+	@keyframes appear-stay-fade {
+		0% {
+			transform: translate(-50%, -50%) scale(0) rotate(0deg);
+			opacity: 0;
+		}
+		20% {
+			transform: translate(-50%, -50%) scale(1) rotate(45deg);
+			opacity: 1;
+		}
+		80% {
+			transform: translate(-50%, -50%) scale(1) rotate(90deg);
+			opacity: 1;
+		}
+		100% {
+			transform: translate(-50%, -50%) scale(1) rotate(90deg);
+			opacity: 0;
+		}
 	}
 </style>
