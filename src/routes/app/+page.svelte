@@ -9,7 +9,6 @@
 	import {
 		allLogsQueryOptions,
 		allTrackersQueryOptions,
-		getUserQueryKey,
 		notificationQueryOptions,
 		userQueryOptions
 	} from '$lib/queries';
@@ -18,9 +17,8 @@
 	import EmptyCorgi from '$lib/assets/empty.webp?w=200&enhanced';
 	import FluentEmojiFlatStopwatch from '$lib/assets/expressive-icons/FluentEmojiFlatStopwatch.svelte';
 	import FluentEmojiFlatAirplane from '$lib/assets/expressive-icons/FluentEmojiFlatAirplane.svelte';
-	import { getColoredTrackers, getFamilyColor, getTrackerIcon } from '$lib/mapper';
+	import { getColoredTrackers, getTrackerIcon } from '$lib/mapper';
 	import SkeletonActionCard from '$lib/ui/SkeletonActionCard.svelte';
-	import type { RecordModel } from 'pocketbase';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
@@ -63,26 +61,17 @@
 	let logs = $derived.by(() => {
 		if (!allLogsDb.isSuccess || !allLogsDb.data) return { pinned: [], general: [] };
 
-		const pinned = [];
-		const general = [];
+		return {
+			pinned: classifyTrackers(trackers.pinned, allLogsDb.data, 'pinned'),
+			general: classifyTrackers(trackers.pinned, allLogsDb.data, 'general')
+		};
+	});
 
-		for (const t of trackers.pinned) {
-			const logData = allLogsDb.data.filter((log) => t.id === log.tracker);
-			const trackerData = trackers.pinned.find((tracker) => tracker.id === t.id);
-			if (!trackerData) continue;
-
-			const mergedData = {
-				trackerName: t.name,
-				trackerData: trackerData,
-				logData: logData,
-				notification: getTrackerStatus(logData)
-			};
-			pinned.push(mergedData);
-		}
-
-		for (const t of trackers.general) {
-			const logData = allLogsDb.data.filter((log) => t.id === log.tracker);
-			const trackerData = trackers.general.find((tracker) => tracker.id === t.id);
+	function classifyTrackers(trackers: TrackerDB[], logs: LogsDB[], kind: 'general' | 'pinned') {
+		const data = [];
+		for (const t of trackers) {
+			const logData = logs.filter((log) => t.id === log.tracker);
+			const trackerData = trackers.find((tracker) => tracker.id === t.id);
 			if (!trackerData) continue;
 
 			const mergedData = {
@@ -93,16 +82,16 @@
 			};
 
 			if (
+				kind === 'general' &&
 				dayjs(mergedData.notification.next).diff(dayjs(), 'day', true) > generalTasksUpcomingDays
 			) {
 				continue;
 			}
-
-			general.push(mergedData);
+			data.push(mergedData);
 		}
 
-		return { pinned: pinned, general: general };
-	});
+		return data;
+	}
 
 	const viewButtons = [
 		{ days: 7, description: '1 week' },
