@@ -39,7 +39,7 @@
 		intervalUnit: 'day',
 		category: 'personal',
 		kind: 'task',
-		icon: '', //todo
+		icon: 'bookmark', //todo
 		startDate: '',
 		actionLabel: '',
 		pinned: false,

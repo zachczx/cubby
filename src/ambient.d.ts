@@ -46,11 +46,31 @@ interface LogsRecord extends LogsDB {
 	gap: number;
 }
 
+type TrackerColor = 'blue' | 'purple' | 'red' | 'teal' | 'orange' | 'lime' | 'slate' | 'green';
+
 interface TrackerColored extends TrackerDB {
-	color: string;
+	color: TrackerColor;
 }
 
 type Kind = 'task' | 'subscription';
+
+type TrackerIcon =
+	| 'tshirt'
+	| 'bottle'
+	| 'bed'
+	| 'shower'
+	| 'shield'
+	| 'tooth'
+	| 'washer'
+	| 'zzz'
+	| 'electricPlug'
+	| 'syringe'
+	| 'creditCard'
+	| 'subscription'
+	| 'software'
+	| 'bookmark';
+
+type TrackerCategory = 'household' | 'personal' | 'pet';
 
 interface TrackerInput {
 	user: string;
@@ -59,12 +79,12 @@ interface TrackerInput {
 	display: string;
 	interval: string;
 	intervalUnit: IntervalUnit;
-	category: 'household' | 'personal' | 'pet';
+	category: TrackerCategory;
 	kind: Kind;
 	actionLabel: string;
 	pinned: boolean;
 	show: boolean;
-	icon: string;
+	icon: TrackerIcon;
 	startDate?: string;
 	cost?: number | undefined;
 }
@@ -87,21 +107,25 @@ interface FamilyDB {
 	expand?: { members?: UserDB[]; owner?: UserDB };
 }
 
+type InviteStatus = 'pending' | 'completed' | null;
+
 interface InviteDB {
 	id: string;
 	family: string;
 	code: string;
 	familyNameSnapshot: string;
 	ownerEmailSnapshot: string;
-	status?: 'pending' | 'completed' | null;
+	status?: InviteStatus;
 	created: string;
 	updated: string;
 	expand?: { family?: FamilyDB };
 }
 
+type NotificationLevel = 'ok' | 'due' | 'overdue';
+
 interface NotificationStatus {
 	show: boolean;
-	level: 'ok' | 'due' | 'overdue' | null;
+	level: NotificationLevel | null;
 	next?: string;
 	label?: string | undefined;
 	href?: string | undefined;

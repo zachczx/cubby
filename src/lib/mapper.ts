@@ -28,7 +28,8 @@ const trackerIcons: Record<string, Component> = {
 	syringe: FluentEmojiFlatSyringe,
 	creditCard: FluentEmojiFlatCreditCard,
 	subscription: StreamlineFlexColorSubscriptionCashflowFlat,
-	software: FluentEmojiFlatDvd
+	software: FluentEmojiFlatDvd,
+	bookmark: FluentEmojiFlatBookmarkTabs
 };
 
 export function getTrackerIcon(iconName: string | undefined): Component {
@@ -41,12 +42,12 @@ export function getAllTrackerIcons() {
 	return trackerIcons;
 }
 
-export function getFamilyColor(id: string | undefined, familyIds: string[]): string {
-	if (!id || !familyIds.includes(id)) return '';
+export function getFamilyColor(id: string | undefined, familyIds: string[]): TrackerColor {
+	if (!id || !familyIds.includes(id)) return 'slate';
 
 	const idx = familyIds.indexOf(id);
 
-	const colors = ['blue', 'purple', 'red', 'teal', 'orange', 'lime'];
+	const colors: TrackerColor[] = ['blue', 'purple', 'red', 'teal', 'orange', 'lime'];
 	return colors[idx] ?? 'slate';
 }
 
