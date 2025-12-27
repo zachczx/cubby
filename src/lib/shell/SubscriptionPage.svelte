@@ -14,7 +14,6 @@
 	import MaterialSymbolsCalculate from '$lib/assets/svg/MaterialSymbolsCalculate.svelte';
 	import MaterialSymbolsDonutSmall from '$lib/assets/svg/MaterialSymbolsDonutSmall.svelte';
 
-	dayjs.extend(calendar);
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
@@ -33,7 +32,7 @@
 
 	let notification = $derived.by(() => getTrackerStatus(currentTrackerLogs));
 
-	type TabPages = 'overview' | 'stats' | 'history';
+	type TabPages = 'overview' | 'history';
 
 	let currentTab = $state<TabPages>('overview');
 
