@@ -11,6 +11,8 @@
 	import TwoColumnCard from '$lib/ui/TwoColumnCard.svelte';
 	import StatusHeroImage from '$lib/ui/StatusHeroImage.svelte';
 	import { getTrackerStatus } from '$lib/notification';
+	import MaterialSymbolsCalculate from '$lib/assets/svg/MaterialSymbolsCalculate.svelte';
+	import MaterialSymbolsDonutSmall from '$lib/assets/svg/MaterialSymbolsDonutSmall.svelte';
 
 	dayjs.extend(calendar);
 	dayjs.extend(relativeTime);
@@ -33,7 +35,7 @@
 
 	type TabPages = 'overview' | 'stats' | 'history';
 
-	let currentTab = $state<TabPages>('history');
+	let currentTab = $state<TabPages>('overview');
 
 	let records: LogsRecord[] | undefined = $state([]);
 
@@ -65,6 +67,29 @@
 		if (!currentTrackerLogs || currentTrackerLogs.length === 0) return null;
 
 		return currentTrackerLogs[currentTrackerLogs.length - 1];
+	});
+
+	let lifetimeSpend = $derived.by(() => {
+		if (
+			!currentTrackerLogs ||
+			currentTrackerLogs.length === 0 ||
+			!tracker.isSuccess ||
+			!tracker.data
+		)
+			return null;
+
+		const cost = tracker.data.cost ?? 0;
+
+		return currentTrackerLogs.length * cost;
+	});
+
+	let monthlyCost = $derived.by(() => {
+		if (!currentTrackerLogs || currentTrackerLogs.length === 0 || !lifetimeSpend) return null;
+
+		const firstLogTime = currentTrackerLogs[currentTrackerLogs.length - 1].time;
+		const totalDuration = Math.floor(dayjs().diff(dayjs(firstLogTime), 'month', true));
+
+		return Math.floor(lifetimeSpend / totalDuration);
 	});
 </script>
 
@@ -164,27 +189,40 @@
 							{/if}
 						{/snippet}
 					</TwoColumnCard>
-				</div>
 
-				<div class={['grid w-full gap-8 px-4', currentTab === 'stats' ? undefined : 'hidden']}>
-					<div class="border-base-content/5 w-full rounded-lg border p-4 shadow">
-						<h2 class="text-md text-center">Trend</h2>
-						<div></div>
-					</div>
-
-					<div
-						class="border-base-content/5 grid w-full grid-cols-2 content-center gap-4 rounded-lg border shadow"
+					<TwoColumnCard
+						leftTitle="Monthly Avg"
+						leftIcon={MaterialSymbolsCalculate}
+						rightTitle="Lifetime Spend"
+						rightIcon={MaterialSymbolsDonutSmall}
 					>
-						<div class="border-r-base-content/15 grid justify-items-center border-r p-4">
-							<h2 class="text-md">Longest Gap</h2>
-							<div class="text-center text-2xl font-bold"></div>
-						</div>
+						{#snippet left()}
+							{#if currentTrackerLogs && currentTrackerLogs.length > 0}
+								<p>
+									${monthlyCost}/mth
+								</p>
+							{:else}
+								<div class="flex min-h-20 items-center gap-4 text-xl font-bold">Not set yet</div>
+							{/if}
+						{/snippet}
 
-						<div class="grid justify-items-center p-4">
-							<h2 class="text-md">Average Gap</h2>
-							<div class="text-center text-2xl font-bold"></div>
-						</div>
-					</div>
+						{#snippet right()}
+							{#if currentTrackerLogs && currentTrackerLogs.length > 0}
+								{#if currentTrackerLogs.length > 0}
+									<p>
+										${lifetimeSpend}
+									</p>
+								{:else}
+									<div class="flex min-h-20 items-center gap-4 text-xl font-bold">
+										Never recorded
+									</div>
+								{/if}
+							{/if}
+							{#if allLogsDb.isPending}
+								<div class="custom-loader"></div>
+							{/if}
+						{/snippet}
+					</TwoColumnCard>
 				</div>
 
 				<div
