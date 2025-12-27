@@ -32,7 +32,7 @@
 	let status: ButtonState = $state('default');
 	let isCelebrating = $state(false);
 	let showStars = $state(false);
-	let starPositions: { x: number; y: number }[] = [];
+	let starPositions: { x: number; y: number }[] = $state([]);
 
 	const tanstackClient = useQueryClient();
 	export const insertNewLogToCache = (newLog: RecordModel) =>
