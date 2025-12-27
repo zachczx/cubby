@@ -49,16 +49,28 @@
 		const centerX = 50;
 		const centerY = 50;
 		const starCount = count;
-		const angleOffset = Math.random() * 72; // Random rotation
+
+		// Calculate size of one slice
+		const slice = 360 / starCount;
+
+		// Global rotation to make it not fixed where 1st always starts at 3pm position.
+		const globalOffset = Math.random() * slice;
 
 		return Array.from({ length: starCount }, (_, i) => {
-			const angle = (i * (360 / starCount) + angleOffset) * (Math.PI / 180);
-			// More randomness: some stars closer (45%), some farther out (70%)
+			let angleDeg = i * slice + globalOffset;
+
+			const maxWobble = slice * 0.5;
+			const randomShift = (Math.random() - 0.5) * maxWobble;
+
+			angleDeg += randomShift;
+
+			const angleRad = angleDeg * (Math.PI / 180);
+
 			const distance = 45 + Math.random() * 20;
 
 			return {
-				x: centerX + Math.cos(angle) * distance,
-				y: centerY + Math.sin(angle) * distance
+				x: centerX + Math.cos(angleRad) * distance,
+				y: centerY + Math.sin(angleRad) * distance
 			};
 		});
 	}
