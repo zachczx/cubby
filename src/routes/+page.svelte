@@ -7,11 +7,9 @@
 
 	onMount(() => {
 		if (pb.authStore.isValid) {
-			setTimeout(() => goto(resolve('/app')), 2000);
-		}
-
-		if (!pb.authStore.isValid) {
-			setTimeout(() => goto(resolve('/login')), 2000);
+			goto(resolve('/app'));
+		} else {
+			goto(resolve('/login'));
 		}
 	});
 </script>
