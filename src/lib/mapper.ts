@@ -1,4 +1,5 @@
 import type { Component } from 'svelte';
+import dayjs from 'dayjs';
 import FluentEmojiFlatBed from './assets/expressive-icons/FluentEmojiFlatBed.svelte';
 import FluentEmojiFlatBookmarkTabs from './assets/expressive-icons/FluentEmojiFlatBookmarkTabs.svelte';
 import FluentEmojiFlatLotionBottle from './assets/expressive-icons/FluentEmojiFlatLotionBottle.svelte';
@@ -76,4 +77,50 @@ export function getColoredTrackers(trackers: TrackerDB[]): TrackerColored[] {
 	});
 
 	return coloredTrackers;
+}
+
+export function generateSubscriptionLogs(tracker: TrackerDB): LogsDB[] {
+	if (!tracker.startDate) return [];
+
+	const subscriptionStart = tracker.startDate;
+	const historicalRecords: LogsDB[] = [];
+	const today = dayjs();
+	let currentDateTime = dayjs(subscriptionStart);
+
+	// Add the initial start date as a log
+	historicalRecords.push({
+		id: 'generated_start',
+		collectionId: '',
+		collectionName: 'logs',
+		created: subscriptionStart,
+		updated: subscriptionStart,
+		tracker: tracker.id,
+		user: pb.authStore.record?.id ?? '',
+		time: subscriptionStart,
+		interval: tracker.interval,
+		intervalUnit: tracker.intervalUnit
+	});
+
+	// Generate subsequent logs based on interval
+	while (
+		currentDateTime.add(tracker.interval, tracker.intervalUnit).isBefore(today) ||
+		currentDateTime.add(tracker.interval, tracker.intervalUnit).isSame(today, 'day')
+	) {
+		currentDateTime = currentDateTime.add(tracker.interval, tracker.intervalUnit);
+		historicalRecords.push({
+			id: `generated_${currentDateTime.toISOString()}`,
+			collectionId: '',
+			collectionName: 'logs',
+			created: currentDateTime.toISOString(),
+			updated: currentDateTime.toISOString(),
+			tracker: tracker.id,
+			user: pb.authStore.record?.id ?? '',
+			time: currentDateTime.toISOString(),
+			interval: tracker.interval,
+			intervalUnit: tracker.intervalUnit
+		});
+	}
+
+	// Return reversed so latest is first, similar to DB sort
+	return historicalRecords.reverse();
 }

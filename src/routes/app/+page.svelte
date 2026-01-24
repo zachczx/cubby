@@ -17,8 +17,9 @@
 	import EmptyCorgi from '$lib/assets/empty.webp?w=200&enhanced';
 	import FluentEmojiFlatStopwatch from '$lib/assets/expressive-icons/FluentEmojiFlatStopwatch.svelte';
 	import FluentEmojiFlatAirplane from '$lib/assets/expressive-icons/FluentEmojiFlatAirplane.svelte';
-	import { getColoredTrackers, getTrackerIcon } from '$lib/mapper';
+	import { getColoredTrackers, getTrackerIcon, generateSubscriptionLogs } from '$lib/mapper';
 	import SkeletonActionCard from '$lib/ui/SkeletonActionCard.svelte';
+	import { calculateStreak } from '$lib/streaks';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
@@ -52,10 +53,29 @@
 
 		const coloredTrackers = getColoredTrackers(trackersDb.data);
 
-		const pinned = coloredTrackers.filter((tracker) => tracker.pinned && tracker.show);
-		const general = coloredTrackers.filter((tracker) => !tracker.pinned && tracker.show);
+		const pinned = coloredTrackers.filter(
+			(tracker) => tracker.pinned && tracker.show && tracker.kind === 'task'
+		);
+		const general = coloredTrackers.filter(
+			(tracker) => !tracker.pinned && tracker.show && tracker.kind === 'task'
+		);
 
 		return { pinned: pinned, general: general };
+	});
+
+	let subscriptions = $derived.by(() => {
+		if (!trackersDb.isSuccess || !trackersDb.data) return;
+
+		const coloredTrackers = getColoredTrackers(trackersDb.data);
+
+		return coloredTrackers
+			.filter((tracker) => tracker.show && tracker.kind === 'subscription')
+			.map((sub) => {
+				return {
+					...sub,
+					logData: generateSubscriptionLogs(sub)
+				};
+			});
 	});
 
 	let logs = $derived.by(() => {
@@ -66,10 +86,6 @@
 			general: classifyTrackers(trackers.general, allLogsDb.data, 'general')
 		};
 	});
-
-	import { calculateStreak } from '$lib/streaks';
-
-	// ... (rest of imports)
 
 	function classifyTrackers(trackers: TrackerDB[], logs: LogsDB[], kind: 'general' | 'pinned') {
 		const data = [];
@@ -183,6 +199,41 @@
 										text: log.trackerData?.actionLabel
 									},
 									streak: log.streak
+								}}
+							></ActionCard>
+						{/each}
+					{:else if allLogsDb.isSuccess && allLogsDb.data && logs.general && logs.general.length === 0}
+						<div class="justify-self-center">
+							<enhanced:img src={EmptyCorgi} alt="nothing" />
+							<p class="text-center">No tasks!</p>
+						</div>
+					{:else}
+						<SkeletonActionCard size="compact" />
+						<SkeletonActionCard size="compact" />
+						<SkeletonActionCard size="compact" />
+					{/if}
+				</div>
+			</section>
+
+			<section class="grid gap-4 py-2">
+				<h2 class="text-base-content/70 text-lg font-bold">Subscriptions</h2>
+
+				<div class="border-base-300/50 rounded-2xl border bg-white/70">
+					{#if allLogsDb.isSuccess && allLogsDb.data && logs.general && logs.general.length > 0}
+						{#each subscriptions as sub, i (sub.id)}
+							<ActionCard
+								options={{
+									tracker: sub,
+									size: 'list',
+									title: sub.display,
+									logs: sub.logData,
+									route: `/app/${sub.category}/${sub.id}`,
+									icon: getTrackerIcon(sub.icon),
+									lastChild: i === logs.general.length - 1 ? true : undefined,
+									button: {
+										status: buttonStatuses?.[sub.name],
+										text: sub.actionLabel
+									}
 								}}
 							></ActionCard>
 						{/each}
