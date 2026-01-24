@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { pb } from '$lib/pb';
 	import { allTrackersQueryOptions } from '$lib/queries';
-	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
+	import { createQuery } from '@tanstack/svelte-query';
 	import dayjs from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';

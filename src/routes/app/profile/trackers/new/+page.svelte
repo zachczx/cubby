@@ -6,12 +6,7 @@
 	import utc from 'dayjs/plugin/utc';
 	import timezone from 'dayjs/plugin/timezone';
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
-	import {
-		userQueryOptions,
-		familyQueryOptions,
-		allTrackersRefetchOptions,
-		allTrackersQueryOptions
-	} from '$lib/queries';
+	import { userQueryOptions, familyQueryOptions, allTrackersRefetchOptions } from '$lib/queries';
 	import { goto } from '$app/navigation';
 	import TrackerForm from '../TrackerForm.svelte';
 
@@ -26,7 +21,6 @@
 			return families.data.find((family) => family.owner === pb.authStore.record?.id)?.id;
 		}
 	});
-	const trackersDb = createQuery(allTrackersQueryOptions);
 
 	let spinner = $state(false);
 

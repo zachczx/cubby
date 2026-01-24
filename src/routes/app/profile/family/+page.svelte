@@ -7,7 +7,6 @@
 	import timezone from 'dayjs/plugin/timezone';
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import {
-		cleanEmail,
 		userQueryOptions,
 		familyQueryOptions,
 		familyRefetchOptions,
@@ -16,6 +15,7 @@
 	import { goto } from '$app/navigation';
 	import Icon from '@iconify/svelte';
 	import { resolve } from '$app/paths';
+	import { cleanEmail } from '$lib/utils';
 
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
@@ -31,28 +31,6 @@
 	let invitee = $state('');
 
 	let modals = $state<HTMLDialogElement[]>([]);
-
-	async function addHandler() {
-		if (!user.isSuccess) return;
-		spinner = true;
-
-		try {
-			// const start = dayjs.tz(vacationStart, 'Asia/Singapore');
-			// const end = dayjs.tz(vacationEnd, 'Asia/Singapore');
-			// const result = await pb.collection('vacation').create({
-			// 	user: pb.authStore.record?.id,
-			// 	startDateTime: start,
-			// 	endDateTime: end
-			// });
-			// if (result.id) {
-			// 	addToast('success', 'Added successfully!');
-			// 	spinner = false;
-			// 	await tanstackClient.refetchQueries(vacationRefetchOptions());
-			// }
-		} catch (err) {
-			console.log(err);
-		}
-	}
 
 	async function deleteHandler(userId: string, family: FamilyDB) {
 		if (!user.isSuccess || !family) return;

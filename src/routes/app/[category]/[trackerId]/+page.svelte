@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { calculateRecordsGapsWithVacation } from '$lib/overlap';
 	import { allTrackersQueryOptions } from '$lib/queries';
 	import SubscriptionPage from '$lib/shell/SubscriptionPage.svelte';
 	import TrackerPage from '$lib/shell/TrackerPage.svelte';
@@ -22,8 +21,7 @@
 				pageTitle: currentTracker?.display ?? 'Loading...',
 				ctaButtonText: currentTracker?.actionLabel ?? 'Loading...',
 				noun: currentTracker?.name ?? 'Loading...'
-			},
-			calculateGaps: calculateRecordsGapsWithVacation
+			}
 		};
 	});
 </script>

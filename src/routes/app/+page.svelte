@@ -5,13 +5,8 @@
 	import utc from 'dayjs/plugin/utc';
 	import timezone from 'dayjs/plugin/timezone';
 	import relativeTime from 'dayjs/plugin/relativeTime';
-	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
-	import {
-		allLogsQueryOptions,
-		allTrackersQueryOptions,
-		notificationQueryOptions,
-		userQueryOptions
-	} from '$lib/queries';
+	import { createQuery } from '@tanstack/svelte-query';
+	import { allLogsQueryOptions, allTrackersQueryOptions, userQueryOptions } from '$lib/queries';
 	import { getTrackerStatus } from '$lib/notification';
 	import ActionCard from '$lib/ui/ActionCard.svelte';
 	import EmptyCorgi from '$lib/assets/empty.webp?w=200&enhanced';
@@ -25,11 +20,9 @@
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
 
-	const latestLogs = createQuery(notificationQueryOptions);
 	const trackersDb = createQuery(allTrackersQueryOptions);
 	const allLogsDb = createQuery(allLogsQueryOptions);
 	const userOptions = createQuery(userQueryOptions);
-	const tanstackClient = useQueryClient();
 
 	let generalTasksUpcomingDays = $derived.by(() => {
 		if (!userOptions.isSuccess || !userOptions.data) return 14;

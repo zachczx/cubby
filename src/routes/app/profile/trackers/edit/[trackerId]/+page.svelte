@@ -8,7 +8,6 @@
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import {
 		userQueryOptions,
-		familyQueryOptions,
 		allTrackersRefetchOptions,
 		allTrackersQueryOptions
 	} from '$lib/queries';
@@ -23,12 +22,7 @@
 
 	const user = createQuery(userQueryOptions);
 	const tanstackClient = useQueryClient();
-	const families = createQuery(familyQueryOptions);
-	let userOwnedFamily = $derived.by(() => {
-		if (families.isSuccess && families.data) {
-			return families.data.find((family) => family.owner === pb.authStore.record?.id)?.id;
-		}
-	});
+
 	const trackersDb = createQuery(allTrackersQueryOptions);
 	let currentTracker = $derived.by(() => {
 		if (trackersDb.isSuccess && trackersDb.data) {

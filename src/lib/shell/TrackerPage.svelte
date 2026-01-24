@@ -9,12 +9,7 @@
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
 	import Chart from 'chart.js/auto';
 	import { createQuery } from '@tanstack/svelte-query';
-	import {
-		trackerQueryOptions,
-		vacationQueryOptions,
-		createLogsQuery,
-		allLogsQueryOptions
-	} from '$lib/queries';
+	import { trackerQueryOptions, createLogsQuery, allLogsQueryOptions } from '$lib/queries';
 	import { getCalendarEntries } from '$lib/calendar';
 	import CustomDateModal from '$lib/ui/CustomDateModal.svelte';
 	import StatusDescriptions from '$lib/ui/StatusDescriptions.svelte';
@@ -42,8 +37,6 @@
 		return allLogsDb.data.filter((log) => log.tracker === options.tracker?.id);
 	});
 
-	const vacations = createQuery(vacationQueryOptions);
-
 	const tracker = createQuery(() => trackerQueryOptions(options.tracker?.id));
 	let interval = $derived.by(() => (tracker.isSuccess ? tracker.data?.interval : undefined));
 	let intervalUnit = $derived.by(() =>
@@ -59,7 +52,6 @@
 	let times = $derived.by(() =>
 		getCalendarEntries(currentTrackerLogs, options.labels.ctaButtonText)
 	);
-	let vacationTimes = $derived.by(() => getCalendarEntries(vacations.data, 'Vacation', '✈️'));
 
 	function isSameDate(first: Date | string, second: Date | string): boolean {
 		return dayjs(first).isSame(second, 'day');
@@ -75,7 +67,7 @@
 	let calendarOptions: Calendar.Options = $derived.by(() => {
 		return {
 			view: 'dayGridMonth',
-			events: [...times, ...vacationTimes],
+			events: [...times],
 			selectBackgroundColor: 'red',
 			eventBackgroundColor: 'var(--color-primary)',
 			firstDay: 1,
@@ -121,15 +113,11 @@
 
 	$effect(() => {
 		if (currentTrackerLogs && currentTrackerLogs.length > 0) {
-			if (options.calculateGaps) {
-				records = options.calculateGaps(currentTrackerLogs, vacations.data ?? []);
-			} else {
-				records = currentTrackerLogs.map((record, i, allRecords) => {
-					const nextRecord = allRecords[i + 1];
-					const gap = nextRecord ? dayjs(record.time).diff(nextRecord.time, 'day', true) : 0;
-					return { ...record, gap };
-				});
-			}
+			records = currentTrackerLogs.map((record, i, allRecords) => {
+				const nextRecord = allRecords[i + 1];
+				const gap = nextRecord ? dayjs(record.time).diff(nextRecord.time, 'day', true) : 0;
+				return { ...record, gap };
+			});
 		}
 	});
 
@@ -215,15 +203,6 @@
 			lineChart.update();
 		}
 	});
-
-	const dayjsCalendarOptions = {
-		sameDay: '[Today], h:mma',
-		nextDay: '[Tomorrow], h:mma',
-		nextWeek: 'dddd, h:mma',
-		lastDay: '[Yesterday], h:mma',
-		lastWeek: '[Last] dddd, h:mma',
-		sameElse: 'D MMM YYYY'
-	};
 </script>
 
 <PageWrapper title={options.labels.pageTitle} {pb}>

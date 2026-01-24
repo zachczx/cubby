@@ -142,7 +142,6 @@ interface TrackerPageOptions {
 		ctaButtonText: string | undefined;
 		noun: string | undefined;
 	};
-	calculateGaps?: (records: LogsDB[], vacations: VacationDB[]) => LogsRecord[];
 }
 
 type Collections = LogsDB | VacationDB;

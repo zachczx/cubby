@@ -6,7 +6,7 @@
 	import utc from 'dayjs/plugin/utc';
 	import timezone from 'dayjs/plugin/timezone';
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
-	import { userQueryOptions, userRefetchOptions, vacationQueryOptions } from '$lib/queries';
+	import { userRefetchOptions } from '$lib/queries';
 	import SegmentedControl from '$lib/ui/SegmentedControl.svelte';
 
 	dayjs.extend(utc);
@@ -64,21 +64,6 @@
 			}
 		}
 	});
-
-	function formatTime(startDateTime: string, endDateTime: string) {
-		if (!startDateTime || !endDateTime) return;
-
-		const s = dayjs(startDateTime);
-		const e = dayjs(endDateTime);
-
-		if (s.get('month') === e.get('month')) {
-			if (s.get('date') === e.get('date')) {
-				return s.format('D MMM YYYY');
-			}
-			return s.format('D') + ' – ' + e.format('D MMM YYYY');
-		}
-		return s.format('D MMM YYYY') + ' – ' + e.format('D MMM YYYY');
-	}
 
 	async function onchange(evt: Event) {
 		const target = evt.target;

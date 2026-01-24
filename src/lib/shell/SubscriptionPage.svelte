@@ -4,7 +4,6 @@
 	import utc from 'dayjs/plugin/utc';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import timezone from 'dayjs/plugin/timezone';
-	import calendar from 'dayjs/plugin/calendar';
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { trackerQueryOptions, allLogsQueryOptions } from '$lib/queries';

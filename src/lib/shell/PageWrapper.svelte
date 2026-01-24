@@ -11,8 +11,7 @@
 		title,
 		back = true,
 		largeScreenCenter,
-		focusedScreen = false,
-		focusedScreenAction
+		focusedScreen = false
 	}: {
 		pb: Client;
 		children: Snippet;

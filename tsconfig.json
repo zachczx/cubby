@@ -9,7 +9,10 @@
 		"skipLibCheck": true,
 		"sourceMap": true,
 		"strict": true,
-		"moduleResolution": "bundler"
+		"moduleResolution": "bundler",
+
+		"noUnusedLocals": true,
+		"noUnusedParameters": true
 	},
-	"exclude": ["node_modules", "src/lib/assets/svg"]
+	"exclude": ["node_modules"]
 }
