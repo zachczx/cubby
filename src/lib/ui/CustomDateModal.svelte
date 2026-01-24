@@ -6,8 +6,7 @@
 	import timezone from 'dayjs/plugin/timezone';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import { addToast } from './ArkToaster.svelte';
-	import MaterialSymbolsCheck from '../assets/svg/MaterialSymbolsCheck.svelte';
-	import MaterialSymbolsArrowRightAlt from '../assets/svg/MaterialSymbolsArrowRightAlt.svelte';
+	import Icon from '@iconify/svelte';
 	import type { RecordModel } from 'pocketbase';
 	import { getAllLogsQueryKey } from '../queries';
 
@@ -95,7 +94,7 @@
 	aria-label="custom time"
 	onclick={() => dialog.showModal()}
 >
-	Custom Time<MaterialSymbolsArrowRightAlt class="size-5 opacity-[0.7]" /></button
+	Custom Time<Icon icon="material-symbols:arrow-right-alt" class="size-5 opacity-[0.7]" /></button
 >
 
 <dialog bind:this={dialog} class="modal modal-bottom sm:modal-middle">
@@ -139,7 +138,7 @@
 			onclick={addHandler}
 		>
 			{#if buttonStatus === 'success'}
-				<MaterialSymbolsCheck class="size-6" />Added!
+				<Icon icon="material-symbols:check" class="size-6" />Added!
 			{:else if buttonStatus === 'loading'}
 				<span class="loading loading-spinner loading-md"></span>
 			{:else}

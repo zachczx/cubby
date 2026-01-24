@@ -1,5 +1,5 @@
 <script lang="ts">
-	import MaterialSymbolsChevronRight from '$lib/assets/svg/MaterialSymbolsChevronRight.svelte';
+	import Icon from '@iconify/svelte';
 
 	let { size = 'default' }: { size?: 'compact' | 'default' } = $props();
 </script>
@@ -42,7 +42,7 @@
 			</div>
 			<div class="flex h-full items-center">
 				<div class="active:bg-neutral/10 cursor-pointer rounded-lg p-1 opacity-75">
-					<MaterialSymbolsChevronRight class="size-6 opacity-50" />
+					<Icon icon="material-symbols:chevron-right" class="size-6 opacity-50" />
 				</div>
 			</div>
 		</div>

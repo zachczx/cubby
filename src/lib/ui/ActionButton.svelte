@@ -1,5 +1,5 @@
 <script lang="ts">
-	import MaterialSymbolsCheck from '$lib/assets/svg/MaterialSymbolsCheck.svelte';
+	import Icon from '@iconify/svelte';
 	import type { RecordModel } from 'pocketbase';
 	import { addToast } from './ArkToaster.svelte';
 	import { useQueryClient } from '@tanstack/svelte-query';
@@ -25,7 +25,7 @@
 		color?: 'primary' | 'neutral';
 		rounded?: 'full' | '3xl' | '2xl' | 'xl' | 'lg' | 'md' | 'sm' | 'xs';
 		class?: string;
-		icon?: Component;
+		icon?: Component | string;
 		celebrate?: boolean;
 	} = $props();
 
@@ -145,7 +145,7 @@
 			bind:this={buttonRef}
 		>
 			{#if status === 'success'}
-				<MaterialSymbolsCheck class="size-6" />Added!
+				<Icon icon="material-symbols:check" class="size-6" />Added!
 			{/if}
 			{#if status === 'loading'}
 				<span class="loading loading-spinner loading-md"></span>
@@ -169,10 +169,12 @@
 		>
 			{#if status === 'loading'}
 				<span class="loading loading-spinner loading-md"></span>
+			{:else if typeof CustomIcon === 'string'}
+				<Icon icon={CustomIcon} class="size-8" />
 			{:else if CustomIcon && status !== 'success'}
 				<CustomIcon class="size-8" />
 			{:else}
-				<MaterialSymbolsCheck class="size-8" />
+				<Icon icon="material-symbols:check" class="size-8" />
 			{/if}
 		</button>
 	{/if}

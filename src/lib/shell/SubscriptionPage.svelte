@@ -11,8 +11,6 @@
 	import TwoColumnCard from '$lib/ui/TwoColumnCard.svelte';
 	import StatusHeroImage from '$lib/ui/StatusHeroImage.svelte';
 	import { getTrackerStatus } from '$lib/notification';
-	import MaterialSymbolsCalculate from '$lib/assets/svg/MaterialSymbolsCalculate.svelte';
-	import MaterialSymbolsDonutSmall from '$lib/assets/svg/MaterialSymbolsDonutSmall.svelte';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
@@ -191,9 +189,9 @@
 
 					<TwoColumnCard
 						leftTitle="Monthly Avg"
-						leftIcon={MaterialSymbolsCalculate}
+						leftIcon="material-symbols:calculate"
 						rightTitle="Lifetime Spend"
-						rightIcon={MaterialSymbolsDonutSmall}
+						rightIcon="material-symbols:donut-small"
 					>
 						{#snippet left()}
 							{#if currentTrackerLogs && currentTrackerLogs.length > 0}

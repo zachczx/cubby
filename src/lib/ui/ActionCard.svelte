@@ -4,9 +4,9 @@
 	import { createQuery } from '@tanstack/svelte-query';
 	import { allTrackersQueryOptions, createLogsQuery } from '$lib/queries';
 	import { getTrackerStatus } from '$lib/notification';
-	import MaterialSymbolsCheck from '$lib/assets/svg/MaterialSymbolsCheck.svelte';
-	import MaterialSymbolsChevronRight from '$lib/assets/svg/MaterialSymbolsChevronRight.svelte';
-	import MaterialSymbolsLocalFireDepartment from '$lib/assets/svg/MaterialSymbolsLocalFireDepartment.svelte';
+
+	import Icon from '@iconify/svelte';
+
 	import { onMount } from 'svelte';
 	import { error } from '@sveltejs/kit';
 	import { pb } from '$lib/pb';
@@ -67,7 +67,7 @@
 			</div>
 
 			<div class="flex h-full items-center">
-				<MaterialSymbolsChevronRight class="size-5 opacity-75" />
+				<Icon icon="material-symbols:chevron-right" class="size-5 opacity-75" />
 			</div>
 		</div>
 	</a>
@@ -94,7 +94,7 @@
 					text={options.button.text}
 					compact={true}
 					color={'primary'}
-					icon={MaterialSymbolsCheck}
+					icon="material-symbols:check"
 					rounded="2xl"
 				/>
 			</div>
@@ -118,7 +118,7 @@
 			</div>
 			<div class="flex h-full items-center">
 				<div class="active:bg-neutral/10 cursor-pointer rounded-lg p-1 opacity-75">
-					<MaterialSymbolsChevronRight class="size-6" />
+					<Icon icon="material-symbols:chevron-right" class="size-6" />
 				</div>
 			</div>
 		</a>
@@ -147,7 +147,6 @@
 			class="text-success bg-success/10 flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold"
 			title="Current streak: {options.streak}"
 		>
-			<!-- <MaterialSymbolsLocalFireDepartment class="size-3.5" /> -->
 			{options.streak}x
 		</div>
 	{/if}

@@ -14,12 +14,7 @@
 		inviteQueryOptions
 	} from '$lib/queries';
 	import { goto } from '$app/navigation';
-	import MaterialSymbolsPerson from '$lib/assets/svg/MaterialSymbolsPerson.svelte';
-	import MaterialSymbolsCheck from '$lib/assets/svg/MaterialSymbolsCheck.svelte';
-	import MaterialSymbolsArrowRightAlt from '$lib/assets/svg/MaterialSymbolsArrowRightAlt.svelte';
-	import MdiAlertCircle from '$lib/assets/svg/MdiAlertCircle.svelte';
-	import MaterialSymbolsMoreVert from '$lib/assets/svg/MaterialSymbolsMoreVert.svelte';
-	import MaterialSymbolsPersonRemove from '$lib/assets/svg/MaterialSymbolsPersonRemove.svelte';
+	import Icon from '@iconify/svelte';
 	import { resolve } from '$app/paths';
 
 	dayjs.extend(utc);
@@ -171,7 +166,8 @@
 							<a
 								href={resolve(`/app/profile/family/invite?i=${currentInvite.data.family}`)}
 								class="flex items-center gap-4"
-								><MdiAlertCircle class="size-[2em]" />You received an invite <MaterialSymbolsArrowRightAlt
+								><Icon icon="mdi:alert-circle" class="size-[2em]" />You received an invite <Icon
+									icon="material-symbols:arrow-right-alt"
 									class="-ms-3 size-[1.3em]"
 								/></a
 							>
@@ -189,7 +185,7 @@
 								{#each family.expand?.members as member, i (member.id)}
 									<li class="flex items-center">
 										<div class="flex grow items-center gap-2 py-1">
-											<MaterialSymbolsPerson class="me-2" />
+											<Icon icon="material-symbols:person" class="me-2" />
 											{#if member.name}
 												{member.name}
 											{:else}
@@ -214,7 +210,7 @@
 													role="button"
 													class="btn btn-ghost drawer-button px-2 py-0"
 												>
-													<MaterialSymbolsMoreVert class="" />
+													<Icon icon="material-symbols:more-vert" class="" />
 												</div>
 												<ul
 													class="dropdown-content menu rounded-box bg-base-100 text-md text-base-content z-1 min-w-32 shadow-lg"
@@ -222,7 +218,10 @@
 													<button
 														onclick={() => modals[i].showModal()}
 														class="btn btn-ghost flex w-full items-center gap-2 rounded-xl"
-														><MaterialSymbolsPersonRemove class="size-[1.3em]" />Remove</button
+														><Icon
+															icon="material-symbols:person-remove"
+															class="size-[1.3em]"
+														/>Remove</button
 													>
 												</ul>
 											</div>
@@ -237,7 +236,7 @@
 								<button
 									class="btn btn-ghost text-error flex items-center gap-2 py-0"
 									onclick={() => leaveFamily(pb.authStore.record?.id, family)}
-									>Leave Cubby<MaterialSymbolsArrowRightAlt /></button
+									>Leave Cubby<Icon icon="material-symbols:arrow-right-alt" /></button
 								>
 							</div>
 						{/if}
@@ -266,9 +265,8 @@
 									>
 										{#if !invited}
 											Invite
-											<!-- <MaterialSymbolsShare class="size-6" /> -->
 										{:else}
-											<MaterialSymbolsCheck class="size-6" />
+											<Icon icon="material-symbols:check" class="size-6" />
 										{/if}
 									</button>
 								</form>
@@ -290,7 +288,7 @@
 					<div
 						class="bg-error/10 text-error flex aspect-square size-20 items-center justify-center justify-self-center overflow-hidden rounded-full"
 					>
-						<MaterialSymbolsPersonRemove class="ms-2.5 size-12" />
+						<Icon icon="material-symbols:person-remove" class="ms-2.5 size-12" />
 					</div>
 					<div class="grid gap-4">
 						<h2 class="text-2xl font-bold">Remove Member?</h2>

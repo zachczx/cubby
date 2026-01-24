@@ -19,8 +19,7 @@
 
 <script lang="ts">
 	import { Toast, Toaster } from '@ark-ui/svelte/toast';
-	import MaterialSymbolsClose from '$lib/assets/svg/MaterialSymbolsClose.svelte';
-	import MaterialSymbolsCheckCircle from '$lib/assets/svg/MaterialSymbolsCheckCircle.svelte';
+	import Icon from '@iconify/svelte';
 </script>
 
 <div>
@@ -28,7 +27,7 @@
 		{#snippet children(toast)}
 			<Toast.Root>
 				<div class="content">
-					<div><MaterialSymbolsCheckCircle class="size-[1.3em]" /></div>
+					<div><Icon icon="material-symbols:check-circle" class="size-[1.3em]" /></div>
 					<div>
 						<!-- {#if toast().title}
 						<Toast.Title>{toast().title}</Toast.Title>
@@ -38,7 +37,7 @@
 				</div>
 				<div class="flex items-center">
 					<Toast.CloseTrigger>
-						<MaterialSymbolsClose class="size-[1em] cursor-pointer" />
+						<Icon icon="material-symbols:close" class="size-[1em] cursor-pointer" />
 					</Toast.CloseTrigger>
 				</div>
 			</Toast.Root>

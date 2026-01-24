@@ -1,7 +1,5 @@
 <script lang="ts">
-	import MaterialSymbolsClose from '$lib/assets/svg/MaterialSymbolsClose.svelte';
-	import MaterialSymbolsDelete from '$lib/assets/svg/MaterialSymbolsDelete.svelte';
-	import MaterialSymbolsEdit from '$lib/assets/svg/MaterialSymbolsEdit.svelte';
+	import Icon from '@iconify/svelte';
 	import { pb } from '$lib/pb';
 	import dayjs from 'dayjs';
 	import { addToast } from './ArkToaster.svelte';
@@ -92,7 +90,9 @@
 				<h3 class="grow text-lg font-bold">{theDay}</h3>
 				<div class="flex items-center justify-end">
 					<form method="dialog">
-						<button class="btn btn-ghost -me-2"><MaterialSymbolsClose class="size-5" /></button>
+						<button class="btn btn-ghost -me-2"
+							><Icon icon="material-symbols:close" class="size-5" /></button
+						>
 					</form>
 				</div>
 			</div>
@@ -110,10 +110,7 @@
 									value={dayjs(log.time).format('HH:mm')}
 									class="input input-lg w-full"
 								/>
-								<button class="btn btn-primary btn-lg mt-2 w-full rounded-full">
-									<!-- <MaterialSymbolsSave class="size-[1.3em]" /> -->
-									Save
-								</button>
+								<button class="btn btn-primary btn-lg mt-2 w-full rounded-full"> Save </button>
 							</form>
 							<button class="btn btn-ghost btn-lg w-full" onclick={() => (editMode[log.id] = false)}
 								>Cancel</button
@@ -128,10 +125,10 @@
 							</div>
 							<div class="flex items-center">
 								<button class="btn btn-ghost" onclick={() => (editMode[log.id] = !editMode[log.id])}
-									><MaterialSymbolsEdit class="size-[1.3em]" /></button
+									><Icon icon="material-symbols:edit" class="size-[1.3em]" /></button
 								>
 								<button class="btn btn-error btn-soft" onclick={() => deleteHandler(log.id)}
-									><MaterialSymbolsDelete class="size-[1.3em]" /></button
+									><Icon icon="material-symbols:delete" class="size-[1.3em]" /></button
 								>
 							</div>
 						</div>
@@ -141,7 +138,9 @@
 		{:else}
 			<div class="flex items-center justify-end">
 				<form method="dialog">
-					<button class="btn btn-ghost -me-2"><MaterialSymbolsClose class="size-5" /></button>
+					<button class="btn btn-ghost -me-2"
+						><Icon icon="material-symbols:close" class="size-5" /></button
+					>
 				</form>
 			</div>
 			<div class="justify-self-center">

@@ -1,6 +1,5 @@
 <script lang="ts">
-	import MaterialSymbolsCalendarClock from '$lib/assets/svg/MaterialSymbolsCalendarClock.svelte';
-	import MaterialSymbolsNestClockFarsightAnalogOutline from '$lib/assets/svg/MaterialSymbolsNestClockFarsightAnalogOutline.svelte';
+	import Icon from '@iconify/svelte';
 	import type { Component, Snippet } from 'svelte';
 
 	let {
@@ -13,10 +12,10 @@
 	}: {
 		left: Snippet;
 		leftTitle: string;
-		leftIcon?: Component;
+		leftIcon?: Component | string;
 		right: Snippet;
 		rightTitle: string;
-		rightIcon?: Component;
+		rightIcon?: Component | string;
 	} = $props();
 </script>
 
@@ -26,11 +25,16 @@
 			class="border-base-content/5 bg-base-200/20 grid content-center justify-items-center rounded-xl border p-4 shadow"
 		>
 			<div class="flex items-center gap-2">
-				{#if leftIcon}
+				{#if typeof leftIcon === 'string'}
+					<Icon icon={leftIcon} class="size-[1.3em] opacity-50" />
+				{:else if leftIcon}
 					{@const Comp = leftIcon}
 					<Comp class="size-[1.3em] opacity-50" />
 				{:else}
-					<MaterialSymbolsNestClockFarsightAnalogOutline class="size-[1.3em] opacity-50" />
+					<Icon
+						icon="material-symbols:nest-clock-farsight-analog-outline"
+						class="size-[1.3em] opacity-50"
+					/>
 				{/if}
 				{leftTitle}
 			</div>
@@ -42,11 +46,13 @@
 			class="border-base-content/5 bg-base-200/20 grid justify-items-center rounded-xl border p-4 shadow"
 		>
 			<div class="flex items-center gap-2">
-				{#if rightIcon}
+				{#if typeof rightIcon === 'string'}
+					<Icon icon={rightIcon} class="size-[1.3em] opacity-50" />
+				{:else if rightIcon}
 					{@const Comp = rightIcon}
 					<Comp class="size-[1.3em] opacity-50" />
 				{:else}
-					<MaterialSymbolsCalendarClock class="size-[1.3em] opacity-50" />
+					<Icon icon="material-symbols:calendar-clock" class="size-[1.3em] opacity-50" />
 				{/if}
 				{rightTitle}
 			</div>

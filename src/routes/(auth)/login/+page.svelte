@@ -1,7 +1,6 @@
 <script>
 	import { goto } from '$app/navigation';
-	import MaterialSymbolsVisibilityOffOutline from '$lib/assets/svg/MaterialSymbolsVisibilityOffOutline.svelte';
-	import MaterialSymbolsVisibilityOutline from '$lib/assets/svg/MaterialSymbolsVisibilityOutline.svelte';
+	import Icon from '@iconify/svelte';
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
 	import { pb } from '$lib/pb';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
@@ -65,9 +64,12 @@
 					<input type={togglePasswordStatus ? 'text' : 'password'} bind:value={password} required />
 					<button type="button" class="cursor-pointer" onclick={togglePassword}>
 						{#if togglePasswordStatus}
-							<MaterialSymbolsVisibilityOffOutline class="size-[1.3em] opacity-75" />
+							<Icon
+								icon="material-symbols:visibility-off-outline"
+								class="size-[1.3em] opacity-75"
+							/>
 						{:else}
-							<MaterialSymbolsVisibilityOutline class="size-[1.3em] opacity-75" />
+							<Icon icon="material-symbols:visibility-outline" class="size-[1.3em] opacity-75" />
 						{/if}
 					</button>
 				</label>

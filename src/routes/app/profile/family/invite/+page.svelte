@@ -2,8 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import MaterialSymbolsPersonAdd from '$lib/assets/svg/MaterialSymbolsPersonAdd.svelte';
-	import MaterialSymbolsWarning from '$lib/assets/svg/MaterialSymbolsWarning.svelte';
+	import Icon from '@iconify/svelte';
 	import { pb } from '$lib/pb';
 	import { allLogsQueryOptions, inviteQueryOptions, inviteRefetchOptions } from '$lib/queries';
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
@@ -55,7 +54,7 @@
 				<div
 					class="bg-primary/10 text-primary flex aspect-square size-20 items-center justify-center justify-self-center overflow-hidden rounded-full"
 				>
-					<MaterialSymbolsPersonAdd class="ms-2.5 size-12" />
+					<Icon icon="material-symbols:person-add" class="ms-2.5 size-12" />
 				</div>
 				<h2 class="text-2xl font-bold">
 					You've been invited to {currentInvite.data?.ownerEmailSnapshot}'s family!
@@ -80,7 +79,7 @@
 			</div>
 		{:else}
 			<div class="text-error grid content-center justify-items-center gap-2 text-lg font-bold">
-				<MaterialSymbolsWarning class="size-12" />
+				<Icon icon="material-symbols:warning" class="size-12" />
 				{#if !destinationFamilyId}
 					You're not joining a valid family!
 				{:else}

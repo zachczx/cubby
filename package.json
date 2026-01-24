@@ -1,7 +1,7 @@
 {
 	"name": "cubby",
 	"private": true,
-	"version": "2.6.3",
+	"version": "2.7.0",
 	"type": "module",
 	"engines": {
 		"node": ">=24"
@@ -23,6 +23,7 @@
 		"@eslint/compat": "^2.0.1",
 		"@eslint/js": "^9.39.2",
 		"@event-calendar/core": "5.3.0",
+		"@iconify/svelte": "^5.2.1",
 		"@sveltejs/enhanced-img": "^0.9.3",
 		"@sveltejs/kit": "^2.50.1",
 		"@sveltejs/vite-plugin-svelte": "^6.2.4",

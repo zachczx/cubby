@@ -1,5 +1,5 @@
 <script lang="ts">
-	import MaterialSymbolsAttachMoney from '$lib/assets/svg/MaterialSymbolsAttachMoney.svelte';
+	import Icon from '@iconify/svelte';
 	import { getAllTrackerIcons } from '$lib/mapper';
 	import { pb } from '$lib/pb';
 	import { userQueryOptions } from '$lib/queries';
@@ -139,7 +139,7 @@
 		<fieldset transition:slide={{ duration: 200 }} class="fieldset mt-2">
 			<legend class="fieldset-legend -mb-2 text-lg">Cost (optional)</legend>
 			<label class="input input-lg flex w-full items-center">
-				<MaterialSymbolsAttachMoney class="size-[1.3em] opacity-50" />
+				<Icon icon="material-symbols:attach-money" class="size-[1.3em] opacity-50" />
 				<input
 					type="number"
 					min="0"

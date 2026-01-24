@@ -1,9 +1,8 @@
 <script lang="ts">
 	import hero from '$lib/assets/hero.webp?w=250&enhanced';
 	import heroSubscription from '$lib/assets/hero-subscription.webp?w=250&enhanced';
-	import AntDesignExclamationCircleFilled from '$lib/assets/svg/AntDesignExclamationCircleFilled.svelte';
+	import Icon from '@iconify/svelte';
 	import EmptyState from '$lib/assets/svg/EmptyState.svelte';
-	import MaterialSymbolsCheckCircle from '$lib/assets/svg/MaterialSymbolsCheckCircle.svelte';
 	let { notification, kind = 'task' }: { notification: NotificationStatus; kind?: Kind } = $props();
 </script>
 
@@ -25,11 +24,11 @@
 				class="bg-base-100 absolute top-2 -right-4 flex size-14 items-center justify-center rounded-full"
 			>
 				{#if notification.level === 'ok'}
-					<MaterialSymbolsCheckCircle class="text-success size-13" />
+					<Icon icon="material-symbols:check-circle" class="text-success size-13" />
 				{:else if notification.level === 'due'}
-					<AntDesignExclamationCircleFilled class="text-warning size-13" />
+					<Icon icon="ant-design:exclamation-circle-filled" class="text-warning size-13" />
 				{:else if notification.level === 'overdue'}
-					<AntDesignExclamationCircleFilled class="text-error size-13" />
+					<Icon icon="ant-design:exclamation-circle-filled" class="text-error size-13" />
 				{/if}
 			</div>
 		</div>

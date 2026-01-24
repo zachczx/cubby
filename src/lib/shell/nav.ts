@@ -1,8 +1,3 @@
-import MaterialSymbolsHome from '$lib/assets/svg/MaterialSymbolsHome.svelte';
-import MaterialSymbolsLaundry from '$lib/assets/svg/MaterialSymbolsLaundry.svelte';
-import MaterialSymbolsPerson from '$lib/assets/svg/MaterialSymbolsPerson.svelte';
-import MaterialSymbolsPets from '$lib/assets/svg/MaterialSymbolsPets.svelte';
-
 export const topLevelRoutes = {
 	animation: [
 		{
@@ -11,7 +6,7 @@ export const topLevelRoutes = {
 			label: 'Home',
 			desktopNav: true,
 			mobileNav: true,
-			icon: MaterialSymbolsHome
+			icon: 'material-symbols:home'
 		},
 		{
 			id: 'personal',
@@ -19,7 +14,7 @@ export const topLevelRoutes = {
 			label: 'Personal',
 			desktopNav: true,
 			mobileNav: true,
-			icon: MaterialSymbolsPerson
+			icon: 'material-symbols:person'
 		},
 		{
 			id: 'household',
@@ -27,7 +22,7 @@ export const topLevelRoutes = {
 			label: 'Household',
 			desktopNav: true,
 			mobileNav: true,
-			icon: MaterialSymbolsLaundry
+			icon: 'material-symbols:laundry'
 		},
 		{
 			id: 'pet',
@@ -35,7 +30,7 @@ export const topLevelRoutes = {
 			label: 'Pet',
 			desktopNav: true,
 			mobileNav: true,
-			icon: MaterialSymbolsPets
+			icon: 'material-symbols:pets'
 		}
 	],
 	topNavAnimation: [

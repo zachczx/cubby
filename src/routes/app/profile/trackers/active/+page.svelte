@@ -1,19 +1,12 @@
 <script lang="ts">
-	import MaterialSymbolsArrowRightAlt from '$lib/assets/svg/MaterialSymbolsArrowRightAlt.svelte';
-	import MaterialSymbolsCheckCircle from '$lib/assets/svg/MaterialSymbolsCheckCircle.svelte';
-	import MaterialSymbolsFilterList from '$lib/assets/svg/MaterialSymbolsFilterList.svelte';
-	import MaterialSymbolsHistory from '$lib/assets/svg/MaterialSymbolsHistory.svelte';
+	import Icon from '@iconify/svelte';
 	import { pb } from '$lib/pb';
 	import { allTrackersQueryOptions } from '$lib/queries';
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import dayjs from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
-	import MaterialSymbolsKeep from '$lib/assets/svg/MaterialSymbolsKeep.svelte';
-	import MaterialSymbolsKeepOutline from '$lib/assets/svg/MaterialSymbolsKeepOutline.svelte';
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
-	import MaterialSymbolsVisibilityOutline from '$lib/assets/svg/MaterialSymbolsVisibilityOutline.svelte';
-	import MaterialSymbolsVisibilityOffOutline from '$lib/assets/svg/MaterialSymbolsVisibilityOffOutline.svelte';
 
 	dayjs.extend(relativeTime);
 
@@ -101,7 +94,7 @@
 		</div>
 	</div>
 </PageWrapper>
-<MaterialSymbolsFilterList class="size-6" />
+<Icon icon="material-symbols:filter-list" class="size-6" />
 
 {#snippet menuItem(tracker: TrackerDB)}
 	<div
@@ -116,9 +109,12 @@
 			}}
 		>
 			{#if tracker.pinned}
-				<MaterialSymbolsKeep class="size-[1.5em]" />
+				<Icon icon="material-symbols:keep" class="size-[1.5em]" />
 			{:else}
-				<MaterialSymbolsKeepOutline class="size-[1.5em] opacity-30 group-hover:opacity-75" />
+				<Icon
+					icon="material-symbols:keep-outline"
+					class="size-[1.5em] opacity-30 group-hover:opacity-75"
+				/>
 			{/if}
 		</button>
 		<label class="flex w-full cursor-pointer items-center"
@@ -134,10 +130,10 @@
 			<div
 				class="hover:bg-neutral/20 active:bg-neutral/20 hidden rounded-lg p-2 peer-checked:block"
 			>
-				<MaterialSymbolsVisibilityOutline class="size-6" />
+				<Icon icon="material-symbols:visibility-outline" class="size-6" />
 			</div>
 			<div class="hover:bg-neutral/20 active:bg-neutral/20 rounded-lg p-2 peer-checked:hidden">
-				<MaterialSymbolsVisibilityOffOutline class="size-6" />
+				<Icon icon="material-symbols:visibility-off-outline" class="size-6" />
 			</div>
 		</label>
 	</div>
@@ -154,9 +150,9 @@
 			class="flex h-full items-center justify-center"
 		>
 			{#if tracker.pinned}
-				<MaterialSymbolsKeep class="opacity-75" />
+				<Icon icon="material-symbols:keep" class="opacity-75" />
 			{:else}
-				<MaterialSymbolsKeepOutline class="opacity-75" />
+				<Icon icon="material-symbols:keep-outline" class="opacity-75" />
 			{/if}
 		</button>
 	</li>

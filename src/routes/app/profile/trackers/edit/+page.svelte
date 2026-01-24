@@ -1,12 +1,11 @@
 <script lang="ts">
-	import MaterialSymbolsFilterList from '$lib/assets/svg/MaterialSymbolsFilterList.svelte';
 	import { pb } from '$lib/pb';
 	import { allTrackersQueryOptions } from '$lib/queries';
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import dayjs from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
-	import MaterialSymbolsChevronRight from '$lib/assets/svg/MaterialSymbolsChevronRight.svelte';
+	import Icon from '@iconify/svelte';
 
 	dayjs.extend(relativeTime);
 
@@ -52,7 +51,7 @@
 		</div>
 	</div>
 </PageWrapper>
-<MaterialSymbolsFilterList class="size-6" />
+<Icon icon="material-symbols:filter-list" class="size-6" />
 
 {#snippet menuItem(tracker: TrackerDB)}
 	<div
@@ -66,7 +65,7 @@
 			<div class="grow font-medium">
 				{tracker.display}
 			</div>
-			<span><MaterialSymbolsChevronRight class="size-5 opacity-75" /></span>
+			<span><Icon icon="material-symbols:chevron-right" class="size-5 opacity-75" /></span>
 		</a>
 	</div>
 {/snippet}

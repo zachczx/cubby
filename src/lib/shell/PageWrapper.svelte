@@ -2,7 +2,7 @@
 	import { page } from '$app/state';
 	import type Client from 'pocketbase';
 	import type { Snippet } from 'svelte';
-	import MaterialSymbolsSettings from '$lib/assets/svg/MaterialSymbolsSettings.svelte';
+	import Icon from '@iconify/svelte';
 	import { topLevelRoutes } from './nav';
 
 	let {
@@ -114,13 +114,13 @@
 			<div class="lg:navbar-end">
 				<div id="mobile-hamburger" class="dropdown flex items-center lg:hidden">
 					<a href="/app/profile" class="btn btn-ghost px-2 py-0"
-						><MaterialSymbolsSettings class="size-6" /></a
+						><Icon icon="material-symbols:settings" class="size-6" /></a
 					>
 				</div>
 				<div id="desktop-logout" class="hidden items-center text-sm lg:flex">
 					{#if pb.authStore.isValid}
 						<a href="/app/profile" class="btn btn-ghost px-2 py-0"
-							><MaterialSymbolsSettings class="size-6" /></a
+							><Icon icon="material-symbols:settings" class="size-6" /></a
 						><a href="/app/logout" class="btn btn-outline btn-sm ms-2">Logout</a>
 					{:else}
 						<a href="/register" class="underline">Register</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a
@@ -154,7 +154,9 @@
 		>
 			{#each topLevelRoutes.animation as route}
 				<a href={route.href} aria-current={currentSection === route.id ? 'page' : undefined}>
-					<route.icon class="size-[1.5em]" />
+					{#if route.icon}
+						<Icon icon={route.icon} class="size-[1.5em]" />
+					{/if}
 					<span class="text-sm tracking-wider">{route.label}</span>
 				</a>
 			{/each}

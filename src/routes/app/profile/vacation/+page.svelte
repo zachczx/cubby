@@ -7,7 +7,7 @@
 	import timezone from 'dayjs/plugin/timezone';
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import { userQueryOptions, vacationQueryOptions, vacationRefetchOptions } from '$lib/queries';
-	import MaterialSymbolsDelete from '$lib/assets/svg/MaterialSymbolsDelete.svelte';
+	import Icon from '@iconify/svelte';
 	import { invalidateAll } from '$app/navigation';
 
 	dayjs.extend(utc);
@@ -100,7 +100,6 @@
 							aria-label="see all"
 						>
 							View all
-							<!-- <MaterialSymbolsOpenInNew class="size-[1.3em] opacity-75" /> -->
 						</button>
 					</div>
 					<ul class="list-disc">
@@ -156,7 +155,7 @@
 							<button
 								class="btn btn-error btn-sm"
 								onclick={() => deleteHandler(v.id)}
-								aria-label="delete"><MaterialSymbolsDelete class="size-5" /></button
+								aria-label="delete"><Icon icon="material-symbols:delete" class="size-5" /></button
 							>
 						</div>
 					</li>

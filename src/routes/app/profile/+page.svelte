@@ -7,7 +7,7 @@
 	import timezone from 'dayjs/plugin/timezone';
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import { userQueryOptions, userRefetchOptions } from '$lib/queries';
-	import MaterialSymbolsChevronRight from '$lib/assets/svg/MaterialSymbolsChevronRight.svelte';
+	import Icon from '@iconify/svelte';
 
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
@@ -78,7 +78,7 @@
 		<div class="grow font-semibold">{title}</div>
 		<div class="flex h-full items-center">
 			<button class="active:bg-neutral/10 cursor-pointer rounded-lg p-1 opacity-75"
-				><MaterialSymbolsChevronRight class="size-7" /></button
+				><Icon icon="material-symbols:chevron-right" class="size-7" /></button
 			>
 		</div>
 	</a>

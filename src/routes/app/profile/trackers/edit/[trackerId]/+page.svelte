@@ -14,7 +14,7 @@
 	} from '$lib/queries';
 	import { goto } from '$app/navigation';
 	import TrackerForm from '../../TrackerForm.svelte';
-	import MaterialSymbolsDelete from '$lib/assets/svg/MaterialSymbolsDelete.svelte';
+	import Icon from '@iconify/svelte';
 
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
@@ -101,7 +101,7 @@
 		<div
 			class="bg-primary/10 text-error flex aspect-square size-20 items-center justify-center justify-self-center overflow-hidden rounded-full"
 		>
-			<MaterialSymbolsDelete class="size-12" />
+			<Icon icon="material-symbols:delete" class="size-12" />
 		</div>
 		<h2 class="text-2xl font-bold">Confirm Deletion</h2>
 
