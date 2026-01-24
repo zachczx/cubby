@@ -7,10 +7,9 @@
 	import calendar from 'dayjs/plugin/calendar';
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { trackerQueryOptions, createLogsQuery, allLogsQueryOptions } from '$lib/queries';
+	import { trackerQueryOptions, allLogsQueryOptions } from '$lib/queries';
 	import TwoColumnCard from '$lib/ui/TwoColumnCard.svelte';
 	import StatusHeroImage from '$lib/ui/StatusHeroImage.svelte';
-	import { getTrackerStatus } from '$lib/notification';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
@@ -20,36 +19,42 @@
 
 	const allLogsDb = createQuery(allLogsQueryOptions);
 
-	let currentTrackerLogs = $derived.by(() => {
-		if (!allLogsDb.isSuccess || !allLogsDb.data || !options.tracker) return [];
-
-		return allLogsDb.data.filter((log) => log.tracker === options.tracker?.id);
-	});
-
 	const tracker = createQuery(() => trackerQueryOptions(options.tracker?.id));
-
-	let notification = $derived.by(() => getTrackerStatus(currentTrackerLogs));
 
 	type TabPages = 'overview' | 'history';
 
 	let currentTab = $state<TabPages>('overview');
 
-	let records: LogsRecord[] | undefined = $state([]);
+	let historicalRecords = $derived.by(() => {
+		if (!tracker.isSuccess || !tracker.data || !tracker.data.startDate) return null;
 
-	$effect(() => {
-		if (currentTrackerLogs && currentTrackerLogs.length > 0) {
-			records = currentTrackerLogs.map((record, i, allRecords) => {
-				const nextRecord = allRecords[i + 1];
-				const gap = nextRecord ? dayjs(record.time).diff(nextRecord.time, 'day', true) : 0;
-				return { ...record, gap };
-			});
+		const subscriptionStart = tracker.data.startDate;
+		const historicalRecords: string[] = [subscriptionStart];
+		const today = dayjs();
+		let currentDateTime = dayjs(subscriptionStart);
+		while (currentDateTime.add(tracker.data.interval, tracker.data?.intervalUnit).isBefore(today)) {
+			currentDateTime = currentDateTime.add(tracker.data.interval, tracker.data?.intervalUnit);
+
+			historicalRecords.unshift(currentDateTime.toISOString());
 		}
+
+		return historicalRecords;
+	});
+
+	let nextCharge = $derived.by(() => {
+		if (!historicalRecords || historicalRecords.length === 0 || !tracker.isSuccess || !tracker.data)
+			return null;
+
+		const latest = historicalRecords[0];
+
+		return dayjs(latest).add(tracker.data.interval, tracker.data?.intervalUnit);
 	});
 
 	let logsByYears = $derived.by(() => {
-		const years = new Map<number, LogsDB[]>();
-		for (const t of currentTrackerLogs) {
-			const y = dayjs(t.time).year();
+		if (!historicalRecords) return null;
+		const years = new Map<number, string[]>();
+		for (const t of historicalRecords) {
+			const y = dayjs(t).year();
 
 			if (!years.has(y)) {
 				years.set(y, []);
@@ -60,46 +65,29 @@
 		return years;
 	});
 
-	let signUpFirstRecord: LogsDB | null = $derived.by(() => {
-		if (!currentTrackerLogs || currentTrackerLogs.length === 0) return null;
-
-		return currentTrackerLogs[currentTrackerLogs.length - 1];
-	});
-
 	let lifetimeSpend = $derived.by(() => {
-		if (
-			!currentTrackerLogs ||
-			currentTrackerLogs.length === 0 ||
-			!tracker.isSuccess ||
-			!tracker.data
-		)
+		if (!historicalRecords || historicalRecords.length === 0 || !tracker.isSuccess || !tracker.data)
 			return null;
 
 		const cost = tracker.data.cost ?? 0;
 
-		return currentTrackerLogs.length * cost;
+		return historicalRecords.length * cost;
 	});
 
 	let monthlyCost = $derived.by(() => {
-		if (!currentTrackerLogs || currentTrackerLogs.length === 0 || !lifetimeSpend) return null;
+		if (!historicalRecords || historicalRecords.length === 0 || !lifetimeSpend) return null;
 
-		const firstLogTime = currentTrackerLogs[currentTrackerLogs.length - 1].time;
+		const firstLogTime = historicalRecords[historicalRecords.length - 1];
 		const totalDuration = Math.floor(dayjs().diff(dayjs(firstLogTime), 'month', true));
 
-		return Math.floor(lifetimeSpend / totalDuration);
+		return totalDuration > 0 ? Math.floor(lifetimeSpend / totalDuration) : lifetimeSpend;
 	});
 </script>
 
 <PageWrapper title={options.labels.pageTitle} {pb}>
 	<main class="grid w-full max-w-xl content-start justify-items-center gap-4 justify-self-center">
 		<div class="grid w-full content-start justify-items-center gap-4">
-			{#if currentTrackerLogs}
-				<StatusHeroImage {notification} kind="subscription" />
-			{:else}
-				<div class="avatar relative mt-2 mb-4">
-					<div class="skeleton aspect-square w-40 rounded-full shadow-md"></div>
-				</div>
-			{/if}
+			<StatusHeroImage notification={{ level: 'ok', show: true }} kind="subscription" />
 		</div>
 
 		<div class="grid w-full content-start gap-8 pt-4 pb-8">
@@ -123,7 +111,7 @@
 				</li>
 			</ul>
 
-			{#if currentTrackerLogs && currentTrackerLogs.length === 0}
+			{#if historicalRecords && historicalRecords.length === 0}
 				<div class="mx-4 mt-4 text-center">
 					<p class="font-bold">Ready to track?</p>
 					<p>Start by adding a log.</p>
@@ -135,9 +123,9 @@
 					>
 						<h2 class="text-md text-center">Next Charge</h2>
 						<div class="grid min-h-20 content-center justify-items-center">
-							{#if notification && notification.level}
-								{@const semantic = dayjs(notification.next).fromNow()}
-								{@const formatted = dayjs(notification.next).format('D MMM YYYY')}
+							{#if nextCharge}
+								{@const semantic = nextCharge.fromNow()}
+								{@const formatted = nextCharge.format('D MMM YYYY')}
 								<p class="text-primary text-2xl font-bold">
 									{semantic}
 								</p>
@@ -164,9 +152,9 @@
 						{/snippet}
 
 						{#snippet right()}
-							{#if currentTrackerLogs && currentTrackerLogs.length > 0}
-								{#if currentTrackerLogs.length > 0}
-									{@const formatted = dayjs(currentTrackerLogs[0].time).fromNow(true)}
+							{#if historicalRecords && historicalRecords.length > 0}
+								{#if historicalRecords.length > 0}
+									{@const formatted = dayjs(historicalRecords[0]).fromNow(true)}
 									<p>
 										{#if formatted === 'a few seconds'}
 											seconds
@@ -194,7 +182,7 @@
 						rightIcon="material-symbols:donut-small"
 					>
 						{#snippet left()}
-							{#if currentTrackerLogs && currentTrackerLogs.length > 0}
+							{#if historicalRecords && historicalRecords.length > 0}
 								<p>
 									${monthlyCost}/mth
 								</p>
@@ -204,8 +192,8 @@
 						{/snippet}
 
 						{#snippet right()}
-							{#if currentTrackerLogs && currentTrackerLogs.length > 0}
-								{#if currentTrackerLogs.length > 0}
+							{#if historicalRecords && historicalRecords.length > 0}
+								{#if historicalRecords.length > 0}
 									<p>
 										${lifetimeSpend}
 									</p>
@@ -228,31 +216,36 @@
 						currentTab === 'history' ? undefined : 'hidden'
 					]}
 				>
-					{#each logsByYears as [key, year]}
-						<div class="grid gap-2">
-							<h3 class="text-base-content/50 text-sm font-bold">{key}</h3>
+					{#if historicalRecords && historicalRecords.length > 0}
+						{#each logsByYears as [key, year]}
+							<div class="grid gap-2">
+								<h3 class="text-base-content/50 text-sm font-bold">{key}</h3>
 
-							{#each year as log}
-								{@const formatted = dayjs(log.time).format('D MMM')}
-								<div
-									class="border-base-300 grid min-h-18 grid-cols-3 items-baseline gap-4 rounded-2xl border bg-white/70 px-2 py-2"
-								>
-									<div class="flex p-2 text-lg font-bold">
-										{formatted}
+								{#each year as log}
+									{@const formatted = dayjs(log).format('D MMM')}
+									<div
+										class="border-base-300 grid min-h-18 grid-cols-3 items-baseline gap-4 rounded-2xl border bg-white/70 px-2 py-2"
+									>
+										<div class="flex p-2 text-lg font-bold">
+											{formatted}
+										</div>
+										<div class="flex justify-center">
+											{#if log === tracker.data?.startDate}
+												<span class="text-primary">Sign-Up</span>
+											{:else}
+												<span class="text-neutral">Renewal</span>
+											{/if}
+										</div>
+										<div class="text-base-content/60 flex justify-end p-2 font-semibold">
+											{#if tracker.isSuccess}
+												${tracker.data?.cost}
+											{/if}
+										</div>
 									</div>
-									<div class="flex justify-center">
-										{#if signUpFirstRecord?.id === log.id}
-											<span class="text-primary">Sign-Up</span>
-										{:else}
-											<span class="text-info">Renewal</span>{/if}
-									</div>
-									<div class="text-base-content/60 flex justify-end p-2 font-semibold">
-										${log.expand?.tracker?.cost}
-									</div>
-								</div>
-							{/each}
-						</div>
-					{/each}
+								{/each}
+							</div>
+						{/each}
+					{/if}
 				</div>
 			{/if}
 		</div>
