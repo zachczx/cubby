@@ -6,6 +6,7 @@
 	import { getTrackerStatus } from '$lib/notification';
 	import MaterialSymbolsCheck from '$lib/assets/svg/MaterialSymbolsCheck.svelte';
 	import MaterialSymbolsChevronRight from '$lib/assets/svg/MaterialSymbolsChevronRight.svelte';
+	import MaterialSymbolsLocalFireDepartment from '$lib/assets/svg/MaterialSymbolsLocalFireDepartment.svelte';
 	import { onMount } from 'svelte';
 	import { error } from '@sveltejs/kit';
 	import { pb } from '$lib/pb';
@@ -141,27 +142,31 @@
 			</span>
 		{/if}
 	{/if}
+	{#if options.streak && options.streak > 0}
+		<div
+			class="text-success bg-success/10 flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold"
+			title="Current streak: {options.streak}"
+		>
+			<!-- <MaterialSymbolsLocalFireDepartment class="size-3.5" /> -->
+			{options.streak}x
+		</div>
+	{/if}
 {/snippet}
 
 {#snippet notificationLogic()}
-	<!-- {#if latestLogs.isPending && !latestLogs.data}
-		<div class="custom-loader"></div>
-	{/if} 
-	{#if latestLogs.error}
-		An error has occurred:
-		{latestLogs.error.message}
-	{/if}-->
 	{#if logs}
-		{#if notification?.show}
-			{#if notification.level === 'overdue'}
-				<span class="text-error font-bold tracking-tight">Overdue</span>
-			{:else if notification.level === 'due'}
-				<span class="text-warning font-medium tracking-tight">Due</span>
+		<div class="flex items-center gap-3">
+			{#if notification?.show}
+				{#if notification.level === 'overdue'}
+					<span class="text-error font-bold tracking-tight">Overdue</span>
+				{:else if notification.level === 'due'}
+					<span class="text-warning font-medium tracking-tight">Due</span>
+				{/if}
+			{:else}
+				<span class="text-neutral/70 font-medium tracking-tight"
+					>Due {dayjs(notification?.next).fromNow()}</span
+				>
 			{/if}
-		{:else}
-			<span class="text-neutral/70 font-medium tracking-tight"
-				>Due {dayjs(notification?.next).fromNow()}</span
-			>
-		{/if}
+		</div>
 	{/if}
 {/snippet}

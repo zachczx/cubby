@@ -67,6 +67,10 @@
 		};
 	});
 
+	import { calculateStreak } from '$lib/streaks';
+
+	// ... (rest of imports)
+
 	function classifyTrackers(trackers: TrackerDB[], logs: LogsDB[], kind: 'general' | 'pinned') {
 		const data = [];
 		for (const t of trackers) {
@@ -78,7 +82,8 @@
 				trackerName: t.name,
 				trackerData: trackerData,
 				logData: logData,
-				notification: getTrackerStatus(logData)
+				notification: getTrackerStatus(logData),
+				streak: calculateStreak(logData, trackerData)
 			};
 
 			if (
@@ -110,14 +115,6 @@
 			.collection('users')
 			.update(pb.authStore.record.id, { generalTasksUpcomingDays: numberDays });
 	}
-
-	/**
-	 * For optimistic updates of UI.
-	 */
-	// const updateUserCache = (newLog: RecordModel) =>
-	// 	tanstackClient.setQueryData(getUserQueryKey(), (oldLogs: LogsDB[] | undefined) => {
-	// 		return [newLog];
-	// 	});
 </script>
 
 <PageWrapper title="Cubby" back={false} {pb}>
@@ -143,7 +140,8 @@
 								button: {
 									status: buttonStatuses?.[log.trackerName],
 									text: log.trackerData?.actionLabel
-								}
+								},
+								streak: log.streak
 							}}
 						></ActionCard>
 					{/each}
@@ -183,7 +181,8 @@
 									button: {
 										status: buttonStatuses?.[log.trackerName],
 										text: log.trackerData?.actionLabel
-									}
+									},
+									streak: log.streak
 								}}
 							></ActionCard>
 						{/each}

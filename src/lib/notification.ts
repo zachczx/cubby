@@ -10,9 +10,9 @@ export const defaultNotificationStatus: NotificationStatus = {
 	level: 'ok'
 };
 
-const leadTimeHours = 6;
-const dueThresholdDays = 1;
-const dueThresholdWeeks = 1;
+export const leadTimeHours = 6;
+export const dueThresholdDays = 1;
+export const dueThresholdWeeks = 1;
 
 function createStatus(
 	level: NotificationStatus['level'],

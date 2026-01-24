@@ -161,4 +161,5 @@ interface ActionCardOptions {
 		status?: ButtonState;
 		text: string | undefined;
 	};
+	streak?: number;
 }
