@@ -160,7 +160,9 @@
 				{#if notification.level === 'overdue'}
 					<span class="text-error font-bold tracking-tight">Overdue</span>
 				{:else if notification.level === 'due'}
-					<span class="text-warning font-medium tracking-tight">Due</span>
+					<span class="text-warning font-medium tracking-tight"
+						>Due {dayjs(notification?.next).fromNow()}</span
+					>
 				{/if}
 			{:else}
 				<span class="text-neutral/70 font-medium tracking-tight"
