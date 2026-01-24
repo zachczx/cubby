@@ -65,37 +65,6 @@ const feedQuery = createQueryFactory(
 export const feedQueryOptions = feedQuery.options;
 export const feedRefetchOptions = feedQuery.refetch;
 
-/** 
-requestKey prevents "Auto-cancellation" errors by pb. Spray was getting loaded twice, with first being cancelled.
-Cause: pb treats simultaneous requests to same endpoint as duplicates, so cancels it.
-Solution: 'requestKey' needed so only the same tracker fetch cancels the previous.
-*/
-// const getLogsFactory = (trackerId: string | undefined) => {
-// 	const safeTrackerId = trackerId ?? '';
-
-// 	return createQueryFactory(['logs', safeTrackerId], async (): Promise<LogsDB[] | []> => {
-// 		if (!trackerId) return [];
-
-// 		return await pb.collection('logs').getFullList({
-// 			filter: `tracker.id="${trackerId}"`,
-// 			sort: '-time',
-// 			requestKey: `${trackerId}`
-// 		});
-// 	});
-// };
-
-// export const logsQueryOptions = (trackerId: string | undefined) => {
-// 	const factory = getLogsFactory(trackerId);
-
-// 	return {
-// 		...factory.options(),
-// 		enabled: !!trackerId
-// 	};
-// };
-
-// export const logsRefetchOptions = (trackerId: string | undefined) =>
-// 	getLogsFactory(trackerId).refetch();
-
 export async function createLogsQuery(options: {
 	trackerId: string;
 	interval: number | undefined;
@@ -164,25 +133,3 @@ const vacationQuery = createQueryFactory(
 );
 export const vacationQueryOptions = vacationQuery.options;
 export const vacationRefetchOptions = vacationQuery.refetch;
-
-export function cleanEmail(email: string | undefined): string {
-	if (!email) return '';
-
-	const name = email.split('@')?.[0];
-	const maxLength = name.length > 11 ? 11 : name.length;
-	const clean = name.slice(0, maxLength);
-
-	return clean;
-}
-
-export function trackerNameToId(name: string, trackers: TrackerDB[] | undefined): string | null {
-	if (!trackers) return null;
-
-	return trackers.find((item) => item.name === name)?.id ?? null;
-}
-
-export function trackerIdToName(id: string, trackers: TrackerDB[] | undefined): string | null {
-	if (!trackers) return null;
-
-	return trackers.find((item) => id === item.id)?.name ?? null;
-}
