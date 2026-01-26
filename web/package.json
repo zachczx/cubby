@@ -1,7 +1,7 @@
 {
 	"name": "cubby",
 	"private": true,
-	"version": "2.7.0",
+	"version": "3.0.0-alpha1",
 	"type": "module",
 	"engines": {
 		"node": ">=24"
@@ -61,6 +61,7 @@
 		"canvas-confetti": "^1.9.4",
 		"chart.js": "^4.5.1",
 		"dayjs": "^1.11.19",
+		"ky": "^1.14.2",
 		"pocketbase": "^0.26.6"
 	}
 }
