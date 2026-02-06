@@ -15,8 +15,13 @@ import (
 )
 
 type Service struct {
-	Client *stytchapi.API
-	DB     *sqlx.DB
+	Client         *stytchapi.API
+	DB             *sqlx.DB
+	DefaultCreator DefaultCreator
+}
+
+type DefaultCreator interface {
+	CreateDefaults(db *sqlx.DB, userID uuid.UUID) error
 }
 
 type User struct {
@@ -67,36 +72,17 @@ func (u *User) NameString() string {
 	return u.PreferredName.String
 }
 
-func NewService(projectID string, secret string, DB *sqlx.DB) *Service {
+func NewService(projectID string, secret string, DB *sqlx.DB, dc DefaultCreator) *Service {
 	client, err := stytchapi.NewClient(projectID, secret)
 	if err != nil {
 		log.Fatalf("Error creating client: %v", err)
 	}
 
 	return &Service{
-		Client: client,
-		DB:     DB,
+		Client:         client,
+		DB:             DB,
+		DefaultCreator: dc,
 	}
-}
-
-func (s *Service) syncUserInternal(email string, createdAt time.Time) error {
-	var id uuid.UUID
-
-	q := `SELECT id FROM users WHERE email=$1`
-
-	if err := s.DB.QueryRow(q, email).Scan(&id); err != nil {
-		if err != sql.ErrNoRows {
-			return fmt.Errorf("fetch user: %w", err)
-		}
-
-		qy := `INSERT INTO users (email, created_at) VALUES ($1, $2)`
-
-		if _, err := s.DB.Exec(qy, email, createdAt); err != nil {
-			return fmt.Errorf("insert user: %w", err)
-		}
-	}
-
-	return nil
 }
 
 func (s *Service) setSessionCookies(w http.ResponseWriter, jwt string, token string) {
@@ -110,12 +96,8 @@ func (s *Service) setSessionCookies(w http.ResponseWriter, jwt string, token str
 		partitioned = false
 	}
 
-	domain := ""
-	if os.Getenv("COOKIE_DOMAIN") != "localhost" {
-		domain = os.Getenv("COOKIE_DOMAIN")
-	}
+	domain := os.Getenv("COOKIE_DOMAIN")
 
-	// JWT Cookie - Short lived (5 mins)
 	http.SetCookie(w, &http.Cookie{
 		Name:        "stytch_session_jwt",
 		Value:       jwt,
@@ -125,10 +107,9 @@ func (s *Service) setSessionCookies(w http.ResponseWriter, jwt string, token str
 		Secure:      secureOption,
 		SameSite:    sameSiteOption,
 		Partitioned: partitioned,
-		MaxAge:      300, // 5 minutes
+		MaxAge:      5 * 60, // 5 mins
 	})
 
-	// Session Token Cookie - Long lived (30 days)
 	http.SetCookie(w, &http.Cookie{
 		Name:        "stytch_session_token",
 		Value:       token,

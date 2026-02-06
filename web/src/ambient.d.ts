@@ -29,9 +29,8 @@ interface VacationDB {
 type IntervalUnit = 'day' | 'month' | 'year';
 
 interface LogsDB {
-	collectionId: string;
-	collectionName: 'logs';
 	id: string;
+	trackerId: string;
 	user: string;
 	tracker: string;
 	interval: number;
@@ -39,7 +38,7 @@ interface LogsDB {
 	time: string;
 	created: string;
 	updated: string;
-	expand?: { tracker?: TrackerDB };
+	// expand?: { tracker?: TrackerDB };
 }
 
 interface LogsRecord extends LogsDB {

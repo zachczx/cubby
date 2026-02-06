@@ -1,0 +1,55 @@
+name: cubby
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: api.dockerfile
+      # network: host
+      args:
+        - DB_HOST=${DB_HOST}
+        - DB_PORT=${DB_PORT}
+        - DB_USER=${DB_USER}
+        - DB_PASSWORD=${DB_PASSWORD}
+        - DB_NAME=${DB_NAME}
+        - API_LISTEN_ADDR=${API_LISTEN_ADDR}
+        - STYTCH_PROJECT_ID=${STYTCH_PROJECT_ID}
+        - STYTCH_SECRET=${STYTCH_SECRET}
+    ports:
+      - '${API_LISTEN_ADDR}:${API_LISTEN_ADDR}'
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:${API_LISTEN_ADDR}/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - API_LISTEN_ADDR=${API_LISTEN_ADDR}
+      - STYTCH_PROJECT_ID=${STYTCH_PROJECT_ID}
+      - STYTCH_SECRET=${STYTCH_SECRET}
+
+  frontend:
+    build:
+      context: .
+      dockerfile: web.dockerfile
+      args:
+        - PUBLIC_API_URL=${PUBLIC_API_URL}
+        - FRONTEND_LISTEN_ADDR=${FRONTEND_LISTEN_ADDR}
+    ports:
+      - '${FRONTEND_LISTEN_ADDR}:3000'
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    environment:
+      - PUBLIC_API_URL=${PUBLIC_API_URL}
+      - FRONTEND_LISTEN_ADDR=${FRONTEND_LISTEN_ADDR}

@@ -9,7 +9,7 @@
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
 	import Chart from 'chart.js/auto';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { trackerQueryOptions, createLogsQuery, allLogsQueryOptions } from '$lib/queries';
+	import { createLogsQuery, allLogsQueryOptions } from '$lib/queries';
 	import { getCalendarEntries } from '$lib/calendar';
 	import CustomDateModal from '$lib/ui/CustomDateModal.svelte';
 	import StatusDescriptions from '$lib/ui/StatusDescriptions.svelte';
@@ -34,24 +34,20 @@
 	let currentTrackerLogs = $derived.by(() => {
 		if (!allLogsDb.isSuccess || !allLogsDb.data || !options.tracker) return [];
 
-		return allLogsDb.data.filter((log) => log.tracker === options.tracker?.id);
+		return allLogsDb.data.filter((log) => log.trackerId === options.tracker?.id);
 	});
 
-	const tracker = createQuery(() => trackerQueryOptions(options.tracker?.id));
-	let interval = $derived.by(() => (tracker.isSuccess ? tracker.data?.interval : undefined));
-	let intervalUnit = $derived.by(() =>
-		tracker.isSuccess ? tracker.data?.intervalUnit : undefined
-	);
+	let tracker = $derived(options.tracker);
+	let interval = $derived(options.tracker?.interval);
+	let intervalUnit = $derived(options.tracker?.intervalUnit);
 	const query = () =>
 		createLogsQuery({
-			trackerId: tracker.data?.id ?? '',
+			trackerId: tracker.id,
 			interval: interval,
 			intervalUnit: intervalUnit
 		});
 
-	let times = $derived.by(() =>
-		getCalendarEntries(currentTrackerLogs, options.labels.ctaButtonText)
-	);
+	let times = $derived.by(() => getCalendarEntries(currentTrackerLogs));
 
 	function isSameDate(first: Date | string, second: Date | string): boolean {
 		return dayjs(first).isSame(second, 'day');
@@ -286,12 +282,12 @@
 
 					<TwoColumnCard leftTitle="Frequency" rightTitle="Last">
 						{#snippet left()}
-							{#if tracker.isSuccess && tracker.data}
-								{@const plural = tracker.data.interval > 1 ? true : false}
+							{#if tracker}
+								{@const plural = tracker.interval > 1 ? true : false}
 								<p>
-									{tracker.data.interval}&nbsp;{plural
-										? tracker.data.intervalUnit + 's'
-										: tracker.data.intervalUnit}
+									{tracker.interval}&nbsp;{plural
+										? tracker.intervalUnit + 's'
+										: tracker.intervalUnit}
 								</p>
 								<p class="text-base-content/70 text-base font-normal">once</p>
 							{:else}

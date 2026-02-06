@@ -6,7 +6,7 @@
 	import timezone from 'dayjs/plugin/timezone';
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { trackerQueryOptions, allLogsQueryOptions } from '$lib/queries';
+	import { allLogsQueryOptions } from '$lib/queries';
 	import TwoColumnCard from '$lib/ui/TwoColumnCard.svelte';
 	import StatusHeroImage from '$lib/ui/StatusHeroImage.svelte';
 
@@ -18,21 +18,21 @@
 
 	const allLogsDb = createQuery(allLogsQueryOptions);
 
-	const tracker = createQuery(() => trackerQueryOptions(options.tracker?.id));
-
 	type TabPages = 'overview' | 'history';
 
 	let currentTab = $state<TabPages>('overview');
 
-	let historicalRecords = $derived.by(() => {
-		if (!tracker.isSuccess || !tracker.data || !tracker.data.startDate) return null;
+	let tracker = $derived(options.tracker);
 
-		const subscriptionStart = tracker.data.startDate;
+	let historicalRecords = $derived.by(() => {
+		if (!options.tracker) return null;
+
+		const subscriptionStart = tracker.startDate;
 		const historicalRecords: string[] = [subscriptionStart];
 		const today = dayjs();
 		let currentDateTime = dayjs(subscriptionStart);
-		while (currentDateTime.add(tracker.data.interval, tracker.data?.intervalUnit).isBefore(today)) {
-			currentDateTime = currentDateTime.add(tracker.data.interval, tracker.data?.intervalUnit);
+		while (currentDateTime.add(tracker.interval, tracker.intervalUnit).isBefore(today)) {
+			currentDateTime = currentDateTime.add(tracker.interval, tracker?.intervalUnit);
 
 			historicalRecords.unshift(currentDateTime.toISOString());
 		}
@@ -41,12 +41,11 @@
 	});
 
 	let nextCharge = $derived.by(() => {
-		if (!historicalRecords || historicalRecords.length === 0 || !tracker.isSuccess || !tracker.data)
-			return null;
+		if (!historicalRecords || historicalRecords.length === 0 || !tracker) return null;
 
 		const latest = historicalRecords[0];
 
-		return dayjs(latest).add(tracker.data.interval, tracker.data?.intervalUnit);
+		return dayjs(latest).add(tracker.interval, tracker.intervalUnit);
 	});
 
 	let logsByYears = $derived.by(() => {
@@ -65,10 +64,9 @@
 	});
 
 	let lifetimeSpend = $derived.by(() => {
-		if (!historicalRecords || historicalRecords.length === 0 || !tracker.isSuccess || !tracker.data)
-			return null;
+		if (!historicalRecords || historicalRecords.length === 0 || !tracker) return null;
 
-		const cost = tracker.data.cost ?? 0;
+		const cost = tracker.cost ?? 0;
 
 		return historicalRecords.length * cost;
 	});
@@ -137,12 +135,12 @@
 
 					<TwoColumnCard leftTitle="Frequency" rightTitle="Last">
 						{#snippet left()}
-							{#if tracker.isSuccess && tracker.data}
-								{@const plural = tracker.data.interval > 1 ? true : false}
+							{#if tracker}
+								{@const plural = tracker.interval > 1 ? true : false}
 								<p>
-									{tracker.data.interval}&nbsp;{plural
-										? tracker.data.intervalUnit + 's'
-										: tracker.data.intervalUnit}
+									{tracker.interval}&nbsp;{plural
+										? tracker.intervalUnit + 's'
+										: tracker.intervalUnit}
 								</p>
 								<p class="text-base-content/70 text-base font-normal">once</p>
 							{:else}
@@ -229,15 +227,15 @@
 											{formatted}
 										</div>
 										<div class="flex justify-center">
-											{#if log === tracker.data?.startDate}
+											{#if log === tracker.startDate}
 												<span class="text-primary">Sign-Up</span>
 											{:else}
 												<span class="text-neutral">Renewal</span>
 											{/if}
 										</div>
 										<div class="text-base-content/60 flex justify-end p-2 font-semibold">
-											{#if tracker.isSuccess}
-												${tracker.data?.cost}
+											{#if tracker}
+												${tracker.cost}
 											{/if}
 										</div>
 									</div>

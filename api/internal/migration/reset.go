@@ -10,14 +10,15 @@ import (
 func WipeData(db *sqlx.DB) {
 	log.Println("🔥 Truncating all tables...")
 
-	query := `TRUNCATE TABLE users, families, trackers, invites, logs RESTART IDENTITY CASCADE;`
+	query := `DROP TABLE IF EXISTS logs, invites, trackers, families, users CASCADE;`
 
 	_, err := db.Exec(query)
 	if err != nil {
-		log.Fatalf("❌ Truncate failed: %v", err)
+		log.Fatalf("❌ Drop tables failed: %v", err)
 	}
-	log.Println("✅ All data wiped successfully.")
+	log.Println("✅ All tables dropped successfully.")
 }
+
 func Create(db *sqlx.DB) {
 	log.Println("🚀 Starting schema creation...")
 
@@ -28,31 +29,38 @@ func Create(db *sqlx.DB) {
 			id UUID PRIMARY KEY DEFAULT uuidv7(),
 			email TEXT UNIQUE NOT NULL,
 			name TEXT,
-			created TIMESTAMPTZ DEFAULT NOW(),
-			updated TIMESTAMPTZ DEFAULT NOW()
+			created_at TIMESTAMPTZ DEFAULT NOW(),
+			updated_at TIMESTAMPTZ DEFAULT NOW()
 		);`,
 
 		// Families Table
 		`CREATE TABLE IF NOT EXISTS families (
 			id UUID PRIMARY KEY DEFAULT uuidv7(),
 			name TEXT NOT NULL,
-			owner_id UUID REFERENCES users(id) ON DELETE SET NULL,
-			created TIMESTAMPTZ DEFAULT NOW(),
-			updated TIMESTAMPTZ DEFAULT NOW()
+			owner_id UUID REFERENCES users(id) ON DELETE CASCADE,
+			created_at TIMESTAMPTZ DEFAULT NOW(),
+			updated_at TIMESTAMPTZ DEFAULT NOW()
 		);`,
 
 		// Trackers Table (Depends on users and families)
 		`CREATE TABLE IF NOT EXISTS trackers (
 			id UUID PRIMARY KEY DEFAULT uuidv7(),
-			name TEXT NOT NULL,
-			description TEXT,
-			interval_value INTEGER NOT NULL,
-			interval_unit TEXT NOT NULL,
-			category TEXT,
 			user_id UUID REFERENCES users(id) ON DELETE CASCADE,
 			family_id UUID REFERENCES families(id) ON DELETE CASCADE,
-			created TIMESTAMPTZ DEFAULT NOW(),
-			updated TIMESTAMPTZ DEFAULT NOW()
+			name TEXT NOT NULL,
+			display TEXT,           
+			interval INTEGER NOT NULL,
+			interval_unit TEXT NOT NULL,    
+			category TEXT,            
+			kind TEXT,              
+			action_label TEXT,      
+			icon TEXT,               
+			pinned BOOLEAN DEFAULT FALSE,
+			show BOOLEAN DEFAULT TRUE,  
+			start_date TIMESTAMPTZ,  
+			cost DOUBLE PRECISION,    
+			created_at TIMESTAMPTZ DEFAULT NOW(),
+			updated_at TIMESTAMPTZ DEFAULT NOW()
 		);`,
 
 		// Invites Table (Depends on families and users)
@@ -63,19 +71,21 @@ func Create(db *sqlx.DB) {
 			email TEXT NOT NULL,
 			status TEXT DEFAULT 'pending',
 			family_name_snapshot TEXT,
-			created TIMESTAMPTZ DEFAULT NOW(),
-			updated TIMESTAMPTZ DEFAULT NOW()
+			created_at TIMESTAMPTZ DEFAULT NOW(),
+			updated_at TIMESTAMPTZ DEFAULT NOW()
 		);`,
 
 		// Logs Table (Depends on trackers and users)
 		`CREATE TABLE IF NOT EXISTS logs (
 			id UUID PRIMARY KEY DEFAULT uuidv7(),
 			tracker_id UUID REFERENCES trackers(id) ON DELETE CASCADE,
+			interval INTEGER NOT NULL,
+			interval_unit VARCHAR(10) NOT NULL,
 			performed_by UUID REFERENCES users(id) ON DELETE SET NULL,
 			performed_at TIMESTAMPTZ DEFAULT NOW(),
-			value TEXT,
-			created TIMESTAMPTZ DEFAULT NOW(),
-			updated TIMESTAMPTZ DEFAULT NOW()
+			remark TEXT,
+			created_at TIMESTAMPTZ DEFAULT NOW(),
+			updated_at TIMESTAMPTZ DEFAULT NOW()
 		);`,
 	}
 

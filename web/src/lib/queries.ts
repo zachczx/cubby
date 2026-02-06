@@ -2,6 +2,7 @@ import { QueryClient, queryOptions, type RefetchQueryFilters } from '@tanstack/s
 import { pb } from './pb';
 import dayjs from 'dayjs';
 import type { ListResult } from 'pocketbase';
+import { api } from './api';
 
 const staleTime = 5 * 60 * 1000;
 const rootKey = [pb.authStore?.record?.id];
@@ -32,19 +33,14 @@ function createQueryFactory<T>(key: string[], queryFn: () => Promise<T>) {
 
 const allLogsQuery = createQueryFactory(
 	['logs-all'],
-	async (): Promise<LogsDB[]> =>
-		await pb.collection('logs').getFullList({
-			sort: '-time',
-			expand: 'tracker'
-		})
+	async (): Promise<LogsDB[]> => await api.get(`entries`).json()
 );
 export const allLogsQueryOptions = allLogsQuery.options;
 export const allLogsRefetchOptions = allLogsQuery.refetch;
 
 const allTrackersQuery = createQueryFactory(
 	['allTrackers'],
-	async (): Promise<TrackerDB[]> =>
-		await pb.collection('trackers').getFullList({ sort: 'display', expand: 'family.owner' })
+	async (): Promise<TrackerDB[]> => await api.get(`trackers`).json()
 );
 export const allTrackersQueryOptions = allTrackersQuery.options;
 export const allTrackersRefetchOptions = allTrackersQuery.refetch;
@@ -70,33 +66,17 @@ export async function createLogsQuery(options: {
 	interval: number | undefined;
 	intervalUnit: IntervalUnit | undefined;
 }) {
-	const response = await pb.collection('logs').create({
-		tracker: options.trackerId,
-		time: dayjs.tz(new Date(), 'Asia/Singapore'),
-		interval: options.interval,
-		intervalUnit: options.intervalUnit
+	console.log(options.trackerId);
+	const response = await api.post(`entries/${options.trackerId}`, {
+		body: JSON.stringify({
+			interval: options.interval,
+			intervalUnit: options.intervalUnit,
+			performed_at: dayjs.tz(new Date(), 'Asia/Singapore')
+		})
 	});
 
 	return response;
 }
-
-const getTrackerFactory = (trackerId: string | undefined) => {
-	const safeTrackerId = trackerId ?? '';
-
-	return createQueryFactory(['trackers', safeTrackerId], async (): Promise<TrackerDB | null> => {
-		if (!trackerId) return null;
-
-		return await pb.collection('trackers').getFirstListItem(`id="${trackerId}"`, {
-			requestKey: `${trackerId}-tracker-details`
-		});
-	});
-};
-export const trackerQueryOptions = (trackerId: string | undefined) => {
-	const factory = getTrackerFactory(trackerId);
-
-	return { ...factory.options(), enabled: !!trackerId };
-};
-export const trackerRefetchOptions = (trackerId: string) => getTrackerFactory(trackerId).refetch();
 
 const familyQuery = createQueryFactory(['family'], async (): Promise<FamilyDB[]> => {
 	const resp: FamilyDB[] = await pb.collection('families').getFullList({

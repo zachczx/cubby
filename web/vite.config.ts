@@ -14,6 +14,5 @@ export default defineConfig({
 			filename: 'bundle-analysis.html',
 			open: true // opens the visualization in the browser after build
 		})
-	],
-	envDir: '../'
+	]
 });

@@ -1,4 +1,4 @@
-package server
+package response
 
 import (
 	"database/sql"
@@ -85,4 +85,9 @@ func writeJSON(w http.ResponseWriter, status int, data any) {
 	if _, err := w.Write(bytes); err != nil {
 		slog.Error("write response error", "error", err)
 	}
+}
+
+func RespondWithError(w http.ResponseWriter, status int, message string) {
+	w.WriteHeader(status)
+	fmt.Fprintln(w, message)
 }

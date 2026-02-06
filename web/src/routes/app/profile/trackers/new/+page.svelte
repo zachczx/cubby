@@ -9,6 +9,7 @@
 	import { userQueryOptions, familyQueryOptions, allTrackersRefetchOptions } from '$lib/queries';
 	import { goto } from '$app/navigation';
 	import TrackerForm from '../TrackerForm.svelte';
+	import { api } from '$lib/api';
 
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
@@ -29,17 +30,27 @@
 		spinner = true;
 
 		try {
-			const result: TrackerDB = await pb
-				.collection('trackers')
-				.create({ ...inputTrackerDetails, family: userOwnedFamily });
-			if (result.id) {
+			const formData = {
+				...inputTrackerDetails,
+				interval: Number(inputTrackerDetails.interval),
+				family: userOwnedFamily
+			};
+
+			const response = await api
+				.post('trackers', {
+					body: JSON.stringify(formData)
+				})
+				.json();
+			console.log(response);
+			if (response) {
 				addToast('success', 'Added successfully!');
 				await tanstackClient.refetchQueries(allTrackersRefetchOptions());
 				spinner = false;
-				goto(`/app/${result.category}`);
+				goto(`/app/${response.category}/${response.id}`);
 			}
 		} catch (err) {
 			console.log(err);
+			addToast('error', 'Failed to add tracker');
 		}
 	}
 </script>

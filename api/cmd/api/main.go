@@ -11,6 +11,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
 	"github.com/zachczx/cubby/api/internal/server"
+	"github.com/zachczx/cubby/api/internal/tracker"
 )
 
 func main() {
@@ -35,6 +36,7 @@ func main() {
 		os.Getenv("STYTCH_PROJECT_ID"),
 		os.Getenv("STYTCH_SECRET"),
 		db,
+		tracker.DefaultService{},
 	)
 
 	mux := MakeHTTPHandlers(s)

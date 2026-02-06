@@ -28,8 +28,8 @@
 
 {#if trackersDb.isPending}
 	Loading..............
-{:else if currentTracker?.kind === 'task'}
-	<TrackerPage {options}></TrackerPage>
-{:else}
+{:else if currentTracker?.kind === 'subscription'}
 	<SubscriptionPage {options}></SubscriptionPage>
+{:else}
+	<TrackerPage {options}></TrackerPage>
 {/if}

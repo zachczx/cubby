@@ -49,6 +49,7 @@
 		<div class="overflow-y-auto">
 			<h1 class="text-primary mb-4 text-center text-4xl font-bold max-lg:hidden">Profile</h1>
 			<div class="grid w-full content-start">
+				{@render menuItem('account', 'Account Info')}
 				{@render menuItem('trackers', 'Manage Trackers')}
 				{@render menuItem('family', 'Manage Family')}
 				{@render menuItem('vacation', 'Manage Vacation Dates')}

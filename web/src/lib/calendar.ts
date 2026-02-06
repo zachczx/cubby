@@ -5,12 +5,8 @@ function hasDateRange(record: CalendarRecord): record is VacationDB {
 	return 'startDateTime' in record;
 }
 
-export function getCalendarEntries(
-	data: LogsDB[] | VacationDB[] | undefined,
-	title: string | undefined,
-	icon?: string
-) {
-	if (!data || !title) return [];
+export function getCalendarEntries(data: LogsDB[] | VacationDB[] | undefined, icon?: string) {
+	if (!data) return [];
 
 	const times: Calendar.EventInput[] = [];
 
@@ -26,7 +22,7 @@ export function getCalendarEntries(
 				 * Zero-duration events at midnight (12:00am) fail to render due to day boundary ambiguity.
 				 */
 				end: end.add(1, 'second').toDate(),
-				title: icon ? `— ${icon} ${title}` : `— ${title}`,
+				title: icon ? `— ${icon}` : ``,
 				backgroundColor: 'var(--color-neutral)' // vacation color
 			});
 		} else {
@@ -37,7 +33,7 @@ export function getCalendarEntries(
 				 * Ditto above
 				 */
 				end: t.add(1, 'second').toDate(),
-				title: icon ? `— ${icon} ${title}` : ``
+				title: icon ? `— ${icon}` : ``
 			});
 		}
 	}

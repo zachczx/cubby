@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -11,24 +12,78 @@ import (
 	emailML "github.com/stytchauth/stytch-go/v16/stytch/consumer/magiclinks/email"
 	"github.com/stytchauth/stytch-go/v16/stytch/consumer/sessions"
 	"github.com/stytchauth/stytch-go/v16/stytch/consumer/users"
+	"github.com/zachczx/cubby/api/internal/response"
+	"github.com/zachczx/cubby/api/internal/user"
+
+	"github.com/google/uuid"
 )
 
-func RespondWithError(w http.ResponseWriter, status int, message string) {
-	w.WriteHeader(status)
-	fmt.Fprintln(w, message)
-}
+type contextKey string
+
+const (
+	UserIDKey contextKey = "userID"
+	EmailKey  contextKey = "email"
+)
 
 func (s *Service) RequireAuthentication(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		u := s.getAuthenticatedUser(w, r)
+		u := s.GetAuthenticatedUser(w, r)
 
 		if u == nil || u.UserID == "" {
-			RespondWithError(w, http.StatusForbidden, "unauthorized access")
+			response.RespondWithError(w, http.StatusForbidden, "unauthorized access")
 			return
 		}
 
-		h.ServeHTTP(w, r)
+		email := ""
+		if len(u.Emails) > 0 {
+			email = u.Emails[0].Email
+		} else {
+			resp, err := s.Client.Users.Get(r.Context(), &users.GetParams{
+				UserID: u.UserID,
+			})
+			if err != nil {
+				log.Printf("Error fetching user details: %v", err)
+				response.RespondWithError(w, http.StatusInternalServerError, "internal server error")
+				return
+			}
+			if len(resp.Emails) > 0 {
+				email = resp.Emails[0].Email
+			}
+		}
+
+		if email == "" {
+			response.RespondWithError(w, http.StatusBadRequest, "email required")
+			return
+		}
+
+		localUserID, err := user.GetInternalUserID(s.DB, email)
+		if err != nil {
+			log.Printf("Error getting internal user: %v", err)
+			response.RespondWithError(w, http.StatusUnauthorized, "user not found")
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), UserIDKey, localUserID)
+		ctx = context.WithValue(ctx, EmailKey, email)
+
+		h.ServeHTTP(w, r.WithContext(ctx))
 	})
+}
+
+func (s *Service) GetUserIDFromContext(ctx context.Context) (uuid.UUID, error) {
+	id, ok := ctx.Value(UserIDKey).(uuid.UUID)
+	if !ok {
+		return uuid.Nil, fmt.Errorf("user id not found in context")
+	}
+	return id, nil
+}
+
+func (s *Service) GetUserEmailFromContext(ctx context.Context) (string, error) {
+	email, ok := ctx.Value(EmailKey).(string)
+	if !ok {
+		return "", fmt.Errorf("user email not found in context")
+	}
+	return email, nil
 }
 
 func (s *Service) SendMagicLinkHandler(w http.ResponseWriter, r *http.Request) {
@@ -81,19 +136,84 @@ func (s *Service) AuthenticateHandler(w http.ResponseWriter, r *http.Request) {
 	// Set the session cookies (JWT + Refresh Token)
 	s.setSessionCookies(w, resp.SessionJWT, resp.SessionToken)
 
-	s.syncUserInternal(resp.User.Emails[0].Email, *resp.User.CreatedAt)
+	isNewUser, userID, err := user.SyncUserInternal(s.DB, resp.User.Emails[0].Email, *resp.User.CreatedAt)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	if isNewUser {
+		if err := s.DefaultCreator.CreateDefaults(s.DB, userID); err != nil {
+			fmt.Printf("Error creating default trackers: %v\n", err)
+		}
+	}
 
 	redirectURL := os.Getenv("PUBLIC_WEB_URL")
 
-	http.Redirect(w, r, redirectURL, http.StatusSeeOther)
+	if isNewUser {
+		redirectURL += "/profile/account?onboarding=true"
+	}
+
+	/*
+		A HTML redirect is used here because http.Redirect() often causes page failure.
+		Seems like a case of cookie not being set yet, but redirect succeding, therefore causing frontend to fail auth check.
+	*/
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, `<!DOCTYPE html>
+				<html>
+				<head>
+					<meta http-equiv="refresh" content="0;url=%s">
+					<script>window.location.href = "%s";</script>
+				</head>
+				<body>
+					<p>Redirecting...</p>
+				</body>
+				</html>`,
+		redirectURL,
+		redirectURL)
+
 }
 
 func (s *Service) CheckHandler(w http.ResponseWriter, r *http.Request) {
-	user := s.getAuthenticatedUser(w, r)
-	fmt.Println(user.Emails[0].Email)
+	u := s.GetAuthenticatedUser(w, r)
+
+	if u == nil || u.UserID == "" {
+		response.RespondWithError(w, http.StatusUnauthorized, "not authenticated")
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
-func (s *Service) getAuthenticatedUser(w http.ResponseWriter, r *http.Request) *users.User {
+func (s *Service) GetUserHandler(w http.ResponseWriter, r *http.Request) {
+	u := s.GetAuthenticatedUser(w, r)
+
+	if u == nil || u.UserID == "" {
+		response.RespondWithError(w, http.StatusUnauthorized, "not authenticated")
+		return
+	}
+
+	email := ""
+	if len(u.Emails) > 0 {
+		email = u.Emails[0].Email
+	}
+
+	if email == "" {
+		response.RespondWithError(w, http.StatusUnauthorized, "email not found")
+		return
+	}
+
+	localUser, err := user.Get(s.DB, email)
+	if err != nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "user not found")
+		return
+	}
+
+	response.WriteJSON(w, localUser)
+}
+
+func (s *Service) GetAuthenticatedUser(w http.ResponseWriter, r *http.Request) *users.User {
 	// JWT as first try
 	if cookie, err := r.Cookie("stytch_session_jwt"); err == nil {
 		if sess, err := s.Client.Sessions.AuthenticateJWTLocal(cookie.Value, 0); err == nil {

@@ -31,17 +31,17 @@
 	let loadedTrackerId = $state('');
 
 	let inputTrackerDetails = $state<TrackerInput>({
-		user: pb.authStore.record?.id ?? '',
-		family: '',
+		// user: pb.authStore.record?.id ?? '',
+		// family: '',
 		name: '',
 		display: '',
 		interval: '1',
 		intervalUnit: 'day',
 		category: 'personal',
 		kind: 'task',
-		icon: 'bookmark', //todo
+		icon: 'bookmark',
 		startDate: '',
-		actionLabel: '',
+		actionLabel: 'Done',
 		pinned: false,
 		show: true
 	});

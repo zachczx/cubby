@@ -13,7 +13,7 @@ const config = {
 			strict: true
 		}),
 		env: {
-			dir: '../'
+			dir: './'
 		}
 	},
 	compilerOptions: {

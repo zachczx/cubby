@@ -11,7 +11,7 @@
 	// if (pb.authStore.isValid) {
 	// 	goto(resolve('/app'));
 	// }
-	console.log(PUBLIC_API_URL);
+
 	let email = $state('');
 
 	async function submitHandler() {
