@@ -30,11 +30,8 @@
 		}
 	});
 
-	let spinner = $state(false);
-
 	async function editTracker(inputTrackerDetails: TrackerInput) {
 		if (!user.isSuccess) return;
-		spinner = true;
 
 		try {
 			const result: TrackerDB = await pb
@@ -43,7 +40,7 @@
 			if (result.id) {
 				addToast('success', 'Added successfully!');
 				await tanstackClient.refetchQueries(allTrackersRefetchOptions());
-				spinner = false;
+
 				goto(`/app/${result.category}`);
 			}
 		} catch (err) {
@@ -53,14 +50,13 @@
 
 	async function deleteTracker() {
 		if (!user.isSuccess) return;
-		spinner = true;
 
 		try {
 			const result = await pb.collection('trackers').delete(data.trackerId);
 			if (result) {
 				addToast('success', 'Deleted successfully!');
 				await tanstackClient.refetchQueries(allTrackersRefetchOptions());
-				spinner = false;
+
 				goto(`/app/profile/trackers/edit`);
 			}
 		} catch (err) {
@@ -100,14 +96,13 @@
 		<h2 class="text-2xl font-bold">Confirm Deletion</h2>
 
 		<ul class="ms-6 list-disc space-y-2">
-			<li>You will delete all of your logs in this tracker.</li>
+			<li>You will delete all of your entries in this tracker.</li>
 			<li>This action is permanent.</li>
 		</ul>
 		<div class="grid grid-cols-1 gap-4">
 			<button
 				class="btn btn-error btn-lg rounded-full"
 				onclick={() => {
-					spinner = true;
 					deleteTracker();
 				}}>Confirm Deletion</button
 			>

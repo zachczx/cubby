@@ -23,11 +23,8 @@
 		}
 	});
 
-	let spinner = $state(false);
-
 	async function addTracker(inputTrackerDetails: TrackerInput) {
 		if (!user.isSuccess) return;
-		spinner = true;
 
 		try {
 			const formData = {
@@ -40,12 +37,11 @@
 				.post('trackers', {
 					body: JSON.stringify(formData)
 				})
-				.json();
+				.json<TrackerDB>();
 			console.log(response);
 			if (response) {
 				addToast('success', 'Added successfully!');
 				await tanstackClient.refetchQueries(allTrackersRefetchOptions());
-				spinner = false;
 				goto(`/app/${response.category}/${response.id}`);
 			}
 		} catch (err) {

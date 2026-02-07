@@ -2,10 +2,10 @@
 	import Icon from '@iconify/svelte';
 	import { getAllTrackerIcons } from '$lib/mapper';
 	import { pb } from '$lib/pb';
-	import { userQueryOptions } from '$lib/queries';
+
 	import NumberInput from '$lib/ui/NumberInput.svelte';
 	import SegmentedControl from '$lib/ui/SegmentedControl.svelte';
-	import { createQuery } from '@tanstack/svelte-query';
+
 	import { slide } from 'svelte/transition';
 
 	let {
@@ -17,7 +17,6 @@
 	} = $props();
 
 	let intervalString = $state('1');
-	const user = createQuery(userQueryOptions);
 
 	function toCamelCase(text: string): string {
 		const words = text.split(' ').map((word, idx) => {
@@ -31,8 +30,8 @@
 	let loadedTrackerId = $state('');
 
 	let inputTrackerDetails = $state<TrackerInput>({
-		// user: pb.authStore.record?.id ?? '',
-		// family: '',
+		user: pb.authStore.record?.id ?? '',
+		family: '',
 		name: '',
 		display: '',
 		interval: '1',

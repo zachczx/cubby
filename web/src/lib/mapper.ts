@@ -57,7 +57,7 @@ export function getColoredTrackers(trackers: TrackerDB[]): TrackerColored[] {
 
 	for (const t of trackers) {
 		const owner = t.expand?.family?.owner;
-		const familyId = t.expand?.family?.id;
+		const familyId = t.family;
 
 		if (owner !== pb.authStore.record?.id && familyId) {
 			s.add(familyId);
@@ -79,24 +79,24 @@ export function getColoredTrackers(trackers: TrackerDB[]): TrackerColored[] {
 	return coloredTrackers;
 }
 
-export function generateSubscriptionLogs(tracker: TrackerDB): LogsDB[] {
+export function generateSubscriptionEntries(tracker: TrackerDB): EntryDB[] {
 	if (!tracker.startDate) return [];
 
 	const subscriptionStart = tracker.startDate;
-	const historicalRecords: LogsDB[] = [];
+	const historicalRecords: EntryDB[] = [];
 	const today = dayjs();
 	let currentDateTime = dayjs(subscriptionStart);
 
 	// Add the initial start date as a log
 	historicalRecords.push({
 		id: 'generated_start',
-		collectionId: '',
-		collectionName: 'logs',
-		created: subscriptionStart,
-		updated: subscriptionStart,
+		created_at: subscriptionStart,
+		updated_at: subscriptionStart,
 		tracker: tracker.id,
-		user: pb.authStore.record?.id ?? '',
-		time: subscriptionStart,
+		trackerId: tracker.id,
+		performedBy: pb.authStore.record?.id ?? '',
+		performedAt: subscriptionStart,
+		remark: '',
 		interval: tracker.interval,
 		intervalUnit: tracker.intervalUnit
 	});
@@ -109,13 +109,13 @@ export function generateSubscriptionLogs(tracker: TrackerDB): LogsDB[] {
 		currentDateTime = currentDateTime.add(tracker.interval, tracker.intervalUnit);
 		historicalRecords.push({
 			id: `generated_${currentDateTime.toISOString()}`,
-			collectionId: '',
-			collectionName: 'logs',
-			created: currentDateTime.toISOString(),
-			updated: currentDateTime.toISOString(),
+			remark: '',
+			created_at: currentDateTime.toISOString(),
+			updated_at: currentDateTime.toISOString(),
 			tracker: tracker.id,
-			user: pb.authStore.record?.id ?? '',
-			time: currentDateTime.toISOString(),
+			trackerId: tracker.id,
+			performedBy: pb.authStore.record?.id ?? '',
+			performedAt: currentDateTime.toISOString(),
 			interval: tracker.interval,
 			intervalUnit: tracker.intervalUnit
 		});

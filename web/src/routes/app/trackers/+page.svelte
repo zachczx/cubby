@@ -7,7 +7,7 @@
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import ActionCard from '$lib/ui/ActionCard.svelte';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { allLogsQueryOptions, allTrackersQueryOptions } from '$lib/queries';
+	import { allEntriesQueryOptions, allTrackersQueryOptions } from '$lib/queries';
 	import { getColoredTrackers, getTrackerIcon } from '$lib/mapper.js';
 	import SkeletonActionCard from '$lib/ui/SkeletonActionCard.svelte';
 	import EmptyCorgi from '$lib/assets/empty.webp?w=200&enhanced';
@@ -31,7 +31,7 @@
 	});
 
 	const trackersDb = createQuery(allTrackersQueryOptions);
-	const allLogsDb = createQuery(allLogsQueryOptions);
+	const allEntriesDb = createQuery(allEntriesQueryOptions);
 
 	let currentTrackers = $derived.by(() => {
 		if (!trackersDb.isSuccess || !trackersDb.data) return;
@@ -43,64 +43,64 @@
 		return getColoredTrackers(categoryTrackers);
 	});
 
-	let logsByTracker = $derived.by(() => {
+	let entriesByTracker = $derived.by(() => {
 		const map = new Map();
-		if (!allLogsDb.isSuccess || !allLogsDb.data) return map;
+		if (!allEntriesDb.isSuccess || !allEntriesDb.data) return map;
 
-		for (const log of allLogsDb.data) {
-			if (!map.has(log.tracker)) {
-				map.set(log.tracker, []);
+		for (const entry of allEntriesDb.data) {
+			if (!map.has(entry.tracker)) {
+				map.set(entry.tracker, []);
 			}
 
-			map.get(log.tracker).push(log);
+			map.get(entry.tracker).push(entry);
 		}
 
 		return map;
 	});
 
-	let latestLogs: LogsDB[] = $derived.by(() => {
-		if (!allLogsDb.isSuccess || !allLogsDb.data || !currentTrackers) return [];
+	let latestEntries: EntryDB[] = $derived.by(() => {
+		if (!allEntriesDb.isSuccess || !allEntriesDb.data || !currentTrackers) return [];
 
 		const trackerMap = new Map(currentTrackers.map((t) => [t.id, t]));
 
-		// Use flatMap to transform logs AND filter out any without matching trackers in one step.
-		// Returns [] to skip logs where tracker is undefined (flatmap flattens empty [], so nothing added), so I dont need a separate
+		// Use flatMap to transform entries AND filter out any without matching trackers in one step.
+		// Returns [] to skip entries where tracker is undefined (flatmap flattens empty [], so nothing added), so I dont need a separate
 		// .filter() for null values + verbose type guards. TypeScript automatically infers the correct type.
-		return allLogsDb.data
-			.filter((log) => trackerMap.has(log.tracker))
+		return allEntriesDb.data
+			.filter((entry) => trackerMap.has(entry.tracker))
 			.slice(0, 5)
-			.flatMap((log) => {
-				const tracker = currentTrackers?.find((tracker) => tracker.id === log.tracker);
+			.flatMap((entry) => {
+				const tracker = currentTrackers?.find((tracker) => tracker.id === entry.tracker);
 				if (!tracker) return [];
 
-				return [{ ...log, expand: { tracker: { ...tracker } } }];
+				return [{ ...entry, expand: { tracker: { ...tracker } } }];
 			});
 	});
 
-	let logs = $derived.by(() => {
-		if (!trackersDb.isSuccess || !trackersDb.data || !allLogsDb.isSuccess || !allLogsDb.data)
+	let entries = $derived.by(() => {
+		if (!trackersDb.isSuccess || !trackersDb.data || !allEntriesDb.isSuccess || !allEntriesDb.data)
 			return;
 
 		return currentTrackers?.map((tracker) => {
-			const associatedLogs = logsByTracker.get(tracker.id) || [];
+			const associatedEntries = entriesByTracker.get(tracker.id) || [];
 
 			return {
 				trackerName: tracker.name,
 				trackerData: tracker,
-				logData: associatedLogs,
-				notification: getTrackerStatus(associatedLogs)
+				entries: associatedEntries,
+				notification: getTrackerStatus(associatedEntries)
 			};
 		});
 	});
 
 	let tasks = $derived.by(() => {
-		if (!logs) return;
-		return logs.filter((log) => log.trackerData.kind === 'task');
+		if (!entries) return;
+		return entries.filter((entry) => entry.trackerData.kind === 'task');
 	});
 
 	let subscriptions = $derived.by(() => {
-		if (!logs) return;
-		return logs.filter((log) => log.trackerData.kind === 'subscription');
+		if (!entries) return;
+		return entries.filter((entry) => entry.trackerData.kind === 'subscription');
 	});
 </script>
 
@@ -120,7 +120,7 @@
 									tracker: task.trackerData,
 									title: task.trackerData.display,
 									route: `/app/${task.trackerData.category}/${task.trackerData.id}`,
-									logs: task.logData,
+									entries: task.entries,
 									icon: getTrackerIcon(task.trackerData.icon),
 									button: {
 										text: task.trackerData.actionLabel,
@@ -150,7 +150,7 @@
 									tracker: subscription.trackerData,
 									title: subscription.trackerData.display,
 									route: `/app/${subscription.trackerData.category}/${subscription.trackerData.id}`,
-									logs: subscription.logData,
+									entries: subscription.entries,
 									icon: getTrackerIcon(subscription.trackerData.icon),
 									button: {
 										text: subscription.trackerData.actionLabel,
@@ -167,14 +167,14 @@
 				<h2 class="text-base-content/70 text-lg font-bold">Recent Activity</h2>
 
 				<div class="border-base-300/50 rounded-2xl border bg-white/70">
-					{#if latestLogs && latestLogs.length > 0}
-						{#each latestLogs as log, i (log.id)}
-							{@const fromNow = dayjs(log.time).fromNow()}
+					{#if latestEntries && latestEntries.length > 0}
+						{#each latestEntries as entry (entry.id)}
+							{@const fromNow = dayjs(entry.time).fromNow()}
 							<div class={['border-b-base-300/50 grid gap-4 border-b px-2 py-1']}>
 								<div class="flex items-center p-2">
 									<div class="flex grow items-center gap-4">
 										<div class="flex items-center gap-2 align-baseline">
-											{log.expand?.tracker?.display}
+											{entry.expand?.tracker?.display}
 										</div>
 									</div>
 
@@ -182,7 +182,7 @@
 								</div>
 							</div>
 						{/each}
-					{:else if !latestLogs || latestLogs.length === 0}
+					{:else if !latestEntries || latestEntries.length === 0}
 						<div class="justify-self-center">
 							<enhanced:img src={EmptyCorgi} alt="nothing" />
 							<p class="text-center">No tasks!</p>

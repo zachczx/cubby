@@ -139,25 +139,6 @@
 	</div>
 {/snippet}
 
-{#snippet item(tracker: TrackerDB)}
-	<li class="grid grid-cols-[auto_1fr] items-center gap-0">
-		<button
-			type="button"
-			onclick={(evt) => {
-				evt.preventDefault();
-				pinHandler(tracker);
-			}}
-			class="flex h-full items-center justify-center"
-		>
-			{#if tracker.pinned}
-				<Icon icon="material-symbols:keep" class="opacity-75" />
-			{:else}
-				<Icon icon="material-symbols:keep-outline" class="opacity-75" />
-			{/if}
-		</button>
-	</li>
-{/snippet}
-
 <input type="checkbox" class="hidden" /><svg class="hidden"></svg><svg class="hidden"></svg>
 
 <style>

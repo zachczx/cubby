@@ -1,43 +1,15 @@
 <script lang="ts">
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
 	import { pb } from '$lib/pb';
-	import { addToast } from '$lib/ui/ArkToaster.svelte';
+
 	import dayjs from 'dayjs';
 	import utc from 'dayjs/plugin/utc';
 	import timezone from 'dayjs/plugin/timezone';
-	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
-	import { userQueryOptions, userRefetchOptions } from '$lib/queries';
+
 	import Icon from '@iconify/svelte';
 
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
-
-	const user = createQuery(userQueryOptions);
-
-	const tanstackClient = useQueryClient();
-
-	async function onchange(evt: Event) {
-		const target = evt.target;
-
-		if (target instanceof HTMLInputElement && pb.authStore.record?.id) {
-			try {
-				const data = {
-					sound: target.checked ? true : false
-				};
-
-				const response = await pb.collection('users').update(pb.authStore.record.id, data);
-
-				if (!response.status) {
-					addToast('success', 'Saved!');
-					await tanstackClient.refetchQueries(userRefetchOptions());
-				}
-			} catch (err) {
-				addToast('error', 'Error saving!');
-			}
-		} else {
-			addToast('error', 'Error saving!');
-		}
-	}
 </script>
 
 <PageWrapper title="Profile" {pb} largeScreenCenter={true}>

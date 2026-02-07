@@ -7,7 +7,7 @@ export const api = ky.create({
 	credentials: 'include',
 	hooks: {
 		afterResponse: [
-			(_request, options, response) => {
+			(_request, _options, response) => {
 				if (response.status === 403 || response.status === 401) {
 					if (browser) {
 						console.error('403 Not auth');

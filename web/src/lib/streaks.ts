@@ -7,15 +7,15 @@ interface Grace {
 }
 
 export function calculateStreak(
-	logs: LogsDB[] | undefined,
+	entries: EntryDB[] | undefined,
 	tracker: TrackerDB | undefined
 ): number {
-	if (!logs || logs.length === 0 || !tracker) return 0;
+	if (!entries || entries.length === 0 || !tracker) return 0;
 
-	const sortedLogs = [...logs].sort((a, b) => dayjs(b.time).diff(dayjs(a.time)));
-	const latestLog = sortedLogs[0];
+	const sortedEntries = [...entries].sort((a, b) => dayjs(b.time).diff(dayjs(a.time)));
+	const latestEntry = sortedEntries[0];
 
-	const nextDueDate = dayjs(latestLog.time).add(tracker.interval, tracker.intervalUnit);
+	const nextDueDate = dayjs(latestEntry.time).add(tracker.interval, tracker.intervalUnit);
 
 	const grace = {} as Grace;
 
@@ -36,25 +36,25 @@ export function calculateStreak(
 		return 0;
 	}
 
-	return checkStreakLength(sortedLogs, tracker, grace);
+	return checkStreakLength(sortedEntries, tracker, grace);
 }
 
-function checkStreakLength(sortedLogs: LogsDB[], tracker: TrackerDB, grace: Grace): number {
+function checkStreakLength(sortedEntries: EntryDB[], tracker: TrackerDB, grace: Grace): number {
 	let streak = 1;
 
-	for (let i = 0; i < sortedLogs.length - 1; i++) {
-		const currentLog = sortedLogs[i];
-		const previousLog = sortedLogs[i + 1];
+	for (let i = 0; i < sortedEntries.length - 1; i++) {
+		const currentEntry = sortedEntries[i];
+		const previousEntry = sortedEntries[i + 1];
 
-		const previousNextDueDate = dayjs(previousLog.time).add(tracker.interval, tracker.intervalUnit);
+		const previousNextDueDate = dayjs(previousEntry.time).add(tracker.interval, tracker.intervalUnit);
 		const previousGraceLimit = previousNextDueDate.add(
 			grace.gracePeriodValue,
 			grace.gracePeriodUnit
 		);
 
 		if (
-			dayjs(currentLog.time).isSame(previousGraceLimit) ||
-			dayjs(currentLog.time).isBefore(previousGraceLimit)
+			dayjs(currentEntry.time).isSame(previousGraceLimit) ||
+			dayjs(currentEntry.time).isBefore(previousGraceLimit)
 		) {
 			streak++;
 		} else {

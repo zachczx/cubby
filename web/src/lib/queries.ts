@@ -12,7 +12,7 @@ export const queryClient = new QueryClient();
 export const getRootKey = () => [pb.authStore?.record?.id];
 
 // Helper to get the allLogs query key
-export const getAllLogsQueryKey = () => [...getRootKey(), 'logs-all'];
+export const getAllEntriesQueryKey = () => [...getRootKey(), 'entries-all'];
 
 function createQueryFactory<T>(key: string[], queryFn: () => Promise<T>) {
 	return {
@@ -31,12 +31,12 @@ function createQueryFactory<T>(key: string[], queryFn: () => Promise<T>) {
 	};
 }
 
-const allLogsQuery = createQueryFactory(
-	['logs-all'],
-	async (): Promise<LogsDB[]> => await api.get(`entries`).json()
+const allEntriesQuery = createQueryFactory(
+	['entries-all'],
+	async (): Promise<EntryDB[]> => await api.get(`entries`).json()
 );
-export const allLogsQueryOptions = allLogsQuery.options;
-export const allLogsRefetchOptions = allLogsQuery.refetch;
+export const allEntriesQueryOptions = allEntriesQuery.options;
+export const allEntriesRefetchOptions = allEntriesQuery.refetch;
 
 const allTrackersQuery = createQueryFactory(
 	['allTrackers'],
@@ -45,37 +45,62 @@ const allTrackersQuery = createQueryFactory(
 export const allTrackersQueryOptions = allTrackersQuery.options;
 export const allTrackersRefetchOptions = allTrackersQuery.refetch;
 
-const notificationQuery = createQueryFactory(
-	['notification'],
-	async (): Promise<LogsDB[]> =>
-		await pb.collection('latest_logs').getFullList({ expand: 'tracker' })
-);
+const notificationQuery = createQueryFactory(['notification'], async (): Promise<EntryDB[]> => {
+	const result = await pb.collection('latest_entries').getFullList({ expand: 'tracker' });
+	return result.map((item) => ({
+		...item,
+		id: item.id,
+		trackerId: item.tracker,
+		performedBy: item.user,
+		tracker: item.tracker,
+		interval: item.interval,
+		intervalUnit: item.intervalUnit,
+		performedAt: item.time,
+		remark: item.remark,
+		created_at: item.created,
+		updated_at: item.updated,
+		expand: item.expand
+	})) as unknown as EntryDB[];
+});
 export const notificationQueryOptions = notificationQuery.options;
 export const notificationRefetchOptions = notificationQuery.refetch;
 
-const feedQuery = createQueryFactory(
-	['feed'],
-	async (): Promise<ListResult<LogsDB>> =>
-		await pb.collection('logs').getList(1, 5, { expand: 'tracker', sort: '-time' })
-);
+const feedQuery = createQueryFactory(['feed'], async (): Promise<ListResult<EntryDB>> => {
+	const result = await pb.collection('entries').getList(1, 5, { expand: 'tracker', sort: '-time' });
+	return {
+		...result,
+		items: result.items.map((item) => ({
+			...item,
+			id: item.id,
+			trackerId: item.tracker,
+			performedBy: item.user,
+			tracker: item.tracker,
+			interval: item.interval,
+			intervalUnit: item.intervalUnit,
+			performedAt: item.time,
+			remark: item.remark,
+			created_at: item.created,
+			updated_at: item.updated,
+			expand: item.expand
+		})) as unknown as EntryDB[]
+	};
+});
 export const feedQueryOptions = feedQuery.options;
 export const feedRefetchOptions = feedQuery.refetch;
 
-export async function createLogsQuery(options: {
+export async function createEntryQuery(options: {
 	trackerId: string;
 	interval: number | undefined;
 	intervalUnit: IntervalUnit | undefined;
 }) {
-	console.log(options.trackerId);
-	const response = await api.post(`entries/${options.trackerId}`, {
+	return await api.post(`trackers/${options.trackerId}/entries`, {
 		body: JSON.stringify({
+			trackerId: options.trackerId,
 			interval: options.interval,
 			intervalUnit: options.intervalUnit,
-			performed_at: dayjs.tz(new Date(), 'Asia/Singapore')
+			performedAt: dayjs.tz(new Date(), 'Asia/Singapore')
 		})
 	});
-
-	return response;
 }
 
 const familyQuery = createQueryFactory(['family'], async (): Promise<FamilyDB[]> => {

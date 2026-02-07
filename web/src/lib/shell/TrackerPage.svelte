@@ -9,7 +9,7 @@
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
 	import Chart from 'chart.js/auto';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { createLogsQuery, allLogsQueryOptions } from '$lib/queries';
+	import { createEntryQuery, allEntriesQueryOptions } from '$lib/queries';
 	import { getCalendarEntries } from '$lib/calendar';
 	import CustomDateModal from '$lib/ui/CustomDateModal.svelte';
 	import StatusDescriptions from '$lib/ui/StatusDescriptions.svelte';
@@ -29,25 +29,25 @@
 
 	let modal = $state<HTMLDialogElement>();
 
-	const allLogsDb = createQuery(allLogsQueryOptions);
+	const allEntriesDb = createQuery(allEntriesQueryOptions);
 
-	let currentTrackerLogs = $derived.by(() => {
-		if (!allLogsDb.isSuccess || !allLogsDb.data || !options.tracker) return [];
+	let currentTrackerEntries = $derived.by(() => {
+		if (!allEntriesDb.isSuccess || !allEntriesDb.data || !options.tracker) return [];
 
-		return allLogsDb.data.filter((log) => log.trackerId === options.tracker?.id);
+		return allEntriesDb.data.filter((entry) => entry.trackerId === options.tracker?.id);
 	});
 
 	let tracker = $derived(options.tracker);
 	let interval = $derived(options.tracker?.interval);
 	let intervalUnit = $derived(options.tracker?.intervalUnit);
 	const query = () =>
-		createLogsQuery({
-			trackerId: tracker.id,
+		createEntryQuery({
+			trackerId: tracker?.id ?? '',
 			interval: interval,
 			intervalUnit: intervalUnit
 		});
 
-	let times = $derived.by(() => getCalendarEntries(currentTrackerLogs));
+	let times = $derived.by(() => getCalendarEntries(currentTrackerEntries));
 
 	function isSameDate(first: Date | string, second: Date | string): boolean {
 		return dayjs(first).isSame(second, 'day');
@@ -56,8 +56,8 @@
 	let selectedDate = $state<string | Date>('');
 
 	let singleDay = $derived.by(() => {
-		if (!selectedDate || !currentTrackerLogs || currentTrackerLogs.length === 0) return [];
-		return currentTrackerLogs.filter((log) => isSameDate(selectedDate, log.time));
+		if (!selectedDate || !currentTrackerEntries || currentTrackerEntries.length === 0) return [];
+		return currentTrackerEntries.filter((entry) => isSameDate(selectedDate, entry.performedAt));
 	});
 
 	let calendarOptions: Calendar.Options = $derived.by(() => {
@@ -75,14 +75,14 @@
 				return dayjs(date).format('MMMM YYYY');
 			},
 			dateClick: async (info) => {
-				if (currentTrackerLogs && currentTrackerLogs.length > 0) {
+				if (currentTrackerEntries && currentTrackerEntries.length > 0) {
 					selectedDate = info.date;
 					await tick();
 					modal?.showModal();
 				}
 			},
 			eventClick: async (info) => {
-				if (currentTrackerLogs && currentTrackerLogs.length > 0) {
+				if (currentTrackerEntries && currentTrackerEntries.length > 0) {
 					selectedDate = info.event.start;
 					await tick();
 					modal?.showModal();
@@ -94,7 +94,7 @@
 		};
 	});
 
-	let notification = $derived.by(() => getTrackerStatus(currentTrackerLogs));
+	let notification = $derived.by(() => getTrackerStatus(currentTrackerEntries));
 
 	type TabPages = 'overview' | 'stats' | 'calendar';
 
@@ -105,19 +105,21 @@
 	 * not properly triggering Svelte 5's fine-grained reactivity on async data changes
 	 */
 
-	let records: LogsRecord[] | undefined = $state([]);
+	let records: EntryRecord[] | undefined = $state([]);
 
 	$effect(() => {
-		if (currentTrackerLogs && currentTrackerLogs.length > 0) {
-			records = currentTrackerLogs.map((record, i, allRecords) => {
+		if (currentTrackerEntries && currentTrackerEntries.length > 0) {
+			records = currentTrackerEntries.map((record, i, allRecords) => {
 				const nextRecord = allRecords[i + 1];
-				const gap = nextRecord ? dayjs(record.time).diff(nextRecord.time, 'day', true) : 0;
+				const gap = nextRecord
+					? dayjs(record.performedAt).diff(nextRecord.performedAt, 'day', true)
+					: 0;
 				return { ...record, gap };
 			});
 		}
 	});
 
-	let longestGap: LogsRecord | undefined = $derived.by(() => {
+	let longestGap: EntryRecord | undefined = $derived.by(() => {
 		if (!records || records?.length <= 1) return;
 
 		const avoidMutatingOriginalArray = [...records];
@@ -157,7 +159,7 @@
 			if (!records[i]) {
 				gapsDates.unshift('-');
 			} else {
-				gapsDates.unshift(dayjs(records[i].time).format('D/M'));
+				gapsDates.unshift(dayjs(records[i].performedAt).format('D/M'));
 			}
 		}
 		return gapsDates;
@@ -169,8 +171,8 @@
 	$effect(() => {
 		if (
 			lineChartEl &&
-			currentTrackerLogs &&
-			currentTrackerLogs.length > 0 &&
+			currentTrackerEntries &&
+			currentTrackerEntries.length > 0 &&
 			currentTab === 'stats' &&
 			!lineChart
 		) {
@@ -204,7 +206,7 @@
 <PageWrapper title={options.labels.pageTitle} {pb}>
 	<main class="grid w-full max-w-xl content-start justify-items-center gap-4 justify-self-center">
 		<div class="grid w-full content-start justify-items-center gap-4">
-			{#if currentTrackerLogs}
+			{#if currentTrackerEntries}
 				<StatusHeroImage {notification} />
 			{:else}
 				<div class="avatar relative mt-2 mb-4">
@@ -246,7 +248,7 @@
 				</li>
 			</ul>
 
-			{#if currentTrackerLogs && currentTrackerLogs.length === 0}
+			{#if currentTrackerEntries && currentTrackerEntries.length === 0}
 				<div class="mx-4 mt-4 text-center">
 					<p class="font-bold">Ready to track?</p>
 					<p>Start by adding a log.</p>
@@ -296,9 +298,9 @@
 						{/snippet}
 
 						{#snippet right()}
-							{#if currentTrackerLogs && currentTrackerLogs.length > 0}
-								{#if currentTrackerLogs.length > 0}
-									{@const formatted = dayjs(currentTrackerLogs[0].time).fromNow(true)}
+							{#if currentTrackerEntries && currentTrackerEntries.length > 0}
+								{#if currentTrackerEntries.length > 0}
+									{@const formatted = dayjs(currentTrackerEntries[0].performedAt).fromNow(true)}
 									<p>
 										{#if formatted === 'a few seconds'}
 											seconds
@@ -313,7 +315,7 @@
 									</div>
 								{/if}
 							{/if}
-							{#if allLogsDb.isPending}
+							{#if allEntriesDb.isPending}
 								<div class="custom-loader"></div>
 							{/if}
 						{/snippet}
@@ -361,7 +363,7 @@
 						currentTab === 'calendar' ? undefined : 'hidden'
 					]}
 				>
-					{#key currentTrackerLogs}
+					{#key currentTrackerEntries}
 						<Calendar plugins={[DayGrid, Interaction]} options={calendarOptions} />
 					{/key}
 				</div>

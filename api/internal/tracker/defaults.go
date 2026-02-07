@@ -20,10 +20,11 @@ var trackerDefaults = []TrackerInput{
 		ActionLabel:  "Changed",
 		Pinned:       false,
 		Show:         true,
+		Icon:         "bed",
 	},
 	{
 		Name:         "petBath",
-		Display:      "Bedsheet",
+		Display:      "Dog Bath",
 		Interval:     14,
 		IntervalUnit: "day",
 		Category:     "pet",
@@ -31,6 +32,7 @@ var trackerDefaults = []TrackerInput{
 		ActionLabel:  "Bathed",
 		Pinned:       false,
 		Show:         true,
+		Icon:         "shower",
 	},
 	{
 		Name:         "petChewable",
@@ -42,6 +44,7 @@ var trackerDefaults = []TrackerInput{
 		ActionLabel:  "Fed",
 		Pinned:       false,
 		Show:         true,
+		Icon:         "shield",
 	},
 	{
 		Name:         "gummy",
@@ -53,6 +56,7 @@ var trackerDefaults = []TrackerInput{
 		ActionLabel:  "Ate",
 		Pinned:       true,
 		Show:         true,
+		Icon:         "shield",
 	},
 	{
 		Name:         "spray",
@@ -64,6 +68,7 @@ var trackerDefaults = []TrackerInput{
 		ActionLabel:  "Sprayed",
 		Pinned:       true,
 		Show:         true,
+		Icon:         "bottle",
 	},
 	{
 		Name:         "towel",
@@ -75,6 +80,7 @@ var trackerDefaults = []TrackerInput{
 		ActionLabel:  "Washed",
 		Pinned:       true,
 		Show:         true,
+		Icon:         "washer",
 	},
 }
 
@@ -99,6 +105,7 @@ func (DefaultService) CreateDefaults(db *sqlx.DB, userID uuid.UUID) error {
 			ActionLabel:  d.ActionLabel,
 			Pinned:       d.Pinned,
 			Show:         d.Show,
+			Icon:         d.Icon,
 			CreatedAt:    time.Now(),
 			UpdatedAt:    time.Now(),
 		}
