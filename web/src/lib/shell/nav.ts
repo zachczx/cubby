@@ -1,3 +1,5 @@
+import { router } from '$lib/routes';
+
 export const topLevelRoutes = {
 	animation: [
 		{
@@ -10,7 +12,7 @@ export const topLevelRoutes = {
 		},
 		{
 			id: 'personal',
-			href: '/app/personal',
+			href: router.tracker('category/personal'),
 			label: 'Personal',
 			desktopNav: true,
 			mobileNav: true,
@@ -18,7 +20,7 @@ export const topLevelRoutes = {
 		},
 		{
 			id: 'household',
-			href: '/app/household',
+			href: router.tracker('category/household'),
 			label: 'Household',
 			desktopNav: true,
 			mobileNav: true,
@@ -26,7 +28,7 @@ export const topLevelRoutes = {
 		},
 		{
 			id: 'pet',
-			href: '/app/pet',
+			href: router.tracker('category/pet'),
 			label: 'Pet',
 			desktopNav: true,
 			mobileNav: true,

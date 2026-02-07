@@ -16,6 +16,7 @@
 	import SkeletonActionCard from '$lib/ui/SkeletonActionCard.svelte';
 	import { calculateStreak } from '$lib/streaks';
 	import { type Component } from 'svelte';
+	import { router } from '$lib/routes';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
@@ -147,7 +148,7 @@
 								size: 'compact',
 								title: entry.trackerData?.display,
 								entries: entry.entries,
-								route: `/app/${entry.trackerData?.category}/${entry.trackerData?.id}`,
+								route: router.tracker(entry.trackerData?.id),
 								icon: getTrackerIcon(entry.trackerData?.icon),
 								button: {
 									status: buttonStatuses?.[entry.trackerName],
@@ -193,7 +194,7 @@
 									size: 'list',
 									title: entry.trackerData?.display,
 									entries: entry.entries,
-									route: `/app/${entry.trackerData?.category}/${entry.trackerData?.id}`,
+									route: router.tracker(entry.trackerData?.id),
 									icon: getTrackerIcon(entry.trackerData?.icon),
 									lastChild: i === entries.general.length - 1 ? true : undefined,
 									button: {
@@ -230,7 +231,7 @@
 									size: 'list',
 									title: sub.display,
 									entries: sub.entryData,
-									route: `/app/${sub.category}/${sub.id}`,
+									route: `/app/${sub.id}`,
 									icon: getTrackerIcon(sub.icon),
 									lastChild: i === entries.general.length - 1 ? true : undefined,
 									button: {
