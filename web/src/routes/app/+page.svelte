@@ -15,6 +15,7 @@
 	import { getColoredTrackers, getTrackerIcon, generateSubscriptionEntries } from '$lib/mapper';
 	import SkeletonActionCard from '$lib/ui/SkeletonActionCard.svelte';
 	import { calculateStreak } from '$lib/streaks';
+	import { type Component } from 'svelte';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
@@ -137,7 +138,8 @@
 					<SkeletonActionCard size="compact" />
 					<SkeletonActionCard size="compact" />
 					<SkeletonActionCard size="compact" />
-				{:else if entries.pinned && entries.pinned.length > 0}
+				{/if}
+				{#if allEntriesDb.isSuccess && allEntriesDb.data && entries.pinned && entries.pinned.length > 0}
 					{#each entries.pinned as entry (entry.trackerData?.id)}
 						<ActionCard
 							options={{
@@ -155,7 +157,7 @@
 							}}
 						></ActionCard>
 					{/each}
-				{:else}
+				{:else if allEntriesDb.isSuccess && allEntriesDb.data && entries.pinned && entries.pinned.length === 0}
 					<div class="justify-self-center">
 						<enhanced:img src={EmptyCorgi} alt="nothing" />
 						<p class="text-center">No pinned tasks!</p>
@@ -177,6 +179,11 @@
 					{/each}
 				</div>
 
+				{#if allEntriesDb.isPending}
+					<SkeletonActionCard size="compact" />
+					<SkeletonActionCard size="compact" />
+					<SkeletonActionCard size="compact" />
+				{/if}
 				{#if allEntriesDb.isSuccess && allEntriesDb.data && entries.general && entries.general.length > 0}
 					<div class="border-base-300/50 rounded-2xl border bg-white/70">
 						{#each entries.general as entry, i (entry.trackerData?.id)}
@@ -203,16 +210,17 @@
 						<enhanced:img src={EmptyCorgi} alt="nothing" />
 						<p class="text-center">No tasks!</p>
 					</div>
-				{:else}
-					<SkeletonActionCard size="compact" />
-					<SkeletonActionCard size="compact" />
-					<SkeletonActionCard size="compact" />
 				{/if}
 			</section>
 
 			<section class="grid gap-4 py-2">
 				<h2 class="text-base-content/70 text-lg font-bold">Subscriptions</h2>
 
+				{#if allEntriesDb.isPending}
+					<SkeletonActionCard size="compact" />
+					<SkeletonActionCard size="compact" />
+					<SkeletonActionCard size="compact" />
+				{/if}
 				{#if allEntriesDb.isSuccess && subscriptions && subscriptions.length > 0}
 					<div class="border-base-300/50 rounded-2xl border bg-white/70">
 						{#each subscriptions as sub, i (sub.id)}
@@ -238,32 +246,31 @@
 						<enhanced:img src={EmptyCorgi} alt="nothing" />
 						<p class="text-center">No subscriptions!</p>
 					</div>
-				{:else}
-					<SkeletonActionCard size="compact" />
-					<SkeletonActionCard size="compact" />
-					<SkeletonActionCard size="compact" />
 				{/if}
 			</section>
 
 			<section class="grid gap-0 py-0">
 				<h2 class="text-base-content/70 text-lg font-bold">Quick Links</h2>
 				<div class="flex items-center gap-2">
-					<a
-						href="/app/count"
-						class="active:bg-neutral/10 focus-within:bg-neutral/10 focus-within:text-base-content active:text-base-content text-neutral grid aspect-square w-24 content-center justify-items-center gap-1 rounded-2xl p-2 text-sm font-semibold"
-					>
-						<FluentEmojiFlatStopwatch class="size-8" />
-						Stopwatch</a
-					>
-					<a
-						href="/app/profile/vacation"
-						class="active:bg-neutral/10 focus-within:bg-neutral/10 focus-within:text-base-content active:text-base-content text-neutral grid aspect-square w-24 content-center justify-items-center gap-1 rounded-2xl p-2 text-sm font-semibold"
-					>
-						<FluentEmojiFlatAirplane class="size-8" />
-						Vacation</a
-					>
+					{@render quickLink('Stopwatch', '/app/count', FluentEmojiFlatStopwatch, 'size-8')}
+					{@render quickLink(
+						'Vacation',
+						'/app/profile/vacation',
+						FluentEmojiFlatAirplane,
+						'size-8'
+					)}
 				</div>
 			</section>
 		</div>
 	</main>
 </PageWrapper>
+
+{#snippet quickLink(name: string, href: string, Icon: Component, size: string)}
+	<a
+		{href}
+		class="active:bg-neutral/10 focus-within:bg-neutral/10 focus-within:text-base-content active:text-base-content text-neutral grid aspect-square w-24 content-center justify-items-center gap-1 rounded-2xl p-2 text-sm font-semibold"
+	>
+		<Icon class={size}></Icon>
+		{name}</a
+	>
+{/snippet}
