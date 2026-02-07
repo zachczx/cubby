@@ -2,7 +2,7 @@
 	import ActionButton from './ActionButton.svelte';
 	import dayjs from 'dayjs';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { allTrackersQueryOptions, createLogsQuery } from '$lib/queries';
+	import { allTrackersQueryOptions, createEntryQuery } from '$lib/queries';
 	import { getTrackerStatus } from '$lib/notification';
 
 	import Icon from '@iconify/svelte';
@@ -20,19 +20,19 @@
 	});
 
 	let size = $derived(options.size ?? 'default');
-	let logs = $derived(options.logs);
+	let entries = $derived(options.entries);
 
 	const trackers = createQuery(allTrackersQueryOptions);
 	let tracker = $derived.by(() =>
 		trackers.data?.find((tracker) => tracker.name === options.tracker?.name)
 	);
 
-	let notification = $derived.by(() => (logs ? getTrackerStatus(logs) : undefined));
+	let notification = $derived.by(() => (entries ? getTrackerStatus(entries) : undefined));
 
 	let interval = $derived(tracker?.interval);
 	let intervalUnit = $derived(tracker?.intervalUnit);
 	const query = () =>
-		createLogsQuery({
+		createEntryQuery({
 			trackerId: tracker?.id ?? '',
 			interval: Number(interval),
 			intervalUnit: intervalUnit
@@ -153,7 +153,7 @@
 {/snippet}
 
 {#snippet notificationLogic()}
-	{#if logs}
+	{#if entries}
 		<div class="flex items-center gap-3">
 			{#if notification?.show}
 				{#if notification.level === 'overdue'}

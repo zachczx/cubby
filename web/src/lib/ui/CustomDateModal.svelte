@@ -8,7 +8,7 @@
 	import { addToast } from './ArkToaster.svelte';
 	import Icon from '@iconify/svelte';
 	import type { RecordModel } from 'pocketbase';
-	import { getAllLogsQueryKey } from '../queries';
+	import { getAllEntriesQueryKey } from '../queries';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
@@ -45,16 +45,16 @@
 	});
 
 	const tanstackClient = useQueryClient();
-	export const insertNewLogToCache = (newLog: RecordModel) =>
-		tanstackClient.setQueryData(getAllLogsQueryKey(), (oldLogs: LogsDB[] | undefined) => {
-			if (!oldLogs) return [newLog];
-			return [newLog, ...oldLogs];
+	export const insertNewEntryToCache = (newEntry: RecordModel) =>
+		tanstackClient.setQueryData(getAllEntriesQueryKey(), (oldEntries: EntryDB[] | undefined) => {
+			if (!oldEntries) return [newEntry];
+			return [newEntry, ...oldEntries];
 		});
 
 	async function addHandler() {
 		buttonStatus = 'loading';
 
-		const result = await pb.collection('logs').create({
+		const result = await pb.collection('entries').create({
 			tracker: tracker?.id,
 			user: pb.authStore.record?.id,
 			time: dayjs.tz(timestamp, 'Asia/Singapore'),
@@ -67,7 +67,7 @@
 			addToast('success', 'Added successfully!');
 			buttonStatus = 'success';
 
-			await insertNewLogToCache(result);
+			await insertNewEntryToCache(result);
 
 			setTimeout(() => {
 				buttonStatus = 'default';

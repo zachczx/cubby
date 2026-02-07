@@ -1,10 +1,9 @@
 <script lang="ts">
 	import Icon from '@iconify/svelte';
-	import type { RecordModel } from 'pocketbase';
 	import { addToast } from './ArkToaster.svelte';
 	import { useQueryClient } from '@tanstack/svelte-query';
 	import type { Component } from 'svelte';
-	import { getAllLogsQueryKey } from '$lib/queries';
+	import { getAllEntriesQueryKey } from '$lib/queries';
 
 	// @ts-ignore
 	import confetti from 'canvas-confetti';
@@ -20,7 +19,7 @@
 		celebrate = true
 	}: {
 		text: string | undefined;
-		query: () => Promise<RecordModel>;
+		query: () => Promise<EntryDB>;
 		compact?: boolean;
 		color?: 'primary' | 'neutral';
 		rounded?: 'full' | '3xl' | '2xl' | 'xl' | 'lg' | 'md' | 'sm' | 'xs';
@@ -35,13 +34,11 @@
 	let starPositions: { x: number; y: number }[] = $state([]);
 
 	const tanstackClient = useQueryClient();
-	export const insertNewLogToCache = (newLog: RecordModel) =>
-		tanstackClient.setQueryData(getAllLogsQueryKey(), (oldLogs: LogsDB[] | undefined) => {
-			if (!oldLogs) return [newLog];
-			return [newLog, ...oldLogs];
+	export const insertNewEntryToCache = (newEntry: EntryDB) =>
+		tanstackClient.setQueryData(getAllEntriesQueryKey(), (oldEntries: EntryDB[] | undefined) => {
+			if (!oldEntries) return [newEntry];
+			return [newEntry, ...oldEntries];
 		});
-
-	let buttonRef = $state<HTMLButtonElement>();
 
 	const starColors = ['#ff7f50', '#ffb347', '#ffd700', '#98fb98', '#87ceeb'];
 
@@ -93,7 +90,7 @@
 
 				addToast('success', 'Added successfully!');
 				status = 'success';
-				await insertNewLogToCache(result);
+				await insertNewEntryToCache(result);
 
 				setTimeout(() => {
 					status = 'default';
@@ -142,7 +139,6 @@
 		<button
 			class={['btn btn-lg flex w-full items-center gap-2', getButtonClasses()]}
 			onclick={addHandler}
-			bind:this={buttonRef}
 		>
 			{#if status === 'success'}
 				<Icon icon="material-symbols:check" class="size-6" />Added!
@@ -165,7 +161,6 @@
 		<button
 			class={['btn btn-lg flex aspect-square w-full items-center gap-2 p-0', getButtonClasses()]}
 			onclick={addHandler}
-			bind:this={buttonRef}
 		>
 			{#if status === 'loading'}
 				<span class="loading loading-spinner loading-md"></span>

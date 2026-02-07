@@ -6,7 +6,7 @@
 	import timezone from 'dayjs/plugin/timezone';
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { allLogsQueryOptions } from '$lib/queries';
+	import { allEntriesQueryOptions } from '$lib/queries';
 	import TwoColumnCard from '$lib/ui/TwoColumnCard.svelte';
 	import StatusHeroImage from '$lib/ui/StatusHeroImage.svelte';
 
@@ -16,7 +16,7 @@
 
 	let { options }: { options: TrackerPageOptions } = $props();
 
-	const allLogsDb = createQuery(allLogsQueryOptions);
+	const allEntriesDb = createQuery(allEntriesQueryOptions);
 
 	type TabPages = 'overview' | 'history';
 
@@ -25,14 +25,15 @@
 	let tracker = $derived(options.tracker);
 
 	let historicalRecords = $derived.by(() => {
-		if (!options.tracker) return null;
+		const t = options.tracker;
+		if (!t) return null;
 
-		const subscriptionStart = tracker.startDate;
+		const subscriptionStart = t.startDate ?? '';
 		const historicalRecords: string[] = [subscriptionStart];
 		const today = dayjs();
 		let currentDateTime = dayjs(subscriptionStart);
-		while (currentDateTime.add(tracker.interval, tracker.intervalUnit).isBefore(today)) {
-			currentDateTime = currentDateTime.add(tracker.interval, tracker?.intervalUnit);
+		while (currentDateTime.add(t.interval, t.intervalUnit).isBefore(today)) {
+			currentDateTime = currentDateTime.add(t.interval, t.intervalUnit);
 
 			historicalRecords.unshift(currentDateTime.toISOString());
 		}
@@ -48,7 +49,7 @@
 		return dayjs(latest).add(tracker.interval, tracker.intervalUnit);
 	});
 
-	let logsByYears = $derived.by(() => {
+	let entriesByYears = $derived.by(() => {
 		if (!historicalRecords) return null;
 		const years = new Map<number, string[]>();
 		for (const t of historicalRecords) {
@@ -74,8 +75,8 @@
 	let monthlyCost = $derived.by(() => {
 		if (!historicalRecords || historicalRecords.length === 0 || !lifetimeSpend) return null;
 
-		const firstLogTime = historicalRecords[historicalRecords.length - 1];
-		const totalDuration = Math.floor(dayjs().diff(dayjs(firstLogTime), 'month', true));
+		const firstEntryTime = historicalRecords[historicalRecords.length - 1];
+		const totalDuration = Math.floor(dayjs().diff(dayjs(firstEntryTime), 'month', true));
 
 		return totalDuration > 0 ? Math.floor(lifetimeSpend / totalDuration) : lifetimeSpend;
 	});
@@ -166,7 +167,7 @@
 									</div>
 								{/if}
 							{/if}
-							{#if allLogsDb.isPending}
+							{#if allEntriesDb.isPending}
 								<div class="custom-loader"></div>
 							{/if}
 						{/snippet}
@@ -200,7 +201,7 @@
 									</div>
 								{/if}
 							{/if}
-							{#if allLogsDb.isPending}
+							{#if allEntriesDb.isPending}
 								<div class="custom-loader"></div>
 							{/if}
 						{/snippet}
@@ -214,12 +215,12 @@
 					]}
 				>
 					{#if historicalRecords && historicalRecords.length > 0}
-						{#each logsByYears as [key, year]}
+						{#each entriesByYears as [key, year]}
 							<div class="grid gap-2">
 								<h3 class="text-base-content/50 text-sm font-bold">{key}</h3>
 
-								{#each year as log}
-									{@const formatted = dayjs(log).format('D MMM')}
+								{#each year as entry}
+									{@const formatted = dayjs(entry).format('D MMM')}
 									<div
 										class="border-base-300 grid min-h-18 grid-cols-3 items-baseline gap-4 rounded-2xl border bg-white/70 px-2 py-2"
 									>
@@ -227,7 +228,7 @@
 											{formatted}
 										</div>
 										<div class="flex justify-center">
-											{#if log === tracker.startDate}
+											{#if entry === tracker?.startDate}
 												<span class="text-primary">Sign-Up</span>
 											{:else}
 												<span class="text-neutral">Renewal</span>
