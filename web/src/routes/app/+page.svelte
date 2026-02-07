@@ -6,13 +6,13 @@
 	import timezone from 'dayjs/plugin/timezone';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { allLogsQueryOptions, allTrackersQueryOptions, userQueryOptions } from '$lib/queries';
+	import { allEntriesQueryOptions, allTrackersQueryOptions, userQueryOptions } from '$lib/queries';
 	import { getTrackerStatus } from '$lib/notification';
 	import ActionCard from '$lib/ui/ActionCard.svelte';
 	import EmptyCorgi from '$lib/assets/empty.webp?w=200&enhanced';
 	import FluentEmojiFlatStopwatch from '$lib/assets/expressive-icons/FluentEmojiFlatStopwatch.svelte';
 	import FluentEmojiFlatAirplane from '$lib/assets/expressive-icons/FluentEmojiFlatAirplane.svelte';
-	import { getColoredTrackers, getTrackerIcon, generateSubscriptionLogs } from '$lib/mapper';
+	import { getColoredTrackers, getTrackerIcon, generateSubscriptionEntries } from '$lib/mapper';
 	import SkeletonActionCard from '$lib/ui/SkeletonActionCard.svelte';
 	import { calculateStreak } from '$lib/streaks';
 
@@ -21,7 +21,7 @@
 	dayjs.extend(timezone);
 
 	const trackersDb = createQuery(allTrackersQueryOptions);
-	const allLogsDb = createQuery(allLogsQueryOptions);
+	const allEntriesDb = createQuery(allEntriesQueryOptions);
 	const userOptions = createQuery(userQueryOptions);
 
 	let generalTasksUpcomingDays = $derived.by(() => {
@@ -44,12 +44,12 @@
 	let trackers = $derived.by(() => {
 		if (!trackersDb.isSuccess || !trackersDb.data) return { pinned: [], general: [] };
 
-		const coloredTrackers = getColoredTrackers(trackersDb.data);
+		// const coloredTrackers = getColoredTrackers(trackersDb.data);
 
-		const pinned = coloredTrackers.filter(
+		const pinned = trackersDb.data.filter(
 			(tracker) => tracker.pinned && tracker.show && tracker.kind === 'task'
 		);
-		const general = coloredTrackers.filter(
+		const general = trackersDb.data.filter(
 			(tracker) => !tracker.pinned && tracker.show && tracker.kind === 'task'
 		);
 
@@ -66,33 +66,34 @@
 			.map((sub) => {
 				return {
 					...sub,
-					logData: generateSubscriptionLogs(sub)
+					entryData: generateSubscriptionEntries(sub)
 				};
 			});
 	});
 
-	let logs = $derived.by(() => {
-		if (!allLogsDb.isSuccess || !allLogsDb.data) return { pinned: [], general: [] };
+	let entries = $derived.by(() => {
+		if (!allEntriesDb.isSuccess || !allEntriesDb.data) return { pinned: [], general: [] };
 
 		return {
-			pinned: classifyTrackers(trackers.pinned, allLogsDb.data, 'pinned'),
-			general: classifyTrackers(trackers.general, allLogsDb.data, 'general')
+			pinned: classifyTrackers(trackers.pinned, allEntriesDb.data, 'pinned'),
+			general: classifyTrackers(trackers.general, allEntriesDb.data, 'general')
 		};
 	});
 
-	function classifyTrackers(trackers: TrackerDB[], logs: LogsDB[], kind: 'general' | 'pinned') {
+	function classifyTrackers(trackers: TrackerDB[], entries: EntryDB[], kind: 'general' | 'pinned') {
 		const data = [];
+
 		for (const t of trackers) {
-			const logData = logs.filter((log) => t.id === log.tracker);
+			const entryData = entries.filter((entry) => t.id === entry.trackerId);
 			const trackerData = trackers.find((tracker) => tracker.id === t.id);
 			if (!trackerData) continue;
 
 			const mergedData = {
 				trackerName: t.name,
 				trackerData: trackerData,
-				logData: logData,
-				notification: getTrackerStatus(logData),
-				streak: calculateStreak(logData, trackerData)
+				entries: entryData,
+				notification: getTrackerStatus(entryData),
+				streak: calculateStreak(entryData, trackerData)
 			};
 
 			if (
@@ -132,25 +133,25 @@
 			<section class="grid gap-4 py-2">
 				<h2 class="text-base-content/70 text-lg font-bold">Pinned</h2>
 
-				{#if allLogsDb.isPending}
+				{#if allEntriesDb.isPending}
 					<SkeletonActionCard size="compact" />
 					<SkeletonActionCard size="compact" />
 					<SkeletonActionCard size="compact" />
-				{:else if logs.pinned && logs.pinned.length > 0}
-					{#each logs.pinned as log (log.trackerData?.id)}
+				{:else if entries.pinned && entries.pinned.length > 0}
+					{#each entries.pinned as entry (entry.trackerData?.id)}
 						<ActionCard
 							options={{
-								tracker: log.trackerData,
+								tracker: entry.trackerData,
 								size: 'compact',
-								title: log.trackerData?.display,
-								logs: log.logData,
-								route: `/app/${log.trackerData?.category}/${log.trackerData?.id}`,
-								icon: getTrackerIcon(log.trackerData?.icon),
+								title: entry.trackerData?.display,
+								entries: entry.entries,
+								route: `/app/${entry.trackerData?.category}/${entry.trackerData?.id}`,
+								icon: getTrackerIcon(entry.trackerData?.icon),
 								button: {
-									status: buttonStatuses?.[log.trackerName],
-									text: log.trackerData?.actionLabel
+									status: buttonStatuses?.[entry.trackerName],
+									text: entry.trackerData?.actionLabel
 								},
-								streak: log.streak
+								streak: entry.streak
 							}}
 						></ActionCard>
 					{/each}
@@ -175,54 +176,55 @@
 						>
 					{/each}
 				</div>
-				<div class="border-base-300/50 rounded-2xl border bg-white/70">
-					{#if allLogsDb.isSuccess && allLogsDb.data && logs.general && logs.general.length > 0}
-						{#each logs.general as log, i (log.trackerData?.id)}
+
+				{#if allEntriesDb.isSuccess && allEntriesDb.data && entries.general && entries.general.length > 0}
+					<div class="border-base-300/50 rounded-2xl border bg-white/70">
+						{#each entries.general as entry, i (entry.trackerData?.id)}
 							<ActionCard
 								options={{
-									tracker: log.trackerData,
+									tracker: entry.trackerData,
 									size: 'list',
-									title: log.trackerData?.display,
-									logs: log.logData,
-									route: `/app/${log.trackerData?.category}/${log.trackerData?.id}`,
-									icon: getTrackerIcon(log.trackerData?.icon),
-									lastChild: i === logs.general.length - 1 ? true : undefined,
+									title: entry.trackerData?.display,
+									entries: entry.entries,
+									route: `/app/${entry.trackerData?.category}/${entry.trackerData?.id}`,
+									icon: getTrackerIcon(entry.trackerData?.icon),
+									lastChild: i === entries.general.length - 1 ? true : undefined,
 									button: {
-										status: buttonStatuses?.[log.trackerName],
-										text: log.trackerData?.actionLabel
+										status: buttonStatuses?.[entry.trackerName],
+										text: entry.trackerData?.actionLabel
 									},
-									streak: log.streak
+									streak: entry.streak
 								}}
 							></ActionCard>
 						{/each}
-					{:else if allLogsDb.isSuccess && allLogsDb.data && logs.general && logs.general.length === 0}
-						<div class="justify-self-center">
-							<enhanced:img src={EmptyCorgi} alt="nothing" />
-							<p class="text-center">No tasks!</p>
-						</div>
-					{:else}
-						<SkeletonActionCard size="compact" />
-						<SkeletonActionCard size="compact" />
-						<SkeletonActionCard size="compact" />
-					{/if}
-				</div>
+					</div>
+				{:else if allEntriesDb.isSuccess && allEntriesDb.data && entries.general && entries.general.length === 0}
+					<div class="justify-self-center">
+						<enhanced:img src={EmptyCorgi} alt="nothing" />
+						<p class="text-center">No tasks!</p>
+					</div>
+				{:else}
+					<SkeletonActionCard size="compact" />
+					<SkeletonActionCard size="compact" />
+					<SkeletonActionCard size="compact" />
+				{/if}
 			</section>
 
 			<section class="grid gap-4 py-2">
 				<h2 class="text-base-content/70 text-lg font-bold">Subscriptions</h2>
 
-				<div class="border-base-300/50 rounded-2xl border bg-white/70">
-					{#if allLogsDb.isSuccess && allLogsDb.data && logs.general && logs.general.length > 0}
+				{#if allEntriesDb.isSuccess && subscriptions && subscriptions.length > 0}
+					<div class="border-base-300/50 rounded-2xl border bg-white/70">
 						{#each subscriptions as sub, i (sub.id)}
 							<ActionCard
 								options={{
 									tracker: sub,
 									size: 'list',
 									title: sub.display,
-									logs: sub.logData,
+									entries: sub.entryData,
 									route: `/app/${sub.category}/${sub.id}`,
 									icon: getTrackerIcon(sub.icon),
-									lastChild: i === logs.general.length - 1 ? true : undefined,
+									lastChild: i === entries.general.length - 1 ? true : undefined,
 									button: {
 										status: buttonStatuses?.[sub.name],
 										text: sub.actionLabel
@@ -230,17 +232,17 @@
 								}}
 							></ActionCard>
 						{/each}
-					{:else if allLogsDb.isSuccess && allLogsDb.data && logs.general && logs.general.length === 0}
-						<div class="justify-self-center">
-							<enhanced:img src={EmptyCorgi} alt="nothing" />
-							<p class="text-center">No tasks!</p>
-						</div>
-					{:else}
-						<SkeletonActionCard size="compact" />
-						<SkeletonActionCard size="compact" />
-						<SkeletonActionCard size="compact" />
-					{/if}
-				</div>
+					</div>
+				{:else if allEntriesDb.isSuccess && subscriptions && subscriptions.length === 0}
+					<div class="justify-self-center">
+						<enhanced:img src={EmptyCorgi} alt="nothing" />
+						<p class="text-center">No subscriptions!</p>
+					</div>
+				{:else}
+					<SkeletonActionCard size="compact" />
+					<SkeletonActionCard size="compact" />
+					<SkeletonActionCard size="compact" />
+				{/if}
 			</section>
 
 			<section class="grid gap-0 py-0">

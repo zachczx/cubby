@@ -28,20 +28,21 @@ interface VacationDB {
 
 type IntervalUnit = 'day' | 'month' | 'year';
 
-interface LogsDB {
+interface EntryDB {
 	id: string;
 	trackerId: string;
-	user: string;
+	performedBy: string;
 	tracker: string;
 	interval: number;
 	intervalUnit: IntervalUnit;
-	time: string;
-	created: string;
-	updated: string;
-	// expand?: { tracker?: TrackerDB };
+	performedAt: string;
+	remark: string;
+	created_at: string;
+	updated_at: string;
+	expand?: { tracker?: TrackerDB };
 }
 
-interface LogsRecord extends LogsDB {
+interface EntryRecord extends EntryDB {
 	gap: number;
 }
 
@@ -143,7 +144,7 @@ interface TrackerPageOptions {
 	};
 }
 
-type Collections = LogsDB | VacationDB;
+type Collections = EntryDB | VacationDB;
 
 type CalendarRecord = Collections;
 
@@ -151,7 +152,7 @@ interface ActionCardOptions {
 	title: string | undefined;
 	size?: 'compact' | 'default' | 'list';
 	tracker: TrackerDB | TrackerColored;
-	logs: LogsDB[] | undefined;
+	entries: EntryDB[] | undefined;
 	icon: Component;
 	route: string;
 	lastChild?: boolean;

@@ -5,7 +5,7 @@ function hasDateRange(record: CalendarRecord): record is VacationDB {
 	return 'startDateTime' in record;
 }
 
-export function getCalendarEntries(data: LogsDB[] | VacationDB[] | undefined, icon?: string) {
+export function getCalendarEntries(data: EntryDB[] | VacationDB[] | undefined, icon?: string) {
 	if (!data) return [];
 
 	const times: Calendar.EventInput[] = [];
@@ -26,7 +26,7 @@ export function getCalendarEntries(data: LogsDB[] | VacationDB[] | undefined, ic
 				backgroundColor: 'var(--color-neutral)' // vacation color
 			});
 		} else {
-			const t = dayjs.utc(r.time);
+			const t = dayjs.utc(r.performedAt);
 			times.push({
 				start: t.toDate(),
 				/**

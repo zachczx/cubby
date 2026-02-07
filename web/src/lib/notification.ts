@@ -26,16 +26,16 @@ function createStatus(
 	};
 }
 
-function getLatestRecord(data: LogsDB | LogsDB[] | undefined): LogsDB | null {
+function getLatestRecord(data: EntryDB | EntryDB[] | undefined): EntryDB | null {
 	if (!data) return null;
 	return Array.isArray(data) ? data[0] : data;
 }
 
-function calculateNextDate(record: LogsDB): dayjs.Dayjs {
-	return dayjs(record.time).add(record.interval, record.intervalUnit);
+function calculateNextDate(record: EntryDB): dayjs.Dayjs {
+	return dayjs(record.performedAt).add(record.interval, record.intervalUnit);
 }
 
-function getYearlyStatus(record: LogsDB) {
+function getYearlyStatus(record: EntryDB) {
 	const nextDate = calculateNextDate(record);
 	const weeksRemaining = nextDate.diff(dayjs(), 'week', true);
 
@@ -50,7 +50,7 @@ function getYearlyStatus(record: LogsDB) {
 	return createStatus('overdue', nextDate, true);
 }
 
-function getMonthlyStatus(record: LogsDB) {
+function getMonthlyStatus(record: EntryDB) {
 	const nextDate = calculateNextDate(record);
 	const daysRemaining = nextDate.diff(dayjs(), 'day', true);
 
@@ -65,11 +65,11 @@ function getMonthlyStatus(record: LogsDB) {
 	return createStatus('overdue', nextDate, true);
 }
 
-function getDailyStatus(record: LogsDB) {
+function getDailyStatus(record: EntryDB) {
 	const nextDate = calculateNextDate(record);
 	const intervalHours = record.interval * 24;
 
-	const hoursSinceLastRecord = dayjs().diff(dayjs(record.time), 'hour', true);
+	const hoursSinceLastRecord = dayjs().diff(dayjs(record.performedAt), 'hour', true);
 
 	const windowToNotify = intervalHours - leadTimeHours;
 	if (hoursSinceLastRecord < windowToNotify) {
@@ -80,7 +80,7 @@ function getDailyStatus(record: LogsDB) {
 	return createStatus(isOverdue ? 'overdue' : 'due', nextDate, true);
 }
 
-export function getTrackerStatus(data: LogsDB[] | undefined): NotificationStatus {
+export function getTrackerStatus(data: EntryDB[] | undefined): NotificationStatus {
 	if (!data) return emptyNotificationStatus;
 
 	const record = getLatestRecord(data);

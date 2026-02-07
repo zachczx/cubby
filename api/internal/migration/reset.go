@@ -10,7 +10,7 @@ import (
 func WipeData(db *sqlx.DB) {
 	log.Println("🔥 Truncating all tables...")
 
-	query := `DROP TABLE IF EXISTS logs, invites, trackers, families, users CASCADE;`
+	query := `DROP TABLE IF EXISTS entries, invites, trackers, families, users CASCADE;`
 
 	_, err := db.Exec(query)
 	if err != nil {
@@ -75,8 +75,8 @@ func Create(db *sqlx.DB) {
 			updated_at TIMESTAMPTZ DEFAULT NOW()
 		);`,
 
-		// Logs Table (Depends on trackers and users)
-		`CREATE TABLE IF NOT EXISTS logs (
+		// entries Table (Depends on trackers and users)
+		`CREATE TABLE IF NOT EXISTS entries (
 			id UUID PRIMARY KEY DEFAULT uuidv7(),
 			tracker_id UUID REFERENCES trackers(id) ON DELETE CASCADE,
 			interval INTEGER NOT NULL,

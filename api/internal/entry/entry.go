@@ -8,7 +8,7 @@ import (
 )
 
 func Create(db *sqlx.DB, e Entry) error {
-	q := `INSERT INTO logs 
+	q := `INSERT INTO entries 
 			(tracker_id, interval, interval_unit, performed_by, performed_at, remark) 
 			VALUES
 			($1, $2, $3, $4, $5, $6)`
@@ -23,7 +23,7 @@ func Create(db *sqlx.DB, e Entry) error {
 func GetAll(db *sqlx.DB, userID uuid.UUID) ([]Entry, error) {
 	var entries []Entry
 
-	q := `SELECT * FROM logs 
+	q := `SELECT * FROM entries 
 			WHERE performed_by=$1 
 			ORDER BY performed_at DESC`
 

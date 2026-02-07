@@ -1,7 +1,7 @@
 <script lang="ts">
 	import ArkToaster from '$lib/ui/ArkToaster.svelte';
 	import '../app.css';
-	import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
+	import { QueryClientProvider } from '@tanstack/svelte-query';
 	import { onNavigate } from '$app/navigation';
 	import { topLevelRoutes } from '$lib/shell/nav';
 	import type { OnNavigate } from '@sveltejs/kit';
@@ -23,7 +23,6 @@
 	let { children } = $props();
 
 	type TopLevelRoutes = typeof topLevelRoutes;
-	type TopLevelRoutesKeys = keyof TopLevelRoutes;
 
 	function getAnimationStatus(topLevelRoutes: TopLevelRoutes, navigation: OnNavigate) {
 		let direction = '';

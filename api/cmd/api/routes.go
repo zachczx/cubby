@@ -24,9 +24,9 @@ func MakeHTTPHandlers(s *server.Service) http.Handler {
 	mux.Handle("GET /trackers", s.RequireAuthentication(tracker.GetAllHandler(s, s.DB)))
 	mux.Handle("GET /trackers/{trackerID}", s.RequireAuthentication(tracker.GetHandler(s, s.DB)))
 	mux.Handle("POST /trackers", tracker.CreateHandler(s, s.DB))
+	mux.Handle("POST /trackers/{trackerID}/entries", s.RequireAuthentication(entry.CreateHandler(s, s.DB)))
 
 	mux.Handle("GET /entries", s.RequireAuthentication(entry.GetAllHandler(s, s.DB)))
-	mux.Handle("POST /entries/{trackerID}", s.RequireAuthentication(entry.CreateHandler(s, s.DB)))
 
 	return mux
 }
