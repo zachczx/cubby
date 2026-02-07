@@ -19,8 +19,6 @@
 
 	const tanstackClient = useQueryClient();
 
-	let spinner = $state(false);
-
 	let vacationStart = $state('');
 	let vacationEnd = $state('');
 	let vacationsModal = $state() as HTMLDialogElement;
@@ -42,7 +40,6 @@
 
 	async function addHandler() {
 		if (!user.isSuccess) return;
-		spinner = true;
 
 		try {
 			const start = dayjs.tz(vacationStart, 'Asia/Singapore');
@@ -55,7 +52,6 @@
 			});
 			if (result.id) {
 				addToast('success', 'Added successfully!');
-				spinner = false;
 
 				await tanstackClient.refetchQueries(vacationRefetchOptions());
 			}
@@ -66,13 +62,11 @@
 
 	async function deleteHandler(deleteId: string) {
 		if (!user.isSuccess) return;
-		spinner = true;
 
 		try {
 			const result = await pb.collection('vacation').delete(deleteId);
 			if (result) {
 				addToast('success', 'Deleted successfully!');
-				spinner = false;
 
 				await tanstackClient.refetchQueries(vacationRefetchOptions());
 				invalidateAll();

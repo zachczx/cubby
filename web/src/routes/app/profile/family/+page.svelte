@@ -25,7 +25,6 @@
 	const currentInvite = createQuery(inviteQueryOptions);
 	const tanstackClient = useQueryClient();
 
-	let spinner = $state(false);
 	let invited = $state(false);
 
 	let invitee = $state('');
@@ -34,7 +33,6 @@
 
 	async function deleteHandler(userId: string, family: FamilyDB) {
 		if (!user.isSuccess || !family) return;
-		spinner = true;
 
 		try {
 			const result = await pb.collection('families').update(family.id, {
@@ -43,7 +41,7 @@
 
 			if (result) {
 				addToast('success', 'Removed member!');
-				spinner = false;
+
 				await tanstackClient.refetchQueries(familyRefetchOptions());
 			}
 		} catch (err) {

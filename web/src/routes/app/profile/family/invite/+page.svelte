@@ -4,7 +4,7 @@
 	import { page } from '$app/state';
 	import Icon from '@iconify/svelte';
 	import { pb } from '$lib/pb';
-	import { allLogsQueryOptions, inviteQueryOptions, inviteRefetchOptions } from '$lib/queries';
+	import { inviteQueryOptions, inviteRefetchOptions } from '$lib/queries';
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
@@ -39,16 +39,13 @@
 			console.log(err);
 		}
 	}
-
-	let modal = $state<HTMLDialogElement>();
-	let spinner = $state(false);
 </script>
 
 <PageWrapper title="Join Family" {pb} largeScreenCenter={true}>
 	<span></span>
 </PageWrapper>
 
-<dialog bind:this={modal} class="modal modal-bottom sm:modal-middle modal-open">
+<dialog class="modal modal-bottom sm:modal-middle modal-open">
 	<div class="modal-box grid gap-8">
 		{#if currentInvite.isSuccess && destinationFamilyId}<div class="grid gap-4">
 				<div
@@ -69,7 +66,6 @@
 				<button
 					class="btn btn-primary btn-lg"
 					onclick={() => {
-						spinner = true;
 						confirmJoinFamily();
 					}}>Accept Invite</button
 				>
