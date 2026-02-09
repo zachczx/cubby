@@ -42,6 +42,15 @@ func Create(db *sqlx.DB) {
 			updated_at TIMESTAMPTZ DEFAULT NOW()
 		);`,
 
+		`CREATE TABLE IF NOT EXISTS families_users (
+			id UUID PRIMARY KEY DEFAULT uuidv7(),
+			family_id UUID NOT NULL REFERENCES families(id) ON DELETE CASCADE,
+			user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+			created_at TIMESTAMPTZ DEFAULT NOW(),
+			updated_at TIMESTAMPTZ DEFAULT NOW(),
+			UNIQUE(family_id, user_id)
+		);`,
+
 		// Trackers Table (Depends on users and families)
 		`CREATE TABLE IF NOT EXISTS trackers (
 			id UUID PRIMARY KEY DEFAULT uuidv7(),

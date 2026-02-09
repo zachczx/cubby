@@ -3,7 +3,6 @@ module github.com/zachczx/cubby/api
 go 1.25.7
 
 require (
-	github.com/alexedwards/scs/v2 v2.9.0
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.8.0
 	github.com/jmoiron/sqlx v1.4.0
