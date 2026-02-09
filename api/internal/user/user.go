@@ -17,7 +17,9 @@ type User struct {
 	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
 }
 
-func SyncUserInternal(db *sqlx.DB, email string, createdAt time.Time) (bool, uuid.UUID, error) {
+type UserManager struct{}
+
+func (UserManager) SyncUserInternal(db *sqlx.DB, email string, createdAt time.Time) (bool, uuid.UUID, error) {
 	var userID uuid.UUID
 	newUser := false
 
@@ -45,7 +47,7 @@ func SyncUserInternal(db *sqlx.DB, email string, createdAt time.Time) (bool, uui
 	return newUser, userID, nil
 }
 
-func GetInternalUserID(db *sqlx.DB, email string) (uuid.UUID, error) {
+func (UserManager) GetInternalUserID(db *sqlx.DB, email string) (uuid.UUID, error) {
 	var userID uuid.UUID
 
 	q := `SELECT id FROM users WHERE email=$1`
@@ -60,7 +62,7 @@ func GetInternalUserID(db *sqlx.DB, email string) (uuid.UUID, error) {
 	return userID, nil
 }
 
-func Get(db *sqlx.DB, email string) (User, error) {
+func (UserManager) Get(db *sqlx.DB, email string) (User, error) {
 	var user User
 
 	q := `SELECT * FROM users WHERE email=$1`
@@ -70,4 +72,14 @@ func Get(db *sqlx.DB, email string) (User, error) {
 	}
 
 	return user, nil
+}
+
+func ToggleSound(db *sqlx.DB, userID uuid.UUID, soundOn bool) error {
+	q := `UPDATE users SET sound_on = $1 WHERE id = $2`
+
+	if _, err := db.Exec(q, soundOn, userID); err != nil {
+		return fmt.Errorf("toggle sound err: %w", err)
+	}
+
+	return nil
 }

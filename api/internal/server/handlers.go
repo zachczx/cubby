@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -56,7 +57,7 @@ func (s *Service) RequireAuthentication(h http.Handler) http.Handler {
 			return
 		}
 
-		localUserID, err := user.GetInternalUserID(s.DB, email)
+		localUserID, err := s.UserManager.GetInternalUserID(s.DB, email)
 		if err != nil {
 			log.Printf("Error getting internal user: %v", err)
 			response.RespondWithError(w, http.StatusUnauthorized, "user not found")
@@ -136,14 +137,14 @@ func (s *Service) AuthenticateHandler(w http.ResponseWriter, r *http.Request) {
 	// Set the session cookies (JWT + Refresh Token)
 	s.setSessionCookies(w, resp.SessionJWT, resp.SessionToken)
 
-	isNewUser, userID, err := user.SyncUserInternal(s.DB, resp.User.Emails[0].Email, *resp.User.CreatedAt)
+	isNewUser, userID, err := s.UserManager.SyncUserInternal(s.DB, resp.User.Emails[0].Email, *resp.User.CreatedAt)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
 	if isNewUser {
-		if err := s.DefaultCreator.CreateDefaults(s.DB, userID); err != nil {
+		if err := s.TrackerDefaultCreator.CreateDefaults(s.DB, userID); err != nil {
 			fmt.Printf("Error creating default trackers: %v\n", err)
 		}
 	}
@@ -172,7 +173,6 @@ func (s *Service) AuthenticateHandler(w http.ResponseWriter, r *http.Request) {
 				</html>`,
 		redirectURL,
 		redirectURL)
-
 }
 
 func (s *Service) CheckHandler(w http.ResponseWriter, r *http.Request) {
@@ -204,7 +204,7 @@ func (s *Service) GetUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	localUser, err := user.Get(s.DB, email)
+	localUser, err := s.UserManager.Get(s.DB, email)
 	if err != nil {
 		response.RespondWithError(w, http.StatusUnauthorized, "user not found")
 		return
@@ -259,4 +259,99 @@ func (s *Service) Logout(w http.ResponseWriter, r *http.Request) {
 		Expires: expire,
 		MaxAge:  -1,
 	})
+}
+
+func (s *Service) GetUsersFamiliesHandler(w http.ResponseWriter, r *http.Request) {
+	u := s.GetAuthenticatedUser(w, r)
+	if u == nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "not authenticated")
+		return
+	}
+
+	email := u.Emails[0].Email
+
+	userID, err := s.UserManager.GetInternalUserID(s.DB, email)
+	if err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	families, err := user.GetUsersFamilies(s.DB, userID)
+	if err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	response.WriteJSON(w, families)
+}
+
+func (s *Service) DeleteFamilyMemberHandler(w http.ResponseWriter, r *http.Request) {
+	f := r.PathValue("familyID")
+	familyID, err := uuid.Parse(f)
+	if err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	m := r.PathValue("memberID")
+	memberID, err := uuid.Parse(m)
+	if err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	u := s.GetAuthenticatedUser(w, r)
+	if u == nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "not authenticated")
+		return
+	}
+
+	email := u.Emails[0].Email
+
+	userID, err := s.UserManager.GetInternalUserID(s.DB, email)
+	if err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	if err := user.DeleteMember(s.DB, familyID, userID, memberID); err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+type SoundInput struct {
+	SoundOn bool `json:"soundOn"`
+}
+
+func (s *Service) ToggleSoundHandler(w http.ResponseWriter, r *http.Request) {
+	u := s.GetAuthenticatedUser(w, r)
+	if u == nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "not authenticated")
+		return
+	}
+
+	email := u.Emails[0].Email
+
+	userID, err := s.UserManager.GetInternalUserID(s.DB, email)
+	if err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	var soundInput SoundInput
+
+	if err := json.NewDecoder(r.Body).Decode(&soundInput); err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	if err := user.ToggleSound(s.DB, userID, soundInput.SoundOn); err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }

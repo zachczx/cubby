@@ -55,7 +55,7 @@ func CreateHandler(s *server.Service, db *sqlx.DB) http.Handler {
 		u := s.GetAuthenticatedUser(w, r)
 		email := u.Emails[0].Email
 
-		userID, err := user.GetInternalUserID(db, email)
+		userID, err := s.UserManager.GetInternalUserID(db, email)
 		if err != nil {
 			response.WriteError(w, err)
 			return
@@ -132,7 +132,7 @@ func GetHandler(s *server.Service, db *sqlx.DB) http.Handler {
 		u := s.GetAuthenticatedUser(w, r)
 		email := u.Emails[0].Email
 
-		userID, err := user.GetInternalUserID(db, email)
+		userID, err := s.UserManager.GetInternalUserID(db, email)
 		if err != nil {
 			response.WriteError(w, err)
 			return
@@ -154,7 +154,7 @@ func GetAllHandler(s *server.Service, db *sqlx.DB) http.Handler {
 		u := s.GetAuthenticatedUser(w, r)
 		email := u.Emails[0].Email
 
-		userID, err := user.GetInternalUserID(db, email)
+		userID, err := s.UserManager.GetInternalUserID(db, email)
 		if err != nil {
 			response.WriteError(w, err)
 			return

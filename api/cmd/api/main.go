@@ -12,6 +12,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/zachczx/cubby/api/internal/server"
 	"github.com/zachczx/cubby/api/internal/tracker"
+	"github.com/zachczx/cubby/api/internal/user"
 )
 
 func main() {
@@ -37,6 +38,7 @@ func main() {
 		os.Getenv("STYTCH_SECRET"),
 		db,
 		tracker.DefaultService{},
+		user.UserManager{},
 	)
 
 	mux := MakeHTTPHandlers(s)
