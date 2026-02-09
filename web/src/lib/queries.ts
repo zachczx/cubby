@@ -1,7 +1,6 @@
 import { QueryClient, queryOptions, type RefetchQueryFilters } from '@tanstack/svelte-query';
 import { pb } from './pb';
 import dayjs from 'dayjs';
-import type { ListResult } from 'pocketbase';
 import { api } from './api';
 
 const staleTime = 5 * 60 * 1000;
@@ -45,49 +44,6 @@ const allTrackersQuery = createQueryFactory(
 export const allTrackersQueryOptions = allTrackersQuery.options;
 export const allTrackersRefetchOptions = allTrackersQuery.refetch;
 
-const notificationQuery = createQueryFactory(['notification'], async (): Promise<EntryDB[]> => {
-	const result = await pb.collection('latest_entries').getFullList({ expand: 'tracker' });
-	return result.map((item) => ({
-		...item,
-		id: item.id,
-		trackerId: item.tracker,
-		performedBy: item.user,
-		tracker: item.tracker,
-		interval: item.interval,
-		intervalUnit: item.intervalUnit,
-		performedAt: item.time,
-		remark: item.remark,
-		created_at: item.created,
-		updated_at: item.updated,
-		expand: item.expand
-	})) as unknown as EntryDB[];
-});
-export const notificationQueryOptions = notificationQuery.options;
-export const notificationRefetchOptions = notificationQuery.refetch;
-
-const feedQuery = createQueryFactory(['feed'], async (): Promise<ListResult<EntryDB>> => {
-	const result = await pb.collection('entries').getList(1, 5, { expand: 'tracker', sort: '-time' });
-	return {
-		...result,
-		items: result.items.map((item) => ({
-			...item,
-			id: item.id,
-			trackerId: item.tracker,
-			performedBy: item.user,
-			tracker: item.tracker,
-			interval: item.interval,
-			intervalUnit: item.intervalUnit,
-			performedAt: item.time,
-			remark: item.remark,
-			created_at: item.created,
-			updated_at: item.updated,
-			expand: item.expand
-		})) as unknown as EntryDB[]
-	};
-});
-export const feedQueryOptions = feedQuery.options;
-export const feedRefetchOptions = feedQuery.refetch;
-
 export async function createEntryQuery(options: {
 	trackerId: string;
 	interval: number | undefined;
@@ -103,12 +59,8 @@ export async function createEntryQuery(options: {
 	});
 }
 
-const familyQuery = createQueryFactory(['family'], async (): Promise<FamilyDB[]> => {
-	const resp: FamilyDB[] = await pb.collection('families').getFullList({
-		filter: `members.id?="${pb.authStore?.record?.id}" && enabled=true`,
-		expand: 'members,owner'
-	});
-	return resp ?? null;
+const familyQuery = createQueryFactory(['family'], async (): Promise<Family[]> => {
+	return await api.get('users/me/families').json();
 });
 export const familyQueryOptions = familyQuery.options;
 export const familyRefetchOptions = familyQuery.refetch;

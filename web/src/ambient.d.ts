@@ -94,17 +94,24 @@ interface TrackerDB extends TrackerInput {
 	interval: number;
 	created: string;
 	updated: string;
-	expand?: { family?: FamilyDB };
 }
 
-interface FamilyDB {
+interface Family {
 	id: string;
 	name: string;
-	members: string[];
-	owner: string;
+	isOwner: boolean;
 	created: string;
 	updated: string;
-	expand?: { members?: UserDB[]; owner?: UserDB };
+	owner: FamilyOwnerMember;
+	members: FamilyOwnerMember[];
+}
+
+interface FamilyOwnerMember {
+	id: string;
+	email: string;
+	name: string | null;
+	created_at: string;
+	updated_at: string;
 }
 
 type InviteStatus = 'pending' | 'completed' | null;

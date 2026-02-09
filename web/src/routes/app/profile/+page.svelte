@@ -8,6 +8,7 @@
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import { userQueryOptions, userRefetchOptions } from '$lib/queries';
 	import Icon from '@iconify/svelte';
+	import { api } from '$lib/api';
 
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
@@ -21,19 +22,20 @@
 	async function onchange(evt: Event) {
 		const target = evt.target;
 
-		if (target instanceof HTMLInputElement && pb.authStore.record?.id) {
+		if (target instanceof HTMLInputElement) {
 			try {
-				const data = {
-					sound: target.checked ? true : false
-				};
+				const response = await api.patch('users/me/sound', {
+					body: JSON.stringify({
+						soundOn: target.checked ? true : false
+					})
+				});
 
-				const response = await pb.collection('users').update(pb.authStore.record.id, data);
-
-				if (!response.status) {
+				if (response.status === 204) {
 					addToast('success', 'Saved!');
 					await tanstackClient.refetchQueries(userRefetchOptions());
 				}
 			} catch (err) {
+				console.error(err);
 				addToast('error', 'Error saving!');
 			}
 		} else {

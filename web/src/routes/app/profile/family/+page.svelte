@@ -15,7 +15,7 @@
 	import { goto } from '$app/navigation';
 	import Icon from '@iconify/svelte';
 	import { resolve } from '$app/paths';
-	import { cleanEmail } from '$lib/utils';
+	import { api } from '$lib/api';
 
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
@@ -31,13 +31,13 @@
 
 	let modals = $state<HTMLDialogElement[]>([]);
 
-	async function deleteHandler(userId: string, family: FamilyDB) {
+	async function deleteHandler(memberId: string, family: Family) {
 		if (!user.isSuccess || !family) return;
 
 		try {
-			const result = await pb.collection('families').update(family.id, {
-				'members-': userId
-			});
+			const result = await api.delete(`families/${family.id}/${memberId}`);
+
+			console.log(result);
 
 			if (result) {
 				addToast('success', 'Removed member!');
@@ -49,24 +49,18 @@
 		}
 	}
 
-	async function handleInvite(family: FamilyDB) {
+	async function handleInvite(family: Family) {
 		if (!family) return;
 
 		invited = true;
 
-		const inviteResponse = await pb.collection('invites').create({
-			family: family.id,
-			familyNameSnapshot: family.name,
-			ownerEmailSnapshot: family.expand?.owner?.email,
-			userEmail: invitee,
-			status: 'pending'
+		const inviteResponse = await api.post(`families/${family.id}/invite`, {
+			body: JSON.stringify({
+				email: invitee
+			})
 		});
 
-		await pb.collection('families').update(family.id, {
-			'activeInvites+': inviteResponse.id
-		});
-
-		if (inviteResponse) {
+		if (inviteResponse.status === 204) {
 			addToast('success', 'Invite sent!');
 		}
 
@@ -76,7 +70,7 @@
 		}, 3000);
 	}
 
-	async function leaveFamily(userId: string | undefined, family: FamilyDB) {
+	async function leaveFamily(userId: string | undefined, family: Family) {
 		if (!family) return;
 
 		try {
@@ -121,19 +115,29 @@
 								? 'border-b-neutral text-neutral font-bold'
 								: 'text-base-content/80 border-b-transparent'}"
 						>
-							{#if family.owner === pb.authStore.record?.id}
+							{#if family.isOwner}
 								My Cubby
-							{:else if family.expand?.owner?.email}
-								{cleanEmail(family.expand?.owner?.email)}
 							{:else}
-								{family.owner}
+								{family.owner.name}
 							{/if}
 						</button>
 					{/each}
+				{:else}
+					<div
+						class="border-b-neutral text-neutral w-full max-w-48 border-b-2 pb-1 text-center font-bold"
+					>
+						<div class="skeleton h-6 w-24 justify-self-center"></div>
+					</div>
 				{/if}
 			</nav>
 
+			{#if families.isPending}
+				<div class="skeleton h-27.5 w-full justify-self-center"></div>
+				<div class="skeleton h-27.5 w-full justify-self-center"></div>
+			{/if}
+
 			{#each families.data as family (family.id)}
+				{@const numberOfMembers = family.members.length + 1}
 				{#if family.id === section}
 					{#if currentInvite.isSuccess && currentInvite.data && currentInvite.data.status !== 'completed'}
 						<section
@@ -151,14 +155,29 @@
 					{/if}
 
 					<section class="border-base-300 grid min-h-18 gap-4 rounded-2xl border bg-white/70 p-4">
-						<h2 class="text-xl font-bold">Members ({family.members.length})</h2>
-						{#if families.isPending && !families.data}
-							<div class="custom-loader"></div>
-						{/if}
+						<h2 class="text-xl font-bold">Members ({numberOfMembers})</h2>
 
 						<ul class="grid list-disc">
 							{#if families.isSuccess && families.data}
-								{#each family.expand?.members as member, i (member.id)}
+								<li class="flex items-center">
+									<div class="flex grow items-center gap-2 py-1">
+										<Icon icon="material-symbols:person" class="me-2" />
+										{#if family.owner.name}
+											{family.owner.name}
+										{:else}
+											{family.owner.email}
+										{/if}
+
+										{#if family.isOwner}
+											<span class="text-sm opacity-60">(You)</span>
+										{/if}
+										<div class="flex items-center gap-2">
+											<span class="btn btn-outline border-base-content/50 h-auto border">Owner</span
+											>
+										</div>
+									</div>
+								</li>
+								{#each family.members as member, i (member.id)}
 									<li class="flex items-center">
 										<div class="flex grow items-center gap-2 py-1">
 											<Icon icon="material-symbols:person" class="me-2" />
@@ -167,19 +186,9 @@
 											{:else}
 												{member.email}
 											{/if}
-											{#if pb.authStore.record?.id === member.id}
-												<span class="text-sm opacity-60">(You)</span>
-											{/if}
-											<div class="flex items-center gap-2">
-												{#if family.owner === member.id}
-													<span class="btn btn-outline border-base-content/50 h-auto border"
-														>Owner</span
-													>
-												{/if}
-											</div>
 										</div>
 
-										{#if family.owner === pb.authStore.record?.id && member.id !== pb.authStore.record?.id}
+										{#if family.isOwner}
 											<div class="dropdown dropdown-end">
 												<div
 													tabindex="0"
@@ -194,11 +203,12 @@
 													<button
 														onclick={() => modals[i].showModal()}
 														class="btn btn-ghost flex w-full items-center gap-2 rounded-xl"
-														><Icon
+													>
+														<Icon
 															icon="material-symbols:person-remove"
 															class="size-[1.3em]"
-														/>Remove</button
-													>
+														/>Remove
+													</button>
 												</ul>
 											</div>
 										{/if}
@@ -207,7 +217,7 @@
 							{/if}
 						</ul>
 
-						{#if family.owner !== pb.authStore.record?.id}
+						{#if !family.isOwner}
 							<div class="border-t-base-300/70 flex justify-center border-t-2 pt-3">
 								<button
 									class="btn btn-ghost text-error flex items-center gap-2 py-0"
@@ -218,7 +228,7 @@
 						{/if}
 					</section>
 
-					{#if family.owner === pb.authStore.record?.id}
+					{#if family.isOwner}
 						<section class="border-base-300 grid min-h-18 rounded-2xl border bg-white/70 p-4">
 							<h2 class="mb-4 text-xl font-bold">Invite Someone</h2>
 							{#if families.isPending && !families.data}
@@ -258,7 +268,7 @@
 
 {#if families.isSuccess && families.data}
 	{#each families.data as family (family.id)}
-		{#each family.expand?.members as member, i (member.id)}
+		{#each family.members as member, i (member.id)}
 			<dialog bind:this={modals[i]} class="modal modal-bottom sm:modal-middle">
 				<div class="modal-box grid gap-8">
 					<div
@@ -269,7 +279,11 @@
 					<div class="grid gap-4">
 						<h2 class="text-2xl font-bold">Remove Member?</h2>
 						<ul class="ms-6 list-disc space-y-2">
-							<li>This will revoke their access to your family's logs.</li>
+							<li>
+								This will revoke <span class="font-bold"
+									>{member.name ? member.name : member.email}</span
+								>'s access to your family's logs.
+							</li>
 						</ul>
 					</div>
 					<div class="grid grid-cols-1 gap-4">
