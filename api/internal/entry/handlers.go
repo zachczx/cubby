@@ -51,7 +51,7 @@ func CreateHandler(s *server.Service, db *sqlx.DB) http.Handler {
 		var performedAt time.Time
 		if input.PerformedAt != nil {
 			var err error
-			fmt.Println(*input.PerformedAt)
+
 			performedAt, err = time.Parse(time.RFC3339, *input.PerformedAt)
 			if err != nil {
 				response.WriteError(w, err)
@@ -76,12 +76,13 @@ func CreateHandler(s *server.Service, db *sqlx.DB) http.Handler {
 			Remark:       input.Remark,
 		}
 
-		if err := Create(db, e); err != nil {
+		new, err := Create(db, e)
+		if err != nil {
 			response.WriteError(w, err)
 			return
 		}
-
-		w.WriteHeader(http.StatusNoContent)
+		fmt.Println(new)
+		response.WriteJSONStatus(w, http.StatusCreated, new)
 	})
 }
 

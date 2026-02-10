@@ -9,6 +9,7 @@
 	import Icon from '@iconify/svelte';
 	import type { RecordModel } from 'pocketbase';
 	import { getAllEntriesQueryKey } from '../queries';
+	import { api } from '$lib/api';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
@@ -45,7 +46,7 @@
 	});
 
 	const tanstackClient = useQueryClient();
-	export const insertNewEntryToCache = (newEntry: RecordModel) =>
+	export const insertNewEntryToCache = (newEntry: EntryDB) =>
 		tanstackClient.setQueryData(getAllEntriesQueryKey(), (oldEntries: EntryDB[] | undefined) => {
 			if (!oldEntries) return [newEntry];
 			return [newEntry, ...oldEntries];
@@ -54,20 +55,23 @@
 	async function addHandler() {
 		buttonStatus = 'loading';
 
-		const result = await pb.collection('entries').create({
-			tracker: tracker?.id,
-			user: pb.authStore.record?.id,
-			time: dayjs.tz(timestamp, 'Asia/Singapore'),
-			interval: Number(interval),
-			intervalUnit: intervalUnit
-		});
+		const response: EntryDB = await api
+			.post(`trackers/${tracker?.id}/entries`, {
+				body: JSON.stringify({
+					trackerId: tracker?.id,
+					interval: Number(interval),
+					intervalUnit: intervalUnit,
+					performedAt: dayjs.tz(timestamp, 'Asia/Singapore')
+				})
+			})
+			.json();
 
-		if (result.id) {
+		if (response.id) {
 			dialog.close();
 			addToast('success', 'Added successfully!');
 			buttonStatus = 'success';
 
-			await insertNewEntryToCache(result);
+			await insertNewEntryToCache(response);
 
 			setTimeout(() => {
 				buttonStatus = 'default';

@@ -29,6 +29,7 @@ func Create(db *sqlx.DB) {
 			email TEXT UNIQUE NOT NULL,
 			name TEXT,
 			task_lookahead_days INTEGER DEFAULT 14,
+			sound_on BOOLEAN DEFAULT TRUE,
 			created_at TIMESTAMPTZ DEFAULT NOW(),
 			updated_at TIMESTAMPTZ DEFAULT NOW()
 		);`,

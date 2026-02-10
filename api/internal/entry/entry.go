@@ -7,17 +7,34 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func Create(db *sqlx.DB, e Entry) error {
-	q := `INSERT INTO entries 
-			(tracker_id, interval, interval_unit, performed_by, performed_at, remark) 
-			VALUES
-			($1, $2, $3, $4, $5, $6)`
+func Create(db *sqlx.DB, e Entry) (Entry, error) {
+	q := `INSERT INTO entries (tracker_id, interval, interval_unit, performed_by, performed_at, remark) 
+			VALUES ($1, $2, $3, $4, $5, $6)
+			RETURNING id, tracker_id, interval, interval_unit, performed_by, performed_at, remark, created_at, updated_at`
 
-	if _, err := db.Exec(q, e.TrackerID, e.Interval, e.IntervalUnit, e.PerformedBy, e.PerformedAt, e.Remark); err != nil {
-		return fmt.Errorf("create entry sql: %w", err)
+	var new Entry
+	err := db.QueryRow(q, e.TrackerID,
+		e.Interval,
+		e.IntervalUnit,
+		e.PerformedBy,
+		e.PerformedAt,
+		e.Remark).
+		Scan(
+			&new.ID,
+			&new.TrackerID,
+			&new.Interval,
+			&new.IntervalUnit,
+			&new.PerformedBy,
+			&new.PerformedAt,
+			&new.Remark,
+			&new.CreatedAt,
+			&new.UpdatedAt,
+		)
+	if err != nil {
+		return Entry{}, fmt.Errorf("create entry sql: %w", err)
 	}
 
-	return nil
+	return new, nil
 }
 
 func GetAll(db *sqlx.DB, userID uuid.UUID) ([]Entry, error) {
