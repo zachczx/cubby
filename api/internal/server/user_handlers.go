@@ -32,6 +32,40 @@ func GetUsersFamiliesHandler(s *Service, db *sqlx.DB) http.Handler {
 	})
 }
 
+type TaskDays struct {
+	TaskDays int `json:"taskDays"`
+}
+
+func (s *Service) ChangeTaskLookaheadDaysHandler(w http.ResponseWriter, r *http.Request) {
+	u := s.GetAuthenticatedUser(w, r)
+	if u == nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "not authenticated")
+		return
+	}
+
+	email := u.Emails[0].Email
+
+	userID, err := s.UserManager.GetInternalUserID(s.DB, email)
+	if err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	var days int
+
+	if err := json.NewDecoder(r.Body).Decode(&days); err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	if err := user.ChangeTaskLookaheadDays(s.DB, userID, days); err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
 type SoundInput struct {
 	SoundOn bool `json:"soundOn"`
 }

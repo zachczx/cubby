@@ -10,11 +10,12 @@ import (
 )
 
 type User struct {
-	ID        uuid.UUID `db:"id"         json:"id"`
-	Email     string    `db:"email"      json:"email"`
-	Name      *string   `db:"name"       json:"name"`
-	CreatedAt time.Time `db:"created_at" json:"created_at"`
-	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
+	ID                uuid.UUID `db:"id"         json:"id"`
+	Email             string    `db:"email"      json:"email"`
+	Name              *string   `db:"name"       json:"name"`
+	TaskLookAheadDays int       `db:"task_lookahead_days" json:"taskLookaheadDays"`
+	CreatedAt         time.Time `db:"created_at" json:"created_at"`
+	UpdatedAt         time.Time `db:"updated_at" json:"updated_at"`
 }
 
 type UserManager struct{}
@@ -79,6 +80,16 @@ func ToggleSound(db *sqlx.DB, userID uuid.UUID, soundOn bool) error {
 
 	if _, err := db.Exec(q, soundOn, userID); err != nil {
 		return fmt.Errorf("toggle sound err: %w", err)
+	}
+
+	return nil
+}
+
+func ChangeTaskLookaheadDays(db *sqlx.DB, userID uuid.UUID, days int) error {
+	q := `UPDATE users SET task_lookahead_days = $1 WHERE id = $2`
+
+	if _, err := db.Exec(q, days, userID); err != nil {
+		return fmt.Errorf("change taskLookaheadDays err: %w", err)
 	}
 
 	return nil
