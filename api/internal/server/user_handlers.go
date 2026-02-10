@@ -1,6 +1,7 @@
 package server
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/jmoiron/sqlx"
@@ -29,4 +30,38 @@ func GetUsersFamiliesHandler(s *Service, db *sqlx.DB) http.Handler {
 
 		response.WriteJSON(w, families)
 	})
+}
+
+type SoundInput struct {
+	SoundOn bool `json:"soundOn"`
+}
+
+func (s *Service) ToggleSoundHandler(w http.ResponseWriter, r *http.Request) {
+	u := s.GetAuthenticatedUser(w, r)
+	if u == nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "not authenticated")
+		return
+	}
+
+	email := u.Emails[0].Email
+
+	userID, err := s.UserManager.GetInternalUserID(s.DB, email)
+	if err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	var soundInput SoundInput
+
+	if err := json.NewDecoder(r.Body).Decode(&soundInput); err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	if err := user.ToggleSound(s.DB, userID, soundInput.SoundOn); err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
