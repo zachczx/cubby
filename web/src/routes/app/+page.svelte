@@ -119,8 +119,6 @@
 	];
 
 	async function generalTasksViewBtnHandler(numberDays: number) {
-		if (!pb.authStore.record) return;
-
 		generalTasksUpcomingDays = numberDays;
 
 		await pb

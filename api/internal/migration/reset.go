@@ -23,12 +23,12 @@ func Create(db *sqlx.DB) {
 	log.Println("🚀 Starting schema creation...")
 
 	schema := []string{
-
 		// Users Table
 		`CREATE TABLE IF NOT EXISTS users (
 			id UUID PRIMARY KEY DEFAULT uuidv7(),
 			email TEXT UNIQUE NOT NULL,
 			name TEXT,
+			task_lookahead_days INTEGER DEFAULT 14,
 			created_at TIMESTAMPTZ DEFAULT NOW(),
 			updated_at TIMESTAMPTZ DEFAULT NOW()
 		);`,
