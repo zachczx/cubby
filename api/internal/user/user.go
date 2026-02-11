@@ -13,6 +13,7 @@ type User struct {
 	ID                uuid.UUID `db:"id"         json:"id"`
 	Email             string    `db:"email"      json:"email"`
 	Name              *string   `db:"name"       json:"name"`
+	SoundOn           bool      `db:"sound_on"       json:"soundOn"`
 	TaskLookAheadDays int       `db:"task_lookahead_days" json:"taskLookaheadDays"`
 	CreatedAt         time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt         time.Time `db:"updated_at" json:"updated_at"`
