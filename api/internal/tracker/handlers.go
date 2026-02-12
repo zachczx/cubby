@@ -31,6 +31,9 @@ type Tracker struct {
 	Cost         *float64   `json:"cost,omitempty" db:"cost"`
 	CreatedAt    time.Time  `db:"created_at" json:"created_at"`
 	UpdatedAt    time.Time  `db:"updated_at" json:"updated_at"`
+
+	FamilyName string `json:"familyName" db:"family_name"`
+	IsOwner    bool   `json:"isOwner" db:"-"`
 }
 
 type TrackerInput struct {
@@ -150,7 +153,6 @@ func GetHandler(s *server.Service, db *sqlx.DB) http.Handler {
 
 func GetAllHandler(s *server.Service, db *sqlx.DB) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
 		u := s.GetAuthenticatedUser(w, r)
 		email := u.Emails[0].Email
 

@@ -22,7 +22,6 @@ func New(db *sqlx.DB, t Tracker) (uuid.UUID, error) {
 
 	rows, err := db.NamedQuery(q, t)
 	if err != nil {
-
 		return newID, err
 	}
 	defer rows.Close()
@@ -42,17 +41,24 @@ func Get(db *sqlx.DB, trackerID uuid.UUID, userID uuid.UUID) (Tracker, error) {
 	if err := db.Get(&t, q, trackerID, userID); err != nil {
 		return Tracker{}, fmt.Errorf("select tracker: %w", err)
 	}
-	fmt.Println(t)
 
 	return t, nil
 }
 
 func GetAll(db *sqlx.DB, userID uuid.UUID) ([]Tracker, error) {
 	var t []Tracker
-	q := `SELECT * FROM trackers WHERE user_id=$1`
+	q := `SELECT t.*, f.name AS family_name FROM trackers t
+			JOIN families f ON t.family_id = f.id   
+			WHERE user_id=$1`
 
 	if err := db.Select(&t, q, userID); err != nil {
 		return nil, fmt.Errorf("select trackers: %w", err)
+	}
+
+	for i := range t {
+		if userID == t[i].User {
+			t[i].IsOwner = true
+		}
 	}
 
 	return t, nil
