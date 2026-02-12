@@ -128,7 +128,7 @@
 
 {#snippet ownerBadge(options: ActionCardOptions)}
 	{options.title}
-	{#if options.tracker?.expand?.family?.expand?.owner}
+	<!-- {#if options.tracker?.expand?.family?.expand?.owner}
 		{@const owner = options.tracker?.expand?.family?.expand?.owner}
 		{#if owner.id !== pb.authStore.record?.id}
 			<span
@@ -141,7 +141,7 @@
 				{owner.name.charAt(0)}
 			</span>
 		{/if}
-	{/if}
+	{/if} -->
 	{#if options.streak && options.streak > 0}
 		<div
 			class="text-success bg-success/10 flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold"

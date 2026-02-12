@@ -17,6 +17,8 @@
 	import { calculateStreak } from '$lib/streaks';
 	import { type Component } from 'svelte';
 	import { router } from '$lib/routes';
+	import { api } from '$lib/api';
+	import { addToast } from '$lib/ui/ArkToaster.svelte';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
@@ -120,14 +122,21 @@
 
 	async function generalTasksViewBtnHandler(numberDays: number) {
 		generalTasksUpcomingDays = numberDays;
-
-		await pb
-			.collection('users')
-			.update(pb.authStore.record.id, { generalTasksUpcomingDays: numberDays });
+		console.log(numberDays, typeof numberDays);
+		try {
+			await api.patch('users/me/task-lookahead', {
+				body: JSON.stringify({
+					taskDays: numberDays
+				})
+			});
+		} catch (err) {
+			console.error(err);
+			addToast('error', 'Error!');
+		}
 	}
 </script>
 
-<PageWrapper title="Cubby" back={false} {pb}>
+<PageWrapper title="Cubby" back={false}>
 	<main class="h-full">
 		<div id="mobile" class="grid w-full max-w-lg gap-8 justify-self-center lg:text-base">
 			<section class="grid gap-4 py-2">
