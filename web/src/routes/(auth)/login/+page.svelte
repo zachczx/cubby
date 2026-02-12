@@ -43,7 +43,7 @@
 </svelte:head>
 
 <PageWrapper title="Login" {pb}>
-	<form class="grid h-full w-full max-w-sm content-center justify-self-center">
+	<form class={['grid h-full w-full max-w-sm content-center justify-self-center']}>
 		<div class="lg:bg-base-200 w-full rounded-2xl lg:p-8 lg:shadow-md">
 			<enhanced:img src={Logo} alt="logo" />
 
