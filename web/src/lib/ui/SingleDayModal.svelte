@@ -1,12 +1,11 @@
 <script lang="ts">
 	import Icon from '@iconify/svelte';
-	import { pb } from '$lib/pb';
 	import dayjs from 'dayjs';
 	import { addToast } from './ArkToaster.svelte';
 	import EmptyCorgi from '$lib/assets/empty.webp?w=150&enhanced';
-	import type { RecordModel } from 'pocketbase';
 	import { useQueryClient } from '@tanstack/svelte-query';
 	import { getAllEntriesQueryKey } from '$lib/queries';
+	import { api } from '$lib/api';
 
 	let {
 		modal = $bindable(),
@@ -22,13 +21,14 @@
 		return singleDay.sort((a, b) => dayjs(a.performedAt).diff(dayjs(b.performedAt)));
 	});
 
-	async function deleteHandler(id: string) {
-		if (!id) return;
+	$inspect(entries);
 
-		const success = await pb.collection('entries').delete(id);
+	async function deleteHandler(entryId: string) {
+		if (!entryId) return;
+		const success = await api.delete(`entries/${entryId}`);
 
-		if (success) {
-			deleteEntryFromCache(id);
+		if (success.status === 204) {
+			deleteEntryFromCache(entryId);
 			addToast('success', 'Deleted!');
 			modal?.close();
 		}
@@ -55,12 +55,14 @@
 				dayjs(newDateTimeString).format('YYYY-MM-DD HH:mm:ss'),
 				'Asia/Singapore'
 			);
-			const response = await pb.collection('entries').update(entry.id, {
-				time: newDateTime
+			const response = await api.patch(`entries/${entry.id}`, {
+				body: JSON.stringify({
+					performedAt: newDateTime
+				})
 			});
 
-			if (response.id) {
-				modifyEntryInCache(response);
+			if (response.status === 204) {
+				modifyEntryInCache(entry.id, newDateTime.format('YYYY-MM-DDTHH:mm:ss.SSSZ'));
 				addToast('success', 'Updated!');
 				editMode[entry.id] = false;
 			}
@@ -69,12 +71,12 @@
 		}
 	}
 
-	const modifyEntryInCache = (newEntry: RecordModel) =>
+	const modifyEntryInCache = (entryId: string, newPerformedAt: string) =>
 		tanstackClient.setQueryData(getAllEntriesQueryKey(), (oldEntries: EntryDB[] | undefined) => {
-			if (!oldEntries) return [newEntry];
+			if (!oldEntries) return oldEntries;
 			return oldEntries.map((entry) => {
-				if (entry.id === newEntry.id) {
-					return newEntry;
+				if (entry.id === entryId) {
+					return { ...entry, performedAt: newPerformedAt };
 				}
 
 				return entry;
