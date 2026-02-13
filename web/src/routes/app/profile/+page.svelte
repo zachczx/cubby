@@ -67,7 +67,7 @@
 			</div>
 		</div>
 		<div class="text-lg">
-			<a href="/app/logout" class="btn btn-neutral btn-lg w-full rounded-full">Logout</a>
+			<a href="/logout" class="btn btn-neutral btn-lg w-full rounded-full">Logout</a>
 		</div>
 	</div>
 </PageWrapper>
