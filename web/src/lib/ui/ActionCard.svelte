@@ -36,6 +36,15 @@
 			interval: Number(interval),
 			intervalUnit: intervalUnit
 		});
+
+	let bgColor = $derived(
+		'color' in options.tracker ? 'bg-' + options.tracker.color + '-200' : undefined
+	);
+	let textColor = $derived(
+		'color' in options.tracker ? 'text-' + options.tracker.color + '-600' : undefined
+	);
+
+	$inspect(bgColor);
 </script>
 
 {#if size === 'list'}
@@ -119,21 +128,18 @@
 {/if}
 
 {#snippet ownerBadge(options: ActionCardOptions)}
-	{options.title}
-	<!-- {#if options.tracker?.expand?.family?.expand?.owner}
-		{@const owner = options.tracker?.expand?.family?.expand?.owner}
-		{#if owner.id !== pb.authStore.record?.id}
-			<span
-				class={[
-					'flex aspect-square size-5 items-center justify-center rounded-full p-0 text-sm font-bold',
-					bgColor,
-					textColor
-				]}
-			>
-				{owner.name.charAt(0)}
-			</span>
-		{/if}
-	{/if} -->
+	<div>{options.title}</div>
+	{#if !options.tracker.isOwner}
+		<div
+			class={[
+				'flex items-center justify-center rounded-full p-0 px-2 text-sm font-bold',
+				bgColor,
+				textColor
+			]}
+		>
+			{options.tracker.familyName}
+		</div>
+	{/if}
 	{#if options.streak && options.streak > 0}
 		<div
 			class="text-success bg-success/10 flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold"

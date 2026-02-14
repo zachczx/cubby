@@ -48,12 +48,12 @@
 		if (!trackersDb.isSuccess || !trackersDb.data || !userOptions.isSuccess || !userOptions.data)
 			return { pinned: [], general: [] };
 
-		// const coloredTrackers = getColoredTrackers(trackersDb.data);
+		const coloredTrackers = getColoredTrackers(trackersDb.data);
 
-		const pinned = trackersDb.data.filter(
+		const pinned = coloredTrackers.filter(
 			(tracker) => tracker.pinned && tracker.show && tracker.kind === 'task'
 		);
-		const general = trackersDb.data.filter(
+		const general = coloredTrackers.filter(
 			(tracker) => !tracker.pinned && tracker.show && tracker.kind === 'task'
 		);
 

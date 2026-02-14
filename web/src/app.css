@@ -1,6 +1,6 @@
 @import 'tailwindcss';
 /*For owner badge color  */
-@source inline('{text,bg}-{blue,purple,red,teal,orange,lime,slate}-{200,600}');
+@source inline('{text,bg}-{emerald,blue,purple,red,teal,orange,lime,slate}-{200,600}');
 @plugin 'daisyui';
 @plugin 'daisyui/theme' {
 	name: caramellatte;

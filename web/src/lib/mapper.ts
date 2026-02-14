@@ -47,7 +47,7 @@ export function getFamilyColor(id: string | undefined, familyIds: string[]): Tra
 
 	const idx = familyIds.indexOf(id);
 
-	const colors: TrackerColor[] = ['blue', 'purple', 'red', 'teal', 'orange', 'lime'];
+	const colors: TrackerColor[] = ['blue', 'purple', 'red', 'teal', 'orange', 'green'];
 	return colors[idx] ?? 'slate';
 }
 
@@ -64,7 +64,7 @@ export function getColoredTrackers(trackers: TrackerDB[]): TrackerColored[] {
 
 	const coloredTrackers: TrackerColored[] = trackers.map((tracker) => {
 		if (tracker.isOwner) {
-			const color = 'green';
+			const color = 'lime';
 			return { ...tracker, color };
 		}
 
