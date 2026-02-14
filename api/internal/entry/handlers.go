@@ -103,3 +103,69 @@ func GetAllHandler(s *server.Service, db *sqlx.DB) http.Handler {
 		response.WriteJSON(w, entries)
 	})
 }
+
+func DeleteHandler(s *server.Service, db *sqlx.DB) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		userID, err := s.GetUserIDFromContext(r.Context())
+		if err != nil {
+			response.WriteError(w, err)
+			return
+		}
+
+		e := r.PathValue("entryID")
+		entryID, err := uuid.Parse(e)
+		if err != nil {
+			response.WriteError(w, err)
+			return
+		}
+
+		if err := Delete(db, userID, entryID); err != nil {
+			response.WriteError(w, err)
+			return
+		}
+
+		w.WriteHeader(http.StatusNoContent)
+	})
+}
+
+func EditHandler(s *server.Service, db *sqlx.DB) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		userID, err := s.GetUserIDFromContext(r.Context())
+		if err != nil {
+			response.WriteError(w, err)
+			return
+		}
+
+		e := r.PathValue("entryID")
+		entryID, err := uuid.Parse(e)
+		if err != nil {
+			response.WriteError(w, err)
+			return
+		}
+
+		var input EntryInput
+
+		if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+			response.WriteError(w, err)
+			return
+		}
+
+		var performedAt time.Time
+		if input.PerformedAt != nil {
+			var err error
+
+			performedAt, err = time.Parse(time.RFC3339, *input.PerformedAt)
+			if err != nil {
+				response.WriteError(w, err)
+				return
+			}
+		}
+
+		if err := Edit(db, userID, entryID, performedAt); err != nil {
+			response.WriteError(w, err)
+			return
+		}
+
+		w.WriteHeader(http.StatusNoContent)
+	})
+}
