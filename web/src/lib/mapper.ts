@@ -51,22 +51,11 @@ export function getFamilyColor(id: string | undefined, familyIds: string[]): Tra
 	return colors[idx] ?? 'slate';
 }
 
-export function getColoredTrackers(trackers: TrackerDB[], userId: string, families: Family[]): TrackerColored[] {
+export function getColoredTrackers(trackers: TrackerDB[]): TrackerColored[] {
 	const s = new Set<string>();
 
 	for (const t of trackers) {
-		const family = families.find(f => f.id === t.familyId);
-		// If family exists and I am NOT the owner (assuming family.owner identifies owner)
-		// Wait, Family interface need checking.
-		// For now let's assume we can find family by ID.
-	
-		// Correction: I should assume 'isOwner' property in TrackerDB might be what we want? 
-		// But I suspected it's useless.
-		// Let's use the passed families list to check ownership.
-		
-		const familyOwnerId = family?.owner.id;
-		
-		if (familyOwnerId !== userId && t.familyId) {
+		if (!t.isOwner && t.familyId) {
 			s.add(t.familyId);
 		}
 	}
@@ -74,8 +63,7 @@ export function getColoredTrackers(trackers: TrackerDB[], userId: string, famili
 	const familyIds = Array.from(s);
 
 	const coloredTrackers: TrackerColored[] = trackers.map((tracker) => {
-		const family = families.find(f => f.id === tracker.familyId);
-		if (family?.owner.id === userId) {
+		if (tracker.isOwner) {
 			const color = 'green';
 			return { ...tracker, color };
 		}

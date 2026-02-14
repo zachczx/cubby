@@ -5,12 +5,7 @@
 	import timezone from 'dayjs/plugin/timezone';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import { createQuery } from '@tanstack/svelte-query';
-	import {
-		allEntriesQueryOptions,
-		allTrackersQueryOptions,
-		userQueryOptions,
-		familyQueryOptions
-	} from '$lib/queries';
+	import { allEntriesQueryOptions, allTrackersQueryOptions, userQueryOptions } from '$lib/queries';
 	import { getTrackerStatus } from '$lib/notification';
 	import ActionCard from '$lib/ui/ActionCard.svelte';
 	import EmptyCorgi from '$lib/assets/empty.webp?w=200&enhanced';
@@ -31,7 +26,6 @@
 	const trackersDb = createQuery(allTrackersQueryOptions);
 	const allEntriesDb = createQuery(allEntriesQueryOptions);
 	const userOptions = createQuery(userQueryOptions);
-	const familyOptions = createQuery(familyQueryOptions);
 
 	let generalTasksUpcomingDays = $derived.by(() => {
 		if (!userOptions.isSuccess || !userOptions.data) return 14;
@@ -51,14 +45,7 @@
 	});
 
 	let trackers = $derived.by(() => {
-		if (
-			!trackersDb.isSuccess ||
-			!trackersDb.data ||
-			!userOptions.isSuccess ||
-			!userOptions.data ||
-			!familyOptions.isSuccess ||
-			!familyOptions.data
-		)
+		if (!trackersDb.isSuccess || !trackersDb.data || !userOptions.isSuccess || !userOptions.data)
 			return { pinned: [], general: [] };
 
 		// const coloredTrackers = getColoredTrackers(trackersDb.data);
@@ -74,21 +61,10 @@
 	});
 
 	let subscriptions = $derived.by(() => {
-		if (
-			!trackersDb.isSuccess ||
-			!trackersDb.data ||
-			!userOptions.isSuccess ||
-			!userOptions.data ||
-			!familyOptions.isSuccess ||
-			!familyOptions.data
-		)
+		if (!trackersDb.isSuccess || !trackersDb.data || !userOptions.isSuccess || !userOptions.data)
 			return;
 
-		const coloredTrackers = getColoredTrackers(
-			trackersDb.data,
-			userOptions.data.id,
-			familyOptions.data
-		);
+		const coloredTrackers = getColoredTrackers(trackersDb.data);
 
 		return coloredTrackers
 			.filter((tracker) => tracker.show && tracker.kind === 'subscription')

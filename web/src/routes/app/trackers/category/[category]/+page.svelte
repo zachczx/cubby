@@ -6,12 +6,7 @@
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import ActionCard from '$lib/ui/ActionCard.svelte';
 	import { createQuery } from '@tanstack/svelte-query';
-	import {
-		allEntriesQueryOptions,
-		allTrackersQueryOptions,
-		userQueryOptions,
-		familyQueryOptions
-	} from '$lib/queries';
+	import { allEntriesQueryOptions, allTrackersQueryOptions, userQueryOptions } from '$lib/queries';
 	import { getColoredTrackers, getTrackerIcon, generateSubscriptionEntries } from '$lib/mapper.js';
 	import SkeletonActionCard from '$lib/ui/SkeletonActionCard.svelte';
 	import EmptyCorgi from '$lib/assets/empty.webp?w=200&enhanced';
@@ -39,19 +34,11 @@
 	const trackersDb = createQuery(allTrackersQueryOptions);
 	const allEntriesDB = createQuery(allEntriesQueryOptions);
 	const userOptions = createQuery(userQueryOptions);
-	const familyOptions = createQuery(familyQueryOptions);
 
 	let allTrackers = $derived.by(() => {
-		if (
-			!trackersDb.isSuccess ||
-			!trackersDb.data ||
-			!userOptions.isSuccess ||
-			!userOptions.data ||
-			!familyOptions.isSuccess ||
-			!familyOptions.data
-		)
+		if (!trackersDb.isSuccess || !trackersDb.data || !userOptions.isSuccess || !userOptions.data)
 			return [];
-		return getColoredTrackers(trackersDb.data, userOptions.data.id, familyOptions.data);
+		return getColoredTrackers(trackersDb.data);
 	});
 
 	let categoryTrackers = $derived.by(() => {
