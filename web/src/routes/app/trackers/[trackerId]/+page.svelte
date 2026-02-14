@@ -27,7 +27,9 @@
 </script>
 
 {#if trackersDb.isPending}
-	Loading..............
+	<div class="grid min-h-dvh content-center justify-center">
+		<span class="loading loading-spinner loading-md"></span>
+	</div>
 {:else if currentTracker?.kind === 'subscription'}
 	<SubscriptionPage {options}></SubscriptionPage>
 {:else}
