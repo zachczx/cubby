@@ -1,6 +1,5 @@
 <script lang="ts">
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
-	import { pb } from '$lib/pb';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
 	import dayjs from 'dayjs';
 	import utc from 'dayjs/plugin/utc';
@@ -12,7 +11,6 @@
 		familyRefetchOptions,
 		inviteQueryOptions
 	} from '$lib/queries';
-	import { goto } from '$app/navigation';
 	import Icon from '@iconify/svelte';
 	import { resolve } from '$app/paths';
 	import { api } from '$lib/api';
@@ -70,19 +68,18 @@
 		}, 3000);
 	}
 
-	async function leaveFamily(userId: string | undefined, family: Family) {
+	async function leaveFamily(family: Family) {
 		if (!family) return;
 
 		try {
-			const result = await pb.collection('families').update(family.id, {
-				'members-': userId
-			});
-
-			if (result) {
-				addToast('success', 'Successfully left family!');
-				await tanstackClient.refetchQueries(familyRefetchOptions());
-				goto(resolve('/app/profile/family'));
-			}
+			// const result = await pb.collection('families').update(family.id, {
+			// 	'members-': userId
+			// });
+			// if (result) {
+			// 	addToast('success', 'Successfully left family!');
+			// 	await tanstackClient.refetchQueries(familyRefetchOptions());
+			// 	goto(resolve('/app/profile/family'));
+			// }
 		} catch (err) {
 			console.log(err);
 		}
@@ -97,7 +94,7 @@
 	});
 </script>
 
-<PageWrapper title="Manage Family" {pb} largeScreenCenter={true}>
+<PageWrapper title="Manage Family" largeScreenCenter={true}>
 	<div
 		class="lg:bg-base-200 grid w-full rounded-2xl lg:h-min lg:max-w-lg lg:justify-self-center lg:p-8 lg:shadow-md"
 	>
@@ -221,7 +218,7 @@
 							<div class="border-t-base-300/70 flex justify-center border-t-2 pt-3">
 								<button
 									class="btn btn-ghost text-error flex items-center gap-2 py-0"
-									onclick={() => leaveFamily(pb.authStore.record?.id, family)}
+									onclick={() => leaveFamily(family)}
 									>Leave Cubby<Icon icon="material-symbols:arrow-right-alt" /></button
 								>
 							</div>

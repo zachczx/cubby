@@ -1,6 +1,5 @@
 <script lang="ts">
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
-	import { pb } from '$lib/pb';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
 	import dayjs from 'dayjs';
 	import utc from 'dayjs/plugin/utc';
@@ -19,7 +18,7 @@
 	const families = createQuery(familyQueryOptions);
 	let userOwnedFamily = $derived.by(() => {
 		if (families.isSuccess && families.data) {
-			return families.data.find((family) => family.owner === pb.authStore.record?.id)?.id;
+			return families.data.find((family) => family.isOwner)?.id;
 		}
 	});
 
@@ -51,7 +50,7 @@
 	}
 </script>
 
-<PageWrapper title="New Tracker" {pb} largeScreenCenter={true} focusedScreen={true}>
+<PageWrapper title="New Tracker" largeScreenCenter={true} focusedScreen={true}>
 	<div
 		class="lg:bg-base-200 grid w-full rounded-2xl lg:h-min lg:max-w-lg lg:justify-self-center lg:p-8 lg:shadow-md"
 	>

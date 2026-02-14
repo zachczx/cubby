@@ -1,13 +1,12 @@
 <script lang="ts">
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
-	import { pb } from '$lib/pb';
 </script>
 
 <svelte:head>
 	<title>Credits</title>
 </svelte:head>
 
-<PageWrapper title="Credits" {pb}>
+<PageWrapper title="Credits">
 	<main class="grid h-full content-center justify-items-center">
 		<ul>
 			<li>

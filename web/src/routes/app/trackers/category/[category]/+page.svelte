@@ -1,13 +1,17 @@
 <script lang="ts">
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
-	import { pb } from '$lib/pb';
 	import dayjs from 'dayjs';
 	import utc from 'dayjs/plugin/utc';
 	import timezone from 'dayjs/plugin/timezone';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import ActionCard from '$lib/ui/ActionCard.svelte';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { allEntriesQueryOptions, allTrackersQueryOptions } from '$lib/queries';
+	import {
+		allEntriesQueryOptions,
+		allTrackersQueryOptions,
+		userQueryOptions,
+		familyQueryOptions
+	} from '$lib/queries';
 	import { getColoredTrackers, getTrackerIcon, generateSubscriptionEntries } from '$lib/mapper.js';
 	import SkeletonActionCard from '$lib/ui/SkeletonActionCard.svelte';
 	import EmptyCorgi from '$lib/assets/empty.webp?w=200&enhanced';
@@ -34,10 +38,20 @@
 
 	const trackersDb = createQuery(allTrackersQueryOptions);
 	const allEntriesDB = createQuery(allEntriesQueryOptions);
+	const userOptions = createQuery(userQueryOptions);
+	const familyOptions = createQuery(familyQueryOptions);
 
 	let allTrackers = $derived.by(() => {
-		if (!trackersDb.isSuccess || !trackersDb.data) return [];
-		return getColoredTrackers(trackersDb.data);
+		if (
+			!trackersDb.isSuccess ||
+			!trackersDb.data ||
+			!userOptions.isSuccess ||
+			!userOptions.data ||
+			!familyOptions.isSuccess ||
+			!familyOptions.data
+		)
+			return [];
+		return getColoredTrackers(trackersDb.data, userOptions.data.id, familyOptions.data);
 	});
 
 	let categoryTrackers = $derived.by(() => {
@@ -69,7 +83,10 @@
 			const mergedData = {
 				trackerName: t.name,
 				trackerData: t,
-				entries: kind === 'subscription' ? generateSubscriptionEntries(t) : entryData,
+				entries:
+					kind === 'subscription'
+						? generateSubscriptionEntries(t, userOptions.data!.id)
+						: entryData,
 				notification: getTrackerStatus(entryData),
 				streak: calculateStreak(entryData, t)
 			};
@@ -105,7 +122,7 @@
 	});
 </script>
 
-<PageWrapper title={data.category.charAt(0).toUpperCase() + data.category.slice(1)} {pb}>
+<PageWrapper title={data.category.charAt(0).toUpperCase() + data.category.slice(1)}>
 	<main class="h-full">
 		<div id="mobile" class="grid w-full max-w-lg gap-8 justify-self-center lg:text-base">
 			<section class="grid gap-4 py-4">

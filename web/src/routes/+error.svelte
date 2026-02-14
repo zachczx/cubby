@@ -1,10 +1,9 @@
 <script>
-	import { pb } from '$lib/pb';
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
 	import Oops from '$lib/assets/oops.webp?w=400;300&enhanced';
 </script>
 
-<PageWrapper title="Cubby" {pb}>
+<PageWrapper title="Cubby">
 	<div class="grid h-full content-center justify-items-center gap-4">
 		<enhanced:img
 			src={Oops}

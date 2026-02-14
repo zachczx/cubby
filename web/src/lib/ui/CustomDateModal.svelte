@@ -1,13 +1,11 @@
 <script lang="ts">
 	import { useQueryClient } from '@tanstack/svelte-query';
-	import { pb } from '../pb';
 	import dayjs, { type ManipulateType } from 'dayjs';
 	import utc from 'dayjs/plugin/utc';
 	import timezone from 'dayjs/plugin/timezone';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import { addToast } from './ArkToaster.svelte';
 	import Icon from '@iconify/svelte';
-	import type { RecordModel } from 'pocketbase';
 	import { getAllEntriesQueryKey } from '../queries';
 	import { api } from '$lib/api';
 

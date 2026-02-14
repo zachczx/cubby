@@ -1,12 +1,16 @@
 <script lang="ts">
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
-	import { pb } from '$lib/pb';
 	import dayjs from 'dayjs';
 	import utc from 'dayjs/plugin/utc';
 	import timezone from 'dayjs/plugin/timezone';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { allEntriesQueryOptions, allTrackersQueryOptions, userQueryOptions } from '$lib/queries';
+	import {
+		allEntriesQueryOptions,
+		allTrackersQueryOptions,
+		userQueryOptions,
+		familyQueryOptions
+	} from '$lib/queries';
 	import { getTrackerStatus } from '$lib/notification';
 	import ActionCard from '$lib/ui/ActionCard.svelte';
 	import EmptyCorgi from '$lib/assets/empty.webp?w=200&enhanced';
@@ -27,11 +31,12 @@
 	const trackersDb = createQuery(allTrackersQueryOptions);
 	const allEntriesDb = createQuery(allEntriesQueryOptions);
 	const userOptions = createQuery(userQueryOptions);
+	const familyOptions = createQuery(familyQueryOptions);
 
 	let generalTasksUpcomingDays = $derived.by(() => {
 		if (!userOptions.isSuccess || !userOptions.data) return 14;
 
-		return userOptions.data.generalTasksUpcomingDays;
+		return userOptions.data.taskLookaheadDays;
 	});
 
 	let buttonStatuses = $derived.by(() => {
@@ -46,7 +51,15 @@
 	});
 
 	let trackers = $derived.by(() => {
-		if (!trackersDb.isSuccess || !trackersDb.data) return { pinned: [], general: [] };
+		if (
+			!trackersDb.isSuccess ||
+			!trackersDb.data ||
+			!userOptions.isSuccess ||
+			!userOptions.data ||
+			!familyOptions.isSuccess ||
+			!familyOptions.data
+		)
+			return { pinned: [], general: [] };
 
 		// const coloredTrackers = getColoredTrackers(trackersDb.data);
 
@@ -61,16 +74,28 @@
 	});
 
 	let subscriptions = $derived.by(() => {
-		if (!trackersDb.isSuccess || !trackersDb.data) return;
+		if (
+			!trackersDb.isSuccess ||
+			!trackersDb.data ||
+			!userOptions.isSuccess ||
+			!userOptions.data ||
+			!familyOptions.isSuccess ||
+			!familyOptions.data
+		)
+			return;
 
-		const coloredTrackers = getColoredTrackers(trackersDb.data);
+		const coloredTrackers = getColoredTrackers(
+			trackersDb.data,
+			userOptions.data.id,
+			familyOptions.data
+		);
 
 		return coloredTrackers
 			.filter((tracker) => tracker.show && tracker.kind === 'subscription')
 			.map((sub) => {
 				return {
 					...sub,
-					entryData: generateSubscriptionEntries(sub)
+					entryData: generateSubscriptionEntries(sub, userOptions.data!.id)
 				};
 			});
 	});

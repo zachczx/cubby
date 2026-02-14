@@ -4,7 +4,6 @@
 	import duration from 'dayjs/plugin/duration';
 	import { play } from '$lib/play';
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
-	import { pb } from '$lib/pb';
 	import { Capacitor } from '@capacitor/core';
 	import { userQueryOptions } from '$lib/queries';
 	import { createQuery } from '@tanstack/svelte-query';
@@ -129,7 +128,7 @@
 	<title>Count</title>
 </svelte:head>
 
-<PageWrapper title="Count" {pb}>
+<PageWrapper title="Count">
 	<div class="grid h-full max-w-xl grid-rows-[1fr_auto] justify-self-center">
 		<main class="grid h-full content-center justify-items-center gap-8 p-2">
 			<div class="grid w-full max-w-lg grid-cols-[auto_1fr] justify-items-center gap-y-8">

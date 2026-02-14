@@ -2,15 +2,10 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import Logo from '$lib/assets/logo.webp?w=200&enhanced';
-	import { pb } from '$lib/pb';
 	import { onMount } from 'svelte';
 
 	onMount(() => {
-		if (pb.authStore.isValid) {
-			goto(resolve('/app'));
-		} else {
-			goto(resolve('/login'));
-		}
+		goto(resolve('/app'));
 	});
 </script>
 

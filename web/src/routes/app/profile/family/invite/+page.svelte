@@ -3,7 +3,6 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import Icon from '@iconify/svelte';
-	import { pb } from '$lib/pb';
 	import { inviteQueryOptions, inviteRefetchOptions } from '$lib/queries';
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
@@ -41,7 +40,7 @@
 	}
 </script>
 
-<PageWrapper title="Join Family" {pb} largeScreenCenter={true}>
+<PageWrapper title="Join Family" largeScreenCenter={true}>
 	<span></span>
 </PageWrapper>
 

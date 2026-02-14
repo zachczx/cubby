@@ -12,10 +12,10 @@ export function calculateStreak(
 ): number {
 	if (!entries || entries.length === 0 || !tracker) return 0;
 
-	const sortedEntries = [...entries].sort((a, b) => dayjs(b.time).diff(dayjs(a.time)));
+	const sortedEntries = [...entries].sort((a, b) => dayjs(b.performedAt).diff(dayjs(a.performedAt)));
 	const latestEntry = sortedEntries[0];
 
-	const nextDueDate = dayjs(latestEntry.time).add(tracker.interval, tracker.intervalUnit);
+	const nextDueDate = dayjs(latestEntry.performedAt).add(tracker.interval, tracker.intervalUnit);
 
 	const grace = {} as Grace;
 
@@ -46,15 +46,15 @@ function checkStreakLength(sortedEntries: EntryDB[], tracker: TrackerDB, grace: 
 		const currentEntry = sortedEntries[i];
 		const previousEntry = sortedEntries[i + 1];
 
-		const previousNextDueDate = dayjs(previousEntry.time).add(tracker.interval, tracker.intervalUnit);
+		const previousNextDueDate = dayjs(previousEntry.performedAt).add(tracker.interval, tracker.intervalUnit);
 		const previousGraceLimit = previousNextDueDate.add(
 			grace.gracePeriodValue,
 			grace.gracePeriodUnit
 		);
 
 		if (
-			dayjs(currentEntry.time).isSame(previousGraceLimit) ||
-			dayjs(currentEntry.time).isBefore(previousGraceLimit)
+			dayjs(currentEntry.performedAt).isSame(previousGraceLimit) ||
+			dayjs(currentEntry.performedAt).isBefore(previousGraceLimit)
 		) {
 			streak++;
 		} else {

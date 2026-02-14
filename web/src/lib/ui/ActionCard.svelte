@@ -9,7 +9,6 @@
 
 	import { onMount } from 'svelte';
 	import { error } from '@sveltejs/kit';
-	import { pb } from '$lib/pb';
 
 	let { options }: { options: ActionCardOptions } = $props();
 
@@ -37,13 +36,6 @@
 			interval: Number(interval),
 			intervalUnit: intervalUnit
 		});
-
-	let bgColor = $derived(
-		'color' in options.tracker ? 'bg-' + options.tracker.color + '-200' : undefined
-	);
-	let textColor = $derived(
-		'color' in options.tracker ? 'text-' + options.tracker.color + '-600' : undefined
-	);
 </script>
 
 {#if size === 'list'}

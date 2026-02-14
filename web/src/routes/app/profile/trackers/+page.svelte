@@ -1,7 +1,5 @@
 <script lang="ts">
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
-	import { pb } from '$lib/pb';
-
 	import dayjs from 'dayjs';
 	import utc from 'dayjs/plugin/utc';
 	import timezone from 'dayjs/plugin/timezone';
@@ -12,7 +10,7 @@
 	dayjs.extend(timezone);
 </script>
 
-<PageWrapper title="Profile" {pb} largeScreenCenter={true}>
+<PageWrapper title="Profile" largeScreenCenter={true}>
 	<div
 		class="lg:bg-base-200 grid w-full rounded-2xl max-lg:h-full max-lg:grid-rows-[1fr_auto] lg:h-min lg:max-w-lg lg:justify-self-center lg:p-8 lg:shadow-md"
 	>

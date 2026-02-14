@@ -1,11 +1,8 @@
 <script lang="ts">
 	import Icon from '@iconify/svelte';
 	import { getAllTrackerIcons } from '$lib/mapper';
-	import { pb } from '$lib/pb';
-
 	import NumberInput from '$lib/ui/NumberInput.svelte';
 	import SegmentedControl from '$lib/ui/SegmentedControl.svelte';
-
 	import { slide } from 'svelte/transition';
 
 	let {
@@ -30,8 +27,7 @@
 	let loadedTrackerId = $state('');
 
 	let inputTrackerDetails = $state<TrackerInput>({
-		user: pb.authStore.record?.id ?? '',
-		family: '',
+		familyId: '',
 		name: '',
 		display: '',
 		interval: '1',

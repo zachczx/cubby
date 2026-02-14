@@ -1,6 +1,5 @@
 <script lang="ts">
 	import Icon from '@iconify/svelte';
-	import { pb } from '$lib/pb';
 	import { allTrackersQueryOptions } from '$lib/queries';
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 	import dayjs from 'dayjs';
@@ -69,7 +68,7 @@
 	});
 </script>
 
-<PageWrapper title="Active Trackers" {pb} largeScreenCenter={true}>
+<PageWrapper title="Active Trackers" largeScreenCenter={true}>
 	<div
 		class="lg:bg-base-200 grid w-full rounded-2xl lg:h-min lg:max-w-lg lg:justify-self-center lg:p-8 lg:shadow-md"
 	>
