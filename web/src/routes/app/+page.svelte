@@ -77,7 +77,7 @@
 	});
 
 	let entries = $derived.by(() => {
-		if (!allEntriesDb.isSuccess || !allEntriesDb.data) return { pinned: [], general: [] };
+		if (!allEntriesDb.isSuccess) return { pinned: [], general: [] };
 
 		return {
 			pinned: classifyTrackers(trackers.pinned, allEntriesDb.data, 'pinned'),
@@ -89,7 +89,7 @@
 		const data = [];
 
 		for (const t of trackers) {
-			const entryData = entries.filter((entry) => t.id === entry.trackerId);
+			const entryData = entries?.filter((entry) => t.id === entry.trackerId) ?? [];
 			const trackerData = trackers.find((tracker) => tracker.id === t.id);
 			if (!trackerData) continue;
 
@@ -147,8 +147,7 @@
 					<SkeletonActionCard size="compact" />
 					<SkeletonActionCard size="compact" />
 					<SkeletonActionCard size="compact" />
-				{/if}
-				{#if allEntriesDb.isSuccess && allEntriesDb.data && entries.pinned && entries.pinned.length > 0}
+				{:else if allEntriesDb.isSuccess}
 					{#each entries.pinned as entry (entry.trackerData?.id)}
 						<ActionCard
 							options={{
@@ -166,11 +165,8 @@
 							}}
 						></ActionCard>
 					{/each}
-				{:else if allEntriesDb.isSuccess && allEntriesDb.data && entries.pinned && entries.pinned.length === 0}
-					<div class="justify-self-center">
-						<enhanced:img src={EmptyCorgi} alt="nothing" />
-						<p class="text-center">No pinned tasks!</p>
-					</div>
+				{:else}
+					Error!
 				{/if}
 			</section>
 
@@ -192,8 +188,7 @@
 					<SkeletonActionCard size="compact" />
 					<SkeletonActionCard size="compact" />
 					<SkeletonActionCard size="compact" />
-				{/if}
-				{#if allEntriesDb.isSuccess && allEntriesDb.data && entries.general && entries.general.length > 0}
+				{:else if allEntriesDb.isSuccess}
 					<div class="border-base-300/50 rounded-2xl border bg-white/70">
 						{#each entries.general as entry, i (entry.trackerData?.id)}
 							<ActionCard
@@ -214,11 +209,13 @@
 							></ActionCard>
 						{/each}
 					</div>
-				{:else if allEntriesDb.isSuccess && allEntriesDb.data && entries.general && entries.general.length === 0}
+					<!-- {:else if allEntriesDb.isSuccess && allEntriesDb.data && entries.general && entries.general.length === 0}
 					<div class="justify-self-center">
 						<enhanced:img src={EmptyCorgi} alt="nothing" />
 						<p class="text-center">No tasks!</p>
-					</div>
+					</div> -->
+				{:else}
+					Error!
 				{/if}
 			</section>
 

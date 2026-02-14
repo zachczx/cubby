@@ -43,8 +43,6 @@
 	let textColor = $derived(
 		'color' in options.tracker ? 'text-' + options.tracker.color + '-600' : undefined
 	);
-
-	$inspect(bgColor);
 </script>
 
 {#if size === 'list'}
@@ -151,7 +149,7 @@
 {/snippet}
 
 {#snippet notificationLogic()}
-	{#if entries}
+	{#if entries && entries.length > 0}
 		<div class="flex items-center gap-3">
 			{#if notification?.show}
 				{#if notification.level === 'overdue'}
