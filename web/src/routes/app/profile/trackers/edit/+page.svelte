@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { pb } from '$lib/pb';
 	import { allTrackersQueryOptions } from '$lib/queries';
 	import { createQuery } from '@tanstack/svelte-query';
 	import dayjs from 'dayjs';
@@ -17,18 +16,20 @@
 		let trackers: Record<string, TrackerDB[]> = {};
 
 		for (const t of trackersDb.data) {
-			if (!trackers[t.family]) {
-				trackers[t.family] = [];
+			if (!trackers[t.familyId]) {
+				trackers[t.familyId] = [];
 			}
 
-			trackers[t.family].push(t);
+			trackers[t.familyId].push(t);
 		}
 
 		return trackers;
 	});
+
+	$inspect(trackers);
 </script>
 
-<PageWrapper title="Edit Tracker" {pb} largeScreenCenter={true}>
+<PageWrapper title="Edit Tracker" largeScreenCenter={true}>
 	<div class="grid w-full rounded-2xl lg:h-min lg:max-w-lg lg:justify-self-center lg:p-8">
 		<h1 class="text-primary mb-4 text-center text-4xl font-bold max-lg:hidden">Edit Trackers</h1>
 
@@ -39,7 +40,7 @@
 				>
 					{#if trackerList && trackerList.length > 0}
 						<h2 class="mb-2 flex items-center gap-4 text-xl font-bold">
-							{trackerList[0].expand?.family?.name}
+							{trackerList[0].familyName}
 						</h2>
 					{/if}
 

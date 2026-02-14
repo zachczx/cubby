@@ -1,7 +1,7 @@
 import type { PageLoad } from './$types';
 
-export const load: PageLoad = async ({ params }) => {
-	const category = params.category;
+export const load: PageLoad = async ({ url }) => {
+	const category = url.searchParams.get('category');
 
 	return { category };
 };

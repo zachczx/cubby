@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import type Client from 'pocketbase';
 	import type { Snippet } from 'svelte';
 	import Icon from '@iconify/svelte';
 	import { topLevelRoutes } from './nav';
@@ -19,8 +18,6 @@
 		focusedScreen?: boolean;
 		focusedScreenAction?: Snippet;
 	} = $props();
-
-	let isAuthenticated = $derived(!!page.data.user);
 
 	let currentSection = $derived.by(() => {
 		const p = page.url.pathname;

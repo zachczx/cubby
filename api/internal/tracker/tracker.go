@@ -33,6 +33,42 @@ func New(db *sqlx.DB, t Tracker) (uuid.UUID, error) {
 	return newID, nil
 }
 
+func Edit(db *sqlx.DB, t Tracker) error {
+	q := `UPDATE trackers 
+			SET name = :name, 
+				display = :display, 
+				interval = :interval, 
+				interval_unit = :interval_unit, 
+				category = :category, 
+				kind = :kind, 
+				action_label = :action_label, 
+				pinned = :pinned, 
+				show = :show, 
+				icon = :icon, 
+				start_date = :start_date, 
+				cost = :cost, 
+				updated_at = NOW()
+			FROM families
+			WHERE trackers.user_id = families.owner_id
+			AND trackers.id = :id`
+
+	if _, err := db.NamedExec(q, t); err != nil {
+		return fmt.Errorf("edit tracker: %w", err)
+	}
+
+	return nil
+}
+
+func Delete(db *sqlx.DB, trackerID uuid.UUID, userID uuid.UUID) error {
+	q := `DELETE FROM trackers WHERE id = $1 AND user_id = $2`
+
+	if _, err := db.Exec(q, trackerID, userID); err != nil {
+		return fmt.Errorf("delete tracker: %w", err)
+	}
+
+	return nil
+}
+
 func Get(db *sqlx.DB, trackerID uuid.UUID, userID uuid.UUID) (Tracker, error) {
 	var t Tracker
 	fmt.Println(trackerID, userID)

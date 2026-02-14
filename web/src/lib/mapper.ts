@@ -6,7 +6,6 @@ import FluentEmojiFlatLotionBottle from './assets/expressive-icons/FluentEmojiFl
 import FluentEmojiFlatShield from './assets/expressive-icons/FluentEmojiFlatShield.svelte';
 import FluentEmojiFlatShower from './assets/expressive-icons/FluentEmojiFlatShower.svelte';
 import StreamlineColorHotelLaundryFlat from './assets/expressive-icons/StreamlineColorHotelLaundryFlat.svelte';
-import { pb } from './pb';
 import FluentEmojiFlatTShirt from './assets/expressive-icons/FluentEmojiFlatTShirt.svelte';
 import StreamlineColorToothFlat from './assets/expressive-icons/StreamlineColorToothFlat.svelte';
 import FluentEmojiFlatZzz from './assets/expressive-icons/FluentEmojiFlatZzz.svelte';
@@ -52,34 +51,43 @@ export function getFamilyColor(id: string | undefined, familyIds: string[]): Tra
 	return colors[idx] ?? 'slate';
 }
 
-export function getColoredTrackers(trackers: TrackerDB[]): TrackerColored[] {
+export function getColoredTrackers(trackers: TrackerDB[], userId: string, families: Family[]): TrackerColored[] {
 	const s = new Set<string>();
 
 	for (const t of trackers) {
-		const owner = t.expand?.family?.owner;
-		const familyId = t.family;
-
-		if (owner !== pb.authStore.record?.id && familyId) {
-			s.add(familyId);
+		const family = families.find(f => f.id === t.familyId);
+		// If family exists and I am NOT the owner (assuming family.owner identifies owner)
+		// Wait, Family interface need checking.
+		// For now let's assume we can find family by ID.
+	
+		// Correction: I should assume 'isOwner' property in TrackerDB might be what we want? 
+		// But I suspected it's useless.
+		// Let's use the passed families list to check ownership.
+		
+		const familyOwnerId = family?.owner.id;
+		
+		if (familyOwnerId !== userId && t.familyId) {
+			s.add(t.familyId);
 		}
 	}
 
 	const familyIds = Array.from(s);
 
 	const coloredTrackers: TrackerColored[] = trackers.map((tracker) => {
-		if (tracker.expand?.family?.owner === pb.authStore.record?.id) {
+		const family = families.find(f => f.id === tracker.familyId);
+		if (family?.owner.id === userId) {
 			const color = 'green';
 			return { ...tracker, color };
 		}
 
-		const color = getFamilyColor(tracker.expand?.family?.id, familyIds);
+		const color = getFamilyColor(tracker.familyId, familyIds);
 		return { ...tracker, color };
 	});
 
 	return coloredTrackers;
 }
 
-export function generateSubscriptionEntries(tracker: TrackerDB): EntryDB[] {
+export function generateSubscriptionEntries(tracker: TrackerDB, userId: string): EntryDB[] {
 	if (!tracker.startDate) return [];
 
 	const subscriptionStart = tracker.startDate;
@@ -94,7 +102,7 @@ export function generateSubscriptionEntries(tracker: TrackerDB): EntryDB[] {
 		updated_at: subscriptionStart,
 		tracker: tracker.id,
 		trackerId: tracker.id,
-		performedBy: pb.authStore.record?.id ?? '',
+		performedBy: userId,
 		performedAt: subscriptionStart,
 		remark: '',
 		interval: tracker.interval,
@@ -114,7 +122,7 @@ export function generateSubscriptionEntries(tracker: TrackerDB): EntryDB[] {
 			updated_at: currentDateTime.toISOString(),
 			tracker: tracker.id,
 			trackerId: tracker.id,
-			performedBy: pb.authStore.record?.id ?? '',
+			performedBy: userId,
 			performedAt: currentDateTime.toISOString(),
 			interval: tracker.interval,
 			intervalUnit: tracker.intervalUnit

@@ -1,6 +1,5 @@
 <script lang="ts">
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
-	import { pb } from '$lib/pb';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
 	import dayjs from 'dayjs';
 	import utc from 'dayjs/plugin/utc';
@@ -14,6 +13,8 @@
 	import { goto } from '$app/navigation';
 	import TrackerForm from '../../TrackerForm.svelte';
 	import Icon from '@iconify/svelte';
+	import { api } from '$lib/api';
+	import { router } from '$lib/routes';
 
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
@@ -34,14 +35,18 @@
 		if (!user.isSuccess) return;
 
 		try {
-			const result: TrackerDB = await pb
-				.collection('trackers')
-				.update(data.trackerId, { ...inputTrackerDetails });
-			if (result.id) {
+			const response = await api.patch(`trackers/${data.trackerId}`, {
+				body: JSON.stringify({
+					...inputTrackerDetails,
+					interval: Number(inputTrackerDetails.interval)
+				})
+			});
+
+			if (response.status === 204) {
 				addToast('success', 'Added successfully!');
 				await tanstackClient.refetchQueries(allTrackersRefetchOptions());
 
-				goto(`/app/${result.category}`);
+				goto(router.tracker(data.trackerId));
 			}
 		} catch (err) {
 			console.log(err);
@@ -52,8 +57,8 @@
 		if (!user.isSuccess) return;
 
 		try {
-			const result = await pb.collection('trackers').delete(data.trackerId);
-			if (result) {
+			const response = await api.delete(`trackers/${data.trackerId}`);
+			if (response) {
 				addToast('success', 'Deleted successfully!');
 				await tanstackClient.refetchQueries(allTrackersRefetchOptions());
 
@@ -67,7 +72,7 @@
 	let deleteModal = $state<HTMLDialogElement>();
 </script>
 
-<PageWrapper title="Edit Tracker" {pb} largeScreenCenter={true}>
+<PageWrapper title="Edit Tracker" largeScreenCenter={true}>
 	<div class="grid w-full rounded-2xl lg:h-min lg:max-w-lg lg:justify-self-center lg:p-8">
 		<h1 class="text-primary mb-4 text-center text-4xl font-bold max-lg:hidden">Edit Tracker</h1>
 

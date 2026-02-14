@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { pb } from '$lib/pb';
 	import dayjs from 'dayjs';
 	import utc from 'dayjs/plugin/utc';
 	import relativeTime from 'dayjs/plugin/relativeTime';
@@ -203,7 +202,7 @@
 	});
 </script>
 
-<PageWrapper title={options.labels.pageTitle} {pb}>
+<PageWrapper title={options.labels.pageTitle}>
 	<main class="grid w-full max-w-xl content-start justify-items-center gap-4 justify-self-center">
 		<div class="grid w-full content-start justify-items-center gap-4">
 			{#if currentTrackerEntries}

@@ -1,13 +1,17 @@
 <script lang="ts">
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
-	import { pb } from '$lib/pb';
 	import dayjs from 'dayjs';
 	import utc from 'dayjs/plugin/utc';
 	import timezone from 'dayjs/plugin/timezone';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import ActionCard from '$lib/ui/ActionCard.svelte';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { allEntriesQueryOptions, allTrackersQueryOptions } from '$lib/queries';
+	import {
+		allEntriesQueryOptions,
+		allTrackersQueryOptions,
+		userQueryOptions,
+		familyQueryOptions
+	} from '$lib/queries';
 	import { getColoredTrackers, getTrackerIcon } from '$lib/mapper.js';
 	import SkeletonActionCard from '$lib/ui/SkeletonActionCard.svelte';
 	import EmptyCorgi from '$lib/assets/empty.webp?w=200&enhanced';
@@ -32,15 +36,25 @@
 
 	const trackersDb = createQuery(allTrackersQueryOptions);
 	const allEntriesDb = createQuery(allEntriesQueryOptions);
+	const userOptions = createQuery(userQueryOptions);
+	const familyOptions = createQuery(familyQueryOptions);
 
 	let currentTrackers = $derived.by(() => {
-		if (!trackersDb.isSuccess || !trackersDb.data) return;
+		if (
+			!trackersDb.isSuccess ||
+			!trackersDb.data ||
+			!userOptions.isSuccess ||
+			!userOptions.data ||
+			!familyOptions.isSuccess ||
+			!familyOptions.data
+		)
+			return;
 
-		const categoryTrackers = trackersDb.data.filter(
-			(tracker) => tracker.category === data.category
-		);
+		const categoryTrackers = data.category
+			? trackersDb.data.filter((tracker) => tracker.category === data.category)
+			: trackersDb.data;
 
-		return getColoredTrackers(categoryTrackers);
+		return getColoredTrackers(categoryTrackers, userOptions.data.id, familyOptions.data);
 	});
 
 	let entriesByTracker = $derived.by(() => {
@@ -104,7 +118,11 @@
 	});
 </script>
 
-<PageWrapper title={data.category.charAt(0).toUpperCase() + data.category.slice(1)} {pb}>
+<PageWrapper
+	title={data.category
+		? data.category.charAt(0).toUpperCase() + data.category.slice(1)
+		: 'Trackers'}
+>
 	<main class="h-full">
 		<div id="mobile" class="grid w-full max-w-lg gap-8 justify-self-center lg:text-base">
 			<section class="grid gap-4 py-4">
@@ -169,7 +187,7 @@
 				<div class="border-base-300/50 rounded-2xl border bg-white/70">
 					{#if latestEntries && latestEntries.length > 0}
 						{#each latestEntries as entry (entry.id)}
-							{@const fromNow = dayjs(entry.time).fromNow()}
+							{@const fromNow = dayjs(entry.performedAt).fromNow()}
 							<div class={['border-b-base-300/50 grid gap-4 border-b px-2 py-1']}>
 								<div class="flex items-center p-2">
 									<div class="flex grow items-center gap-4">

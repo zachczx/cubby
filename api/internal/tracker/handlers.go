@@ -16,7 +16,7 @@ import (
 type Tracker struct {
 	ID           uuid.UUID  `json:"id" db:"id"`
 	User         uuid.UUID  `json:"-" db:"user_id"`
-	Family       uuid.UUID  `json:"-" db:"family_id"`
+	Family       uuid.UUID  `json:"familyId" db:"family_id"`
 	Name         string     `json:"name" db:"name"`
 	Display      string     `json:"display" db:"display"`
 	Interval     int        `json:"interval" db:"interval"`
@@ -120,6 +120,105 @@ func CreateHandler(s *server.Service, db *sqlx.DB) http.Handler {
 		}
 
 		response.WriteJSON(w, trackerID)
+	})
+}
+
+func EditHandler(s *server.Service, db *sqlx.DB) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var err error
+
+		u := s.GetAuthenticatedUser(w, r)
+		email := u.Emails[0].Email
+
+		userID, err := s.UserManager.GetInternalUserID(db, email)
+		if err != nil {
+			response.WriteError(w, err)
+			return
+		}
+
+		tid := r.PathValue("trackerID")
+		trackerID, err := uuid.Parse(tid)
+		if err != nil {
+			response.WriteError(w, err)
+			return
+		}
+
+		var input TrackerInput
+		if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+			response.WriteError(w, err)
+			return
+		}
+
+		var startDate *time.Time
+		if input.StartDate != "" {
+			sd, err := time.Parse(time.RFC3339, input.StartDate)
+			if err != nil {
+				response.WriteError(w, err)
+				return
+			}
+			startDate = &sd
+		}
+
+		var cost *float64
+		if input.Cost != "" {
+			c, err := strconv.ParseFloat(input.Cost, 64)
+			if err != nil {
+				response.RespondWithError(w, http.StatusBadRequest, "Invalid cost format")
+				return
+			}
+			cost = &c
+		}
+
+		t := Tracker{
+			ID:           trackerID,
+			User:         userID,
+			Name:         input.Name,
+			Display:      input.Display,
+			Interval:     input.Interval,
+			IntervalUnit: input.IntervalUnit,
+			Category:     input.Category,
+			Kind:         input.Kind,
+			ActionLabel:  input.ActionLabel,
+			Icon:         input.Icon,
+			Pinned:       input.Pinned,
+			Show:         input.Show,
+			Cost:         cost,
+			StartDate:    startDate,
+		}
+
+		if err := Edit(db, t); err != nil {
+			response.WriteError(w, err)
+			return
+		}
+
+		w.WriteHeader(http.StatusNoContent)
+	})
+}
+
+func DeleteHandler(s *server.Service, db *sqlx.DB) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		t := r.PathValue("trackerID")
+		trackerID, err := uuid.Parse(t)
+		if err != nil {
+			response.WriteError(w, err)
+			return
+		}
+
+		u := s.GetAuthenticatedUser(w, r)
+		email := u.Emails[0].Email
+
+		userID, err := s.UserManager.GetInternalUserID(db, email)
+		if err != nil {
+			response.WriteError(w, err)
+			return
+		}
+
+		if err := Delete(db, trackerID, userID); err != nil {
+			response.WriteError(w, err)
+			return
+		}
+
+		w.WriteHeader(http.StatusNoContent)
 	})
 }
 

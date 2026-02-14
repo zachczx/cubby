@@ -1,14 +1,13 @@
 import { QueryClient, queryOptions, type RefetchQueryFilters } from '@tanstack/svelte-query';
-import { pb } from './pb';
 import dayjs from 'dayjs';
 import { api } from './api';
 
 const staleTime = 5 * 60 * 1000;
-const rootKey = [pb.authStore?.record?.id];
+const rootKey = ['cubby'];
 export const queryClient = new QueryClient();
 
 // Helper to get the current rootKey (useful for manual cache updates)
-export const getRootKey = () => [pb.authStore?.record?.id];
+export const getRootKey = () => rootKey;
 
 // Helper to get the allLogs query key
 export const getAllEntriesQueryKey = () => [...getRootKey(), 'entries-all'];
@@ -56,7 +55,7 @@ export async function createEntryQuery(options: {
 			intervalUnit: options.intervalUnit,
 			performedAt: dayjs.tz(new Date(), 'Asia/Singapore')
 		})
-	});
+	}).json<EntryDB>();
 }
 
 const familyQuery = createQueryFactory(['family'], async (): Promise<Family[]> => {
@@ -65,6 +64,7 @@ const familyQuery = createQueryFactory(['family'], async (): Promise<Family[]> =
 export const familyQueryOptions = familyQuery.options;
 export const familyRefetchOptions = familyQuery.refetch;
 
+/*
 const inviteQuery = createQueryFactory(['invite'], async (): Promise<InviteDB> => {
 	const res: InviteDB = await pb
 		.collection('invites')
@@ -75,14 +75,16 @@ const inviteQuery = createQueryFactory(['invite'], async (): Promise<InviteDB> =
 });
 export const inviteQueryOptions = inviteQuery.options;
 export const inviteRefetchOptions = inviteQuery.refetch;
+*/
 
 const userQuery = createQueryFactory(['users'], async (): Promise<UserDB> => {
-	return await pb.collection('users').getOne(String(pb.authStore?.record?.id));
+	return await api.get('users').json<UserDB>();
 });
 export const userQueryOptions = userQuery.options;
 export const userRefetchOptions = userQuery.refetch;
 export const getUserQueryKey = () => [...getRootKey(), 'users'];
 
+/*
 const vacationQuery = createQueryFactory(
 	['vacations'],
 	async (): Promise<VacationDB[]> =>
@@ -90,3 +92,4 @@ const vacationQuery = createQueryFactory(
 );
 export const vacationQueryOptions = vacationQuery.options;
 export const vacationRefetchOptions = vacationQuery.refetch;
+*/

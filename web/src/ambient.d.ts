@@ -1,18 +1,13 @@
 type Characters = 'frankenstein' | 'robot' | 'furnando';
 
 interface UserDB {
-	collectionId: string;
-	collectionName: 'users';
 	id: string;
 	email: string;
-	emailVisibility: boolean;
-	verified: boolean;
 	name: string;
-	avatar: string;
-	sound: boolean;
-	generalTasksUpcomingDays: number;
-	created: string;
-	updated: string;
+	soundOn: boolean;
+	taskLookaheadDays: number;
+	created_at: string;
+	updated_at: string;
 }
 
 interface VacationDB {
@@ -73,8 +68,7 @@ type TrackerIcon =
 type TrackerCategory = 'household' | 'personal' | 'pet';
 
 interface TrackerInput {
-	user: string;
-	family: string;
+	familyId: string;
 	name: string;
 	display: string;
 	interval: string;
@@ -92,8 +86,13 @@ interface TrackerInput {
 interface TrackerDB extends TrackerInput {
 	id: string;
 	interval: number;
-	created: string;
-	updated: string;
+	created_at: string;
+	updated_at: string;
+	familyId: string;
+	familyName: string;
+	isOwner: boolean;
+	startDate?: string;
+	cost?: number;
 }
 
 interface Family {
