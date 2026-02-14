@@ -34,7 +34,8 @@
 	let starPositions: { x: number; y: number }[] = $state([]);
 
 	const tanstackClient = useQueryClient();
-	export const insertNewEntryToCache = (newEntry: EntryDB) =>
+
+	const insertNewEntryToCache = (newEntry: EntryDB) =>
 		tanstackClient.setQueryData(getAllEntriesQueryKey(), (oldEntries: EntryDB[] | undefined) => {
 			if (!oldEntries) return [newEntry];
 			return [newEntry, ...oldEntries];
