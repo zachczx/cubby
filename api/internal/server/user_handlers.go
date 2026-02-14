@@ -2,7 +2,6 @@ package server
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/jmoiron/sqlx"
@@ -55,7 +54,6 @@ func (s *Service) ChangeTaskLookaheadDaysHandler(w http.ResponseWriter, r *http.
 	var days TaskDays
 
 	if err := json.NewDecoder(r.Body).Decode(&days); err != nil {
-		fmt.Println(r.Body)
 		response.WriteError(w, err)
 		return
 	}

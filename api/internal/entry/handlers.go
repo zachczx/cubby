@@ -2,7 +2,6 @@ package entry
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -81,7 +80,7 @@ func CreateHandler(s *server.Service, db *sqlx.DB) http.Handler {
 			response.WriteError(w, err)
 			return
 		}
-		fmt.Println(new)
+
 		response.WriteJSONStatus(w, http.StatusCreated, new)
 	})
 }
