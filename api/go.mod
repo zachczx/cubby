@@ -7,7 +7,7 @@ require (
 	github.com/jackc/pgx/v5 v5.8.0
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/joho/godotenv v1.5.1
-	github.com/mattn/go-sqlite3 v1.14.33
+	github.com/mattn/go-sqlite3 v1.14.34
 	github.com/stytchauth/stytch-go/v16 v16.41.0
 )
 
@@ -19,5 +19,5 @@ require (
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	golang.org/x/sync v0.19.0 // indirect
-	golang.org/x/text v0.33.0 // indirect
+	golang.org/x/text v0.34.0 // indirect
 )
