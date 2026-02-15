@@ -57,7 +57,7 @@ func Delete(db *sqlx.DB, userID uuid.UUID, entryID uuid.UUID) error {
 			USING trackers 
 			WHERE entries.id = $1
 			AND entries.tracker_id = trackers.id
-			AND trackers.user_id = $2`
+			AND trackers.owner_id = $2`
 
 	if _, err := db.Exec(q, entryID, userID); err != nil {
 		return fmt.Errorf("delete entry: %w", err)
@@ -71,7 +71,7 @@ func Edit(db *sqlx.DB, userID uuid.UUID, entryID uuid.UUID, performedAt time.Tim
 			SET performed_at = $1 
 			FROM trackers
 			WHERE trackers.id = entries.tracker_id
-			AND trackers.user_id = $2
+			AND trackers.owner_id = $2
 			AND entries.id = $3`
 
 	if _, err := db.Exec(q, performedAt, userID, entryID); err != nil {

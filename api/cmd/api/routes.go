@@ -51,14 +51,19 @@ func Healthcheck(w http.ResponseWriter, _ *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+var (
+	devOrigin     = "http://localhost:5173"
+	allowedOrigin = os.Getenv("PUBLIC_WEB_URL")
+)
+
 func CORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if os.Getenv("ENV") == "development" {
-			w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+		origin := r.Header.Get("Origin")
+
+		if origin == allowedOrigin || origin == devOrigin {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
 		}
-		if os.Getenv("ENV") != "development" {
-			w.Header().Set("Access-Control-Allow-Origin", "https://cubby.dev")
-		}
+
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		w.Header().Set("Access-Control-Expose-Headers", "Content-Type")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")

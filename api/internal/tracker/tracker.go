@@ -11,11 +11,11 @@ func New(db *sqlx.DB, t Tracker) (uuid.UUID, error) {
 	var newID uuid.UUID
 
 	q := `INSERT INTO trackers (
-				user_id, family_id, name, display, interval, interval_unit, 
+				owner_id, family_id, name, display, interval, interval_unit, 
 				category, kind, action_label, pinned, show, icon, start_date, cost, 
 				created_at, updated_at
 			) VALUES (
-				:user_id, :family_id, :name, :display, :interval, :interval_unit, 
+				:owner_id, :family_id, :name, :display, :interval, :interval_unit, 
 				:category, :kind, :action_label, :pinned, :show, :icon, :start_date, :cost, 
 				NOW(), NOW()
 			) RETURNING id`
@@ -49,7 +49,7 @@ func Edit(db *sqlx.DB, t Tracker) error {
 				cost = :cost, 
 				updated_at = NOW()
 			FROM families
-			WHERE trackers.user_id = families.owner_id
+			WHERE trackers.owner_id = families.owner_id
 			AND trackers.id = :id`
 
 	if _, err := db.NamedExec(q, t); err != nil {
@@ -60,7 +60,7 @@ func Edit(db *sqlx.DB, t Tracker) error {
 }
 
 func Delete(db *sqlx.DB, trackerID uuid.UUID, userID uuid.UUID) error {
-	q := `DELETE FROM trackers WHERE id = $1 AND user_id = $2`
+	q := `DELETE FROM trackers WHERE id = $1 AND owner_id = $2`
 
 	if _, err := db.Exec(q, trackerID, userID); err != nil {
 		return fmt.Errorf("delete tracker: %w", err)
@@ -72,7 +72,7 @@ func Delete(db *sqlx.DB, trackerID uuid.UUID, userID uuid.UUID) error {
 func Get(db *sqlx.DB, trackerID uuid.UUID, userID uuid.UUID) (Tracker, error) {
 	var t Tracker
 	fmt.Println(trackerID, userID)
-	q := `SELECT * FROM trackers WHERE id=$1 AND user_id=$2`
+	q := `SELECT * FROM trackers WHERE id=$1 AND owner_id=$2`
 
 	if err := db.Get(&t, q, trackerID, userID); err != nil {
 		return Tracker{}, fmt.Errorf("select tracker: %w", err)
@@ -85,14 +85,14 @@ func GetAll(db *sqlx.DB, userID uuid.UUID) ([]Tracker, error) {
 	var t []Tracker
 	q := `SELECT t.*, f.name AS family_name FROM trackers t
 			JOIN families f ON t.family_id = f.id   
-			WHERE user_id=$1`
+			WHERE t.owner_id=$1`
 
 	if err := db.Select(&t, q, userID); err != nil {
 		return nil, fmt.Errorf("select trackers: %w", err)
 	}
 
 	for i := range t {
-		if userID == t[i].User {
+		if userID == t[i].Owner {
 			t[i].IsOwner = true
 		}
 	}

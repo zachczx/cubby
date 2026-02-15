@@ -3,7 +3,6 @@ package tracker
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -15,7 +14,7 @@ import (
 
 type Tracker struct {
 	ID           uuid.UUID  `json:"id" db:"id"`
-	User         uuid.UUID  `json:"-" db:"user_id"`
+	Owner        uuid.UUID  `json:"-" db:"owner_id"`
 	Family       uuid.UUID  `json:"familyId" db:"family_id"`
 	Name         string     `json:"name" db:"name"`
 	Display      string     `json:"display" db:"display"`
@@ -37,18 +36,18 @@ type Tracker struct {
 }
 
 type TrackerInput struct {
-	Name         string `json:"name"`
-	Display      string `json:"display"`
-	Interval     int    `json:"interval"`
-	IntervalUnit string `json:"intervalUnit"`
-	Category     string `json:"category"`
-	Kind         string `json:"kind"`
-	ActionLabel  string `json:"actionLabel"`
-	Pinned       bool   `json:"pinned"`
-	Show         bool   `json:"show"`
-	Icon         string `json:"icon"`
-	StartDate    string `json:"startDate"`
-	Cost         string `json:"cost"`
+	Name         string   `json:"name"`
+	Display      string   `json:"display"`
+	Interval     int      `json:"interval"`
+	IntervalUnit string   `json:"intervalUnit"`
+	Category     string   `json:"category"`
+	Kind         string   `json:"kind"`
+	ActionLabel  string   `json:"actionLabel"`
+	Pinned       bool     `json:"pinned"`
+	Show         bool     `json:"show"`
+	Icon         string   `json:"icon"`
+	StartDate    string   `json:"startDate"`
+	Cost         *float64 `json:"cost"`
 }
 
 func CreateHandler(s *server.Service, db *sqlx.DB) http.Handler {
@@ -86,18 +85,18 @@ func CreateHandler(s *server.Service, db *sqlx.DB) http.Handler {
 			startDate = &sd
 		}
 
-		var cost *float64
-		if input.Cost != "" {
-			c, err := strconv.ParseFloat(input.Cost, 64)
-			if err != nil {
-				response.RespondWithError(w, http.StatusBadRequest, "Invalid cost format")
-				return
-			}
-			cost = &c
-		}
+		// var cost *float64
+		// if input.Cost != "" {
+		// 	c, err := strconv.ParseFloat(input.Cost, 64)
+		// 	if err != nil {
+		// 		response.RespondWithError(w, http.StatusBadRequest, "Invalid cost format")
+		// 		return
+		// 	}
+		// 	cost = &c
+		// }
 
 		t := Tracker{
-			User:         userID,
+			Owner:        userID,
 			Family:       familyID,
 			Name:         input.Name,
 			Display:      input.Display,
@@ -109,7 +108,7 @@ func CreateHandler(s *server.Service, db *sqlx.DB) http.Handler {
 			Icon:         input.Icon,
 			Pinned:       input.Pinned,
 			Show:         input.Show,
-			Cost:         cost,
+			Cost:         input.Cost,
 			StartDate:    startDate,
 		}
 
@@ -159,19 +158,19 @@ func EditHandler(s *server.Service, db *sqlx.DB) http.Handler {
 			startDate = &sd
 		}
 
-		var cost *float64
-		if input.Cost != "" {
-			c, err := strconv.ParseFloat(input.Cost, 64)
-			if err != nil {
-				response.RespondWithError(w, http.StatusBadRequest, "Invalid cost format")
-				return
-			}
-			cost = &c
-		}
+		// var cost *float64
+		// if input.Cost != "" {
+		// 	c, err := strconv.ParseFloat(input.Cost, 64)
+		// 	if err != nil {
+		// 		response.RespondWithError(w, http.StatusBadRequest, "Invalid cost format")
+		// 		return
+		// 	}
+		// 	cost = &c
+		// }
 
 		t := Tracker{
 			ID:           trackerID,
-			User:         userID,
+			Owner:        userID,
 			Name:         input.Name,
 			Display:      input.Display,
 			Interval:     input.Interval,
@@ -182,7 +181,7 @@ func EditHandler(s *server.Service, db *sqlx.DB) http.Handler {
 			Icon:         input.Icon,
 			Pinned:       input.Pinned,
 			Show:         input.Show,
-			Cost:         cost,
+			Cost:         input.Cost,
 			StartDate:    startDate,
 		}
 

@@ -55,7 +55,7 @@ func Create(db *sqlx.DB) {
 		// Trackers Table (Depends on users and families)
 		`CREATE TABLE IF NOT EXISTS trackers (
 			id UUID PRIMARY KEY DEFAULT uuidv7(),
-			user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+			owner_id UUID REFERENCES users(id) ON DELETE CASCADE,
 			family_id UUID REFERENCES families(id) ON DELETE CASCADE,
 			name TEXT NOT NULL,
 			display TEXT,           

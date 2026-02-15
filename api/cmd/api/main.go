@@ -18,11 +18,12 @@ import (
 func main() {
 	var err error
 
-	err = godotenv.Load(".env")
-	if err != nil {
-		log.Printf("Error loading .env file: %v", err)
-	}
-	if err == nil {
+	// Try loading .env file, but don't fail if it doesn't exist (e.g. in Docker)
+	if err = godotenv.Load("../.env"); err != nil {
+		if !os.IsNotExist(err) {
+			log.Printf("Warning: Error loading .env file: %v", err)
+		}
+	} else {
 		fmt.Println("env init: ok")
 	}
 
@@ -32,6 +33,8 @@ func main() {
 		log.Fatal(err)
 	}
 	defer db.Close()
+
+	fmt.Println(os.Getenv("ENV"))
 
 	s := server.NewService(
 		os.Getenv("STYTCH_PROJECT_ID"),
