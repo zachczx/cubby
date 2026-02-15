@@ -5,7 +5,7 @@
 	import utc from 'dayjs/plugin/utc';
 	import timezone from 'dayjs/plugin/timezone';
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
-	import { userQueryOptions, vacationQueryOptions, vacationRefetchOptions } from '$lib/queries';
+	import { userQueryOptions } from '$lib/queries';
 	import Icon from '@iconify/svelte';
 	import { invalidateAll } from '$app/navigation';
 
@@ -14,7 +14,7 @@
 
 	const user = createQuery(userQueryOptions);
 
-	const vacations = createQuery(vacationQueryOptions);
+	// const vacations = createQuery(vacationQueryOptions);
 
 	const tanstackClient = useQueryClient();
 
@@ -44,16 +44,16 @@
 			const start = dayjs.tz(vacationStart, 'Asia/Singapore');
 			const end = dayjs.tz(vacationEnd, 'Asia/Singapore');
 
-			const result = await pb.collection('vacation').create({
-				user: pb.authStore.record?.id,
-				startDateTime: start,
-				endDateTime: end
-			});
-			if (result.id) {
-				addToast('success', 'Added successfully!');
+			// const result = await pb.collection('vacation').create({
+			// 	user: pb.authStore.record?.id,
+			// 	startDateTime: start,
+			// 	endDateTime: end
+			// });
+			// if (result.id) {
+			// 	addToast('success', 'Added successfully!');
 
-				await tanstackClient.refetchQueries(vacationRefetchOptions());
-			}
+			//  await tanstackClient.refetchQueries(vacationRefetchOptions());
+			// }
 		} catch (err) {
 			console.log(err);
 		}
@@ -63,13 +63,12 @@
 		if (!user.isSuccess) return;
 
 		try {
-			const result = await pb.collection('vacation').delete(deleteId);
-			if (result) {
-				addToast('success', 'Deleted successfully!');
-
-				await tanstackClient.refetchQueries(vacationRefetchOptions());
-				invalidateAll();
-			}
+			// const result = await pb.collection('vacation').delete(deleteId);
+			// if (result) {
+			// 	addToast('success', 'Deleted successfully!');
+			// 	 await tanstackClient.refetchQueries(vacationRefetchOptions());
+			// 	invalidateAll();
+			// }
 		} catch (err) {
 			console.log(err);
 		}
@@ -96,14 +95,14 @@
 						</button>
 					</div>
 					<ul class="list-disc">
-						{#if vacations.isSuccess}
+						<!-- {#if vacations.isSuccess}
 							{#each vacations.data as v}
 								{@const dateTime = formatTime(v.startDateTime, v.endDateTime)}
 								<li class="ms-6 py-0.5">
 									{dateTime}
 								</li>
 							{/each}
-						{/if}
+						{/if} -->
 					</ul>
 				</div>
 
@@ -139,7 +138,7 @@
 
 		<h3 class="mb-4 text-lg font-bold uppercase">Recent Vacations</h3>
 		<ul class="list-disc">
-			{#if vacations.isSuccess}
+			<!-- {#if vacations.isSuccess}
 				{#each vacations.data as v}
 					{@const dateTime = formatTime(v.startDateTime, v.endDateTime)}
 					<li class="border-b-base-300 ms-6 border-b py-4">
@@ -153,7 +152,7 @@
 						</div>
 					</li>
 				{/each}
-			{/if}
+			{/if} -->
 		</ul>
 	</div>
 </dialog>

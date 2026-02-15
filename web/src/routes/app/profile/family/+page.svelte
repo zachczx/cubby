@@ -5,14 +5,9 @@
 	import utc from 'dayjs/plugin/utc';
 	import timezone from 'dayjs/plugin/timezone';
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
-	import {
-		userQueryOptions,
-		familyQueryOptions,
-		familyRefetchOptions,
-		inviteQueryOptions
-	} from '$lib/queries';
+	import { userQueryOptions, familyQueryOptions, familyRefetchOptions } from '$lib/queries';
 	import Icon from '@iconify/svelte';
-	import { resolve } from '$app/paths';
+	// import { resolve } from '$app/paths';
 	import { api } from '$lib/api';
 
 	dayjs.extend(utc);
@@ -20,7 +15,7 @@
 
 	const user = createQuery(userQueryOptions);
 	const families = createQuery(familyQueryOptions);
-	const currentInvite = createQuery(inviteQueryOptions);
+	// const currentInvite = createQuery(inviteQueryOptions);
 	const tanstackClient = useQueryClient();
 
 	let invited = $state(false);
@@ -136,7 +131,7 @@
 			{#each families.data as family (family.id)}
 				{@const numberOfMembers = family.members.length + 1}
 				{#if family.id === section}
-					{#if currentInvite.isSuccess && currentInvite.data && currentInvite.data.status !== 'completed'}
+					<!-- {#if currentInvite.isSuccess && currentInvite.data && currentInvite.data.status !== 'completed'}
 						<section
 							class="border-base-300 bg-info text-info-content grid min-h-18 gap-4 rounded-2xl border p-4 text-lg font-semibold"
 						>
@@ -149,7 +144,7 @@
 								/></a
 							>
 						</section>
-					{/if}
+					{/if} -->
 
 					<section class="border-base-300 grid min-h-18 gap-4 rounded-2xl border bg-white/70 p-4">
 						<h2 class="text-xl font-bold">Members ({numberOfMembers})</h2>

@@ -3,20 +3,18 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import Icon from '@iconify/svelte';
-	import { inviteQueryOptions, inviteRefetchOptions } from '$lib/queries';
+	// import { inviteQueryOptions, inviteRefetchOptions } from '$lib/queries';
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
 
 	const destinationFamilyId = page.url.searchParams.get('i') ?? '';
-	const currentInvite = createQuery(inviteQueryOptions);
+	// const currentInvite = createQuery(inviteQueryOptions);
 	const tanstackClient = useQueryClient();
 
 	async function confirmJoinFamily() {
-		if (!pb.authStore.record) return;
-
 		try {
-			await pb.collection('families').update(destinationFamilyId, {
+			/* await pb.collection('families').update(destinationFamilyId, {
 				'members+': pb.authStore.record.id,
 				'activeInvites-': pb.authStore.record.id
 			});
@@ -33,7 +31,7 @@
 			await tanstackClient.refetchQueries(inviteRefetchOptions());
 
 			addToast('success', 'Joined family!');
-			goto(resolve('/app/profile/family'));
+			goto(resolve('/app/profile/family')); */
 		} catch (err) {
 			console.log(err);
 		}
@@ -46,7 +44,7 @@
 
 <dialog class="modal modal-bottom sm:modal-middle modal-open">
 	<div class="modal-box grid gap-8">
-		{#if currentInvite.isSuccess && destinationFamilyId}<div class="grid gap-4">
+		<!-- {#if currentInvite.isSuccess && destinationFamilyId}<div class="grid gap-4">
 				<div
 					class="bg-primary/10 text-primary flex aspect-square size-20 items-center justify-center justify-self-center overflow-hidden rounded-full"
 				>
@@ -81,6 +79,6 @@
 					Something went wrong!
 				{/if}
 			</div>
-		{/if}
+		{/if} -->
 	</div>
 </dialog>
