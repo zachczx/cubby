@@ -18,9 +18,7 @@ FROM alpine:latest
 WORKDIR /api
 
 COPY --from=builder /api/cubby-api .
-# COPY --from=first /api/locapi.db . # database is likely Postgres given pgx in go.mod, removing locapi.db which sounds like sqlite/local
 
-# Receive values from docker-compose's "build.args"
 ARG DB_HOST
 ARG DB_PORT
 ARG DB_USER
