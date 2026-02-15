@@ -19,4 +19,7 @@ dev:
 reset:
 	go run ./cmd/resetter
 
+migrate:
+	go run ./cmd/migrator
+
 # 	make -j2 lint
