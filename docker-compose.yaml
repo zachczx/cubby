@@ -1,7 +1,7 @@
 name: cubby
 
 services:
-  backend:
+  api:
     build:
       context: .
       dockerfile: api.dockerfile
@@ -33,16 +33,19 @@ services:
       - API_LISTEN_ADDR=${API_LISTEN_ADDR}
       - STYTCH_PROJECT_ID=${STYTCH_PROJECT_ID}
       - STYTCH_SECRET=${STYTCH_SECRET}
+      - COOKIE_DOMAIN=${COOKIE_DOMAIN}
+      - PUBLIC_CORS_URL=${PUBLIC_CORS_URL}
+      - PUBLIC_WEB_URL=http://localhost:3000
 
-  frontend:
+  web:
     build:
       context: .
       dockerfile: web.dockerfile
       args:
         - PUBLIC_API_URL=${PUBLIC_API_URL}
-        - FRONTEND_LISTEN_ADDR=${FRONTEND_LISTEN_ADDR}
+        - PUBLIC_WEB_URL=http://localhost:3000
     ports:
-      - '${FRONTEND_LISTEN_ADDR}:3000'
+      - '3000:3000'
     restart: unless-stopped
     healthcheck:
       test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health" ]
@@ -52,4 +55,4 @@ services:
       start_period: 5s
     environment:
       - PUBLIC_API_URL=${PUBLIC_API_URL}
-      - FRONTEND_LISTEN_ADDR=${FRONTEND_LISTEN_ADDR}
+      - PUBLIC_WEB_URL=http://localhost:3000
