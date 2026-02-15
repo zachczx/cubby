@@ -9,6 +9,7 @@
 	import { goto } from '$app/navigation';
 	import TrackerForm from '../TrackerForm.svelte';
 	import { api } from '$lib/api';
+	import { router } from '$lib/routes';
 
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
@@ -36,12 +37,12 @@
 				.post('trackers', {
 					body: JSON.stringify(formData)
 				})
-				.json<TrackerDB>();
-			console.log(response);
+				.json<string>();
+
 			if (response) {
 				addToast('success', 'Added successfully!');
 				await tanstackClient.refetchQueries(allTrackersRefetchOptions());
-				goto(`/app/${response.category}/${response.id}`);
+				goto(router.tracker(response));
 			}
 		} catch (err) {
 			console.log(err);
