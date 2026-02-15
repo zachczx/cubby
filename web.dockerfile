@@ -1,5 +1,6 @@
 FROM node:25-slim AS builder
 WORKDIR /web
+RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
 COPY /web/package.json /web/pnpm-lock.yaml ./
 RUN npm install -g pnpm@latest-10
 RUN pnpm install --frozen-lockfile
