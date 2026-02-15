@@ -82,6 +82,30 @@ var trackerDefaults = []TrackerInput{
 		Show:         true,
 		Icon:         "washer",
 	},
+	{
+		Name:         "dentalCleaning",
+		Display:      "Dental Cleaning",
+		Interval:     6,
+		IntervalUnit: "month",
+		Category:     "personal",
+		Kind:         "task",
+		ActionLabel:  "Cleaned",
+		Pinned:       false,
+		Show:         true,
+		Icon:         "tooth",
+	},
+	{
+		Name:         "washingMachine",
+		Display:      "Washer Cleaning",
+		Interval:     6,
+		IntervalUnit: "month",
+		Category:     "household",
+		Kind:         "task",
+		ActionLabel:  "Cleaned",
+		Pinned:       false,
+		Show:         true,
+		Icon:         "washer",
+	},
 }
 
 type DefaultService struct{}
@@ -94,7 +118,7 @@ func (DefaultService) CreateDefaults(db *sqlx.DB, userID uuid.UUID) error {
 
 	for _, d := range trackerDefaults {
 		t := Tracker{
-			User:         userID,
+			Owner:        userID,
 			Family:       familyID,
 			Name:         d.Name,
 			Display:      d.Display,
