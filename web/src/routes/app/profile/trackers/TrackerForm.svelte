@@ -37,6 +37,7 @@
 		icon: 'bookmark',
 		startDate: '',
 		actionLabel: 'Done',
+		cost: 0,
 		pinned: false,
 		show: true
 	});
@@ -194,7 +195,7 @@
 						type="radio"
 						bind:group={inputTrackerDetails.icon}
 						value={key}
-						name="intervalUnit"
+						name="icon"
 						class="peer hidden"
 					/>
 					<div
