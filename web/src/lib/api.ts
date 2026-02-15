@@ -1,8 +1,7 @@
 import { browser } from '$app/environment';
 import { PUBLIC_API_URL } from '$env/static/public';
-import { redirect } from '@sveltejs/kit';
 import ky from 'ky';
-import { addToast } from './ui/ArkToaster.svelte';
+import { goto } from '$app/navigation';
 
 export const api = ky.create({
 	prefixUrl: PUBLIC_API_URL,
@@ -13,8 +12,7 @@ export const api = ky.create({
 				if (response.status === 403 || response.status === 401) {
 					if (browser) {
 						console.error('403 Not auth');
-						addToast('error', "You're not logged in!");
-						redirect(307, '/login');
+						goto('/login');
 					}
 
 					return new Response(JSON.stringify(null), {
