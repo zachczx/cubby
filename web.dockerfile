@@ -13,11 +13,7 @@ ENV PUBLIC_WEB_URL=${PUBLIC_WEB_URL}
 
 RUN pnpm build
 
-FROM node:25-slim
-WORKDIR /web
-RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
-RUN npm install -g serve
-COPY --from=builder /web/build ./build
-
-EXPOSE 3000
-CMD ["serve", "-s", "build", "-l", "3000"]
+FROM nginx:alpine
+COPY --from=builder /web/build /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+EXPOSE 80
