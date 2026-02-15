@@ -23,7 +23,6 @@ function createQueryFactory<T>(key: string[], queryFn: () => Promise<T>) {
 
 		refetch: (): RefetchQueryFilters => ({
 			queryKey: [...rootKey, ...key],
-			type: 'active',
 			exact: true
 		})
 	};
