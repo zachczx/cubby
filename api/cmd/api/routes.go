@@ -15,6 +15,7 @@ func MakeHTTPHandlers(s *server.Service) http.Handler {
 
 	// Main
 	mux.HandleFunc("GET /{$}", Index)
+	mux.HandleFunc("GET /health", Healthcheck)
 	mux.HandleFunc("/magic-link", s.SendMagicLinkHandler)
 	mux.HandleFunc("/authenticate", s.AuthenticateHandler)
 	mux.Handle("GET /logout", http.HandlerFunc(s.Logout))
