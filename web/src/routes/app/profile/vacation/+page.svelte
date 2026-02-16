@@ -5,16 +5,15 @@
 	import utc from 'dayjs/plugin/utc';
 	import timezone from 'dayjs/plugin/timezone';
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
-	import { userQueryOptions } from '$lib/queries';
+	import { vacationQueryOptions, vacationRefetchOptions } from '$lib/queries';
 	import Icon from '@iconify/svelte';
 	import { invalidateAll } from '$app/navigation';
+	import { api } from '$lib/api';
 
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
 
-	const user = createQuery(userQueryOptions);
-
-	// const vacations = createQuery(vacationQueryOptions);
+	const vacations = createQuery(vacationQueryOptions);
 
 	const tanstackClient = useQueryClient();
 
@@ -38,37 +37,34 @@
 	}
 
 	async function addHandler() {
-		if (!user.isSuccess) return;
-
 		try {
 			const start = dayjs.tz(vacationStart, 'Asia/Singapore');
 			const end = dayjs.tz(vacationEnd, 'Asia/Singapore');
 
-			// const result = await pb.collection('vacation').create({
-			// 	user: pb.authStore.record?.id,
-			// 	startDateTime: start,
-			// 	endDateTime: end
-			// });
-			// if (result.id) {
-			// 	addToast('success', 'Added successfully!');
+			const response = await api.post('vacations', {
+				body: JSON.stringify({
+					startDateTime: start,
+					endDateTime: end
+				})
+			});
 
-			//  await tanstackClient.refetchQueries(vacationRefetchOptions());
-			// }
+			if (response.status === 201) {
+				addToast('success', 'Added successfully!');
+				await tanstackClient.refetchQueries(vacationRefetchOptions());
+			}
 		} catch (err) {
 			console.log(err);
 		}
 	}
 
 	async function deleteHandler(deleteId: string) {
-		if (!user.isSuccess) return;
-
 		try {
-			// const result = await pb.collection('vacation').delete(deleteId);
-			// if (result) {
-			// 	addToast('success', 'Deleted successfully!');
-			// 	 await tanstackClient.refetchQueries(vacationRefetchOptions());
-			// 	invalidateAll();
-			// }
+			const response = await api.delete(`vacations/${deleteId}`);
+			if (response.status === 204) {
+				addToast('success', 'Deleted successfully!');
+				await tanstackClient.refetchQueries(vacationRefetchOptions());
+				invalidateAll();
+			}
 		} catch (err) {
 			console.log(err);
 		}
@@ -95,14 +91,16 @@
 						</button>
 					</div>
 					<ul class="list-disc">
-						<!-- {#if vacations.isSuccess}
+						{#if vacations.isPending}
+							<span class="loading loading-spinner loading-md"></span>
+						{:else if vacations.isSuccess}
 							{#each vacations.data as v}
 								{@const dateTime = formatTime(v.startDateTime, v.endDateTime)}
 								<li class="ms-6 py-0.5">
 									{dateTime}
 								</li>
 							{/each}
-						{/if} -->
+						{/if}
 					</ul>
 				</div>
 
@@ -112,7 +110,7 @@
 					<input
 						type="date"
 						name="vacationStart"
-						class="input input-lg"
+						class="input input-lg w-full"
 						bind:value={vacationStart}
 					/>
 				</div>
@@ -120,7 +118,12 @@
 				<div class="border-b-base-300 border-b py-6 text-lg">
 					<legend class="fieldset-legend pb-4">End Date</legend>
 
-					<input type="date" name="vacationEnd" class="input input-lg" bind:value={vacationEnd} />
+					<input
+						type="date"
+						name="vacationEnd"
+						class="input input-lg w-full"
+						bind:value={vacationEnd}
+					/>
 				</div>
 			</div>
 		</div>
@@ -138,10 +141,10 @@
 
 		<h3 class="mb-4 text-lg font-bold uppercase">Recent Vacations</h3>
 		<ul class="list-disc">
-			<!-- {#if vacations.isSuccess}
+			{#if vacations.isSuccess}
 				{#each vacations.data as v}
 					{@const dateTime = formatTime(v.startDateTime, v.endDateTime)}
-					<li class="border-b-base-300 ms-6 border-b py-4">
+					<li class="not-last-of-type:border-b-base-300 ms-6 py-4 not-last-of-type:border-b">
 						<div class="flex items-center gap-4">
 							<div class="grow">{dateTime}</div>
 							<button
@@ -152,7 +155,7 @@
 						</div>
 					</li>
 				{/each}
-			{/if} -->
+			{/if}
 		</ul>
 	</div>
 </dialog>

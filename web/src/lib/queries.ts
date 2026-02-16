@@ -47,14 +47,16 @@ export async function createEntryQuery(options: {
 	interval: number | undefined;
 	intervalUnit: IntervalUnit | undefined;
 }) {
-	return await api.post(`trackers/${options.trackerId}/entries`, {
-		body: JSON.stringify({
-			trackerId: options.trackerId,
-			interval: options.interval,
-			intervalUnit: options.intervalUnit,
-			performedAt: dayjs.tz(new Date(), 'Asia/Singapore')
+	return await api
+		.post(`trackers/${options.trackerId}/entries`, {
+			body: JSON.stringify({
+				trackerId: options.trackerId,
+				interval: options.interval,
+				intervalUnit: options.intervalUnit,
+				performedAt: dayjs.tz(new Date(), 'Asia/Singapore')
+			})
 		})
-	}).json<EntryDB>();
+		.json<EntryDB>();
 }
 
 const familyQuery = createQueryFactory(['family'], async (): Promise<Family[]> => {
@@ -83,12 +85,9 @@ export const userQueryOptions = userQuery.options;
 export const userRefetchOptions = userQuery.refetch;
 export const getUserQueryKey = () => [...getRootKey(), 'users'];
 
-/*
 const vacationQuery = createQueryFactory(
 	['vacations'],
-	async (): Promise<VacationDB[]> =>
-		await pb.collection('vacation').getFullList({ sort: '-startDateTime' })
+	async (): Promise<VacationDB[]> => await api.get('vacations').json()
 );
 export const vacationQueryOptions = vacationQuery.options;
 export const vacationRefetchOptions = vacationQuery.refetch;
-*/

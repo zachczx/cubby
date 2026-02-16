@@ -23,7 +23,7 @@ func Create(db *sqlx.DB) {
 	log.Println("🚀 Starting schema creation...")
 
 	schema := []string{
-		// Users Table
+		// Users
 		`CREATE TABLE IF NOT EXISTS users (
 			id UUID PRIMARY KEY DEFAULT uuidv7(),
 			email TEXT UNIQUE NOT NULL,
@@ -34,7 +34,7 @@ func Create(db *sqlx.DB) {
 			updated_at TIMESTAMPTZ DEFAULT NOW()
 		);`,
 
-		// Families Table
+		// Families
 		`CREATE TABLE IF NOT EXISTS families (
 			id UUID PRIMARY KEY DEFAULT uuidv7(),
 			name TEXT NOT NULL,
@@ -52,7 +52,7 @@ func Create(db *sqlx.DB) {
 			UNIQUE(family_id, user_id)
 		);`,
 
-		// Trackers Table (Depends on users and families)
+		// Trackers
 		`CREATE TABLE IF NOT EXISTS trackers (
 			id UUID PRIMARY KEY DEFAULT uuidv7(),
 			owner_id UUID REFERENCES users(id) ON DELETE CASCADE,
@@ -73,7 +73,7 @@ func Create(db *sqlx.DB) {
 			updated_at TIMESTAMPTZ DEFAULT NOW()
 		);`,
 
-		// Invites Table (Depends on families and users)
+		// Invites
 		`CREATE TABLE IF NOT EXISTS invites (
 			id UUID PRIMARY KEY DEFAULT uuidv7(),
 			family_id UUID REFERENCES families(id) ON DELETE CASCADE,
@@ -85,7 +85,7 @@ func Create(db *sqlx.DB) {
 			updated_at TIMESTAMPTZ DEFAULT NOW()
 		);`,
 
-		// entries Table (Depends on trackers and users)
+		// entries
 		`CREATE TABLE IF NOT EXISTS entries (
 			id UUID PRIMARY KEY DEFAULT uuidv7(),
 			tracker_id UUID REFERENCES trackers(id) ON DELETE CASCADE,
@@ -96,6 +96,19 @@ func Create(db *sqlx.DB) {
 			remark TEXT,
 			created_at TIMESTAMPTZ DEFAULT NOW(),
 			updated_at TIMESTAMPTZ DEFAULT NOW()
+		);`,
+
+		// vacation
+		`CREATE TABLE IF NOT EXISTS vacations (
+			id UUID PRIMARY KEY DEFAULT uuidv7(),
+			family_id UUID NOT NULL REFERENCES families(id) ON DELETE CASCADE,
+			created_by UUID REFERENCES users(id) ON DELETE SET NULL,
+			start_date_time TIMESTAMPTZ NOT NULL,
+			end_date_time TIMESTAMPTZ NOT NULL,
+			label TEXT,
+			created_at TIMESTAMPTZ DEFAULT NOW(),
+			updated_at TIMESTAMPTZ DEFAULT NOW(),
+			CONSTRAINT valid_vacation_period CHECK (end_date_time > start_date_time)
 		);`,
 	}
 
