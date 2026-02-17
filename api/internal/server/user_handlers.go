@@ -210,3 +210,100 @@ func (s *Service) DeleteVacationHandler(w http.ResponseWriter, r *http.Request) 
 
 	w.WriteHeader(http.StatusNoContent)
 }
+
+func (s *Service) GetUsersFamiliesHandler(w http.ResponseWriter, r *http.Request) {
+	u := s.GetAuthenticatedUser(w, r)
+	if u == nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "not authenticated")
+		return
+	}
+
+	email := u.Emails[0].Email
+
+	userID, err := s.UserManager.GetInternalUserID(s.DB, email)
+	if err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	families, err := user.GetUsersFamilies(s.DB, userID)
+	if err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	response.WriteJSON(w, families)
+}
+
+func (s *Service) DeleteFamilyMemberHandler(w http.ResponseWriter, r *http.Request) {
+	f := r.PathValue("familyID")
+	familyID, err := uuid.Parse(f)
+	if err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	m := r.PathValue("memberID")
+	memberID, err := uuid.Parse(m)
+	if err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	u := s.GetAuthenticatedUser(w, r)
+	if u == nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "not authenticated")
+		return
+	}
+
+	email := u.Emails[0].Email
+
+	userID, err := s.UserManager.GetInternalUserID(s.DB, email)
+	if err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	if err := user.DeleteMember(s.DB, familyID, userID, memberID); err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (s *Service) CreateFamilyInviteHandler(w http.ResponseWriter, r *http.Request) {
+	u := s.GetAuthenticatedUser(w, r)
+	if u == nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "not authenticated")
+		return
+	}
+
+	email := u.Emails[0].Email
+
+	userID, err := s.UserManager.GetInternalUserID(s.DB, email)
+	if err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	ownedFamilyID, err := user.GetUserFamilyID(s.DB, userID)
+	if err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	var invite user.InviteRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&invite); err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	if err := user.CreateFamilyInvite(s.DB, ownedFamilyID, invite.InviteeEmail); err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+}

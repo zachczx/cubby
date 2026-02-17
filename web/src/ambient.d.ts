@@ -113,18 +113,25 @@ interface FamilyOwnerMember {
 	updated_at: string;
 }
 
-type InviteStatus = 'pending' | 'completed' | null;
-
 interface InviteDB {
 	id: string;
-	family: string;
-	code: string;
-	familyNameSnapshot: string;
-	ownerEmailSnapshot: string;
-	status?: InviteStatus;
-	created: string;
-	updated: string;
-	expand?: { family?: FamilyDB };
+	familyId: string;
+	inviteeId: string;
+	status: InviteStatus;
+	createdAt: string;
+	updatedAt: string;
+}
+
+type InviteStatus = 'pending' | 'accepted' | 'declined';
+
+interface InviteRequest {
+	familyId: string;
+	inviteeEmail: string;
+}
+
+interface InviteActionRequest {
+	inviteId: string;
+	status: InviteStatus;
 }
 
 type NotificationLevel = 'ok' | 'due' | 'overdue';

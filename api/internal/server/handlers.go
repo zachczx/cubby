@@ -13,7 +13,6 @@ import (
 	"github.com/stytchauth/stytch-go/v16/stytch/consumer/sessions"
 	"github.com/stytchauth/stytch-go/v16/stytch/consumer/users"
 	"github.com/zachczx/cubby/api/internal/response"
-	"github.com/zachczx/cubby/api/internal/user"
 
 	"github.com/google/uuid"
 )
@@ -258,65 +257,4 @@ func (s *Service) Logout(w http.ResponseWriter, r *http.Request) {
 		Expires: expire,
 		MaxAge:  -1,
 	})
-}
-
-func (s *Service) GetUsersFamiliesHandler(w http.ResponseWriter, r *http.Request) {
-	u := s.GetAuthenticatedUser(w, r)
-	if u == nil {
-		response.RespondWithError(w, http.StatusUnauthorized, "not authenticated")
-		return
-	}
-
-	email := u.Emails[0].Email
-
-	userID, err := s.UserManager.GetInternalUserID(s.DB, email)
-	if err != nil {
-		response.WriteError(w, err)
-		return
-	}
-
-	families, err := user.GetUsersFamilies(s.DB, userID)
-	if err != nil {
-		response.WriteError(w, err)
-		return
-	}
-
-	response.WriteJSON(w, families)
-}
-
-func (s *Service) DeleteFamilyMemberHandler(w http.ResponseWriter, r *http.Request) {
-	f := r.PathValue("familyID")
-	familyID, err := uuid.Parse(f)
-	if err != nil {
-		response.WriteError(w, err)
-		return
-	}
-
-	m := r.PathValue("memberID")
-	memberID, err := uuid.Parse(m)
-	if err != nil {
-		response.WriteError(w, err)
-		return
-	}
-
-	u := s.GetAuthenticatedUser(w, r)
-	if u == nil {
-		response.RespondWithError(w, http.StatusUnauthorized, "not authenticated")
-		return
-	}
-
-	email := u.Emails[0].Email
-
-	userID, err := s.UserManager.GetInternalUserID(s.DB, email)
-	if err != nil {
-		response.WriteError(w, err)
-		return
-	}
-
-	if err := user.DeleteMember(s.DB, familyID, userID, memberID); err != nil {
-		response.WriteError(w, err)
-		return
-	}
-
-	w.WriteHeader(http.StatusNoContent)
 }

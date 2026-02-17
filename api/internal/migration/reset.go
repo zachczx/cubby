@@ -73,18 +73,6 @@ func Create(db *sqlx.DB) {
 			updated_at TIMESTAMPTZ DEFAULT NOW()
 		);`,
 
-		// Invites
-		`CREATE TABLE IF NOT EXISTS invites (
-			id UUID PRIMARY KEY DEFAULT uuidv7(),
-			family_id UUID REFERENCES families(id) ON DELETE CASCADE,
-			invited_by_id UUID REFERENCES users(id) ON DELETE SET NULL,
-			email TEXT NOT NULL,
-			status TEXT DEFAULT 'pending',
-			family_name_snapshot TEXT,
-			created_at TIMESTAMPTZ DEFAULT NOW(),
-			updated_at TIMESTAMPTZ DEFAULT NOW()
-		);`,
-
 		// entries
 		`CREATE TABLE IF NOT EXISTS entries (
 			id UUID PRIMARY KEY DEFAULT uuidv7(),
@@ -109,6 +97,17 @@ func Create(db *sqlx.DB) {
 			created_at TIMESTAMPTZ DEFAULT NOW(),
 			updated_at TIMESTAMPTZ DEFAULT NOW(),
 			CONSTRAINT valid_vacation_period CHECK (end_date_time > start_date_time)
+		);`,
+
+		// Invites
+		`CREATE TABLE IF NOT EXISTS invites (
+			id UUID PRIMARY KEY DEFAULT uuidv7(),
+			family_id UUID NOT NULL REFERENCES families(id) ON DELETE CASCADE,
+			invitee_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+			status TEXT NOT NULL DEFAULT 'pending',
+			created_at TIMESTAMPTZ DEFAULT NOW(),
+			updated_at TIMESTAMPTZ DEFAULT NOW(),
+			UNIQUE(family_id, invitee_id)
 		);`,
 	}
 

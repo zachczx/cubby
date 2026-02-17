@@ -18,7 +18,7 @@
 	// const currentInvite = createQuery(inviteQueryOptions);
 	const tanstackClient = useQueryClient();
 
-	let invited = $state(false);
+	let invited = $state('');
 
 	let invitee = $state('');
 
@@ -45,22 +45,26 @@
 	async function handleInvite(family: Family) {
 		if (!family) return;
 
-		invited = true;
+		invited = 'pending';
 
-		const inviteResponse = await api.post(`families/${family.id}/invite`, {
-			body: JSON.stringify({
-				email: invitee
-			})
-		});
+		try {
+			const inviteResponse = await api.post(`families/invite`, {
+				body: JSON.stringify({
+					inviteeEmail: invitee
+				})
+			});
 
-		if (inviteResponse.status === 204) {
-			addToast('success', 'Invite sent!');
+			if (inviteResponse.status === 201) {
+				addToast('success', 'Invite sent!');
+				invited = 'success';
+				setTimeout(() => {
+					invited = '';
+				}, 3000);
+			}
+		} catch (err) {
+			invited = '';
+			addToast('error', 'Invite error!');
 		}
-
-		invitee = '';
-		setTimeout(() => {
-			invited = false;
-		}, 3000);
 	}
 
 	async function leaveFamily(family: Family) {
@@ -238,13 +242,15 @@
 									<button
 										class={[
 											'join-item btn btn-neutral btn-0 flex min-w-20 items-center gap-2 border-dashed shadow-none',
-											invited && 'btn-success'
+											invited === 'success' && 'btn-success'
 										]}
 									>
-										{#if !invited}
-											Invite
-										{:else}
+										{#if invited === 'success'}
 											<Icon icon="material-symbols:check" class="size-6" />
+										{:else if invited === 'pending'}
+											<span class="loading loading-sm loading-spinner"></span>
+										{:else}
+											Invite
 										{/if}
 									</button>
 								</form>
