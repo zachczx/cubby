@@ -5,17 +5,24 @@
 	import utc from 'dayjs/plugin/utc';
 	import timezone from 'dayjs/plugin/timezone';
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
-	import { userQueryOptions, familyQueryOptions, familyRefetchOptions } from '$lib/queries';
+	import {
+		userQueryOptions,
+		familyQueryOptions,
+		familyRefetchOptions,
+		inviteQueryOptions
+	} from '$lib/queries';
 	import Icon from '@iconify/svelte';
-	// import { resolve } from '$app/paths';
 	import { api } from '$lib/api';
+	import { resolve } from '$app/paths';
 
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
 
 	const user = createQuery(userQueryOptions);
 	const families = createQuery(familyQueryOptions);
-	// const currentInvite = createQuery(inviteQueryOptions);
+
+	$inspect(families.data);
+	const invites = createQuery(inviteQueryOptions);
 	const tanstackClient = useQueryClient();
 
 	let invited = $state('');
@@ -48,7 +55,7 @@
 		invited = 'pending';
 
 		try {
-			const inviteResponse = await api.post(`families/invite`, {
+			const inviteResponse = await api.post(`families/invites`, {
 				body: JSON.stringify({
 					inviteeEmail: invitee
 				})
@@ -107,14 +114,17 @@
 							onclick={() => {
 								section = family.id;
 							}}
-							class="w-full max-w-48 border-b-2 pb-1 text-center {section === family.id
-								? 'border-b-neutral text-neutral font-bold'
-								: 'text-base-content/80 border-b-transparent'}"
+							class={[
+								'w-full max-w-48 border-b-2 pb-1 text-center',
+								section === family.id
+									? 'border-b-neutral text-neutral font-bold'
+									: 'text-base-content/80 border-b-transparent'
+							]}
 						>
 							{#if family.isOwner}
 								My Cubby
 							{:else}
-								{family.owner.name}
+								{family.name}
 							{/if}
 						</button>
 					{/each}
@@ -135,20 +145,22 @@
 			{#each families.data as family (family.id)}
 				{@const numberOfMembers = family.members.length + 1}
 				{#if family.id === section}
-					<!-- {#if currentInvite.isSuccess && currentInvite.data && currentInvite.data.status !== 'completed'}
-						<section
-							class="border-base-300 bg-info text-info-content grid min-h-18 gap-4 rounded-2xl border p-4 text-lg font-semibold"
-						>
-							<a
-								href={resolve(`/app/profile/family/invite?i=${currentInvite.data.family}`)}
-								class="flex items-center gap-4"
-								><Icon icon="mdi:alert-circle" class="size-[2em]" />You received an invite <Icon
-									icon="material-symbols:arrow-right-alt"
-									class="-ms-3 size-[1.3em]"
-								/></a
+					{#if invites.isSuccess}
+						{#each invites.data as invite}
+							<section
+								class="border-base-300 bg-info text-info-content grid min-h-18 gap-4 rounded-2xl border p-4 text-lg font-semibold"
 							>
-						</section>
-					{/if} -->
+								<a
+									href={resolve(`/app/profile/family/invite/${invite.id}`)}
+									class="flex items-center gap-4"
+									><Icon icon="mdi:alert-circle" class="size-[2em]" />You received an invite <Icon
+										icon="material-symbols:arrow-right-alt"
+										class="-ms-3 size-[1.3em]"
+									/></a
+								>
+							</section>
+						{/each}
+					{/if}
 
 					<section class="border-base-300 grid min-h-18 gap-4 rounded-2xl border bg-white/70 p-4">
 						<h2 class="text-xl font-bold">Members ({numberOfMembers})</h2>

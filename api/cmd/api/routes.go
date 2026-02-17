@@ -26,7 +26,10 @@ func MakeHTTPHandlers(s *server.Service) http.Handler {
 	mux.Handle("PATCH /users/me/sound", s.RequireAuthentication(http.HandlerFunc(s.ToggleSoundHandler)))
 	mux.Handle("PATCH /users/me/task-lookahead", s.RequireAuthentication(http.HandlerFunc(s.ChangeTaskLookaheadDaysHandler)))
 
-	mux.Handle("POST /families/invite", s.RequireAuthentication(http.HandlerFunc(s.CreateFamilyInviteHandler)))
+	mux.Handle("GET /families/invites", s.RequireAuthentication(http.HandlerFunc(s.GetFamilyInvitesHandler)))
+	mux.Handle("GET /families/invites/{inviteID}", s.RequireAuthentication(http.HandlerFunc(s.GetFamilyInviteHandler)))
+	mux.Handle("POST /families/invites", s.RequireAuthentication(http.HandlerFunc(s.CreateFamilyInviteHandler)))
+	mux.Handle("POST /families/invites/{inviteID}/accept", s.RequireAuthentication(http.HandlerFunc(s.AcceptFamilyInviteHandler)))
 	mux.Handle("DELETE /families/{familyID}/{memberID}", s.RequireAuthentication(http.HandlerFunc(s.DeleteFamilyMemberHandler)))
 
 	mux.Handle("GET /vacations", s.RequireAuthentication(http.HandlerFunc(s.GetVacationsHandler)))

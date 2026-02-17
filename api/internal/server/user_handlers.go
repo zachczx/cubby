@@ -272,6 +272,91 @@ func (s *Service) DeleteFamilyMemberHandler(w http.ResponseWriter, r *http.Reque
 	w.WriteHeader(http.StatusNoContent)
 }
 
+func (s *Service) GetFamilyInvitesHandler(w http.ResponseWriter, r *http.Request) {
+	u := s.GetAuthenticatedUser(w, r)
+	if u == nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "not authenticated")
+		return
+	}
+
+	email := u.Emails[0].Email
+
+	userID, err := s.UserManager.GetInternalUserID(s.DB, email)
+	if err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	invites, err := user.GetFamilyInvites(s.DB, userID)
+	if err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	response.WriteJSON(w, invites)
+}
+
+func (s *Service) GetFamilyInviteHandler(w http.ResponseWriter, r *http.Request) {
+	iid := r.PathValue("inviteID")
+	inviteID, err := uuid.Parse(iid)
+	if err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	u := s.GetAuthenticatedUser(w, r)
+	if u == nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "not authenticated")
+		return
+	}
+
+	email := u.Emails[0].Email
+
+	userID, err := s.UserManager.GetInternalUserID(s.DB, email)
+	if err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	invite, err := user.GetFamilyInvite(s.DB, userID, inviteID)
+	if err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	response.WriteJSON(w, invite)
+}
+
+func (s *Service) AcceptFamilyInviteHandler(w http.ResponseWriter, r *http.Request) {
+	iid := r.PathValue("inviteID")
+	inviteID, err := uuid.Parse(iid)
+	if err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	u := s.GetAuthenticatedUser(w, r)
+	if u == nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "not authenticated")
+		return
+	}
+
+	email := u.Emails[0].Email
+
+	userID, err := s.UserManager.GetInternalUserID(s.DB, email)
+	if err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	if err := user.AcceptFamilyInvite(s.DB, userID, inviteID); err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func (s *Service) CreateFamilyInviteHandler(w http.ResponseWriter, r *http.Request) {
 	u := s.GetAuthenticatedUser(w, r)
 	if u == nil {

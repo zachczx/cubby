@@ -118,6 +118,7 @@ interface InviteDB {
 	familyId: string;
 	inviteeId: string;
 	status: InviteStatus;
+	familyName: string;
 	createdAt: string;
 	updatedAt: string;
 }

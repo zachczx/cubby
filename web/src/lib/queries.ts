@@ -65,19 +65,6 @@ const familyQuery = createQueryFactory(['family'], async (): Promise<Family[]> =
 export const familyQueryOptions = familyQuery.options;
 export const familyRefetchOptions = familyQuery.refetch;
 
-/*
-const inviteQuery = createQueryFactory(['invite'], async (): Promise<InviteDB> => {
-	const res: InviteDB = await pb
-		.collection('invites')
-		.getFirstListItem(`userEmail="${pb.authStore.record?.email}" && status="pending"`, {
-			expand: 'family'
-		});
-	return res ?? null;
-});
-export const inviteQueryOptions = inviteQuery.options;
-export const inviteRefetchOptions = inviteQuery.refetch;
-*/
-
 const userQuery = createQueryFactory(['users'], async (): Promise<UserDB> => {
 	return await api.get('users').json<UserDB>();
 });
@@ -91,3 +78,22 @@ const vacationQuery = createQueryFactory(
 );
 export const vacationQueryOptions = vacationQuery.options;
 export const vacationRefetchOptions = vacationQuery.refetch;
+
+const inviteQuery = createQueryFactory(['invites'], async (): Promise<InviteDB[]> => {
+	return await api.get('families/invites').json();
+});
+export const inviteQueryOptions = inviteQuery.options;
+export const inviteRefetchOptions = inviteQuery.refetch;
+
+// Doing this instead of adjusting the factory, since this requires 1 param
+export const singleInviteQueryOptions = (inviteId: string) => () =>
+	queryOptions<InviteDB>({
+		queryKey: [...rootKey, 'invites', inviteId],
+		queryFn: async () => await api.get(`families/invites/${inviteId}`).json(),
+		staleTime: staleTime
+	});
+
+export const singleInviteRefetchOptions = (inviteId: string): RefetchQueryFilters => ({
+	queryKey: [...rootKey, 'invites', inviteId],
+	exact: true
+});
