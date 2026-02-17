@@ -392,3 +392,33 @@ func (s *Service) CreateFamilyInviteHandler(w http.ResponseWriter, r *http.Reque
 
 	w.WriteHeader(http.StatusCreated)
 }
+
+func (s *Service) LeaveFamilyHandler(w http.ResponseWriter, r *http.Request) {
+	fid := r.PathValue("familyID")
+	familyID, err := uuid.Parse(fid)
+	if err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	u := s.GetAuthenticatedUser(w, r)
+	if u == nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "not authenticated")
+		return
+	}
+
+	email := u.Emails[0].Email
+
+	userID, err := s.UserManager.GetInternalUserID(s.DB, email)
+	if err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	if err := user.LeaveFamily(s.DB, familyID, userID); err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
