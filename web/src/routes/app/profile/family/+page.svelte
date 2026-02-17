@@ -14,6 +14,7 @@
 	import Icon from '@iconify/svelte';
 	import { api } from '$lib/api';
 	import { resolve } from '$app/paths';
+	import { goto } from '$app/navigation';
 
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
@@ -78,14 +79,13 @@
 		if (!family) return;
 
 		try {
-			// const result = await pb.collection('families').update(family.id, {
-			// 	'members-': userId
-			// });
-			// if (result) {
-			// 	addToast('success', 'Successfully left family!');
-			// 	await tanstackClient.refetchQueries(familyRefetchOptions());
-			// 	goto(resolve('/app/profile/family'));
-			// }
+			const response = await api.post(`families/${family.id}/leave`);
+
+			if (response.status === 204) {
+				addToast('success', 'Successfully left family!');
+				await tanstackClient.refetchQueries(familyRefetchOptions());
+				goto(resolve('/app/profile/family'));
+			}
 		} catch (err) {
 			console.log(err);
 		}

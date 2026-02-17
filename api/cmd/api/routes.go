@@ -29,6 +29,7 @@ func MakeHTTPHandlers(s *server.Service) http.Handler {
 	mux.Handle("GET /families/invites", s.RequireAuthentication(http.HandlerFunc(s.GetFamilyInvitesHandler)))
 	mux.Handle("GET /families/invites/{inviteID}", s.RequireAuthentication(http.HandlerFunc(s.GetFamilyInviteHandler)))
 	mux.Handle("POST /families/invites", s.RequireAuthentication(http.HandlerFunc(s.CreateFamilyInviteHandler)))
+	mux.Handle("POST /families/{familyID}/leave", s.RequireAuthentication(http.HandlerFunc(s.LeaveFamilyHandler)))
 	mux.Handle("POST /families/invites/{inviteID}/accept", s.RequireAuthentication(http.HandlerFunc(s.AcceptFamilyInviteHandler)))
 	mux.Handle("DELETE /families/{familyID}/{memberID}", s.RequireAuthentication(http.HandlerFunc(s.DeleteFamilyMemberHandler)))
 

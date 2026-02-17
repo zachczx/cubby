@@ -196,3 +196,13 @@ func DeleteMember(db *sqlx.DB, familyID uuid.UUID, ownerID uuid.UUID, memberID u
 
 	return nil
 }
+
+func LeaveFamily(db *sqlx.DB, familyID uuid.UUID, memberID uuid.UUID) error {
+	q := `DELETE FROM families_users WHERE family_id = $1 AND user_id = $2`
+
+	if _, err := db.Exec(q, familyID, memberID); err != nil {
+		return fmt.Errorf("leave family: %w", err)
+	}
+
+	return nil
+}
