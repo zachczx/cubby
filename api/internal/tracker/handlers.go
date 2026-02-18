@@ -54,12 +54,9 @@ func CreateHandler(s *server.Service, db *sqlx.DB) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var err error
 
-		u := s.GetAuthenticatedUser(w, r)
-		email := u.Emails[0].Email
-
-		userID, err := s.UserManager.GetInternalUserID(db, email)
+		userID, err := s.GetUserIDFromContext(r.Context())
 		if err != nil {
-			response.WriteError(w, err)
+			response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
 			return
 		}
 
@@ -84,16 +81,6 @@ func CreateHandler(s *server.Service, db *sqlx.DB) http.Handler {
 			}
 			startDate = &sd
 		}
-
-		// var cost *float64
-		// if input.Cost != "" {
-		// 	c, err := strconv.ParseFloat(input.Cost, 64)
-		// 	if err != nil {
-		// 		response.RespondWithError(w, http.StatusBadRequest, "Invalid cost format")
-		// 		return
-		// 	}
-		// 	cost = &c
-		// }
 
 		t := Tracker{
 			Owner:        userID,
@@ -126,12 +113,9 @@ func EditHandler(s *server.Service, db *sqlx.DB) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var err error
 
-		u := s.GetAuthenticatedUser(w, r)
-		email := u.Emails[0].Email
-
-		userID, err := s.UserManager.GetInternalUserID(db, email)
+		userID, err := s.GetUserIDFromContext(r.Context())
 		if err != nil {
-			response.WriteError(w, err)
+			response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
 			return
 		}
 
@@ -157,16 +141,6 @@ func EditHandler(s *server.Service, db *sqlx.DB) http.Handler {
 			}
 			startDate = &sd
 		}
-
-		// var cost *float64
-		// if input.Cost != "" {
-		// 	c, err := strconv.ParseFloat(input.Cost, 64)
-		// 	if err != nil {
-		// 		response.RespondWithError(w, http.StatusBadRequest, "Invalid cost format")
-		// 		return
-		// 	}
-		// 	cost = &c
-		// }
 
 		t := Tracker{
 			ID:           trackerID,
@@ -203,12 +177,9 @@ func DeleteHandler(s *server.Service, db *sqlx.DB) http.Handler {
 			return
 		}
 
-		u := s.GetAuthenticatedUser(w, r)
-		email := u.Emails[0].Email
-
-		userID, err := s.UserManager.GetInternalUserID(db, email)
+		userID, err := s.GetUserIDFromContext(r.Context())
 		if err != nil {
-			response.WriteError(w, err)
+			response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
 			return
 		}
 
@@ -230,12 +201,9 @@ func GetHandler(s *server.Service, db *sqlx.DB) http.Handler {
 			return
 		}
 
-		u := s.GetAuthenticatedUser(w, r)
-		email := u.Emails[0].Email
-
-		userID, err := s.UserManager.GetInternalUserID(db, email)
+		userID, err := s.GetUserIDFromContext(r.Context())
 		if err != nil {
-			response.WriteError(w, err)
+			response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
 			return
 		}
 
@@ -251,12 +219,9 @@ func GetHandler(s *server.Service, db *sqlx.DB) http.Handler {
 
 func GetAllHandler(s *server.Service, db *sqlx.DB) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		u := s.GetAuthenticatedUser(w, r)
-		email := u.Emails[0].Email
-
-		userID, err := s.UserManager.GetInternalUserID(db, email)
+		userID, err := s.GetUserIDFromContext(r.Context())
 		if err != nil {
-			response.WriteError(w, err)
+			response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
 			return
 		}
 

@@ -62,7 +62,7 @@ func CreateHandler(s *server.Service, db *sqlx.DB) http.Handler {
 
 		userID, err := s.GetUserIDFromContext(r.Context())
 		if err != nil {
-			response.WriteError(w, err)
+			response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
 			return
 		}
 
@@ -89,7 +89,7 @@ func GetAllHandler(s *server.Service, db *sqlx.DB) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		userID, err := s.GetUserIDFromContext(r.Context())
 		if err != nil {
-			response.WriteError(w, err)
+			response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
 			return
 		}
 
@@ -107,7 +107,7 @@ func DeleteHandler(s *server.Service, db *sqlx.DB) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		userID, err := s.GetUserIDFromContext(r.Context())
 		if err != nil {
-			response.WriteError(w, err)
+			response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
 			return
 		}
 
@@ -131,7 +131,7 @@ func EditHandler(s *server.Service, db *sqlx.DB) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		userID, err := s.GetUserIDFromContext(r.Context())
 		if err != nil {
-			response.WriteError(w, err)
+			response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
 			return
 		}
 

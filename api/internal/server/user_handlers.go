@@ -15,12 +15,9 @@ func GetUsersFamiliesHandler(s *Service, db *sqlx.DB) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var err error
 
-		u := s.GetAuthenticatedUser(w, r)
-		email := u.Emails[0].Email
-
-		userID, err := s.UserManager.GetInternalUserID(db, email)
+		userID, err := s.GetUserIDFromContext(r.Context())
 		if err != nil {
-			response.WriteError(w, err)
+			response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
 			return
 		}
 
@@ -39,17 +36,9 @@ type TaskDays struct {
 }
 
 func (s *Service) ChangeTaskLookaheadDaysHandler(w http.ResponseWriter, r *http.Request) {
-	u := s.GetAuthenticatedUser(w, r)
-	if u == nil {
-		response.RespondWithError(w, http.StatusUnauthorized, "not authenticated")
-		return
-	}
-
-	email := u.Emails[0].Email
-
-	userID, err := s.UserManager.GetInternalUserID(s.DB, email)
+	userID, err := s.GetUserIDFromContext(r.Context())
 	if err != nil {
-		response.WriteError(w, err)
+		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}
 
@@ -73,17 +62,9 @@ type SoundInput struct {
 }
 
 func (s *Service) ToggleSoundHandler(w http.ResponseWriter, r *http.Request) {
-	u := s.GetAuthenticatedUser(w, r)
-	if u == nil {
-		response.RespondWithError(w, http.StatusUnauthorized, "not authenticated")
-		return
-	}
-
-	email := u.Emails[0].Email
-
-	userID, err := s.UserManager.GetInternalUserID(s.DB, email)
+	userID, err := s.GetUserIDFromContext(r.Context())
 	if err != nil {
-		response.WriteError(w, err)
+		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}
 
@@ -103,17 +84,9 @@ func (s *Service) ToggleSoundHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Service) CreateVacationHandler(w http.ResponseWriter, r *http.Request) {
-	u := s.GetAuthenticatedUser(w, r)
-	if u == nil {
-		response.RespondWithError(w, http.StatusUnauthorized, "not authenticated")
-		return
-	}
-
-	email := u.Emails[0].Email
-
-	userID, err := s.UserManager.GetInternalUserID(s.DB, email)
+	userID, err := s.GetUserIDFromContext(r.Context())
 	if err != nil {
-		response.WriteError(w, err)
+		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}
 
@@ -152,17 +125,9 @@ func validateVacationInputDateTimes(input user.VacationRequest) error {
 }
 
 func (s *Service) GetVacationsHandler(w http.ResponseWriter, r *http.Request) {
-	u := s.GetAuthenticatedUser(w, r)
-	if u == nil {
-		response.RespondWithError(w, http.StatusUnauthorized, "not authenticated")
-		return
-	}
-
-	email := u.Emails[0].Email
-
-	userID, err := s.UserManager.GetInternalUserID(s.DB, email)
+	userID, err := s.GetUserIDFromContext(r.Context())
 	if err != nil {
-		response.WriteError(w, err)
+		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}
 
@@ -189,17 +154,9 @@ func (s *Service) DeleteVacationHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	u := s.GetAuthenticatedUser(w, r)
-	if u == nil {
-		response.RespondWithError(w, http.StatusUnauthorized, "not authenticated")
-		return
-	}
-
-	email := u.Emails[0].Email
-
-	userID, err := s.UserManager.GetInternalUserID(s.DB, email)
+	userID, err := s.GetUserIDFromContext(r.Context())
 	if err != nil {
-		response.WriteError(w, err)
+		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}
 
@@ -212,17 +169,9 @@ func (s *Service) DeleteVacationHandler(w http.ResponseWriter, r *http.Request) 
 }
 
 func (s *Service) GetUsersFamiliesHandler(w http.ResponseWriter, r *http.Request) {
-	u := s.GetAuthenticatedUser(w, r)
-	if u == nil {
-		response.RespondWithError(w, http.StatusUnauthorized, "not authenticated")
-		return
-	}
-
-	email := u.Emails[0].Email
-
-	userID, err := s.UserManager.GetInternalUserID(s.DB, email)
+	userID, err := s.GetUserIDFromContext(r.Context())
 	if err != nil {
-		response.WriteError(w, err)
+		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}
 
@@ -250,17 +199,9 @@ func (s *Service) DeleteFamilyMemberHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	u := s.GetAuthenticatedUser(w, r)
-	if u == nil {
-		response.RespondWithError(w, http.StatusUnauthorized, "not authenticated")
-		return
-	}
-
-	email := u.Emails[0].Email
-
-	userID, err := s.UserManager.GetInternalUserID(s.DB, email)
+	userID, err := s.GetUserIDFromContext(r.Context())
 	if err != nil {
-		response.WriteError(w, err)
+		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}
 
@@ -273,17 +214,9 @@ func (s *Service) DeleteFamilyMemberHandler(w http.ResponseWriter, r *http.Reque
 }
 
 func (s *Service) GetFamilyInvitesHandler(w http.ResponseWriter, r *http.Request) {
-	u := s.GetAuthenticatedUser(w, r)
-	if u == nil {
-		response.RespondWithError(w, http.StatusUnauthorized, "not authenticated")
-		return
-	}
-
-	email := u.Emails[0].Email
-
-	userID, err := s.UserManager.GetInternalUserID(s.DB, email)
+	userID, err := s.GetUserIDFromContext(r.Context())
 	if err != nil {
-		response.WriteError(w, err)
+		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}
 
@@ -304,17 +237,9 @@ func (s *Service) GetFamilyInviteHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	u := s.GetAuthenticatedUser(w, r)
-	if u == nil {
-		response.RespondWithError(w, http.StatusUnauthorized, "not authenticated")
-		return
-	}
-
-	email := u.Emails[0].Email
-
-	userID, err := s.UserManager.GetInternalUserID(s.DB, email)
+	userID, err := s.GetUserIDFromContext(r.Context())
 	if err != nil {
-		response.WriteError(w, err)
+		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}
 
@@ -335,17 +260,9 @@ func (s *Service) AcceptFamilyInviteHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	u := s.GetAuthenticatedUser(w, r)
-	if u == nil {
-		response.RespondWithError(w, http.StatusUnauthorized, "not authenticated")
-		return
-	}
-
-	email := u.Emails[0].Email
-
-	userID, err := s.UserManager.GetInternalUserID(s.DB, email)
+	userID, err := s.GetUserIDFromContext(r.Context())
 	if err != nil {
-		response.WriteError(w, err)
+		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}
 
@@ -358,17 +275,9 @@ func (s *Service) AcceptFamilyInviteHandler(w http.ResponseWriter, r *http.Reque
 }
 
 func (s *Service) CreateFamilyInviteHandler(w http.ResponseWriter, r *http.Request) {
-	u := s.GetAuthenticatedUser(w, r)
-	if u == nil {
-		response.RespondWithError(w, http.StatusUnauthorized, "not authenticated")
-		return
-	}
-
-	email := u.Emails[0].Email
-
-	userID, err := s.UserManager.GetInternalUserID(s.DB, email)
+	userID, err := s.GetUserIDFromContext(r.Context())
 	if err != nil {
-		response.WriteError(w, err)
+		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}
 
@@ -401,17 +310,9 @@ func (s *Service) LeaveFamilyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	u := s.GetAuthenticatedUser(w, r)
-	if u == nil {
-		response.RespondWithError(w, http.StatusUnauthorized, "not authenticated")
-		return
-	}
-
-	email := u.Emails[0].Email
-
-	userID, err := s.UserManager.GetInternalUserID(s.DB, email)
+	userID, err := s.GetUserIDFromContext(r.Context())
 	if err != nil {
-		response.WriteError(w, err)
+		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}
 
