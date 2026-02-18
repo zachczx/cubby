@@ -20,7 +20,7 @@ func MakeHTTPHandlers(s *server.Service) http.Handler {
 	mux.HandleFunc("/authenticate", s.AuthenticateHandler)
 	mux.Handle("GET /logout", http.HandlerFunc(s.Logout))
 
-	mux.HandleFunc("/check", s.CheckHandler)
+	mux.HandleFunc("GET /check", s.CheckHandler)
 	mux.HandleFunc("GET /users", s.GetUserHandler)
 	mux.Handle("GET /users/me/families", s.RequireAuthentication(http.HandlerFunc(s.GetUsersFamiliesHandler)))
 	mux.Handle("PATCH /users/me/sound", s.RequireAuthentication(http.HandlerFunc(s.ToggleSoundHandler)))
