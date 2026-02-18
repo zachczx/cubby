@@ -145,3 +145,13 @@ func AcceptFamilyInvite(db *sqlx.DB, userID uuid.UUID, inviteID uuid.UUID) error
 
 	return nil
 }
+
+func DeclineFamilyInvite(db *sqlx.DB, userID uuid.UUID, inviteID uuid.UUID) error {
+	q := `UPDATE invites SET status = $1 WHERE invitee_id = $2 AND id = $3`
+
+	if _, err := db.Exec(q, StatusDeclined, userID, inviteID); err != nil {
+		return fmt.Errorf("update invites: %w", err)
+	}
+
+	return nil
+}

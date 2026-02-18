@@ -274,6 +274,28 @@ func (s *Service) AcceptFamilyInviteHandler(w http.ResponseWriter, r *http.Reque
 	w.WriteHeader(http.StatusNoContent)
 }
 
+func (s *Service) DeclineFamilyInviteHandler(w http.ResponseWriter, r *http.Request) {
+	iid := r.PathValue("inviteID")
+	inviteID, err := uuid.Parse(iid)
+	if err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	userID, err := s.GetUserIDFromContext(r.Context())
+	if err != nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	if err := user.DeclineFamilyInvite(s.DB, userID, inviteID); err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func (s *Service) CreateFamilyInviteHandler(w http.ResponseWriter, r *http.Request) {
 	userID, err := s.GetUserIDFromContext(r.Context())
 	if err != nil {

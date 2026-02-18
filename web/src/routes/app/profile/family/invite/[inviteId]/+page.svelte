@@ -27,6 +27,20 @@
 			addToast('error', 'Error joining family!');
 		}
 	}
+
+	async function declineJoinFamily() {
+		try {
+			const response = await api.post(`families/invites/${data.inviteId}/decline`);
+
+			await tanstackClient.refetchQueries(singleInviteRefetchOptions(data.inviteId));
+
+			if (response.status === 204) {
+				goto(resolve('/app/profile/family'));
+			}
+		} catch (err) {
+			addToast('error', 'Error declining invite!');
+		}
+	}
 </script>
 
 <PageWrapper title="Join Family" largeScreenCenter={true}>
@@ -35,6 +49,9 @@
 
 <dialog class="modal modal-bottom sm:modal-middle modal-open">
 	<div class="modal-box grid gap-8">
+		<form method="dialog">
+			<button class="btn btn-sm btn-circle btn-ghost absolute top-2 right-2">✕</button>
+		</form>
 		<div class="grid gap-4">
 			<div
 				class="bg-primary/10 text-primary flex aspect-square size-20 items-center justify-center justify-self-center overflow-hidden rounded-full"
@@ -67,18 +84,12 @@
 					confirmJoinFamily();
 				}}>Accept Invite</button
 			>
-			<form method="dialog" class="">
-				<button class="btn btn-outline btn-primary btn-lg w-full">Cancel</button>
-			</form>
+			<button
+				class="btn btn-outline btn-neutral btn-lg w-full"
+				onclick={() => {
+					declineJoinFamily();
+				}}>Decline</button
+			>
 		</div>
-		<!-- {:else}
-			<div class="text-error grid content-center justify-items-center gap-2 text-lg font-bold">
-				<Icon icon="material-symbols:warning" class="size-12" />
-				{#if !destinationFamilyId}
-					You're not joining a valid family!
-				{:else}
-					Something went wrong!
-				{/if}
-			</div> -->
 	</div>
 </dialog>
