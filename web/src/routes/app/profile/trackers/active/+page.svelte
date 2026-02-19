@@ -68,10 +68,8 @@
 	});
 </script>
 
-<PageWrapper title="Active Trackers" largeScreenCenter={true}>
-	<div
-		class="lg:bg-base-200 grid w-full rounded-2xl lg:h-min lg:max-w-lg lg:justify-self-center lg:p-8 lg:shadow-md"
-	>
+<PageWrapper title="Active Trackers">
+	<div class="grid w-full rounded-2xl lg:h-min lg:max-w-lg lg:justify-self-center">
 		<h1 class="text-primary mb-4 text-center text-4xl font-bold max-lg:hidden">Active Trackers</h1>
 
 		<div class="grid gap-8">

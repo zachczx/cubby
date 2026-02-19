@@ -43,7 +43,7 @@
 	}
 </script>
 
-<PageWrapper title="Join Family" largeScreenCenter={true}>
+<PageWrapper title="Join Family">
 	<span></span>
 </PageWrapper>
 

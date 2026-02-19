@@ -51,9 +51,9 @@
 	}
 </script>
 
-<PageWrapper title="New Tracker" largeScreenCenter={true} focusedScreen={true}>
+<PageWrapper title="New Tracker" focusedScreen={true}>
 	<div
-		class="lg:bg-base-200 grid w-full rounded-2xl lg:h-min lg:max-w-lg lg:justify-self-center lg:p-8 lg:shadow-md"
+		class="grid w-full rounded-2xl lg:h-min lg:max-w-lg lg:justify-self-center lg:bg-white/70 lg:p-8 lg:shadow-md"
 	>
 		<h1 class="text-primary mb-4 text-center text-4xl font-bold max-lg:hidden">Add Tracker</h1>
 

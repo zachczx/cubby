@@ -29,8 +29,8 @@
 	$inspect(trackers);
 </script>
 
-<PageWrapper title="Edit Tracker" largeScreenCenter={true}>
-	<div class="grid w-full rounded-2xl lg:h-min lg:max-w-lg lg:justify-self-center lg:p-8">
+<PageWrapper title="Edit Tracker">
+	<div class="grid w-full rounded-2xl lg:h-min lg:max-w-lg lg:justify-self-center">
 		<h1 class="text-primary mb-4 text-center text-4xl font-bold max-lg:hidden">Edit Trackers</h1>
 
 		<div class="grid gap-8">

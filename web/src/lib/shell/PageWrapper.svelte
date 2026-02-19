@@ -8,13 +8,11 @@
 		children,
 		title,
 		back = true,
-		largeScreenCenter,
 		focusedScreen = false
 	}: {
 		children: Snippet;
 		title: string | undefined;
 		back?: boolean;
-		largeScreenCenter?: boolean;
 		focusedScreen?: boolean;
 		focusedScreenAction?: Snippet;
 	} = $props();
@@ -123,8 +121,7 @@
 	<div
 		class={[
 			'bg-base-100 max-lg:min-h-[calc(100vh - 3.5rem - 6rem)] lg:min-h-[calc(100vh - 3.5rem - 1rem)] w-full p-4 max-lg:pb-24 lg:grid lg:px-12 ',
-			'mt-14 lg:pt-12',
-			largeScreenCenter && 'lg:content-center'
+			'mt-14 lg:pt-16'
 		]}
 		style="view-transition-name: content;"
 	>
