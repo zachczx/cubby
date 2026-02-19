@@ -6,6 +6,7 @@
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
+	import { api } from '$lib/api';
 
 	dayjs.extend(relativeTime);
 
@@ -21,16 +22,19 @@
 		});
 	}
 
-	async function checkHandler(tracker: TrackerDB) {
+	async function visibilityHandler(tracker: TrackerDB) {
 		const newValue = !tracker.show;
 		updateLocalCache(tracker.id, { show: newValue });
 
 		try {
-			await pb.collection('trackers').update(tracker.id, { show: newValue });
-
-			addToast('success', 'Saved!');
-		} catch {
-			addToast('error', 'Error toggling filter!');
+			await api.patch(`trackers/${tracker.id}/show`, {
+				body: JSON.stringify({
+					show: newValue
+				})
+			});
+		} catch (err) {
+			console.error(err);
+			addToast('error', 'Error toggling pin!');
 		}
 	}
 
@@ -39,15 +43,14 @@
 		updateLocalCache(tracker.id, { pinned: newValue });
 
 		try {
-			await pb.collection('trackers').update(tracker.id, { pinned: newValue });
-			console.log('finished');
-			if (newValue) {
-				addToast('success', 'Pinned!');
-			} else {
-				addToast('success', 'Unpinned!');
-			}
-		} catch {
-			addToast('error', 'Error toggling filter!');
+			await api.patch(`trackers/${tracker.id}/pinned`, {
+				body: JSON.stringify({
+					pinned: newValue
+				})
+			});
+		} catch (err) {
+			console.error(err);
+			addToast('error', 'Error toggling pin!');
 		}
 	}
 
@@ -57,11 +60,11 @@
 		let trackers: Record<string, TrackerDB[]> = {};
 
 		for (const t of trackersDb.data) {
-			if (!trackers[t.family]) {
-				trackers[t.family] = [];
+			if (!trackers[t.familyId]) {
+				trackers[t.familyId] = [];
 			}
 
-			trackers[t.family].push(t);
+			trackers[t.familyId].push(t);
 		}
 
 		return trackers;
@@ -72,23 +75,29 @@
 	<div class="grid w-full rounded-2xl lg:h-min lg:max-w-lg lg:justify-self-center">
 		<h1 class="text-primary mb-4 text-center text-4xl font-bold max-lg:hidden">Active Trackers</h1>
 
-		<div class="grid gap-8">
-			{#each Object.values(trackers) as trackerList}
-				<section
-					class="border-base-300 grid min-h-18 content-start rounded-2xl border bg-white/70 p-6"
-				>
-					{#if trackerList && trackerList.length > 0}
-						<h2 class="flex items-center gap-4 text-xl font-bold">
-							{trackerList[0].expand?.family?.name}
-						</h2>
-					{/if}
+		{#if trackersDb.isPending}
+			<div class="grid min-h-32 content-center justify-center">
+				<span class="loading loading-md loading-spinner"></span>
+			</div>
+		{:else}
+			<div class="grid gap-8">
+				{#each Object.values(trackers) as trackerList}
+					<section
+						class="border-base-300 grid min-h-18 content-start rounded-2xl border bg-white/70 p-6"
+					>
+						{#if trackerList && trackerList.length > 0}
+							<h2 class="flex items-center gap-4 text-xl font-bold">
+								{trackerList[0].familyName}
+							</h2>
+						{/if}
 
-					{#each trackerList as tracker (tracker.id)}
-						{@render menuItem(tracker)}
-					{/each}
-				</section>
-			{/each}
-		</div>
+						{#each trackerList as tracker (tracker.id)}
+							{@render menuItem(tracker)}
+						{/each}
+					</section>
+				{/each}
+			</div>
+		{/if}
 	</div>
 </PageWrapper>
 <Icon icon="material-symbols:filter-list" class="size-6" />
@@ -122,7 +131,7 @@
 				type="checkbox"
 				class="peer hidden"
 				checked={tracker.show}
-				onchange={() => checkHandler(tracker)}
+				onchange={() => visibilityHandler(tracker)}
 			/>
 			<div
 				class="hover:bg-neutral/20 active:bg-neutral/20 hidden rounded-lg p-2 peer-checked:block"

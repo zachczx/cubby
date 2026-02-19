@@ -99,3 +99,27 @@ func GetAll(db *sqlx.DB, userID uuid.UUID) ([]Tracker, error) {
 
 	return t, nil
 }
+
+func TogglePin(db *sqlx.DB, userID uuid.UUID, trackerID uuid.UUID, isPinned bool) error {
+	q := `UPDATE trackers 
+			SET pinned = $1
+			WHERE id = $2 AND owner_id = $3`
+
+	if _, err := db.Exec(q, isPinned, trackerID, userID); err != nil {
+		return fmt.Errorf("toggle pin: %w", err)
+	}
+
+	return nil
+}
+
+func ToggleShow(db *sqlx.DB, userID uuid.UUID, trackerID uuid.UUID, show bool) error {
+	q := `UPDATE trackers 
+			SET show = $1
+			WHERE id = $2 AND owner_id = $3`
+
+	if _, err := db.Exec(q, show, trackerID, userID); err != nil {
+		return fmt.Errorf("toggle pin: %w", err)
+	}
+
+	return nil
+}

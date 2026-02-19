@@ -25,31 +25,35 @@
 
 		return trackers;
 	});
-
-	$inspect(trackers);
 </script>
 
 <PageWrapper title="Edit Tracker">
 	<div class="grid w-full rounded-2xl lg:h-min lg:max-w-lg lg:justify-self-center">
 		<h1 class="text-primary mb-4 text-center text-4xl font-bold max-lg:hidden">Edit Trackers</h1>
 
-		<div class="grid gap-8">
-			{#each Object.values(trackers) as trackerList}
-				<section
-					class="border-base-300 grid min-h-18 content-start rounded-2xl border bg-white/70 p-6"
-				>
-					{#if trackerList && trackerList.length > 0}
-						<h2 class="mb-2 flex items-center gap-4 text-xl font-bold">
-							{trackerList[0].familyName}
-						</h2>
-					{/if}
+		{#if trackersDb.isPending}
+			<div class="grid min-h-32 content-center justify-center">
+				<span class="loading loading-md loading-spinner"></span>
+			</div>
+		{:else}
+			<div class="grid gap-8">
+				{#each Object.values(trackers) as trackerList}
+					<section
+						class="border-base-300 grid min-h-18 content-start rounded-2xl border bg-white/70 p-6"
+					>
+						{#if trackerList && trackerList.length > 0}
+							<h2 class="mb-2 flex items-center gap-4 text-xl font-bold">
+								{trackerList[0].familyName}
+							</h2>
+						{/if}
 
-					{#each trackerList as tracker (tracker.id)}
-						{@render menuItem(tracker)}
-					{/each}
-				</section>
-			{/each}
-		</div>
+						{#each trackerList as tracker (tracker.id)}
+							{@render menuItem(tracker)}
+						{/each}
+					</section>
+				{/each}
+			</div>
+		{/if}
 	</div>
 </PageWrapper>
 <Icon icon="material-symbols:filter-list" class="size-6" />

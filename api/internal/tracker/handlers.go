@@ -234,3 +234,70 @@ func GetAllHandler(s *server.Service, db *sqlx.DB) http.Handler {
 		response.WriteJSON(w, tracker)
 	})
 }
+
+type TrackerToggle struct {
+	Pinned bool `json:"pinned" db:"pinned"`
+	Show   bool `json:"show" db:"show"`
+}
+
+func TogglePinHandler(s *server.Service, db *sqlx.DB) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		t := r.PathValue("trackerID")
+		trackerID, err := uuid.Parse(t)
+		if err != nil {
+			response.WriteError(w, err)
+			return
+		}
+
+		userID, err := s.GetUserIDFromContext(r.Context())
+		if err != nil {
+			response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
+			return
+		}
+
+		var toggle TrackerToggle
+
+		if err := json.NewDecoder(r.Body).Decode(&toggle); err != nil {
+			response.WriteError(w, err)
+			return
+		}
+
+		if err := TogglePin(db, userID, trackerID, toggle.Pinned); err != nil {
+			response.WriteError(w, err)
+			return
+		}
+
+		w.WriteHeader(http.StatusNoContent)
+	})
+}
+
+func ToggleShowHandler(s *server.Service, db *sqlx.DB) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		t := r.PathValue("trackerID")
+		trackerID, err := uuid.Parse(t)
+		if err != nil {
+			response.WriteError(w, err)
+			return
+		}
+
+		userID, err := s.GetUserIDFromContext(r.Context())
+		if err != nil {
+			response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
+			return
+		}
+
+		var toggle TrackerToggle
+
+		if err := json.NewDecoder(r.Body).Decode(&toggle); err != nil {
+			response.WriteError(w, err)
+			return
+		}
+
+		if err := ToggleShow(db, userID, trackerID, toggle.Show); err != nil {
+			response.WriteError(w, err)
+			return
+		}
+
+		w.WriteHeader(http.StatusNoContent)
+	})
+}

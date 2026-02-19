@@ -44,6 +44,8 @@ func MakeHTTPHandlers(s *server.Service) http.Handler {
 	mux.Handle("POST /trackers/{trackerID}/entries", s.RequireAuthentication(entry.CreateHandler(s, s.DB)))
 	mux.Handle("PATCH /trackers/{trackerID}", s.RequireAuthentication(tracker.EditHandler(s, s.DB)))
 	mux.Handle("DELETE /trackers/{trackerID}", s.RequireAuthentication(tracker.DeleteHandler(s, s.DB)))
+	mux.Handle("PATCH /trackers/{trackerID}/pinned", s.RequireAuthentication(tracker.TogglePinHandler(s, s.DB)))
+	mux.Handle("PATCH /trackers/{trackerID}/show", s.RequireAuthentication(tracker.ToggleShowHandler(s, s.DB)))
 
 	mux.Handle("GET /entries", s.RequireAuthentication(entry.GetAllHandler(s, s.DB)))
 	mux.Handle("DELETE /entries/{entryID}", s.RequireAuthentication(entry.DeleteHandler(s, s.DB)))
