@@ -7,10 +7,12 @@
 
 	let {
 		onsubmit,
-		currentTracker
+		currentTracker,
+		edit = false
 	}: {
 		onsubmit: (trackerDetails: TrackerInput) => Promise<TrackerDB> | Promise<void>;
 		currentTracker?: TrackerDB;
+		edit?: boolean;
 	} = $props();
 
 	let intervalString = $state('1');
@@ -229,6 +231,18 @@
 			name="pinned"
 		/>
 	</label>
+
+	{#if edit}
+		<label class="flex items-center py-2">
+			<div class="fieldset-legend grow text-lg font-bold">Show</div>
+			<input
+				type="checkbox"
+				class="toggle toggle-lg"
+				bind:checked={inputTrackerDetails.show}
+				name="show"
+			/>
+		</label>
+	{/if}
 
 	<button class="btn btn-primary btn-lg mt-4 w-full rounded-full">Save</button>
 </form>

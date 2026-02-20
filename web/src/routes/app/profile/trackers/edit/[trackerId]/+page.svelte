@@ -79,7 +79,7 @@
 		{#if trackersDb.isPending}
 			Loading
 		{:else if trackersDb.isSuccess && trackersDb.data && currentTracker}
-			<TrackerForm onsubmit={editTracker} {currentTracker} />
+			<TrackerForm onsubmit={editTracker} {currentTracker} edit={true} />
 		{:else}
 			Error!
 		{/if}
