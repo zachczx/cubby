@@ -6,30 +6,9 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
-	"github.com/jmoiron/sqlx"
 	"github.com/zachczx/cubby/api/internal/response"
 	"github.com/zachczx/cubby/api/internal/user"
 )
-
-func GetUsersFamiliesHandler(s *Service, db *sqlx.DB) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var err error
-
-		userID, err := s.GetUserIDFromContext(r.Context())
-		if err != nil {
-			response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
-			return
-		}
-
-		families, err := user.GetUsersFamilies(db, userID)
-		if err != nil {
-			response.WriteError(w, err)
-			return
-		}
-
-		response.WriteJSON(w, families)
-	})
-}
 
 type TaskDays struct {
 	TaskDays int `json:"taskDays"`
