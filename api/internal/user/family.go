@@ -206,3 +206,13 @@ func LeaveFamily(db *sqlx.DB, familyID uuid.UUID, memberID uuid.UUID) error {
 
 	return nil
 }
+
+func UpdateFamilyName(db *sqlx.DB, familyID uuid.UUID, name string) error {
+	q := `UPDATE families SET name = $1 WHERE id = $2`
+
+	if _, err := db.Exec(q, name, familyID); err != nil {
+		return fmt.Errorf("update family name err: %w", err)
+	}
+
+	return nil
+}

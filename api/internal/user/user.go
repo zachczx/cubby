@@ -95,3 +95,14 @@ func ChangeTaskLookaheadDays(db *sqlx.DB, userID uuid.UUID, days int) error {
 
 	return nil
 }
+
+func UpdateName(db *sqlx.DB, userID uuid.UUID, name string) error {
+	q := `UPDATE users SET name = $1 WHERE id = $2`
+
+	if _, err := db.Exec(q, name, userID); err != nil {
+		return fmt.Errorf("update user name err: %w", err)
+	}
+
+	return nil
+}
+

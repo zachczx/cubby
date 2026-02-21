@@ -345,3 +345,44 @@ func (s *Service) LeaveFamilyHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusNoContent)
 }
+
+type AccountInfoInput struct {
+	Name       string `json:"name"`
+	FamilyName string `json:"familyName"`
+}
+
+func (s *Service) UpdateAccountInfoHandler(w http.ResponseWriter, r *http.Request) {
+	userID, err := s.GetUserIDFromContext(r.Context())
+	if err != nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	var input AccountInfoInput
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	if input.Name != "" {
+		if err := user.UpdateName(s.DB, userID, input.Name); err != nil {
+			response.WriteError(w, err)
+			return
+		}
+	}
+
+	if input.FamilyName != "" {
+		ownedFamilyID, err := user.GetUserFamilyID(s.DB, userID)
+		if err != nil {
+			response.WriteError(w, err)
+			return
+		}
+
+		if err := user.UpdateFamilyName(s.DB, ownedFamilyID, input.FamilyName); err != nil {
+			response.WriteError(w, err)
+			return
+		}
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
