@@ -85,7 +85,8 @@ func GetAll(db *sqlx.DB, userID uuid.UUID) ([]Tracker, error) {
 	var t []Tracker
 	q := `SELECT t.*, f.name AS family_name FROM trackers t
 			JOIN families f ON t.family_id = f.id   
-			WHERE t.owner_id=$1`
+			WHERE t.owner_id=$1
+			ORDER BY t.pinned DESC, t.name ASC`
 
 	if err := db.Select(&t, q, userID); err != nil {
 		return nil, fmt.Errorf("select trackers: %w", err)
