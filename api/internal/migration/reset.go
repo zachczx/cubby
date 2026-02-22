@@ -109,6 +109,31 @@ func Create(db *sqlx.DB) {
 			updated_at TIMESTAMPTZ DEFAULT NOW(),
 			UNIQUE(family_id, invitee_id)
 		);`,
+
+		// FK, lookup indexes
+		`CREATE INDEX IF NOT EXISTS idx_families_owner_id ON families(owner_id);`,
+		`CREATE INDEX IF NOT EXISTS idx_families_users_user_id ON families_users(user_id);`,
+		`CREATE INDEX IF NOT EXISTS idx_trackers_owner_id ON trackers(owner_id);`,
+		`CREATE INDEX IF NOT EXISTS idx_trackers_family_id ON trackers(family_id);`,
+		`CREATE INDEX IF NOT EXISTS idx_entries_tracker_id ON entries(tracker_id);`,
+		`CREATE INDEX IF NOT EXISTS idx_entries_performed_by ON entries(performed_by);`,
+		`CREATE INDEX IF NOT EXISTS idx_vacations_family_id ON vacations(family_id);`,
+		`CREATE INDEX IF NOT EXISTS idx_invites_invitee_id ON invites(invitee_id);`,
+
+		// Date time filter indexes
+		`CREATE INDEX IF NOT EXISTS idx_entries_tracker_time ON entries(tracker_id, performed_at DESC);`,
+		`CREATE INDEX IF NOT EXISTS idx_vacations_dates ON vacations(start_date_time, end_date_time);`,
+
+		// Partial Indexes for highly filtered data
+		`CREATE INDEX IF NOT EXISTS idx_trackers_active_owner ON trackers(owner_id) WHERE show = true;`,
+		`CREATE INDEX IF NOT EXISTS idx_trackers_active_family ON trackers(family_id) WHERE show = true;`,
+		`CREATE INDEX IF NOT EXISTS idx_invites_pending ON invites(invitee_id) WHERE status = 'pending';`,
+
+		// Global sort indexes
+		`CREATE INDEX IF NOT EXISTS idx_entries_performed_at ON entries(performed_at DESC);`,
+
+		// Case insensitive lookups
+		`CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email_lower ON users(LOWER(email));`,
 	}
 
 	for i, query := range schema {
