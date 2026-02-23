@@ -1,12 +1,9 @@
-package server
+package notifier
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"net/http"
 	"os"
-	"slices"
 	"time"
 
 	_ "embed"
@@ -16,7 +13,6 @@ import (
 	"firebase.google.com/go/v4/messaging"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
-	"github.com/zachczx/cubby/api/internal/response"
 	"google.golang.org/api/option"
 )
 
@@ -87,38 +83,6 @@ type PushToken struct {
 	UpdatedAt time.Time `db:"updated_at"`
 }
 
-type PushTokenInput struct {
-	Token    string `json:"token"`
-	Platform string `json:"platform"`
-}
-
-var platforms = []string{"web", "ios", "android"}
-
-func (s *Service) PushTokenHandler(w http.ResponseWriter, r *http.Request) {
-	userID, err := s.GetUserIDFromContext(r.Context())
-	if err != nil {
-		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
-		return
-	}
-
-	var t PushTokenInput
-
-	if err := json.NewDecoder(r.Body).Decode(&t); err != nil {
-		response.WriteError(w, err)
-		return
-	}
-
-	if !slices.Contains(platforms, t.Platform) {
-		response.RespondWithError(w, http.StatusUnprocessableEntity, "invalid platform")
-		return
-	}
-
-	if err := SavePushToken(s.DB, userID, t.Token, t.Platform); err != nil {
-		response.WriteError(w, err)
-		return
-	}
-}
-
 func SavePushToken(db *sqlx.DB, userID uuid.UUID, token string, platform string) error {
 	q := `INSERT INTO push_tokens (user_id, token, platform) 
 			VALUES ($1, $2, $3)
@@ -133,42 +97,14 @@ func SavePushToken(db *sqlx.DB, userID uuid.UUID, token string, platform string)
 	return nil
 }
 
-func (s *Service) GetPushTokens(userID uuid.UUID) ([]PushToken, error) {
+func GetPushTokens(db *sqlx.DB, userID uuid.UUID) ([]PushToken, error) {
 	q := `SELECT * FROM push_tokens WHERE user_id = $1`
 
 	var pt []PushToken
 
-	if err := s.DB.Select(&pt, q, userID); err != nil {
+	if err := db.Select(&pt, q, userID); err != nil {
 		return nil, fmt.Errorf("get push tokens: %w", err)
 	}
 
 	return pt, nil
-}
-
-func (s *Service) NotificationHandler(w http.ResponseWriter, r *http.Request) {
-	fcmClient, err := NewFCMClient(r.Context())
-	if err != nil {
-		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
-		return
-	}
-
-	userID, err := s.GetUserIDFromContext(r.Context())
-	if err != nil {
-		fmt.Println("here")
-		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
-		return
-	}
-
-	tokens, err := s.GetPushTokens(userID)
-	if err != nil {
-		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
-		return
-	}
-
-	if _, err := fcmClient.SendToDevice(r.Context(),
-		tokens[0].Token,
-		"Testing Title", "test body"); err != nil {
-		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
-		return
-	}
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -10,6 +11,7 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
+	"github.com/zachczx/cubby/api/internal/notifier"
 	"github.com/zachczx/cubby/api/internal/server"
 	"github.com/zachczx/cubby/api/internal/tracker"
 	"github.com/zachczx/cubby/api/internal/user"
@@ -36,12 +38,19 @@ func main() {
 
 	fmt.Println(os.Getenv("ENV"))
 
+	ctx := context.Background()
+	fcm, err := notifier.NewFCMClient(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	s := server.NewService(
 		os.Getenv("STYTCH_PROJECT_ID"),
 		os.Getenv("STYTCH_SECRET"),
 		db,
 		tracker.DefaultService{},
 		user.UserManager{},
+		fcm,
 	)
 
 	mux := MakeHTTPHandlers(s)
@@ -53,7 +62,7 @@ func main() {
 		Handler:           CORS(mux),
 	}
 
-	go tracker.StartNotifications(s)
+	go tracker.StartNotifications(s.DB)
 
 	if err := server.ListenAndServe(); err != nil {
 		log.Fatal(err)

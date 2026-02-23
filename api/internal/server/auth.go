@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/stytchauth/stytch-go/v16/stytch/consumer/stytchapi"
+	"github.com/zachczx/cubby/api/internal/notifier"
 	"github.com/zachczx/cubby/api/internal/user"
 )
 
@@ -19,6 +20,7 @@ type Service struct {
 	DB                    *sqlx.DB
 	TrackerDefaultCreator TrackerDefaultCreator
 	UserManager           UserManager
+	Notifier              *notifier.FCMClient
 }
 
 type TrackerDefaultCreator interface {
@@ -31,7 +33,7 @@ type UserManager interface {
 	Get(db *sqlx.DB, email string) (user.User, error)
 }
 
-func NewService(projectID string, secret string, DB *sqlx.DB, dc TrackerDefaultCreator, um UserManager) *Service {
+func NewService(projectID string, secret string, DB *sqlx.DB, dc TrackerDefaultCreator, um UserManager, fcm *notifier.FCMClient) *Service {
 	client, err := stytchapi.NewClient(projectID, secret)
 	if err != nil {
 		log.Fatalf("Error creating client: %v", err)
@@ -42,6 +44,7 @@ func NewService(projectID string, secret string, DB *sqlx.DB, dc TrackerDefaultC
 		DB:                    DB,
 		TrackerDefaultCreator: dc,
 		UserManager:           um,
+		Notifier:              fcm,
 	}
 }
 
