@@ -61,6 +61,7 @@
 		"canvas-confetti": "^1.9.4",
 		"chart.js": "^4.5.1",
 		"dayjs": "^1.11.19",
+		"firebase": "^12.9.0",
 		"ky": "^1.14.3"
 	}
 }

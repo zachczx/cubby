@@ -52,6 +52,10 @@ func MakeHTTPHandlers(s *server.Service) http.Handler {
 	mux.Handle("DELETE /entries/{entryID}", s.RequireAuthentication(entry.DeleteHandler(s, s.DB)))
 	mux.Handle("PATCH /entries/{entryID}", s.RequireAuthentication(entry.EditHandler(s, s.DB)))
 
+	mux.Handle("GET /notifications", s.RequireAuthentication(http.HandlerFunc(s.NotificationHandler)))
+	mux.Handle("POST /tokens", s.RequireAuthentication(http.HandlerFunc(s.PushTokenHandler)))
+	mux.Handle("GET /notifications/generate", s.RequireAuthentication(tracker.GenerateHandler(s, s.DB)))
+
 	return mux
 }
 

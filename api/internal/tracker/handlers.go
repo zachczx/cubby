@@ -2,6 +2,7 @@ package tracker
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -28,8 +29,8 @@ type Tracker struct {
 	Icon         string     `json:"icon" db:"icon"`
 	StartDate    *time.Time `json:"startDate,omitempty" db:"start_date"`
 	Cost         *float64   `json:"cost,omitempty" db:"cost"`
-	CreatedAt    time.Time  `db:"created_at" json:"created_at"`
-	UpdatedAt    time.Time  `db:"updated_at" json:"updated_at"`
+	CreatedAt    time.Time  `json:"createdAt" db:"created_at"`
+	UpdatedAt    time.Time  `json:"updatedAt" db:"updated_at"`
 
 	FamilyName string `json:"familyName" db:"family_name"`
 	IsOwner    bool   `json:"isOwner" db:"-"`
@@ -299,5 +300,31 @@ func ToggleShowHandler(s *server.Service, db *sqlx.DB) http.Handler {
 		}
 
 		w.WriteHeader(http.StatusNoContent)
+	})
+}
+
+func GenerateHandler(s *server.Service, db *sqlx.DB) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		userID, err := s.GetUserIDFromContext(r.Context())
+		if err != nil {
+			response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
+			return
+		}
+
+		fmt.Println(userID)
+
+		t, err := GetTrackersLast(s.DB)
+		if err != nil {
+			response.WriteError(w, err)
+			return
+		}
+
+		newT, err := CalculateTrackersLastDue(s.DB, t)
+		if err != nil {
+			response.WriteError(w, err)
+			return
+		}
+
+		response.WriteJSON(w, newT)
 	})
 }

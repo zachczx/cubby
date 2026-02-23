@@ -110,6 +110,16 @@ func Create(db *sqlx.DB) {
 			UNIQUE(family_id, invitee_id)
 		);`,
 
+		`CREATE TABLE IF NOT EXISTS push_tokens (
+			id UUID PRIMARY KEY DEFAULT uuidv7(),
+			user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+			token TEXT NOT NULL,
+			platform TEXT,
+			created_at TIMESTAMPTZ DEFAULT NOW(),
+			updated_at TIMESTAMPTZ DEFAULT NOW(),
+			UNIQUE(user_id, token)
+		);`,
+
 		// FK, lookup indexes
 		`CREATE INDEX IF NOT EXISTS idx_families_owner_id ON families(owner_id);`,
 		`CREATE INDEX IF NOT EXISTS idx_families_users_user_id ON families_users(user_id);`,
@@ -119,6 +129,7 @@ func Create(db *sqlx.DB) {
 		`CREATE INDEX IF NOT EXISTS idx_entries_performed_by ON entries(performed_by);`,
 		`CREATE INDEX IF NOT EXISTS idx_vacations_family_id ON vacations(family_id);`,
 		`CREATE INDEX IF NOT EXISTS idx_invites_invitee_id ON invites(invitee_id);`,
+		`CREATE INDEX IF NOT EXISTS idx_push_tokens_user_id ON push_tokens(user_id);`,
 
 		// Date time filter indexes
 		`CREATE INDEX IF NOT EXISTS idx_entries_tracker_time ON entries(tracker_id, performed_at DESC);`,

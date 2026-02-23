@@ -2,6 +2,7 @@ package tracker
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
@@ -125,4 +126,88 @@ func ToggleShow(db *sqlx.DB, userID uuid.UUID, trackerID uuid.UUID, show bool) e
 	}
 
 	return nil
+}
+
+type TrackerLatestEntry struct {
+	ID           uuid.UUID  `json:"id" db:"id"`
+	Owner        uuid.UUID  `json:"-" db:"owner_id"`
+	Family       uuid.UUID  `json:"familyId" db:"family_id"`
+	Name         string     `json:"name" db:"name"`
+	Display      string     `json:"display" db:"display"`
+	Interval     int        `json:"interval" db:"interval"`
+	IntervalUnit string     `json:"intervalUnit" db:"interval_unit"`
+	Category     string     `json:"category" db:"category"`
+	Kind         string     `json:"kind" db:"kind"`
+	ActionLabel  string     `json:"actionLabel" db:"action_label"`
+	Pinned       bool       `json:"pinned" db:"pinned"`
+	Show         bool       `json:"show" db:"show"`
+	Icon         string     `json:"icon" db:"icon"`
+	StartDate    *time.Time `json:"startDate,omitempty" db:"start_date"`
+	Cost         *float64   `json:"cost,omitempty" db:"cost"`
+	CreatedAt    time.Time  `json:"createdAt" db:"created_at"`
+	UpdatedAt    time.Time  `json:"updatedAt" db:"updated_at"`
+
+	FamilyName string `json:"familyName" db:"family_name"`
+	IsOwner    bool   `json:"isOwner" db:"-"`
+
+	LastEntry        *time.Time `db:"last_entry" json:"lastEntry"`
+	LastInterval     *int       `json:"lastInterval" db:"last_interval"`
+	LastIntervalUnit *string    `json:"lastIntervalUnit" db:"last_interval_unit"`
+	DueStatus        *string    `json:"dueStatus" db:"-"`
+}
+
+func GetTrackersLast(db *sqlx.DB) ([]TrackerLatestEntry, error) {
+	q := `SELECT t.*, e.last_entry, e.last_interval, e.last_interval_unit, f.name AS family_name FROM trackers t
+			JOIN (
+				SELECT tracker_id, MAX(performed_at) AS last_entry, interval AS last_interval, interval_unit AS last_interval_unit FROM entries GROUP BY tracker_id, last_interval, last_interval_unit
+			) AS e ON t.id = e.tracker_id
+			JOIN families f ON t.family_id = f.id`
+
+	var t []TrackerLatestEntry
+
+	if err := db.Select(&t, q); err != nil {
+		return nil, fmt.Errorf("get trackers list: %w", err)
+	}
+
+	return t, nil
+}
+
+func CalculateTrackersLastDue(db *sqlx.DB, tDB []TrackerLatestEntry) ([]TrackerLatestEntry, error) {
+	var newT []TrackerLatestEntry
+
+	newT = tDB
+
+	for i := range tDB {
+		var threshold time.Time
+
+		if tDB[i].LastEntry == nil || tDB[i].LastInterval == nil || tDB[i].LastIntervalUnit == nil {
+			continue
+		}
+
+		itv := &tDB[i].Interval
+
+		switch tDB[i].IntervalUnit {
+		case "day":
+			threshold = tDB[i].LastEntry.Add(time.Duration(*itv) * 24 * time.Hour)
+			threshold = threshold.Add(time.Hour * 6)
+
+		case "month":
+			threshold = tDB[i].LastEntry.AddDate(0, int(*itv), 0)
+			threshold = threshold.Add(time.Hour * 12)
+
+		case "year":
+			threshold = tDB[i].LastEntry.AddDate(int(*itv), 0, 0)
+			threshold = threshold.Add(time.Hour * 24)
+		}
+
+		if time.Now().After(threshold) {
+			new := "due"
+			newT[i].DueStatus = &new
+		} else {
+			new := "ok"
+			newT[i].DueStatus = &new
+		}
+	}
+
+	return newT, nil
 }

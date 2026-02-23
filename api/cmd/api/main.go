@@ -53,6 +53,8 @@ func main() {
 		Handler:           CORS(mux),
 	}
 
+	go tracker.StartNotifications(s)
+
 	if err := server.ListenAndServe(); err != nil {
 		log.Fatal(err)
 	}

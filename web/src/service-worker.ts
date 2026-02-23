@@ -11,6 +11,8 @@
 /// <reference types="../.svelte-kit/ambient.d.ts" />
 
 import { build, files, version } from '$service-worker';
+import { initializeApp } from 'firebase/app';
+import { getMessaging, onBackgroundMessage } from 'firebase/messaging/sw';
 
 // This gives `self` the correct types
 const self = globalThis.self as unknown as ServiceWorkerGlobalScope;
@@ -24,6 +26,11 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
+	/* 
+		Immediately activate the new SW without waiting for existing tabs to close 
+	*/
+	self.skipWaiting();
+
 	// Create a new cache and add all files to it
 	async function addFilesToCache() {
 		const cache = await caches.open(CACHE);
@@ -41,7 +48,16 @@ self.addEventListener('activate', (event) => {
 		}
 	}
 
-	event.waitUntil(deleteOldCaches());
+	event.waitUntil(
+		(async () => {
+			await deleteOldCaches();
+
+			/* 
+				Take control of all open tabs immediately without requiring a refresh
+			*/
+			await self.clients.claim();
+		})()
+	);
 });
 
 self.addEventListener('fetch', (event) => {
@@ -91,4 +107,41 @@ self.addEventListener('fetch', (event) => {
 	}
 
 	event.respondWith(respond());
+});
+
+self.addEventListener('push', (event) => {
+	console.log('[SW] Raw push event received:', event.data?.json());
+});
+
+////////////////////////////////////
+// Firebase
+////////////////////////////////////
+
+const firebaseApp = initializeApp({
+	apiKey: 'AIzaSyBJVeYpH1mvHBNdYhslq9Zan3p_hT0deyc',
+	authDomain: 'cubbydotdev.firebaseapp.com',
+	projectId: 'cubbydotdev',
+	storageBucket: 'cubbydotdev.firebasestorage.app',
+	messagingSenderId: '466629353659',
+	appId: '1:466629353659:web:4257b35546b449a8eb099e',
+	measurementId: 'G-PETLZ8V716'
+});
+
+const messaging = getMessaging(firebaseApp);
+
+// Handle background messages
+onBackgroundMessage(messaging, (payload) => {
+	console.log('[firebase-messaging-sw.js] Received background message ', payload);
+	const notificationTitle = 'Background Message Title';
+	const notificationOptions = {
+		body: 'Background Message body.',
+		icon: '/firebase-logo.png'
+	};
+
+	self.registration.showNotification(notificationTitle, notificationOptions);
+});
+
+self.addEventListener('notificationclick', (event) => {
+	event.notification.close();
+	event.waitUntil(self.clients.openWindow('/'));
 });
