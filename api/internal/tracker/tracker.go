@@ -8,6 +8,44 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+type Tracker struct {
+	ID           uuid.UUID  `json:"id" db:"id"`
+	Owner        uuid.UUID  `json:"-" db:"owner_id"`
+	Family       uuid.UUID  `json:"familyId" db:"family_id"`
+	Name         string     `json:"name" db:"name"`
+	Display      string     `json:"display" db:"display"`
+	Interval     int        `json:"interval" db:"interval"`
+	IntervalUnit string     `json:"intervalUnit" db:"interval_unit"`
+	Category     string     `json:"category" db:"category"`
+	Kind         string     `json:"kind" db:"kind"`
+	ActionLabel  string     `json:"actionLabel" db:"action_label"`
+	Pinned       bool       `json:"pinned" db:"pinned"`
+	Show         bool       `json:"show" db:"show"`
+	Icon         string     `json:"icon" db:"icon"`
+	StartDate    *time.Time `json:"startDate,omitempty" db:"start_date"`
+	Cost         *float64   `json:"cost,omitempty" db:"cost"`
+	CreatedAt    time.Time  `json:"createdAt" db:"created_at"`
+	UpdatedAt    time.Time  `json:"updatedAt" db:"updated_at"`
+
+	FamilyName string `json:"familyName" db:"family_name"`
+	IsOwner    bool   `json:"isOwner" db:"-"`
+}
+
+type TrackerInput struct {
+	Name         string   `json:"name"`
+	Display      string   `json:"display"`
+	Interval     int      `json:"interval"`
+	IntervalUnit string   `json:"intervalUnit"`
+	Category     string   `json:"category"`
+	Kind         string   `json:"kind"`
+	ActionLabel  string   `json:"actionLabel"`
+	Pinned       bool     `json:"pinned"`
+	Show         bool     `json:"show"`
+	Icon         string   `json:"icon"`
+	StartDate    string   `json:"startDate"`
+	Cost         *float64 `json:"cost"`
+}
+
 func New(db *sqlx.DB, t Tracker) (uuid.UUID, error) {
 	var newID uuid.UUID
 

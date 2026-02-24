@@ -7,13 +7,11 @@ import (
 	"github.com/zachczx/cubby/api/internal/entry"
 	"github.com/zachczx/cubby/api/internal/response"
 	"github.com/zachczx/cubby/api/internal/server"
-	"github.com/zachczx/cubby/api/internal/tracker"
 )
 
 func MakeHTTPHandlers(s *server.Service) http.Handler {
 	mux := http.NewServeMux()
 
-	// Main
 	mux.HandleFunc("GET /{$}", Index)
 	mux.HandleFunc("GET /health", Healthcheck)
 	mux.HandleFunc("/magic-link", s.SendMagicLinkHandler)
@@ -39,14 +37,14 @@ func MakeHTTPHandlers(s *server.Service) http.Handler {
 	mux.Handle("POST /vacations", s.RequireAuthentication(http.HandlerFunc(s.CreateVacationHandler)))
 	mux.Handle("DELETE /vacations/{vacationID}", s.RequireAuthentication(http.HandlerFunc(s.DeleteVacationHandler)))
 
-	mux.Handle("GET /trackers", s.RequireAuthentication(tracker.GetAllHandler(s, s.DB)))
-	mux.Handle("GET /trackers/{trackerID}", s.RequireAuthentication(tracker.GetHandler(s, s.DB)))
-	mux.Handle("POST /trackers", tracker.CreateHandler(s, s.DB))
+	mux.Handle("GET /trackers", s.RequireAuthentication(http.HandlerFunc(s.GetAllHandler)))
+	mux.Handle("GET /trackers/{trackerID}", s.RequireAuthentication(http.HandlerFunc(s.GetHandler)))
+	mux.Handle("POST /trackers", s.RequireAuthentication(http.HandlerFunc(s.CreateHandler)))
 	mux.Handle("POST /trackers/{trackerID}/entries", s.RequireAuthentication(entry.CreateHandler(s, s.DB)))
-	mux.Handle("PATCH /trackers/{trackerID}", s.RequireAuthentication(tracker.EditHandler(s, s.DB)))
-	mux.Handle("DELETE /trackers/{trackerID}", s.RequireAuthentication(tracker.DeleteHandler(s, s.DB)))
-	mux.Handle("PATCH /trackers/{trackerID}/pinned", s.RequireAuthentication(tracker.TogglePinHandler(s, s.DB)))
-	mux.Handle("PATCH /trackers/{trackerID}/show", s.RequireAuthentication(tracker.ToggleShowHandler(s, s.DB)))
+	mux.Handle("PATCH /trackers/{trackerID}", s.RequireAuthentication(http.HandlerFunc(s.EditHandler)))
+	mux.Handle("DELETE /trackers/{trackerID}", s.RequireAuthentication(http.HandlerFunc(s.DeleteHandler)))
+	mux.Handle("PATCH /trackers/{trackerID}/pinned", s.RequireAuthentication(http.HandlerFunc(s.TogglePinHandler)))
+	mux.Handle("PATCH /trackers/{trackerID}/show", s.RequireAuthentication(http.HandlerFunc(s.ToggleShowHandler)))
 
 	mux.Handle("GET /entries", s.RequireAuthentication(entry.GetAllHandler(s, s.DB)))
 	mux.Handle("DELETE /entries/{entryID}", s.RequireAuthentication(entry.DeleteHandler(s, s.DB)))
@@ -54,7 +52,7 @@ func MakeHTTPHandlers(s *server.Service) http.Handler {
 
 	mux.Handle("GET /notifications", s.RequireAuthentication(s.NotificationHandler()))
 	mux.Handle("POST /tokens", s.RequireAuthentication(s.PushTokenHandler()))
-	mux.Handle("GET /notifications/generate", s.RequireAuthentication(tracker.GenerateHandler(s, s.DB)))
+	mux.Handle("GET /notifications/generate", s.RequireAuthentication(http.HandlerFunc(s.GenerateHandler)))
 
 	return mux
 }
