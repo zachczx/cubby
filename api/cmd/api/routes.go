@@ -8,7 +8,7 @@ import (
 	"github.com/zachczx/cubby/api/internal/server"
 )
 
-func MakeHTTPHandlers(s *server.Service) http.Handler {
+func NewHTTPHandler(s *server.Service) http.Handler {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /{$}", Index)

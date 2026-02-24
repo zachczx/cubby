@@ -53,7 +53,7 @@ func main() {
 		fcm,
 	)
 
-	mux := MakeHTTPHandlers(s)
+	mux := NewHTTPHandler(s)
 
 	fmt.Println("Listening on:", ":"+os.Getenv("API_LISTEN_ADDR"))
 	server := &http.Server{
