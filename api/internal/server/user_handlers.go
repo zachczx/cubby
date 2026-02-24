@@ -1,14 +1,43 @@
 package server
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/google/uuid"
 	"github.com/zachczx/cubby/api/internal/response"
 	"github.com/zachczx/cubby/api/internal/user"
 )
+
+func (s *Service) GetUserIDFromContext(ctx context.Context) (uuid.UUID, error) {
+	id, ok := ctx.Value(UserIDKey).(uuid.UUID)
+	if !ok {
+		return uuid.Nil, fmt.Errorf("user id not found in context")
+	}
+	return id, nil
+}
+
+func (s *Service) GetUserEmailFromContext(ctx context.Context) (string, error) {
+	email, ok := ctx.Value(EmailKey).(string)
+	if !ok {
+		return "", fmt.Errorf("user email not found in context")
+	}
+	return email, nil
+}
+
+func (s *Service) CheckHandler(w http.ResponseWriter, r *http.Request) {
+	u := s.GetAuthenticatedUser(w, r)
+
+	if u == nil || u.UserID == "" {
+		response.RespondWithError(w, http.StatusUnauthorized, "not authenticated")
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
 
 type TaskDays struct {
 	TaskDays int `json:"taskDays"`

@@ -13,8 +13,6 @@ import (
 	"github.com/stytchauth/stytch-go/v16/stytch/consumer/sessions"
 	"github.com/stytchauth/stytch-go/v16/stytch/consumer/users"
 	"github.com/zachczx/cubby/api/internal/response"
-
-	"github.com/google/uuid"
 )
 
 type contextKey string
@@ -67,22 +65,6 @@ func (s *Service) RequireAuthentication(h http.HandlerFunc) http.HandlerFunc {
 
 		h(w, r.WithContext(ctx))
 	}
-}
-
-func (s *Service) GetUserIDFromContext(ctx context.Context) (uuid.UUID, error) {
-	id, ok := ctx.Value(UserIDKey).(uuid.UUID)
-	if !ok {
-		return uuid.Nil, fmt.Errorf("user id not found in context")
-	}
-	return id, nil
-}
-
-func (s *Service) GetUserEmailFromContext(ctx context.Context) (string, error) {
-	email, ok := ctx.Value(EmailKey).(string)
-	if !ok {
-		return "", fmt.Errorf("user email not found in context")
-	}
-	return email, nil
 }
 
 func (s *Service) SendMagicLinkHandler(w http.ResponseWriter, r *http.Request) {
@@ -171,17 +153,6 @@ func (s *Service) AuthenticateHandler(w http.ResponseWriter, r *http.Request) {
 				</html>`,
 		redirectURL,
 		redirectURL)
-}
-
-func (s *Service) CheckHandler(w http.ResponseWriter, r *http.Request) {
-	u := s.GetAuthenticatedUser(w, r)
-
-	if u == nil || u.UserID == "" {
-		response.RespondWithError(w, http.StatusUnauthorized, "not authenticated")
-		return
-	}
-
-	w.WriteHeader(http.StatusNoContent)
 }
 
 func (s *Service) GetUserHandler(w http.ResponseWriter, r *http.Request) {
