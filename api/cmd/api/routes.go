@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/zachczx/cubby/api/internal/entry"
 	"github.com/zachczx/cubby/api/internal/response"
 	"github.com/zachczx/cubby/api/internal/server"
 )
@@ -20,39 +19,39 @@ func MakeHTTPHandlers(s *server.Service) http.Handler {
 
 	mux.HandleFunc("GET /check", s.CheckHandler)
 	mux.HandleFunc("GET /users", s.GetUserHandler)
-	mux.Handle("GET /users/me/families", s.RequireAuthentication(http.HandlerFunc(s.GetUsersFamiliesHandler)))
-	mux.Handle("PATCH /users/me/account", s.RequireAuthentication(http.HandlerFunc(s.UpdateAccountInfoHandler)))
-	mux.Handle("PATCH /users/me/sound", s.RequireAuthentication(http.HandlerFunc(s.ToggleSoundHandler)))
-	mux.Handle("PATCH /users/me/task-lookahead", s.RequireAuthentication(http.HandlerFunc(s.ChangeTaskLookaheadDaysHandler)))
+	mux.HandleFunc("GET /users/me/families", s.RequireAuthentication(s.GetUsersFamiliesHandler))
+	mux.HandleFunc("PATCH /users/me/account", s.RequireAuthentication(s.UpdateAccountInfoHandler))
+	mux.HandleFunc("PATCH /users/me/sound", s.RequireAuthentication(s.ToggleSoundHandler))
+	mux.HandleFunc("PATCH /users/me/task-lookahead", s.RequireAuthentication(s.ChangeTaskLookaheadDaysHandler))
 
-	mux.Handle("GET /families/invites", s.RequireAuthentication(http.HandlerFunc(s.GetFamilyInvitesHandler)))
-	mux.Handle("GET /families/invites/{inviteID}", s.RequireAuthentication(http.HandlerFunc(s.GetFamilyInviteHandler)))
-	mux.Handle("POST /families/invites", s.RequireAuthentication(http.HandlerFunc(s.CreateFamilyInviteHandler)))
-	mux.Handle("POST /families/{familyID}/leave", s.RequireAuthentication(http.HandlerFunc(s.LeaveFamilyHandler)))
-	mux.Handle("POST /families/invites/{inviteID}/accept", s.RequireAuthentication(http.HandlerFunc(s.AcceptFamilyInviteHandler)))
-	mux.Handle("POST /families/invites/{inviteID}/decline", s.RequireAuthentication(http.HandlerFunc(s.DeclineFamilyInviteHandler)))
-	mux.Handle("DELETE /families/{familyID}/{memberID}", s.RequireAuthentication(http.HandlerFunc(s.DeleteFamilyMemberHandler)))
+	mux.HandleFunc("GET /families/invites", s.RequireAuthentication(s.GetFamilyInvitesHandler))
+	mux.HandleFunc("GET /families/invites/{inviteID}", s.RequireAuthentication(s.GetFamilyInviteHandler))
+	mux.HandleFunc("POST /families/invites", s.RequireAuthentication(s.CreateFamilyInviteHandler))
+	mux.HandleFunc("POST /families/{familyID}/leave", s.RequireAuthentication(s.LeaveFamilyHandler))
+	mux.HandleFunc("POST /families/invites/{inviteID}/accept", s.RequireAuthentication(s.AcceptFamilyInviteHandler))
+	mux.HandleFunc("POST /families/invites/{inviteID}/decline", s.RequireAuthentication(s.DeclineFamilyInviteHandler))
+	mux.HandleFunc("DELETE /families/{familyID}/{memberID}", s.RequireAuthentication(s.DeleteFamilyMemberHandler))
 
-	mux.Handle("GET /vacations", s.RequireAuthentication(http.HandlerFunc(s.GetVacationsHandler)))
-	mux.Handle("POST /vacations", s.RequireAuthentication(http.HandlerFunc(s.CreateVacationHandler)))
-	mux.Handle("DELETE /vacations/{vacationID}", s.RequireAuthentication(http.HandlerFunc(s.DeleteVacationHandler)))
+	mux.HandleFunc("GET /vacations", s.RequireAuthentication(s.GetVacationsHandler))
+	mux.HandleFunc("POST /vacations", s.RequireAuthentication(s.CreateVacationHandler))
+	mux.HandleFunc("DELETE /vacations/{vacationID}", s.RequireAuthentication(s.DeleteVacationHandler))
 
-	mux.Handle("GET /trackers", s.RequireAuthentication(http.HandlerFunc(s.GetAllHandler)))
-	mux.Handle("GET /trackers/{trackerID}", s.RequireAuthentication(http.HandlerFunc(s.GetHandler)))
-	mux.Handle("POST /trackers", s.RequireAuthentication(http.HandlerFunc(s.CreateHandler)))
-	mux.Handle("POST /trackers/{trackerID}/entries", s.RequireAuthentication(entry.CreateHandler(s, s.DB)))
-	mux.Handle("PATCH /trackers/{trackerID}", s.RequireAuthentication(http.HandlerFunc(s.EditHandler)))
-	mux.Handle("DELETE /trackers/{trackerID}", s.RequireAuthentication(http.HandlerFunc(s.DeleteHandler)))
-	mux.Handle("PATCH /trackers/{trackerID}/pinned", s.RequireAuthentication(http.HandlerFunc(s.TogglePinHandler)))
-	mux.Handle("PATCH /trackers/{trackerID}/show", s.RequireAuthentication(http.HandlerFunc(s.ToggleShowHandler)))
+	mux.HandleFunc("GET /trackers", s.RequireAuthentication(s.GetAllHandler))
+	mux.HandleFunc("GET /trackers/{trackerID}", s.RequireAuthentication(s.GetHandler))
+	mux.HandleFunc("POST /trackers", s.RequireAuthentication(s.CreateHandler))
+	mux.HandleFunc("POST /trackers/{trackerID}/entries", s.RequireAuthentication(s.CreateEntryHandler))
+	mux.HandleFunc("PATCH /trackers/{trackerID}", s.RequireAuthentication(s.EditHandler))
+	mux.HandleFunc("DELETE /trackers/{trackerID}", s.RequireAuthentication(s.DeleteHandler))
+	mux.HandleFunc("PATCH /trackers/{trackerID}/pinned", s.RequireAuthentication(s.TogglePinHandler))
+	mux.HandleFunc("PATCH /trackers/{trackerID}/show", s.RequireAuthentication(s.ToggleShowHandler))
 
-	mux.Handle("GET /entries", s.RequireAuthentication(entry.GetAllHandler(s, s.DB)))
-	mux.Handle("DELETE /entries/{entryID}", s.RequireAuthentication(entry.DeleteHandler(s, s.DB)))
-	mux.Handle("PATCH /entries/{entryID}", s.RequireAuthentication(entry.EditHandler(s, s.DB)))
+	mux.HandleFunc("GET /entries", s.RequireAuthentication(s.GetAllEntriesHandler))
+	mux.HandleFunc("DELETE /entries/{entryID}", s.RequireAuthentication(s.DeleteEntryHandler))
+	mux.HandleFunc("PATCH /entries/{entryID}", s.RequireAuthentication(s.EditEntryHandler))
 
-	mux.Handle("GET /notifications", s.RequireAuthentication(s.NotificationHandler()))
-	mux.Handle("POST /tokens", s.RequireAuthentication(s.PushTokenHandler()))
-	mux.Handle("GET /notifications/generate", s.RequireAuthentication(http.HandlerFunc(s.GenerateHandler)))
+	mux.HandleFunc("GET /notifications", s.RequireAuthentication(s.NotificationHandler))
+	mux.HandleFunc("POST /tokens", s.RequireAuthentication(s.PushTokenHandler))
+	mux.HandleFunc("GET /notifications/generate", s.RequireAuthentication(s.GenerateHandler))
 
 	return mux
 }

@@ -24,8 +24,8 @@ const (
 	EmailKey  contextKey = "email"
 )
 
-func (s *Service) RequireAuthentication(h http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+func (s *Service) RequireAuthentication(h http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 		u := s.GetAuthenticatedUser(w, r)
 
 		if u == nil || u.UserID == "" {
@@ -65,8 +65,8 @@ func (s *Service) RequireAuthentication(h http.Handler) http.Handler {
 		ctx := context.WithValue(r.Context(), UserIDKey, localUserID)
 		ctx = context.WithValue(ctx, EmailKey, email)
 
-		h.ServeHTTP(w, r.WithContext(ctx))
-	})
+		h(w, r.WithContext(ctx))
+	}
 }
 
 func (s *Service) GetUserIDFromContext(ctx context.Context) (uuid.UUID, error) {

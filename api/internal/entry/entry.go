@@ -8,6 +8,27 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+type Entry struct {
+	ID           uuid.UUID `db:"id" json:"id"`
+	TrackerID    uuid.UUID `db:"tracker_id" json:"trackerId"`
+	Interval     int       `db:"interval" json:"interval"`
+	IntervalUnit string    `db:"interval_unit" json:"intervalUnit"`
+	PerformedBy  uuid.UUID `db:"performed_by" json:"performedBy"`
+	PerformedAt  time.Time `db:"performed_at" json:"performedAt"`
+	Remark       string    `db:"remark" json:"remark"`
+	CreatedAt    time.Time `db:"created_at" json:"created_at"`
+	UpdatedAt    time.Time `db:"updated_at" json:"updated_at"`
+}
+
+type EntryInput struct {
+	ID           *uuid.UUID `db:"id" json:"id"`
+	TrackerID    uuid.UUID  `db:"tracker_id" json:"trackerId"`
+	PerformedAt  *string    `db:"performed_at" json:"performedAt"`
+	Interval     int        `db:"interval" json:"interval"`
+	IntervalUnit string     `db:"interval_unit" json:"intervalUnit"`
+	Remark       string     `db:"remark" json:"remark"`
+}
+
 func Create(db *sqlx.DB, e Entry) (Entry, error) {
 	q := `INSERT INTO entries (tracker_id, interval, interval_unit, performed_by, performed_at, remark) 
 			VALUES ($1, $2, $3, $4, $5, $6)
