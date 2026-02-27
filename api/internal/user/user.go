@@ -105,4 +105,3 @@ func UpdateName(db *sqlx.DB, userID uuid.UUID, name string) error {
 
 	return nil
 }
-

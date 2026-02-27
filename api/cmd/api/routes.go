@@ -49,8 +49,6 @@ func NewHTTPHandler(s *server.Service) http.Handler {
 	mux.HandleFunc("DELETE /entries/{entryID}", s.RequireAuthentication(s.DeleteEntryHandler))
 	mux.HandleFunc("PATCH /entries/{entryID}", s.RequireAuthentication(s.EditEntryHandler))
 
-	mux.HandleFunc("GET /notifications", s.RequireAuthentication(s.NotificationHandler))
-	mux.HandleFunc("POST /tokens", s.RequireAuthentication(s.PushTokenHandler))
 	mux.HandleFunc("GET /notifications/generate", s.RequireAuthentication(s.GenerateHandler))
 
 	return mux

@@ -14,14 +14,10 @@
 	import { getColoredTrackers, getTrackerIcon, generateSubscriptionEntries } from '$lib/mapper';
 	import SkeletonActionCard from '$lib/ui/SkeletonActionCard.svelte';
 	import { calculateStreak } from '$lib/streaks';
-	import { onMount, type Component } from 'svelte';
+	import { type Component } from 'svelte';
 	import { router } from '$lib/routes';
 	import { api } from '$lib/api';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
-	import { getFirebaseMessaging } from '$lib/firebase';
-	import { getToken } from 'firebase/messaging';
-	import { PUBLIC_FCM_VAPID_KEY } from '$env/static/public';
-	import { page } from '$app/state';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
@@ -139,36 +135,6 @@
 			addToast('error', 'Error!');
 		}
 	}
-
-	onMount(async () => {
-		if (page.url.searchParams.get('login') !== 'true') return;
-
-		try {
-			const permission = await Notification.requestPermission();
-			if (permission !== 'granted') {
-				console.log('Permission denied');
-				return;
-			}
-
-			const registration = await navigator.serviceWorker.ready;
-
-			const messaging = getFirebaseMessaging();
-
-			const token = await getToken(messaging, {
-				vapidKey: PUBLIC_FCM_VAPID_KEY,
-				serviceWorkerRegistration: registration
-			});
-
-			await api.post('tokens', {
-				body: JSON.stringify({ token: token, platform: 'web' })
-			});
-
-			const url = new URL(window.location.href);
-			url.searchParams.delete('login');
-		} catch (err) {
-			console.error(err);
-		}
-	});
 </script>
 
 <PageWrapper title="Cubby" back={false}>
