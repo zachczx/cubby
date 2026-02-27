@@ -249,3 +249,15 @@ func CalculateTrackersLastDue(db *sqlx.DB, tDB []TrackerLatestEntry) ([]TrackerL
 
 	return newT, nil
 }
+
+func GetDueTrackerID(trackers []TrackerLatestEntry) ([]uuid.UUID, error) {
+	var due []uuid.UUID
+
+	for _, t := range trackers {
+		if *t.DueStatus == "due" {
+			due = append(due, t.ID)
+		}
+	}
+	return due, nil
+}
+

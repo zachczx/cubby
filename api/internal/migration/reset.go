@@ -38,7 +38,7 @@ func Create(db *sqlx.DB) {
 		`CREATE TABLE IF NOT EXISTS families (
 			id UUID PRIMARY KEY DEFAULT uuidv7(),
 			name TEXT NOT NULL,
-			owner_id UUID REFERENCES users(id) ON DELETE CASCADE,
+			owner_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 			created_at TIMESTAMPTZ DEFAULT NOW(),
 			updated_at TIMESTAMPTZ DEFAULT NOW()
 		);`,
@@ -55,8 +55,8 @@ func Create(db *sqlx.DB) {
 		// Trackers
 		`CREATE TABLE IF NOT EXISTS trackers (
 			id UUID PRIMARY KEY DEFAULT uuidv7(),
-			owner_id UUID REFERENCES users(id) ON DELETE CASCADE,
-			family_id UUID REFERENCES families(id) ON DELETE CASCADE,
+			owner_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+			family_id UUID NOT NULL REFERENCES families(id) ON DELETE CASCADE,
 			name TEXT NOT NULL,
 			display TEXT,           
 			interval INTEGER NOT NULL,
@@ -76,7 +76,7 @@ func Create(db *sqlx.DB) {
 		// entries
 		`CREATE TABLE IF NOT EXISTS entries (
 			id UUID PRIMARY KEY DEFAULT uuidv7(),
-			tracker_id UUID REFERENCES trackers(id) ON DELETE CASCADE,
+			tracker_id UUID NOT NULL REFERENCES trackers(id) ON DELETE CASCADE,
 			interval INTEGER NOT NULL,
 			interval_unit VARCHAR(10) NOT NULL,
 			performed_by UUID REFERENCES users(id) ON DELETE SET NULL,
@@ -120,6 +120,15 @@ func Create(db *sqlx.DB) {
 			UNIQUE(user_id, token)
 		);`,
 
+		`CREATE TABLE IF NOT EXISTS notification_logs (
+			id UUID PRIMARY KEY DEFAULT uuidv7(),
+			tracker_id UUID NOT NULL REFERENCES trackers(id) ON DELETE CASCADE,
+			user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+			created_at TIMESTAMPTZ DEFAULT NOW(),
+			updated_at TIMESTAMPTZ DEFAULT NOW(),
+			UNIQUE(tracker_id, user_id)
+		);`,
+
 		// FK, lookup indexes
 		`CREATE INDEX IF NOT EXISTS idx_families_owner_id ON families(owner_id);`,
 		`CREATE INDEX IF NOT EXISTS idx_families_users_user_id ON families_users(user_id);`,
@@ -130,6 +139,7 @@ func Create(db *sqlx.DB) {
 		`CREATE INDEX IF NOT EXISTS idx_vacations_family_id ON vacations(family_id);`,
 		`CREATE INDEX IF NOT EXISTS idx_invites_invitee_id ON invites(invitee_id);`,
 		`CREATE INDEX IF NOT EXISTS idx_push_tokens_user_id ON push_tokens(user_id);`,
+		`CREATE INDEX IF NOT EXISTS idx_notification_logs_lookup ON notification_logs(tracker_id, user_id);`,
 
 		// Date time filter indexes
 		`CREATE INDEX IF NOT EXISTS idx_entries_tracker_time ON entries(tracker_id, performed_at DESC);`,
