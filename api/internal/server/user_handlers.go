@@ -36,6 +36,8 @@ func (s *Service) CheckHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Println("check")
+
 	w.WriteHeader(http.StatusNoContent)
 }
 

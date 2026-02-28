@@ -14,8 +14,10 @@ func NewHTTPHandler(s *server.Service) http.Handler {
 	mux.HandleFunc("GET /{$}", Index)
 	mux.HandleFunc("GET /health", Healthcheck)
 	mux.HandleFunc("/magic-link", s.SendMagicLinkHandler)
-	mux.HandleFunc("/authenticate", s.AuthenticateHandler)
-	mux.Handle("GET /logout", http.HandlerFunc(s.Logout))
+	mux.HandleFunc("/authenticate", s.MagicLinkHandler)
+	mux.HandleFunc("/otp/send", s.SendOTPHandler)
+	mux.HandleFunc("/otp/verify", s.VerifyOTPHandler)
+	mux.Handle("POST /logout", http.HandlerFunc(s.Logout))
 
 	mux.HandleFunc("GET /check", s.CheckHandler)
 	mux.HandleFunc("GET /users", s.GetUserHandler)
@@ -50,6 +52,7 @@ func NewHTTPHandler(s *server.Service) http.Handler {
 	mux.HandleFunc("PATCH /entries/{entryID}", s.RequireAuthentication(s.EditEntryHandler))
 
 	mux.HandleFunc("GET /notifications/generate", s.RequireAuthentication(s.GenerateHandler))
+	mux.HandleFunc("POST /tokens", s.RequireAuthentication(s.PushTokenHandler))
 
 	return mux
 }
@@ -68,13 +71,14 @@ func Healthcheck(w http.ResponseWriter, _ *http.Request) {
 var (
 	devOrigin     = "http://localhost:5173"
 	allowedOrigin = os.Getenv("PUBLIC_WEB_URL")
+	altDevOrigin  = "http://localhost"
 )
 
 func CORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
 
-		if origin == allowedOrigin || origin == devOrigin {
+		if origin == allowedOrigin || origin == devOrigin || origin == altDevOrigin {
 			w.Header().Set("Access-Control-Allow-Origin", origin)
 		}
 

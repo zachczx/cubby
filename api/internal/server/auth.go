@@ -54,9 +54,9 @@ func (s *Service) setSessionCookies(w http.ResponseWriter, jwt string, token str
 	partitioned := true
 
 	if os.Getenv("ENV") == "development" {
-		secureOption = false
-		sameSiteOption = http.SameSiteLaxMode
-		partitioned = false
+		secureOption = true
+		sameSiteOption = http.SameSiteNoneMode
+		partitioned = true
 	}
 
 	domain := os.Getenv("COOKIE_DOMAIN")
