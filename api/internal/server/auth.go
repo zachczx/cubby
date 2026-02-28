@@ -21,6 +21,7 @@ type Service struct {
 	TrackerDefaultCreator TrackerDefaultCreator
 	UserManager           UserManager
 	Notifier              *notifier.FCMClient
+	CookieConfig          CookieConfig
 }
 
 type TrackerDefaultCreator interface {
@@ -33,7 +34,7 @@ type UserManager interface {
 	Get(db *sqlx.DB, email string) (user.User, error)
 }
 
-func NewService(projectID string, secret string, DB *sqlx.DB, dc TrackerDefaultCreator, um UserManager, fcm *notifier.FCMClient) *Service {
+func NewService(projectID string, secret string, DB *sqlx.DB, dc TrackerDefaultCreator, um UserManager, fcm *notifier.FCMClient, cc CookieConfig) *Service {
 	client, err := stytchapi.NewClient(projectID, secret)
 	if err != nil {
 		log.Fatalf("Error creating client: %v", err)
@@ -45,45 +46,60 @@ func NewService(projectID string, secret string, DB *sqlx.DB, dc TrackerDefaultC
 		TrackerDefaultCreator: dc,
 		UserManager:           um,
 		Notifier:              fcm,
+		CookieConfig:          cc,
 	}
 }
 
+type CookieConfig struct {
+	Secure      bool
+	SameSite    http.SameSite
+	Partitioned bool
+	Domain      string
+	Path        string
+	HTTPOnly    bool
+}
+
 func (s *Service) setSessionCookies(w http.ResponseWriter, jwt string, token string) {
-	secureOption := true
-	sameSiteOption := http.SameSiteDefaultMode
-	partitioned := true
-
-	if os.Getenv("ENV") == "development" {
-		secureOption = true
-		sameSiteOption = http.SameSiteNoneMode
-		partitioned = true
-	}
-
-	domain := os.Getenv("COOKIE_DOMAIN")
-
 	http.SetCookie(w, &http.Cookie{
 		Name:        "stytch_session_jwt",
 		Value:       jwt,
-		Path:        "/",
-		Domain:      domain,
-		HttpOnly:    true,
-		Secure:      secureOption,
-		SameSite:    sameSiteOption,
-		Partitioned: partitioned,
+		Path:        s.CookieConfig.Path,
+		Domain:      s.CookieConfig.Domain,
+		HttpOnly:    s.CookieConfig.HTTPOnly,
+		Secure:      s.CookieConfig.Secure,
+		SameSite:    s.CookieConfig.SameSite,
+		Partitioned: s.CookieConfig.Partitioned,
 		MaxAge:      5 * 60, // 5 mins
 	})
 
 	http.SetCookie(w, &http.Cookie{
 		Name:        "stytch_session_token",
 		Value:       token,
-		Path:        "/",
-		Domain:      domain,
-		HttpOnly:    true,
-		Secure:      secureOption,
-		SameSite:    sameSiteOption,
-		Partitioned: partitioned,
+		Path:        s.CookieConfig.Path,
+		Domain:      s.CookieConfig.Domain,
+		HttpOnly:    s.CookieConfig.HTTPOnly,
+		Secure:      s.CookieConfig.Secure,
+		SameSite:    s.CookieConfig.SameSite,
+		Partitioned: s.CookieConfig.Partitioned,
 		MaxAge:      24 * 30 * 60 * 60, // 30 days
 	})
+}
+
+func NewCookieConfig() CookieConfig {
+	c := CookieConfig{
+		Path:        "/",
+		HTTPOnly:    true,
+		Domain:      os.Getenv("COOKIE_DOMAIN"),
+		Secure:      true,
+		SameSite:    http.SameSiteDefaultMode,
+		Partitioned: true,
+	}
+
+	if os.Getenv("ENV") == "development" {
+		c.SameSite = http.SameSiteNoneMode
+	}
+
+	return c
 }
 
 func (s *Service) getUser(userID string) (user.User, error) {

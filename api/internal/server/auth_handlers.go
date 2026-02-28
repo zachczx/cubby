@@ -289,7 +289,7 @@ func (s *Service) GetAuthenticatedUser(w http.ResponseWriter, r *http.Request) *
 		SessionDurationMinutes: 43200,
 	})
 	if err != nil {
-		log.Printf("Error refreshing session: %v\n", err)
+		log.Printf("getAuthenticatedUser: %v\n", err)
 		return nil
 	}
 
@@ -314,29 +314,17 @@ func (s *Service) Logout(w http.ResponseWriter, r *http.Request) {
 	}
 	_ = resp
 
-	secureOption := true
-	sameSiteOption := http.SameSiteDefaultMode
-	partitioned := true
-
-	if os.Getenv("ENV") == "development" {
-		secureOption = false
-		sameSiteOption = http.SameSiteLaxMode
-		partitioned = false
-	}
-
-	domain := os.Getenv("COOKIE_DOMAIN")
-
 	expire := time.Now().Add(-7 * 24 * time.Hour)
 
 	http.SetCookie(w, &http.Cookie{
 		Name:        "stytch_session_jwt",
 		Value:       "",
-		Path:        "/",
-		Domain:      domain,
-		HttpOnly:    true,
-		Secure:      secureOption,
-		SameSite:    sameSiteOption,
-		Partitioned: partitioned,
+		Path:        s.CookieConfig.Path,
+		Domain:      s.CookieConfig.Domain,
+		HttpOnly:    s.CookieConfig.HTTPOnly,
+		Secure:      s.CookieConfig.Secure,
+		SameSite:    s.CookieConfig.SameSite,
+		Partitioned: s.CookieConfig.Partitioned,
 		Expires:     expire,
 		MaxAge:      -1,
 	})
@@ -344,12 +332,12 @@ func (s *Service) Logout(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name:        "stytch_session_token",
 		Value:       "",
-		Path:        "/",
-		Domain:      domain,
-		HttpOnly:    true,
-		Secure:      secureOption,
-		SameSite:    sameSiteOption,
-		Partitioned: partitioned,
+		Path:        s.CookieConfig.Path,
+		Domain:      s.CookieConfig.Domain,
+		HttpOnly:    s.CookieConfig.HTTPOnly,
+		Secure:      s.CookieConfig.Secure,
+		SameSite:    s.CookieConfig.SameSite,
+		Partitioned: s.CookieConfig.Partitioned,
 		Expires:     expire,
 		MaxAge:      -1,
 	})

@@ -51,6 +51,7 @@ func main() {
 		tracker.DefaultService{},
 		user.UserManager{},
 		fcm,
+		server.NewCookieConfig(),
 	)
 
 	mux := NewHTTPHandler(s)
