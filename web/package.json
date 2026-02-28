@@ -16,7 +16,7 @@
 		"format": "prettier --write .",
 		"lint": "prettier --check . && eslint .",
 		"mob": "vite build && npx cap sync && npx cap run android",
-		"init": "vite build && npx cap sync && npx cap open android"
+		"mob:init": "vite build && npx cap sync && npx cap open android"
 	},
 	"devDependencies": {
 		"@capacitor/cli": "^8.1.0",
