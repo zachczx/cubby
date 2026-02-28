@@ -27,4 +27,4 @@ android
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
-data.db
+data.db\napi/tmp/
