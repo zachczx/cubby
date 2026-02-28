@@ -147,7 +147,7 @@ func (s *Service) MagicLinkHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Set the session cookies (JWT + Refresh Token)
-	s.setSessionCookies(w, resp.SessionJWT, resp.SessionToken)
+	s.setSessionCookies(w, r, resp.SessionJWT, resp.SessionToken)
 
 	isNewUser, userID, err := s.UserManager.SyncUserInternal(s.DB, resp.User.Emails[0].Email, *resp.User.CreatedAt)
 	if err != nil {
@@ -219,7 +219,7 @@ func (s *Service) VerifyOTPHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Set the session cookies (JWT + Refresh Token)
-	s.setSessionCookies(w, resp.SessionJWT, resp.SessionToken)
+	s.setSessionCookies(w, r, resp.SessionJWT, resp.SessionToken)
 
 	isNewUser, userID, err := s.UserManager.SyncUserInternal(s.DB, resp.User.Emails[0].Email, *resp.User.CreatedAt)
 	if err != nil {
@@ -293,7 +293,7 @@ func (s *Service) GetAuthenticatedUser(w http.ResponseWriter, r *http.Request) *
 		return nil
 	}
 
-	s.setSessionCookies(w, resp.SessionJWT, resp.SessionToken)
+	s.setSessionCookies(w, r, resp.SessionJWT, resp.SessionToken)
 
 	return &resp.User
 }

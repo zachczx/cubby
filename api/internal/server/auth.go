@@ -59,16 +59,29 @@ type CookieConfig struct {
 	HTTPOnly    bool
 }
 
-func (s *Service) setSessionCookies(w http.ResponseWriter, jwt string, token string) {
+func (s *Service) setSessionCookies(w http.ResponseWriter, r *http.Request, jwt string, token string) {
+	secure := s.CookieConfig.Secure
+	sameSite := s.CookieConfig.SameSite
+
+	partitioned := s.CookieConfig.Partitioned
+	domain := s.CookieConfig.Domain
+
+	if os.Getenv("ENV") == "development" && r.Header.Get("x-capacitor-app") == "true" {
+		secure = false
+		sameSite = http.SameSiteLaxMode
+		partitioned = false
+		domain = ""
+	}
+
 	http.SetCookie(w, &http.Cookie{
 		Name:        "stytch_session_jwt",
 		Value:       jwt,
 		Path:        s.CookieConfig.Path,
-		Domain:      s.CookieConfig.Domain,
+		Domain:      domain,
 		HttpOnly:    s.CookieConfig.HTTPOnly,
-		Secure:      s.CookieConfig.Secure,
-		SameSite:    s.CookieConfig.SameSite,
-		Partitioned: s.CookieConfig.Partitioned,
+		Secure:      secure,
+		SameSite:    sameSite,
+		Partitioned: partitioned,
 		MaxAge:      5 * 60, // 5 mins
 	})
 
@@ -76,11 +89,11 @@ func (s *Service) setSessionCookies(w http.ResponseWriter, jwt string, token str
 		Name:        "stytch_session_token",
 		Value:       token,
 		Path:        s.CookieConfig.Path,
-		Domain:      s.CookieConfig.Domain,
+		Domain:      domain,
 		HttpOnly:    s.CookieConfig.HTTPOnly,
-		Secure:      s.CookieConfig.Secure,
-		SameSite:    s.CookieConfig.SameSite,
-		Partitioned: s.CookieConfig.Partitioned,
+		Secure:      secure,
+		SameSite:    sameSite,
+		Partitioned: partitioned,
 		MaxAge:      24 * 30 * 60 * 60, // 30 days
 	})
 }

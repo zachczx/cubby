@@ -71,7 +71,7 @@ func Healthcheck(w http.ResponseWriter, _ *http.Request) {
 var (
 	devOrigin     = "http://localhost:5173"
 	allowedOrigin = os.Getenv("PUBLIC_WEB_URL")
-	altDevOrigin  = "http://localhost"
+	altDevOrigin  = "http://10.0.2.2"
 )
 
 func CORS(next http.Handler) http.Handler {
