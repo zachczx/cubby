@@ -117,29 +117,31 @@ self.addEventListener('push', (event) => {
 // Firebase
 ////////////////////////////////////
 
-const firebaseApp = initializeApp({
-	apiKey: 'AIzaSyBJVeYpH1mvHBNdYhslq9Zan3p_hT0deyc',
-	authDomain: 'cubbydotdev.firebaseapp.com',
-	projectId: 'cubbydotdev',
-	storageBucket: 'cubbydotdev.firebasestorage.app',
-	messagingSenderId: '466629353659',
-	appId: '1:466629353659:web:4257b35546b449a8eb099e',
-	measurementId: 'G-PETLZ8V716'
-});
+if (typeof PushManager !== 'undefined') {
+	const firebaseApp = initializeApp({
+		apiKey: 'AIzaSyBJVeYpH1mvHBNdYhslq9Zan3p_hT0deyc',
+		authDomain: 'cubbydotdev.firebaseapp.com',
+		projectId: 'cubbydotdev',
+		storageBucket: 'cubbydotdev.firebasestorage.app',
+		messagingSenderId: '466629353659',
+		appId: '1:466629353659:web:4257b35546b449a8eb099e',
+		measurementId: 'G-PETLZ8V716'
+	});
 
-const messaging = getMessaging(firebaseApp);
+	const messaging = getMessaging(firebaseApp);
 
-// Handle background messages
-onBackgroundMessage(messaging, (payload) => {
-	console.log('[firebase-messaging-sw.js] Received background message ', payload);
-	const notificationTitle = 'Background Message Title';
-	const notificationOptions = {
-		body: 'Background Message body.',
-		icon: '/firebase-logo.png'
-	};
+	// Handle background messages
+	onBackgroundMessage(messaging, (payload) => {
+		console.log('[firebase-messaging-sw.js] Received background message ', payload);
+		const notificationTitle = 'Background Message Title';
+		const notificationOptions = {
+			body: 'Background Message body.',
+			icon: '/firebase-logo.png'
+		};
 
-	self.registration.showNotification(notificationTitle, notificationOptions);
-});
+		self.registration.showNotification(notificationTitle, notificationOptions);
+	});
+}
 
 self.addEventListener('notificationclick', (event) => {
 	event.notification.close();

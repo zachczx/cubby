@@ -1,9 +1,13 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-	appId: 'com.cczzxx.app',
+	appId: 'dev.cubby.app',
 	appName: 'Cubby',
-	webDir: 'build'
+	webDir: 'build',
+	server: {
+		androidScheme: 'http',
+		cleartext: true
+	}
 };
 
 export default config;

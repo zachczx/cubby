@@ -1,11 +1,17 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import { api } from '$lib/api';
 	import Logo from '$lib/assets/logo.webp?w=200&enhanced';
 	import { onMount } from 'svelte';
 
-	onMount(() => {
-		goto(resolve('/app'));
+	onMount(async () => {
+		const response = await api.get('check');
+		if (response.status === 204) {
+			goto(resolve('/app'));
+		} else {
+			goto(resolve('/login'));
+		}
 	});
 </script>
 

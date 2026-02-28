@@ -14,10 +14,12 @@
 	import { getColoredTrackers, getTrackerIcon, generateSubscriptionEntries } from '$lib/mapper';
 	import SkeletonActionCard from '$lib/ui/SkeletonActionCard.svelte';
 	import { calculateStreak } from '$lib/streaks';
-	import { type Component } from 'svelte';
+	import { onMount, type Component } from 'svelte';
 	import { router } from '$lib/routes';
 	import { api } from '$lib/api';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
@@ -135,6 +137,13 @@
 			addToast('error', 'Error!');
 		}
 	}
+
+	onMount(async () => {
+		const response = await api.get('check');
+		if (response.status !== 204) {
+			goto(resolve('/login'));
+		}
+	});
 </script>
 
 <PageWrapper title="Cubby" back={false}>
