@@ -1,14 +1,10 @@
-<script>
+<script lang="ts">
 	import { goto } from '$app/navigation';
-	import Icon from '@iconify/svelte';
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
-	import Logo from '$lib/assets/logo.webp?w=600&enhanced';
-	import { resolve } from '$app/paths';
-
+	import corgiEmail from '$lib/assets/corgi_email.webp?w=600;400;300&enhanced';
 	import { onMount } from 'svelte';
 	import { api } from '$lib/api';
-	import { createQuery } from '@tanstack/svelte-query';
 	import OtpInput from '$lib/ui/OtpInput.svelte';
 
 	let email = $state('');
@@ -47,7 +43,7 @@
 		formData.append('email', cleanEmail);
 
 		try {
-			const response = await api
+			const response: Record<'methodId', string> = await api
 				.post('otp/send', {
 					body: formData
 				})
@@ -65,11 +61,16 @@
 		}
 	}
 
+	interface VerifyResponse {
+		status: string;
+		onboarding: string;
+	}
+
 	async function submitOtpHandler() {
 		spinner = true;
 
 		try {
-			const response = await api
+			const response: VerifyResponse = await api
 				.post('otp/verify', {
 					body: JSON.stringify({ methodId: methodId, otp: otp })
 				})
@@ -97,10 +98,16 @@
 	<title>Login</title>
 </svelte:head>
 
-<PageWrapper title="Login">
+<PageWrapper title="Login" focusedScreen showSettingsIcon={false} back={false}>
 	<form class={['grid h-full w-full max-w-sm content-center justify-self-center']}>
 		<div class="lg:bg-base-200 w-full rounded-2xl lg:p-8 lg:shadow-md">
-			<enhanced:img src={Logo} alt="logo" />
+			<div class="w-full max-w-72 justify-self-center lg:max-w-lg">
+				<enhanced:img
+					src={corgiEmail}
+					alt="email"
+					sizes="(min-width:1920px) 1000px, (min-width:1080px) 600px, (min-width:768px) 400px, 300px"
+				/>
+			</div>
 
 			{#if isLoading}
 				<div class="grid min-h-24 content-center justify-center">
@@ -131,14 +138,18 @@
 					{/if}
 				</button>
 			{:else if showOtpInput}
-				<div class="grid max-w-96 content-start justify-items-center justify-self-center">
+				<div class="mt-4 grid max-w-96 content-start justify-items-center justify-self-center">
+					<div class="text-center">
+						<h2 class="text-2xl font-bold">OTP Sent</h2>
+						<span>Enter the code sent to</span>&nbsp;<span class="font-bold">{email}</span>
+					</div>
 					<OtpInput bind:otp />
 					<button
 						class="btn btn-lg btn-primary full mt-4 w-full rounded-full"
 						onclick={() => submitOtpHandler()}
 					>
 						{#if !spinner}
-							Login
+							Verify
 						{:else}
 							<span class="loading loading-md loading-spinner"></span>
 						{/if}
