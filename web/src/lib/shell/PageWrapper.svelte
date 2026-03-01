@@ -8,13 +8,15 @@
 		children,
 		title,
 		back = true,
-		focusedScreen = false
+		focusedScreen = false,
+		showSettingsIcon = true
 	}: {
 		children: Snippet;
 		title: string | undefined;
 		back?: boolean;
 		focusedScreen?: boolean;
 		focusedScreenAction?: Snippet;
+		showSettingsIcon?: boolean;
 	} = $props();
 
 	let currentSection = $derived.by(() => {
@@ -105,16 +107,18 @@
 			</ul>
 		</div>
 		<div class="lg:navbar-end">
-			<div id="mobile-hamburger" class="dropdown flex items-center lg:hidden">
-				<a href="/app/profile" class="btn btn-ghost px-2 py-0"
-					><Icon icon="material-symbols:settings" class="size-6" /></a
-				>
-			</div>
-			<div id="desktop-logout" class="hidden items-center text-sm lg:flex">
-				<a href="/app/profile" class="btn btn-ghost px-2 py-0"
-					><Icon icon="material-symbols:settings" class="size-6" /></a
-				><a href="/app/logout" class="btn btn-outline btn-sm ms-2">Logout</a>
-			</div>
+			{#if showSettingsIcon}
+				<div id="mobile-hamburger" class="dropdown flex items-center lg:hidden">
+					<a href="/app/profile" class="btn btn-ghost px-2 py-0"
+						><Icon icon="material-symbols:settings" class="size-6" /></a
+					>
+				</div>
+				<div id="desktop-logout" class="hidden items-center text-sm lg:flex">
+					<a href="/app/profile" class="btn btn-ghost px-2 py-0"
+						><Icon icon="material-symbols:settings" class="size-6" /></a
+					><a href="/app/logout" class="btn btn-outline btn-sm ms-2">Logout</a>
+				</div>
+			{/if}
 		</div>
 	</div>
 
