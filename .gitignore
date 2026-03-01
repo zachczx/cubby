@@ -20,8 +20,8 @@ Thumbs.db
 
 *.old
 
-# CapacitorJS Files
-android
+# Firebase
+google-services.json
 
 # Vite
 vite.config.js.timestamp-*
