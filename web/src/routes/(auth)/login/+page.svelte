@@ -157,7 +157,9 @@
 				<div class="mt-4 grid max-w-96 content-start justify-items-center justify-self-center">
 					<div class="text-center">
 						<h2 class="text-2xl font-bold">OTP Sent</h2>
-						<span>Enter the code sent to</span>&nbsp;<span class="font-bold">{email}</span>
+						<span>Enter the code sent to</span>&nbsp;<span class="font-bold"
+							>{email.toLocaleLowerCase().trim()}</span
+						>
 					</div>
 					<OtpInput bind:otp />
 					<button
