@@ -34,16 +34,8 @@
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
 
-        <service
-    android:name=".java.MyFirebaseMessagingService"
-    android:exported="false">
-        <intent-filter>
-            <action android:name="com.google.firebase.MESSAGING_EVENT" />
-        </intent-filter>
-    </service>
-
-    <!-- TODO: Add a dedicated push notification icon (monochrome white-on-transparent PNG) -->
-    <meta-data android:name="com.google.firebase.messaging.default_notification_icon" android:resource="@mipmap/ic_launcher" />
+        <!-- TODO: Add a dedicated push notification icon (monochrome white-on-transparent PNG) -->
+        <meta-data android:name="com.google.firebase.messaging.default_notification_icon" android:resource="@mipmap/ic_launcher" />
     </application>
 
     <!-- Permissions -->
