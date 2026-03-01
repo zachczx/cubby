@@ -4,6 +4,8 @@ import { browser } from '$app/environment';
 import { Capacitor } from '@capacitor/core';
 import { CapacitorCookies } from '@capacitor/core';
 
+// Android emulator cant reach host's localhost, it has to use 10.0.2.2
+// cookieurl must still be localhost as capacitor stores cookies under original url.
 let apiUrl = PUBLIC_API_URL;
 const cookieUrl = PUBLIC_API_URL;
 if (Capacitor.getPlatform() === 'android' && apiUrl.includes('localhost')) {
@@ -12,6 +14,7 @@ if (Capacitor.getPlatform() === 'android' && apiUrl.includes('localhost')) {
 
 let headers: Record<string, string> = {};
 if (Capacitor.getPlatform() === 'android') {
+	// Tells backend to relax cookie settings: secure false, same site lax, partitioned false).
 	headers['x-capacitor-app'] = 'true';
 }
 
@@ -21,6 +24,7 @@ export const api = ky.create({
 	credentials: 'include',
 	headers: headers,
 	hooks: {
+		// capacitor doesnt auto-send cookies cross-origin, so I need to manually read and attach them.
 		beforeRequest: [
 			async (request) => {
 				if (Capacitor.getPlatform() === 'android') {
