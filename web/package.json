@@ -15,7 +15,7 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"format": "prettier --write .",
 		"lint": "prettier --check . && eslint .",
-		"mob": "vite build && npx cap sync && npx cap run android",
+		"mob": "vite build --mode mobile && npx cap sync && npx cap run android",
 		"mob:init": "npx cap open android"
 	},
 	"devDependencies": {
