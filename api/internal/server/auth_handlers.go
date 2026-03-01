@@ -167,10 +167,8 @@ func (s *Service) MagicLinkHandler(w http.ResponseWriter, r *http.Request) {
 		redirectURL += "/profile/account?onboarding=true"
 	}
 
-	/*
-		A HTML redirect is used here because http.Redirect() often causes page failure.
-		Seems like a case of cookie not being set yet, but redirect succeding, therefore causing frontend to fail auth check.
-	*/
+	// A HTML redirect is used here because http.Redirect() often causes page failure.
+	// Seems like a case of cookie not being set yet, but redirect succeding, therefore causing frontend to fail auth check.
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, `<!DOCTYPE html>
@@ -204,8 +202,6 @@ func (s *Service) VerifyOTPHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 		return
 	}
-
-	fmt.Println(otpInput)
 
 	resp, err := s.Client.OTPs.Authenticate(r.Context(), &otp.AuthenticateParams{
 		MethodID:               otpInput.MethodID,
