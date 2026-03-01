@@ -14,6 +14,8 @@
 	let spinner = $state(false);
 	let otp = $state('');
 	let methodId = $state('');
+	const resendDefault = 2 * 60;
+	let resendTimer = $state(0);
 
 	$effect(() => {
 		if (otp.length === 6) {
@@ -36,7 +38,21 @@
 		isLoading = false;
 	});
 
+	async function resend() {
+		getOtpHandler();
+
+		resendTimer = resendDefault;
+
+		const interval = setInterval(() => {
+			resendTimer -= 1;
+
+			if (resendTimer === 0) clearInterval(interval);
+		}, 1000);
+	}
+
 	async function getOtpHandler() {
+		if (!email) return;
+
 		spinner = true;
 		const cleanEmail = email.toLowerCase().trim();
 		const formData = new URLSearchParams();
@@ -153,6 +169,13 @@
 						{:else}
 							<span class="loading loading-md loading-spinner"></span>
 						{/if}
+					</button>
+					<button
+						class="btn btn-md btn-link full mt-4 w-full rounded-full"
+						onclick={() => resend()}
+						disabled={resendTimer > 0 ? true : undefined}
+					>
+						Resend OTP
 					</button>
 				</div>
 			{/if}
