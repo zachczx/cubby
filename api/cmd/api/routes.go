@@ -72,13 +72,14 @@ var (
 	devOrigin     = "http://localhost:5173"
 	allowedOrigin = os.Getenv("PUBLIC_WEB_URL")
 	altDevOrigin  = "http://10.0.2.2"
+	prodAppOrigin = "http://localhost"
 )
 
 func CORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
 
-		if origin == allowedOrigin || origin == devOrigin || origin == altDevOrigin {
+		if origin == allowedOrigin || origin == devOrigin || origin == altDevOrigin || origin == prodAppOrigin {
 			w.Header().Set("Access-Control-Allow-Origin", origin)
 		}
 
