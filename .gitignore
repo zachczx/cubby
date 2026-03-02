@@ -20,8 +20,9 @@ Thumbs.db
 
 *.old
 
-# Firebase
+# Google/Firebase
 google-services.json
+*.key
 
 # Vite
 vite.config.js.timestamp-*
