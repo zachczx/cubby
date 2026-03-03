@@ -15,5 +15,6 @@ export default defineConfig({
 			open: true // opens the visualization in the browser after build
 		})
 	],
-	server: { host: true }
+	server: { host: true },
+	preview: { port: 5173 }
 });
