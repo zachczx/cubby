@@ -2,7 +2,6 @@ package main
 
 import (
 	"net/http"
-	"os"
 	"slices"
 
 	"github.com/zachczx/cubby/api/internal/response"
@@ -69,13 +68,11 @@ func Healthcheck(w http.ResponseWriter, _ *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-var originURLs = []string{os.Getenv("CORS_DEV"), os.Getenv("CORS_WEB"), os.Getenv("CORS_DEV_ALT"), os.Getenv("CORS_PROD_APP")}
-
-func CORS(next http.Handler) http.Handler {
+func CORS(s *server.Service, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
 
-		if slices.Contains(originURLs, origin) {
+		if slices.Contains(s.AllowedOrigins, origin) {
 			w.Header().Set("Access-Control-Allow-Origin", origin)
 		}
 

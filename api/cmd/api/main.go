@@ -44,6 +44,8 @@ func main() {
 		log.Fatal(err)
 	}
 
+	origins := []string{os.Getenv("CORS_DEV"), os.Getenv("CORS_WEB"), os.Getenv("CORS_DEV_ALT"), os.Getenv("CORS_PROD_APP")}
+
 	s := server.NewService(
 		os.Getenv("STYTCH_PROJECT_ID"),
 		os.Getenv("STYTCH_SECRET"),
@@ -52,6 +54,7 @@ func main() {
 		user.UserManager{},
 		fcm,
 		server.NewCookieConfig(),
+		origins,
 	)
 
 	mux := NewHTTPHandler(s)
@@ -60,7 +63,7 @@ func main() {
 	server := &http.Server{
 		Addr:              ":" + os.Getenv("API_LISTEN_ADDR"),
 		ReadHeaderTimeout: 5 * time.Second,
-		Handler:           CORS(mux),
+		Handler:           CORS(s, mux),
 	}
 
 	go tracker.StartNotifications(s.DB, s.Notifier)

@@ -22,6 +22,7 @@ type Service struct {
 	UserManager           UserManager
 	Notifier              *notifier.FCMClient
 	CookieConfig          CookieConfig
+	AllowedOrigins        []string
 }
 
 type TrackerDefaultCreator interface {
@@ -34,7 +35,7 @@ type UserManager interface {
 	Get(db *sqlx.DB, email string) (user.User, error)
 }
 
-func NewService(projectID string, secret string, DB *sqlx.DB, dc TrackerDefaultCreator, um UserManager, fcm *notifier.FCMClient, cc CookieConfig) *Service {
+func NewService(projectID string, secret string, DB *sqlx.DB, dc TrackerDefaultCreator, um UserManager, fcm *notifier.FCMClient, cc CookieConfig, ao []string) *Service {
 	client, err := stytchapi.NewClient(projectID, secret)
 	if err != nil {
 		log.Fatalf("Error creating client: %v", err)
@@ -47,6 +48,7 @@ func NewService(projectID string, secret string, DB *sqlx.DB, dc TrackerDefaultC
 		UserManager:           um,
 		Notifier:              fcm,
 		CookieConfig:          cc,
+		AllowedOrigins:        ao,
 	}
 }
 
