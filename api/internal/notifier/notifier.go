@@ -63,7 +63,7 @@ func NewFCMClient(ctx context.Context) (*FCMClient, error) {
 	}
 
 	app, err := firebase.NewApp(ctx, &firebase.Config{
-		ProjectID: "cubbydotdev",
+		ProjectID: os.Getenv("FIREBASE_PROJECT_ID"),
 	}, option.WithAuthCredentials(creds))
 	if err != nil {
 		return nil, err
