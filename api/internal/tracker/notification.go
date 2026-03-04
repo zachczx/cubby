@@ -10,20 +10,25 @@ import (
 	"github.com/zachczx/cubby/api/internal/notifier"
 )
 
-func StartNotifications(db *sqlx.DB, fcm *notifier.FCMClient) error {
+func StartNotifications(ctx context.Context, db *sqlx.DB, fcm *notifier.FCMClient) error {
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
 
-	for range ticker.C {
-		go func() {
-			if err := CheckAndNotify(db, fcm); err != nil {
-				// return fmt.Errorf("start notif: %w", err)
-				log.Println("notification worker error:", err)
-			}
-		}()
-	}
+	for {
+		select {
+		case <-ctx.Done():
+			log.Println("shutting down notification worker...")
+			return nil
 
-	return nil
+		case <-ticker.C:
+			go func() {
+				if err := CheckAndNotify(db, fcm); err != nil {
+					// return fmt.Errorf("start notif: %w", err)
+					log.Println("notification worker error:", err)
+				}
+			}()
+		}
+	}
 }
 
 var ctxTimeout time.Duration = 10

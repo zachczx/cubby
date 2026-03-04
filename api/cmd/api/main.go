@@ -6,6 +6,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -16,6 +18,11 @@ import (
 	"github.com/zachczx/cubby/api/internal/server"
 	"github.com/zachczx/cubby/api/internal/tracker"
 	"github.com/zachczx/cubby/api/internal/user"
+)
+
+const (
+	shutdownGrace  = 10 * time.Second
+	defaultTimeout = 5 * time.Second
 )
 
 func main() {
@@ -36,10 +43,10 @@ func main() {
 	}
 	defer db.Close()
 
-	fmt.Println(os.Getenv("ENV"))
+	initCtx, cancel := context.WithTimeout(context.Background(), shutdownGrace)
+	defer cancel()
 
-	ctx := context.Background()
-	fcm, err := notifier.NewFCMClient(ctx)
+	fcm, err := notifier.NewFCMClient(initCtx)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -62,13 +69,30 @@ func main() {
 	fmt.Println("Listening on:", ":"+os.Getenv("API_LISTEN_ADDR"))
 	server := &http.Server{
 		Addr:              ":" + os.Getenv("API_LISTEN_ADDR"),
-		ReadHeaderTimeout: 5 * time.Second,
+		ReadHeaderTimeout: defaultTimeout,
 		Handler:           CORS(s, mux),
 	}
 
-	go tracker.StartNotifications(s.DB, s.Notifier)
+	osCtx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
 
-	if err := server.ListenAndServe(); err != nil {
-		log.Fatal(err)
+	go tracker.StartNotifications(osCtx, s.DB, s.Notifier)
+
+	go func() {
+		if err := server.ListenAndServe(); err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	<-osCtx.Done()
+	log.Println("shutting down gracefully, press ctrl+c again to force")
+
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
+	defer cancel()
+
+	if err := server.Shutdown(shutdownCtx); err != nil {
+		log.Fatal("server forced shutdown: ", err)
 	}
+
+	log.Println("Server exiting")
 }
