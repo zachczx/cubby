@@ -11,6 +11,7 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
+	"github.com/zachczx/cubby/api/internal/database"
 	"github.com/zachczx/cubby/api/internal/notifier"
 	"github.com/zachczx/cubby/api/internal/server"
 	"github.com/zachczx/cubby/api/internal/tracker"
@@ -29,8 +30,7 @@ func main() {
 		fmt.Println("env init: ok")
 	}
 
-	pg := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), os.Getenv("DB_NAME"))
-	db, err := sqlx.Connect("pgx", pg)
+	db, err := sqlx.Connect("pgx", database.GetConnectionString())
 	if err != nil {
 		log.Fatal(err)
 	}
