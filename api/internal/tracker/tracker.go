@@ -167,26 +167,7 @@ func ToggleShow(db *sqlx.DB, userID uuid.UUID, trackerID uuid.UUID, show bool) e
 }
 
 type TrackerLatestEntry struct {
-	ID           uuid.UUID  `json:"id" db:"id"`
-	Owner        uuid.UUID  `json:"-" db:"owner_id"`
-	Family       uuid.UUID  `json:"familyId" db:"family_id"`
-	Name         string     `json:"name" db:"name"`
-	Display      string     `json:"display" db:"display"`
-	Interval     int        `json:"interval" db:"interval"`
-	IntervalUnit string     `json:"intervalUnit" db:"interval_unit"`
-	Category     string     `json:"category" db:"category"`
-	Kind         string     `json:"kind" db:"kind"`
-	ActionLabel  string     `json:"actionLabel" db:"action_label"`
-	Pinned       bool       `json:"pinned" db:"pinned"`
-	Show         bool       `json:"show" db:"show"`
-	Icon         string     `json:"icon" db:"icon"`
-	StartDate    *time.Time `json:"startDate,omitempty" db:"start_date"`
-	Cost         *float64   `json:"cost,omitempty" db:"cost"`
-	CreatedAt    time.Time  `json:"createdAt" db:"created_at"`
-	UpdatedAt    time.Time  `json:"updatedAt" db:"updated_at"`
-
-	FamilyName string `json:"familyName" db:"family_name"`
-	IsOwner    bool   `json:"isOwner" db:"-"`
+	Tracker
 
 	LastEntry        *time.Time `db:"last_entry" json:"lastEntry"`
 	LastInterval     *int       `json:"lastInterval" db:"last_interval"`
