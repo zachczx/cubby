@@ -15,8 +15,8 @@ type User struct {
 	Name              *string   `db:"name"       json:"name"`
 	SoundOn           bool      `db:"sound_on"       json:"soundOn"`
 	TaskLookAheadDays int       `db:"task_lookahead_days" json:"taskLookaheadDays"`
-	CreatedAt         time.Time `db:"created_at" json:"created_at"`
-	UpdatedAt         time.Time `db:"updated_at" json:"updated_at"`
+	CreatedAt         time.Time `db:"created_at" json:"createdAt"`
+	UpdatedAt         time.Time `db:"updated_at" json:"updatedAt"`
 }
 
 type UserManager struct{}

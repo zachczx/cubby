@@ -16,8 +16,8 @@ type Entry struct {
 	PerformedBy  uuid.UUID `db:"performed_by" json:"performedBy"`
 	PerformedAt  time.Time `db:"performed_at" json:"performedAt"`
 	Remark       string    `db:"remark" json:"remark"`
-	CreatedAt    time.Time `db:"created_at" json:"created_at"`
-	UpdatedAt    time.Time `db:"updated_at" json:"updated_at"`
+	CreatedAt    time.Time `db:"created_at" json:"createdAt"`
+	UpdatedAt    time.Time `db:"updated_at" json:"updatedAt"`
 }
 
 type EntryInput struct {

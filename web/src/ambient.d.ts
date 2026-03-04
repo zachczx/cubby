@@ -6,19 +6,19 @@ interface UserDB {
 	name: string;
 	soundOn: boolean;
 	taskLookaheadDays: number;
-	created_at: string;
-	updated_at: string;
+	createdAt: string;
+	updatedAt: string;
 }
 
 interface VacationDB {
-	collectionId: string;
-	collectionName: 'vacation';
 	id: string;
-	created: string;
-	updated: string;
-	user: string;
+	familyId: string;
+	createdBy: string;
 	startDateTime: string;
 	endDateTime: string;
+	label?: string | undefined;
+	createdAt: string;
+	updatedAt: string;
 }
 
 type IntervalUnit = 'day' | 'month' | 'year';
@@ -109,8 +109,8 @@ interface FamilyOwnerMember {
 	id: string;
 	email: string;
 	name: string | null;
-	created_at: string;
-	updated_at: string;
+	createdAt: string;
+	updatedAt: string;
 }
 
 interface InviteDB {
