@@ -254,10 +254,9 @@ func GetDueTrackerID(trackers []TrackerLatestEntry) ([]uuid.UUID, error) {
 	var due []uuid.UUID
 
 	for _, t := range trackers {
-		if *t.DueStatus == "due" {
+		if t.DueStatus != nil && *t.DueStatus == "due" {
 			due = append(due, t.ID)
 		}
 	}
 	return due, nil
 }
-
