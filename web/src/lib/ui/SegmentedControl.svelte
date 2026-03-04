@@ -18,6 +18,7 @@
 			label {
 				width: 100%;
 				font-size: 1.125rem;
+				cursor: pointer;
 
 				&:first-child {
 					border-start-start-radius: var(--join-ss, var(--radius-field) /* var(--radius-field) */);
@@ -39,12 +40,7 @@
 				justify-content: center;
 
 				outline-color: #d6cecb;
-				/* var(--input-color);
-				--input-color: color-mix(
-					in oklab,
-					var(--color-base-content) 40%,
-					#0000
-				); */
+
 				--size: calc(var(--size-field, 0.25rem) * 10);
 
 				&:not(:first-child) {
