@@ -245,7 +245,7 @@
 									size: 'list',
 									title: sub.display,
 									entries: sub.entryData,
-									route: `/app/${sub.id}`,
+									route: `/app/trackers/${sub.id}`,
 									icon: getTrackerIcon(sub.icon),
 									lastChild: i === entries.general.length - 1 ? true : undefined,
 									button: {
