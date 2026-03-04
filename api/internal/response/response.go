@@ -77,7 +77,7 @@ func WriteError(w http.ResponseWriter, err error) {
 			Message: "could not find resource",
 		}
 		writeJSON(w, http.StatusNotFound, errResp)
-
+		return
 		// Need more cases
 	}
 
