@@ -128,14 +128,14 @@ func AcceptFamilyInvite(db *sqlx.DB, userID uuid.UUID, inviteID uuid.UUID) error
 
 	insertQ := `INSERT INTO families_users (family_id, user_id) VALUES ($1, $2)`
 
-	if _, err := db.Exec(insertQ, currentInvite.FamilyID, userID); err != nil {
+	if _, err := tx.Exec(insertQ, currentInvite.FamilyID, userID); err != nil {
 		return fmt.Errorf("insert families_users: %w", err)
 	}
 
 	// Modify invite to mark completed
 	updateQ := `UPDATE invites SET status = $1 WHERE invitee_id = $2 AND id = $3`
 
-	if _, err := db.Exec(updateQ, StatusAccepted, userID, inviteID); err != nil {
+	if _, err := tx.Exec(updateQ, StatusAccepted, userID, inviteID); err != nil {
 		return fmt.Errorf("update invites: %w", err)
 	}
 
