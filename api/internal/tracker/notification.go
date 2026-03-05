@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"sync"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -14,14 +15,20 @@ func StartNotifications(ctx context.Context, db *sqlx.DB, fcm *notifier.FCMClien
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
 
+	var wg sync.WaitGroup
+
 	for {
 		select {
 		case <-ctx.Done():
+			wg.Wait()
 			log.Println("shutting down notification worker...")
 			return nil
 
 		case <-ticker.C:
+			wg.Add(1)
+
 			go func() {
+				defer wg.Done()
 				if err := CheckAndNotify(db, fcm); err != nil {
 					// return fmt.Errorf("start notif: %w", err)
 					log.Println("notification worker error:", err)
