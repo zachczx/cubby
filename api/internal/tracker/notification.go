@@ -49,7 +49,7 @@ func CheckAndNotify(db *sqlx.DB, fcm *notifier.FCMClient) error {
 		return fmt.Errorf("get tracker last: %w", err)
 	}
 
-	lastDueTrackers, err := CalculateTrackersLastDue(db, t)
+	lastDueTrackers, err := CalculateTrackersLastDue(t)
 	if err != nil {
 		return fmt.Errorf("calculateTrackersLastDue: %w", err)
 	}

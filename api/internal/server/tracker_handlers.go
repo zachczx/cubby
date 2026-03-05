@@ -265,7 +265,7 @@ func (s *Service) GenerateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newT, err := tracker.CalculateTrackersLastDue(s.DB, t)
+	newT, err := tracker.CalculateTrackersLastDue(t)
 	if err != nil {
 		response.WriteError(w, err)
 		return

@@ -193,7 +193,7 @@ func GetTrackersLast(db *sqlx.DB) ([]TrackerLatestEntry, error) {
 	return t, nil
 }
 
-func CalculateTrackersLastDue(db *sqlx.DB, tDB []TrackerLatestEntry) ([]TrackerLatestEntry, error) {
+func CalculateTrackersLastDue(tDB []TrackerLatestEntry) ([]TrackerLatestEntry, error) {
 	var newT []TrackerLatestEntry
 
 	newT = tDB
