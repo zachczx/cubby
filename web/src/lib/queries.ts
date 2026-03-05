@@ -2,6 +2,7 @@ import { QueryClient, queryOptions, type RefetchQueryFilters } from '@tanstack/s
 import dayjs from 'dayjs';
 import { api } from './api';
 
+const defaultTz = 'Asia/Singapore';
 const staleTime = 5 * 60 * 1000;
 const rootKey = ['cubby'];
 export const queryClient = new QueryClient();
@@ -53,7 +54,7 @@ export async function createEntryQuery(options: {
 				trackerId: options.trackerId,
 				interval: options.interval,
 				intervalUnit: options.intervalUnit,
-				performedAt: dayjs.tz(new Date(), 'Asia/Singapore')
+				performedAt: dayjs.tz(new Date(), defaultTz)
 			})
 		})
 		.json<EntryDB>();
