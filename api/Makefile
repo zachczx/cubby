@@ -6,7 +6,6 @@ BINARY_NAME=api
 
 build:
 	go mod tidy && \
-   	templ generate && \
 	go generate && \
 	go build -ldflags="-w -s" -o ./bin/main.exe
 
