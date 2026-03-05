@@ -86,9 +86,8 @@ export function generateSubscriptionEntries(tracker: TrackerDB, userId: string):
 	// Add the initial start date as a log
 	historicalRecords.push({
 		id: 'generated_start',
-		created_at: subscriptionStart,
-		updated_at: subscriptionStart,
-		tracker: tracker.id,
+		createdAt: subscriptionStart,
+		updatedAt: subscriptionStart,
 		trackerId: tracker.id,
 		performedBy: userId,
 		performedAt: subscriptionStart,
@@ -106,9 +105,8 @@ export function generateSubscriptionEntries(tracker: TrackerDB, userId: string):
 		historicalRecords.push({
 			id: `generated_${currentDateTime.toISOString()}`,
 			remark: '',
-			created_at: currentDateTime.toISOString(),
-			updated_at: currentDateTime.toISOString(),
-			tracker: tracker.id,
+			createdAt: currentDateTime.toISOString(),
+			updatedAt: currentDateTime.toISOString(),
 			trackerId: tracker.id,
 			performedBy: userId,
 			performedAt: currentDateTime.toISOString(),

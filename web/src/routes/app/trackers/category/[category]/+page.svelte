@@ -84,7 +84,7 @@
 		return data;
 	}
 
-	let latestEntries: EntryDB[] = $derived.by(() => {
+	let latestEntries: EntryWithTracker[] = $derived.by(() => {
 		if (
 			!allEntriesDB.isSuccess ||
 			!allEntriesDB.data ||
@@ -96,7 +96,6 @@
 		const trackerMap = new Map(allTrackers.map((t) => [t.id, t]));
 		const categoryTrackerIds = new Set(categoryTrackers.map((t) => t.id));
 
-		// Use flatMap to transform logs AND filter out any without matching trackers in one step.
 		return allEntriesDB.data
 			.filter((log) => categoryTrackerIds.has(log.trackerId))
 			.slice(0, 5)
@@ -104,7 +103,7 @@
 				const tracker = trackerMap.get(log.trackerId);
 				if (!tracker) return [];
 
-				return [{ ...log, expand: { tracker: { ...tracker } } }];
+				return [{ ...log, tracker }];
 			});
 	});
 </script>
@@ -181,7 +180,7 @@
 								<div class="flex items-center p-2">
 									<div class="flex grow items-center gap-4">
 										<div class="flex items-center gap-2 align-baseline">
-											{entry.expand?.tracker?.display}
+											{entry.tracker.display}
 										</div>
 									</div>
 

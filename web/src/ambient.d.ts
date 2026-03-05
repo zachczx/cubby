@@ -26,15 +26,17 @@ type IntervalUnit = 'day' | 'month' | 'year';
 interface EntryDB {
 	id: string;
 	trackerId: string;
-	performedBy: string;
-	tracker: string;
 	interval: number;
 	intervalUnit: IntervalUnit;
+	performedBy: string;
 	performedAt: string;
 	remark: string;
-	created_at: string;
-	updated_at: string;
-	expand?: { tracker?: TrackerDB };
+	createdAt: string;
+	updatedAt: string;
+}
+
+interface EntryWithTracker extends EntryDB {
+	tracker: TrackerDB;
 }
 
 interface EntryRecord extends EntryDB {

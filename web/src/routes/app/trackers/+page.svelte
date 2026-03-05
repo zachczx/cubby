@@ -49,17 +49,17 @@
 		if (!allEntriesDb.isSuccess || !allEntriesDb.data) return map;
 
 		for (const entry of allEntriesDb.data) {
-			if (!map.has(entry.tracker)) {
-				map.set(entry.tracker, []);
+			if (!map.has(entry.trackerId)) {
+				map.set(entry.trackerId, []);
 			}
 
-			map.get(entry.tracker).push(entry);
+			map.get(entry.trackerId).push(entry);
 		}
 
 		return map;
 	});
 
-	let latestEntries: EntryDB[] = $derived.by(() => {
+	let latestEntries: EntryWithTracker[] = $derived.by(() => {
 		if (!allEntriesDb.isSuccess || !allEntriesDb.data || !currentTrackers) return [];
 
 		const trackerMap = new Map(currentTrackers.map((t) => [t.id, t]));
@@ -68,13 +68,13 @@
 		// Returns [] to skip entries where tracker is undefined (flatmap flattens empty [], so nothing added), so I dont need a separate
 		// .filter() for null values + verbose type guards. TypeScript automatically infers the correct type.
 		return allEntriesDb.data
-			.filter((entry) => trackerMap.has(entry.tracker))
+			.filter((entry) => trackerMap.has(entry.trackerId))
 			.slice(0, 5)
 			.flatMap((entry) => {
-				const tracker = currentTrackers?.find((tracker) => tracker.id === entry.tracker);
+				const tracker = trackerMap.get(entry.trackerId);
 				if (!tracker) return [];
 
-				return [{ ...entry, expand: { tracker: { ...tracker } } }];
+				return [{ ...entry, tracker }];
 			});
 	});
 
@@ -179,7 +179,7 @@
 								<div class="flex items-center p-2">
 									<div class="flex grow items-center gap-4">
 										<div class="flex items-center gap-2 align-baseline">
-											{entry.expand?.tracker?.display}
+											{entry.tracker.display}
 										</div>
 									</div>
 
