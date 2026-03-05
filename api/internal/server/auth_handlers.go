@@ -73,7 +73,7 @@ func (s *Service) RequireAuthentication(h http.HandlerFunc) http.HandlerFunc {
 func (s *Service) SendMagicLinkHandler(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		log.Printf("Error parsing form: %v\n", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "failed to parse form data", http.StatusInternalServerError)
 		return
 	}
 
@@ -90,7 +90,7 @@ func (s *Service) SendMagicLinkHandler(w http.ResponseWriter, r *http.Request) {
 		})
 	if err != nil {
 		log.Printf("Error sending email: %v\n", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "error sending email", http.StatusInternalServerError)
 		return
 	}
 
@@ -100,7 +100,7 @@ func (s *Service) SendMagicLinkHandler(w http.ResponseWriter, r *http.Request) {
 func (s *Service) SendOTPHandler(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		log.Printf("Error parsing form: %v\n", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "failed to parse form data", http.StatusInternalServerError)
 		return
 	}
 
@@ -142,7 +142,7 @@ func (s *Service) MagicLinkHandler(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		fmt.Printf("Error authenticating: %v\n", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "failed to authenticate", http.StatusInternalServerError)
 		return
 	}
 
