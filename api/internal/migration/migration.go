@@ -192,13 +192,18 @@ func MigrateEntries(sqliteDB *sqlx.DB, pgDB *sqlx.DB) error {
 			return fmt.Errorf("format time err: %w", err)
 		}
 
+		var rmk string
+		if s.Remark != nil {
+			rmk = *s.Remark
+		}
+
 		p := entry.Entry{
 			TrackerID:    pair.UUID,
 			Interval:     s.Interval,
 			IntervalUnit: s.IntervalUnit,
 			PerformedBy:  currentUserUUID,
 			PerformedAt:  t,
-			Remark:       *s.Remark,
+			Remark:       rmk,
 			CreatedAt:    createdAt,
 			UpdatedAt:    updatedAt,
 		}
