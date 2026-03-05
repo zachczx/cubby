@@ -96,12 +96,16 @@
 		timerInterval = setInterval(tick, 1000);
 	}
 
-	let playSound = $derived.by(() => {
-		if (user.isSuccess && user.data.soundOn) {
-			return true;
+	let playSound = $state(false);
+	let playSoundInitialized = false;
+
+	$effect(() => {
+		if (user.isSuccess && !playSoundInitialized) {
+			playSound = !!user.data.soundOn;
+			playSoundInitialized = true;
 		}
-		return false;
 	});
+
 	let audioPlayer: HTMLAudioElement | undefined = $state();
 
 	onMount(async () => {
