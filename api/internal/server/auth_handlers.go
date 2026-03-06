@@ -153,7 +153,8 @@ func (s *Service) MagicLinkHandler(w http.ResponseWriter, r *http.Request) {
 
 	isNewUser, userID, err := s.UserManager.SyncUserInternal(s.DB, resp.User.Emails[0].Email, *resp.User.CreatedAt)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("error SyncUserInternal: %v\n", err)
+		http.Error(w, "failed to sync user", http.StatusInternalServerError)
 		return
 	}
 
@@ -223,7 +224,8 @@ func (s *Service) VerifyOTPHandler(w http.ResponseWriter, r *http.Request) {
 	var otpInput OTPInput
 
 	if err := json.NewDecoder(r.Body).Decode(&otpInput); err != nil {
-		fmt.Println(err)
+		fmt.Printf("error decode json: %v\n", err)
+		http.Error(w, "failed to decode json", http.StatusInternalServerError)
 		return
 	}
 
@@ -243,7 +245,8 @@ func (s *Service) VerifyOTPHandler(w http.ResponseWriter, r *http.Request) {
 
 	isNewUser, userID, err := s.UserManager.SyncUserInternal(s.DB, resp.User.Emails[0].Email, *resp.User.CreatedAt)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("error SyncUserInternal: %v\n", err)
+		http.Error(w, "failed to sync user", http.StatusInternalServerError)
 		return
 	}
 
