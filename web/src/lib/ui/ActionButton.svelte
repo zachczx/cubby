@@ -5,9 +5,6 @@
 	import type { Component } from 'svelte';
 	import { getAllEntriesQueryKey } from '$lib/queries';
 
-	// @ts-ignore
-	import confetti from 'canvas-confetti';
-
 	let {
 		text,
 		query,
