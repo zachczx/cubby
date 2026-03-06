@@ -23,30 +23,29 @@ type UserManager struct{}
 
 func (UserManager) SyncUserInternal(db *sqlx.DB, email string, createdAt time.Time) (bool, uuid.UUID, error) {
 	var userID uuid.UUID
-	newUser := false
 
 	q := `SELECT id FROM users WHERE email=$1`
 
-	if err := db.QueryRow(q, email).Scan(&userID); err != nil {
-		if err != sql.ErrNoRows {
-			return newUser, userID, fmt.Errorf("fetch user: %w", err)
-		}
-
-		qy := `INSERT INTO users (email, created_at) VALUES ($1, $2) RETURNING id`
-
-		if err := db.QueryRow(qy, email, createdAt).Scan(&userID); err != nil {
-			return newUser, userID, fmt.Errorf("insert user: %w", err)
-		}
-
-		newUser = true
-
-		f := Family{Name: "Family", OwnerID: userID}
-		if _, err := NewFamily(db, f); err != nil {
-			return newUser, userID, fmt.Errorf("create family: %w", err)
-		}
+	err := db.QueryRow(q, email).Scan(&userID)
+	if err == nil {
+		return false, userID, nil
+	}
+	if err != sql.ErrNoRows {
+		return false, userID, fmt.Errorf("fetch user: %w", err)
 	}
 
-	return newUser, userID, nil
+	qy := `INSERT INTO users (email, created_at) VALUES ($1, $2) RETURNING id`
+
+	if err := db.QueryRow(qy, email, createdAt).Scan(&userID); err != nil {
+		return false, userID, fmt.Errorf("insert user: %w", err)
+	}
+
+	f := Family{Name: "Family", OwnerID: userID}
+	if _, err := NewFamily(db, f); err != nil {
+		return true, userID, fmt.Errorf("create family: %w", err)
+	}
+
+	return true, userID, nil
 }
 
 func (UserManager) GetInternalUserID(db *sqlx.DB, email string) (uuid.UUID, error) {
@@ -56,7 +55,7 @@ func (UserManager) GetInternalUserID(db *sqlx.DB, email string) (uuid.UUID, erro
 
 	if err := db.QueryRow(q, email).Scan(&userID); err != nil {
 		if err == sql.ErrNoRows {
-			return userID, fmt.Errorf("%w", err)
+			return userID, fmt.Errorf("user not found: %w", err)
 		}
 		return userID, fmt.Errorf("error fetch user: %w", err)
 	}
