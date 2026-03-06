@@ -3,7 +3,7 @@ import { leadTimeHours, dueThresholdDays, dueThresholdWeeks } from './notificati
 
 interface Grace {
 	gracePeriodValue: number;
-	gracePeriodUnit: 'hour' | 'day' | 'week' | 'hour' | undefined;
+	gracePeriodUnit: 'hour' | 'day' | 'week' | 'year' | undefined;
 }
 
 export function calculateStreak(
@@ -12,7 +12,9 @@ export function calculateStreak(
 ): number {
 	if (!entries || entries.length === 0 || !tracker) return 0;
 
-	const sortedEntries = [...entries].sort((a, b) => dayjs(b.performedAt).diff(dayjs(a.performedAt)));
+	const sortedEntries = [...entries].sort((a, b) =>
+		dayjs(b.performedAt).diff(dayjs(a.performedAt))
+	);
 	const latestEntry = sortedEntries[0];
 
 	const nextDueDate = dayjs(latestEntry.performedAt).add(tracker.interval, tracker.intervalUnit);
@@ -46,7 +48,10 @@ function checkStreakLength(sortedEntries: EntryDB[], tracker: TrackerDB, grace: 
 		const currentEntry = sortedEntries[i];
 		const previousEntry = sortedEntries[i + 1];
 
-		const previousNextDueDate = dayjs(previousEntry.performedAt).add(tracker.interval, tracker.intervalUnit);
+		const previousNextDueDate = dayjs(previousEntry.performedAt).add(
+			tracker.interval,
+			tracker.intervalUnit
+		);
 		const previousGraceLimit = previousNextDueDate.add(
 			grace.gracePeriodValue,
 			grace.gracePeriodUnit
