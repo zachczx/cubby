@@ -61,12 +61,14 @@ func New(db *sqlx.DB, t Tracker) (uuid.UUID, error) {
 
 	rows, err := db.NamedQuery(q, t)
 	if err != nil {
-		return newID, err
+		return newID, fmt.Errorf("new tracker NamedQuery: %w", err)
 	}
 	defer rows.Close()
 
 	if rows.Next() {
-		rows.Scan(&newID)
+		if err := rows.Scan(&newID); err != nil {
+			return newID, fmt.Errorf("new tracker scan: %w", err)
+		}
 	}
 
 	return newID, nil
