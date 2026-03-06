@@ -42,12 +42,13 @@ export function getAllTrackerIcons() {
 	return trackerIcons;
 }
 
+const colors: TrackerColor[] = ['blue', 'purple', 'red', 'teal', 'orange', 'green'];
+
 export function getFamilyColor(id: string | undefined, familyIds: string[]): TrackerColor {
 	if (!id || !familyIds.includes(id)) return 'slate';
 
 	const idx = familyIds.indexOf(id);
 
-	const colors: TrackerColor[] = ['blue', 'purple', 'red', 'teal', 'orange', 'green'];
 	return colors[idx] ?? 'slate';
 }
 
