@@ -1,9 +1,11 @@
 package server
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -169,20 +171,42 @@ func (s *Service) MagicLinkHandler(w http.ResponseWriter, r *http.Request) {
 
 	// A HTML redirect is used here because http.Redirect() often causes page failure.
 	// Seems like a case of cookie not being set yet, but redirect succeding, therefore causing frontend to fail auth check.
+
+	if err := generateRedirectHTML(w, redirectURL); err != nil {
+		fmt.Printf("Error authenticating: %v\n", err)
+		http.Error(w, "failed to redirect", http.StatusInternalServerError)
+		return
+	}
+}
+
+var redirectTmpl = template.Must((template.New("redirect").Parse(redirectHTML)))
+
+const redirectHTML = `<!DOCTYPE html>
+						<html>
+						<head>
+							<meta http-equiv="refresh" content="0;url={{.}}">
+							<script>window.location.href = "{{.}}";</script>
+						</head>
+						<body>
+							<p>Redirecting...</p>
+						</body>
+					</html>`
+
+func generateRedirectHTML(w http.ResponseWriter, redirectURL string) error {
+	var buf bytes.Buffer
+
+	if err := redirectTmpl.Execute(&buf, redirectURL); err != nil {
+		return fmt.Errorf("template execute: %w", err)
+	}
+
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, `<!DOCTYPE html>
-				<html>
-				<head>
-					<meta http-equiv="refresh" content="0;url=%s">
-					<script>window.location.href = "%s";</script>
-				</head>
-				<body>
-					<p>Redirecting...</p>
-				</body>
-				</html>`,
-		redirectURL,
-		redirectURL)
+
+	if _, err := buf.WriteTo(w); err != nil {
+		return fmt.Errorf("buf write: %w", err)
+	}
+
+	return nil
 }
 
 type OTPInput struct {
