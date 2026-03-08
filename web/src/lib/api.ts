@@ -41,7 +41,7 @@ export const api = ky.create({
 		afterResponse: [
 			(_request, _options, response) => {
 				if (response.status === 403 || response.status === 401) {
-					if (browser && window.location.pathname !== '/login') {
+					if (browser && !window.location.pathname.startsWith('/login')) {
 						console.error('Not authenticated');
 						window.location.href = '/login';
 					}

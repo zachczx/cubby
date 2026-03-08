@@ -141,7 +141,7 @@
 	onMount(async () => {
 		const response = await api.get('check');
 		if (response.status !== 204) {
-			goto(resolve('/login'));
+			return;
 		}
 	});
 </script>
