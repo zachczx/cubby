@@ -6,6 +6,7 @@ interface UserDB {
 	name: string;
 	soundOn: boolean;
 	taskLookaheadDays: number;
+	preferredCharacter: 'default' | Characters;
 	createdAt: string;
 	updatedAt: string;
 }

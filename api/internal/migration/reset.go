@@ -30,6 +30,7 @@ func Create(db *sqlx.DB) {
 			name TEXT,
 			task_lookahead_days INTEGER DEFAULT 14,
 			sound_on BOOLEAN DEFAULT TRUE,
+			preferred_character VARCHAR(50) DEFAULT 'default',
 			created_at TIMESTAMPTZ DEFAULT NOW(),
 			updated_at TIMESTAMPTZ DEFAULT NOW()
 		);`,

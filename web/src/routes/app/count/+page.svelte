@@ -10,13 +10,20 @@
 	import { page } from '$app/state';
 	import { beforeNavigate } from '$app/navigation';
 	import SegmentedControl from '$lib/ui/SegmentedControl.svelte';
+	import { api } from '$lib/api';
+	import { addToast } from '$lib/ui/ArkToaster.svelte';
 	dayjs.extend(duration);
 
 	const user = createQuery(userQueryOptions);
 
 	const tickingSoundPath = '/soft-ticking.mp3';
 
-	let character: Characters = $state('robot');
+	let character: Characters = $derived.by(() => {
+		if (!user || !user.data || user.isPending || user.data.preferredCharacter === 'default')
+			return 'robot';
+
+		return user.data.preferredCharacter;
+	});
 
 	let successSoundPath = $derived(`/${character}/timesup.mp3`);
 
@@ -125,6 +132,18 @@
 			return 0 + String(num);
 		}
 		return String(num);
+	}
+
+	async function changeCharacterHandler(char: string) {
+		const response = await api.patch('users/me/character', {
+			body: JSON.stringify({
+				preferredCharacter: char
+			})
+		});
+
+		if (response.status !== 204 && response.status !== 201) {
+			addToast('error', 'Error saving character choice!');
+		}
 	}
 </script>
 
@@ -273,10 +292,22 @@
 
 		<SegmentedControl items={2}>
 			<label>
-				<input type="radio" bind:group={character} value="robot" name="character" />Robot
+				<input
+					type="radio"
+					bind:group={character}
+					value="robot"
+					name="character"
+					onclick={() => changeCharacterHandler('robot')}
+				/>Robot
 			</label>
 			<label>
-				<input type="radio" bind:group={character} value="furnando" name="character" />Furnando
+				<input
+					type="radio"
+					bind:group={character}
+					value="furnando"
+					name="character"
+					onclick={() => changeCharacterHandler('furnando')}
+				/>Furnando
 			</label>
 		</SegmentedControl>
 	</div>

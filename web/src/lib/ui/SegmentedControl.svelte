@@ -4,9 +4,9 @@
 	let { children, items }: { children: Snippet; items: number } = $props();
 </script>
 
-<div class="segmented-control" style="grid-template-columns: repeat({items}, minmax(0, 1fr))">
+<form class="segmented-control" style="grid-template-columns: repeat({items}, minmax(0, 1fr))">
 	{@render children()}
-</div>
+</form>
 
 <style>
 	:global {

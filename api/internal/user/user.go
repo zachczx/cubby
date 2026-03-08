@@ -10,13 +10,14 @@ import (
 )
 
 type User struct {
-	ID                uuid.UUID `db:"id"         json:"id"`
-	Email             string    `db:"email"      json:"email"`
-	Name              *string   `db:"name"       json:"name"`
-	SoundOn           bool      `db:"sound_on"       json:"soundOn"`
-	TaskLookAheadDays int       `db:"task_lookahead_days" json:"taskLookaheadDays"`
-	CreatedAt         time.Time `db:"created_at" json:"createdAt"`
-	UpdatedAt         time.Time `db:"updated_at" json:"updatedAt"`
+	ID                 uuid.UUID `db:"id"         json:"id"`
+	Email              string    `db:"email"      json:"email"`
+	Name               *string   `db:"name"       json:"name"`
+	SoundOn            bool      `db:"sound_on"       json:"soundOn"`
+	TaskLookAheadDays  int       `db:"task_lookahead_days" json:"taskLookaheadDays"`
+	PreferredCharacter string    `db:"preferred_character" json:"preferredCharacter"`
+	CreatedAt          time.Time `db:"created_at" json:"createdAt"`
+	UpdatedAt          time.Time `db:"updated_at" json:"updatedAt"`
 }
 
 type UserManager struct{}
@@ -90,6 +91,16 @@ func ChangeTaskLookaheadDays(db *sqlx.DB, userID uuid.UUID, days int) error {
 
 	if _, err := db.Exec(q, days, userID); err != nil {
 		return fmt.Errorf("change taskLookaheadDays err: %w", err)
+	}
+
+	return nil
+}
+
+func ChangePreferredCharacter(db *sqlx.DB, userID uuid.UUID, char string) error {
+	q := `UPDATE users SET preferred_character = $1 WHERE id = $2`
+
+	if _, err := db.Exec(q, char, userID); err != nil {
+		return fmt.Errorf("err ChangePreferredCharacter: %w", err)
 	}
 
 	return nil

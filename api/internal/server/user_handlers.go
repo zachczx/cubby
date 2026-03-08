@@ -66,6 +66,32 @@ func (s *Service) ChangeTaskLookaheadDaysHandler(w http.ResponseWriter, r *http.
 	w.WriteHeader(http.StatusNoContent)
 }
 
+type PreferredCharacter struct {
+	PreferredCharacter string `json:"preferredCharacter"`
+}
+
+func (s *Service) ChangePreferredCharacterHandler(w http.ResponseWriter, r *http.Request) {
+	userID, err := s.GetUserIDFromContext(r.Context())
+	if err != nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	var char PreferredCharacter
+
+	if err := json.NewDecoder(r.Body).Decode(&char); err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	if err := user.ChangePreferredCharacter(s.DB, userID, char.PreferredCharacter); err != nil {
+		response.WriteError(w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
 type SoundInput struct {
 	SoundOn bool `json:"soundOn"`
 }
