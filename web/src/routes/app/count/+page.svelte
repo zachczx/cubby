@@ -26,12 +26,12 @@
 
 	let successSoundPath = $derived(`/${character}/timesup.mp3`);
 
-	let target = $state(5);
 	let pauseTarget = $state(0);
-	let targetMin = $derived(target);
-	let targetSec = $derived(0);
+	let targetMinutes = $state(5);
+	let targetSeconds = $state(0);
+	let targetTotalSeconds = $derived(targetMinutes * 60 + targetSeconds);
 
-	let totalSec = $state(0);
+	let remainingSeconds = $state(0);
 	let min: number = $state(0);
 	let sec: number = $state(0);
 
@@ -51,18 +51,18 @@
 	}
 
 	function tick() {
-		totalSec -= 1;
-		if (totalSec > 0 && playSound) {
+		remainingSeconds -= 1;
+		if (remainingSeconds > 0 && playSound) {
 			audioPlayer?.play();
 
-			play(totalSec, character);
+			play(remainingSeconds, character);
 		}
 
-		const minSec = getMinSec(totalSec);
+		const minSec = getMinSec(remainingSeconds);
 		min = minSec.min;
 		sec = minSec.sec;
 
-		if (totalSec === 0) {
+		if (remainingSeconds === 0) {
 			if (playSound) {
 				new Audio(successSoundPath).play();
 			}
@@ -72,7 +72,9 @@
 	}
 
 	function start() {
-		totalSec = target * 60;
+		if (targetTotalSeconds === 0) return;
+
+		remainingSeconds = targetTotalSeconds;
 		started = true;
 
 		tick();
@@ -81,9 +83,8 @@
 
 	function stop() {
 		clearInterval(timerInterval);
-		totalSec = 0;
+		remainingSeconds = 0;
 		pauseTarget = 0;
-		target = 5;
 
 		started = false;
 	}
@@ -95,7 +96,7 @@
 	}
 
 	function resume() {
-		totalSec = pauseTarget;
+		remainingSeconds = pauseTarget;
 		started = true;
 
 		tick();
@@ -132,9 +133,12 @@
 	});
 
 	function doubleDigits(num: number): string {
-		if (num < 10) {
+		if (num < 0) return '00';
+
+		if (num < 10 && num >= 0) {
 			return 0 + String(num);
 		}
+
 		return String(num);
 	}
 
@@ -149,6 +153,32 @@
 			addToast('error', 'Error saving character choice!');
 		}
 	}
+
+	function userChangeMinutes(direction: 'increment' | 'decrement') {
+		if (direction === 'increment') {
+			targetMinutes += 1;
+		}
+
+		if (direction === 'decrement') {
+			if (targetMinutes <= 0) return;
+
+			targetMinutes -= 1;
+		}
+	}
+
+	function userChangeSeconds(direction: 'increment' | 'decrement') {
+		if (direction === 'increment') {
+			if (targetSeconds >= 59) return;
+
+			targetSeconds += 1;
+		}
+
+		if (direction === 'decrement') {
+			if (targetSeconds <= 0) return;
+
+			targetSeconds -= 1;
+		}
+	}
 </script>
 
 <svelte:head>
@@ -158,72 +188,89 @@
 <PageWrapper title="Count">
 	<div class="grid h-full max-w-xl grid-rows-[1fr_auto] justify-self-center">
 		<main class="grid h-full content-center justify-items-center gap-8 p-2">
-			<div class="grid w-full max-w-lg grid-cols-[auto_1fr] justify-items-center gap-y-8">
-				<div class="grid content-center opacity-75">
+			<div class="grid w-full max-w-lg grid-cols-2 justify-items-center gap-4">
+				<div class="flex flex-col px-2 text-center lg:px-8">
 					<button
-						class="btn btn-ghost"
+						class="btn btn-ghost text-primary opacity-75"
 						aria-label="+1"
-						onclick={() => {
-							target += 1;
-						}}
+						onclick={() => userChangeMinutes('increment')}
 						><svg
 							xmlns="http://www.w3.org/2000/svg"
 							width="1em"
 							height="1em"
 							viewBox="0 0 24 24"
-							class="material-symbols:keyboard-arrow-up size-6 lg:size-8"
+							class="material-symbols:keyboard-arrow-up size-8"
 							><path fill="currentColor" d="m12 10.8l-4.6 4.6L6 14l6-6l6 6l-1.4 1.4z" /></svg
 						></button
 					>
+					<span class="text-8xl">
+						{#if !started && !pauseTarget}
+							<span
+								style={`--value:${targetMinutes};`}
+								aria-live="polite"
+								aria-label={String(targetMinutes)}>{doubleDigits(targetMinutes)}</span
+							>
+						{:else}
+							<span style={`--value:${min};`} aria-live="polite" aria-label={String(min)}
+								>{doubleDigits(min)}</span
+							>
+						{/if}
+					</span>
+
 					<button
-						class="btn btn-ghost"
+						class="btn btn-ghost text-primary opacity-75"
 						aria-label="-1"
-						onclick={() => {
-							target -= 1;
-						}}
+						onclick={() => userChangeMinutes('decrement')}
 						><svg
 							xmlns="http://www.w3.org/2000/svg"
 							width="1em"
 							height="1em"
 							viewBox="0 0 24 24"
-							class="material-symbols:keyboard-arrow-down size-6 lg:size-8"
+							class="material-symbols:keyboard-arrow-down size-8"
 							><path fill="currentColor" d="m12 15.4l-6-6L7.4 8l4.6 4.6L16.6 8L18 9.4z" /></svg
 						></button
 					>
 				</div>
-				<div class="grid grid-cols-2 gap-4">
-					<div class="flex flex-col px-2 text-center lg:px-8">
-						<span class="text-8xl">
-							{#if !started && !pauseTarget}
-								<span
-									style={`--value:${targetMin};`}
-									aria-live="polite"
-									aria-label={String(targetMin)}>{doubleDigits(targetMin)}</span
-								>
-							{:else}
-								<span style={`--value:${min};`} aria-live="polite" aria-label={String(min)}
-									>{doubleDigits(min)}</span
-								>
-							{/if}
-						</span>
-						min
-					</div>
-					<div class="flex flex-col px-2 text-center lg:px-8">
-						<span class="text-8xl">
-							{#if !started && !pauseTarget}
-								<span
-									style={`--value:${targetSec};`}
-									aria-live="polite"
-									aria-label={String(targetSec)}>{doubleDigits(targetSec)}</span
-								>
-							{:else}
-								<span style={`--value:${sec};`} aria-live="polite" aria-label={String(sec)}
-									>{doubleDigits(sec)}</span
-								>
-							{/if}
-						</span>
-						sec
-					</div>
+				<div class="flex flex-col px-2 text-center lg:px-8">
+					<button
+						class="btn btn-ghost text-primary opacity-75"
+						aria-label="+1"
+						onclick={() => userChangeSeconds('increment')}
+						><svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="1em"
+							height="1em"
+							viewBox="0 0 24 24"
+							class="material-symbols:keyboard-arrow-up size-8"
+							><path fill="currentColor" d="m12 10.8l-4.6 4.6L6 14l6-6l6 6l-1.4 1.4z" /></svg
+						></button
+					>
+					<span class="text-8xl">
+						{#if !started && !pauseTarget}
+							<span
+								style={`--value:${targetSeconds};`}
+								aria-live="polite"
+								aria-label={String(targetSeconds)}>{doubleDigits(targetSeconds)}</span
+							>
+						{:else}
+							<span style={`--value:${sec};`} aria-live="polite" aria-label={String(sec)}
+								>{doubleDigits(sec)}</span
+							>
+						{/if}
+					</span>
+					<button
+						class="btn btn-ghost text-primary opacity-75"
+						aria-label="-1"
+						onclick={() => userChangeSeconds('decrement')}
+						><svg
+							xmlns="http://www.w3.org/2000/svg"
+							width="1em"
+							height="1em"
+							viewBox="0 0 24 24"
+							class="material-symbols:keyboard-arrow-down size-8"
+							><path fill="currentColor" d="m12 15.4l-6-6L7.4 8l4.6 4.6L16.6 8L18 9.4z" /></svg
+						></button
+					>
 				</div>
 			</div>
 
@@ -242,6 +289,7 @@
 							resume();
 						}
 					}}
+					disabled={targetTotalSeconds === 0}
 				>
 					{#if !started && !pauseTarget}
 						Start
