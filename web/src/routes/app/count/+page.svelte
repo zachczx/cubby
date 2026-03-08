@@ -8,7 +8,6 @@
 	import { userQueryOptions } from '$lib/queries';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { page } from '$app/state';
-	import { beforeNavigate } from '$app/navigation';
 	import SegmentedControl from '$lib/ui/SegmentedControl.svelte';
 	import { api } from '$lib/api';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
@@ -115,16 +114,21 @@
 
 	let audioPlayer: HTMLAudioElement | undefined = $state();
 
-	onMount(async () => {
+	onMount(() => {
 		if (Capacitor.getPlatform() !== 'android') {
 			audioPlayer = new Audio(tickingSoundPath);
 		}
 
+		let timeout: NodeJS.Timeout;
+
 		if (page.url.searchParams.get('start')) {
-			setTimeout(() => start(), 700);
+			timeout = setTimeout(() => start(), 700);
 		}
 
-		beforeNavigate(() => stop());
+		return () => {
+			clearTimeout(timeout);
+			stop();
+		};
 	});
 
 	function doubleDigits(num: number): string {
