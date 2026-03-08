@@ -15,10 +15,21 @@
 			cursor: pointer;
 			text-align: center;
 
+			background: rgba(0, 0, 0, 0.01);
+			padding: 0.25rem;
+			border-radius: calc(infinity * 1px);
+
 			label {
 				width: 100%;
 				font-size: 1.125rem;
 				cursor: pointer;
+				height: var(--size);
+				position: relative;
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				outline-color: #d6cecb;
+				--size: calc(var(--size-field, 0.25rem) * 10);
 
 				&:first-child {
 					border-start-start-radius: var(--join-ss, var(--radius-field) /* var(--radius-field) */);
@@ -30,19 +41,6 @@
 					border-end-end-radius: var(--join-ee, var(--radius-field) /* var(--radius-field) */);
 				}
 
-				height: var(--size);
-
-				border: 2px solid #d6cecb;
-
-				position: relative;
-				display: inline-flex;
-				align-items: center;
-				justify-content: center;
-
-				outline-color: #d6cecb;
-
-				--size: calc(var(--size-field, 0.25rem) * 10);
-
 				&:not(:first-child) {
 					border-left: 0;
 				}
@@ -50,11 +48,17 @@
 				&:has(input:checked) {
 					color: var(--color-primary);
 					background-color: var(--color-bg-checked);
-					font-weight: 600;
+					font-weight: 700;
+					border-radius: calc(infinity * 1px);
+					--tw-shadow:
+						0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)),
+						0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
+					box-shadow:
+						var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow),
+						var(--tw-ring-shadow), var(--tw-shadow);
 				}
 				&:has(input:not(checked)) {
-					color: var(--color-base-content);
-					background-color: var(--color-base-input);
+					color: rgba(45, 37, 32, 0.7);
 				}
 
 				input {
