@@ -34,3 +34,5 @@ data.db\napi/tmp/
 web/android/.idea/
 web/android/app/capacitor.build.gradle
 web/android/capacitor.settings.gradle
+implementation.md
+.claude/settings.local.json
