@@ -5,6 +5,7 @@
 	import { play } from '$lib/play';
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
 	import { Capacitor } from '@capacitor/core';
+	import { KeepAwake } from '@capacitor-community/keep-awake';
 	import { userQueryOptions } from '$lib/queries';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { page } from '$app/state';
@@ -115,6 +116,15 @@
 
 	let audioPlayer: HTMLAudioElement | undefined = $state();
 
+	let keepAwakeOption = $state(true);
+	$effect(() => {
+		if (keepAwakeOption) {
+			KeepAwake.keepAwake();
+		} else {
+			KeepAwake.allowSleep();
+		}
+	});
+
 	onMount(() => {
 		if (Capacitor.getPlatform() !== 'android') {
 			audioPlayer = new Audio(tickingSoundPath);
@@ -128,6 +138,7 @@
 
 		return () => {
 			clearTimeout(timeout);
+			KeepAwake.allowSleep();
 			stop();
 		};
 	});
@@ -186,8 +197,21 @@
 </svelte:head>
 
 <PageWrapper title="Count">
-	<div class="grid h-full max-w-xl grid-rows-[1fr_auto] justify-self-center">
-		<main class="grid h-full content-center justify-items-center gap-8 p-2">
+	<div class="grid h-full w-full grid-rows-[auto_1fr_auto] justify-self-center">
+		<label
+			class={[
+				'btn w-36 justify-self-end',
+				keepAwakeOption ? 'btn-soft btn-primary' : 'btn-neutral btn-soft opacity-75'
+			]}
+		>
+			<input type="checkbox" class="hidden" bind:checked={keepAwakeOption} />
+			{#if keepAwakeOption}
+				Screen: Awake
+			{:else}
+				Screen: Auto
+			{/if}
+		</label>
+		<main class="grid h-full max-w-xl content-center justify-items-center gap-8 p-2">
 			<div class="grid w-full max-w-lg grid-cols-2 justify-items-center gap-4">
 				<div class="flex flex-col px-2 text-center lg:px-8">
 					<button
