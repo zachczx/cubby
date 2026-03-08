@@ -1,7 +1,5 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import dayjs from 'dayjs';
-	import duration from 'dayjs/plugin/duration';
 	import { play } from '$lib/play';
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
 	import { Capacitor } from '@capacitor/core';
@@ -12,7 +10,6 @@
 	import SegmentedControl from '$lib/ui/SegmentedControl.svelte';
 	import { api } from '$lib/api';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
-	dayjs.extend(duration);
 
 	const user = createQuery(userQueryOptions);
 
