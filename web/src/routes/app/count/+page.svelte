@@ -194,28 +194,22 @@
 </svelte:head>
 
 <PageWrapper title="Count">
-	<div
-		class={[
-			'grid h-full w-full  justify-self-center',
-			isAndroid && 'grid-rows-[auto_1fr_auto]',
-			!isAndroid && 'grid-rows-[1fr_auto]'
-		]}
-	>
-		{#if isAndroid}
-			<label
-				class={[
-					'btn w-36 justify-self-end',
-					keepAwakeOption ? 'btn-soft btn-primary' : 'btn-neutral btn-soft opacity-75'
-				]}
-			>
-				<input type="checkbox" class="hidden" bind:checked={keepAwakeOption} />
-				{#if keepAwakeOption}
-					Screen: Awake
-				{:else}
-					Screen: Auto
-				{/if}
-			</label>
-		{/if}
+	<div class={['grid min-h-[calc(100vh-3.5rem-6rem)] lg:min-h-[calc(100vh-3.5rem-1rem)] w-full grid-rows-[auto_1fr_auto] justify-self-center']}>
+		<label
+			class={[
+				'btn w-36 justify-self-end',
+				keepAwakeOption ? 'btn-soft btn-primary' : 'btn-neutral btn-soft opacity-75',
+				!isAndroid && 'opacity-0'
+			]}
+		>
+			<input type="checkbox" class="hidden" bind:checked={keepAwakeOption} />
+			{#if keepAwakeOption}
+				Screen: Awake
+			{:else}
+				Screen: Auto
+			{/if}
+		</label>
+
 		<main class="grid h-full max-w-xl content-center justify-items-center gap-8 p-2">
 			<div class="grid w-full max-w-lg grid-cols-2 justify-items-center gap-4">
 				<div class="flex flex-col px-2 text-center lg:px-8">
