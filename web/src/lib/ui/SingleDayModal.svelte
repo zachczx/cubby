@@ -21,8 +21,6 @@
 		return singleDay.sort((a, b) => dayjs(a.performedAt).diff(dayjs(b.performedAt)));
 	});
 
-	$inspect(entries);
-
 	async function deleteHandler(entryId: string) {
 		if (!entryId) return;
 		const success = await api.delete(`entries/${entryId}`);
