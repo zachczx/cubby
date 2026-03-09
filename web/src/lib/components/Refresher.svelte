@@ -3,15 +3,15 @@
 	import Icon from '@iconify/svelte';
 
 	let {
-		resistance = 0.4,
 		onRefresh = async () => {},
 		children
 	}: {
-		resistance?: number;
 		onRefresh?: () => Promise<void>;
 		children: Snippet;
 	} = $props();
 
+	const deceleration = 500;
+	const maxPull = 120;
 	let startY = $state(0);
 	let currentY = $state(0);
 	let pulling = $state(false);
@@ -37,8 +37,8 @@
 		if (delta > 20) {
 			pulling = true;
 			rotateDeg = delta;
-			translateY = delta * resistance;
-			shouldRefresh = delta > 160;
+			translateY = maxPull * (1 - Math.exp(-delta / deceleration));
+			shouldRefresh = delta > 200;
 		} else {
 			pulling = false;
 		}
@@ -66,24 +66,27 @@
 	};
 </script>
 
-<div role="status" {ontouchstart} {ontouchmove} {ontouchend} class="refresher bg-base-200">
+<div role="status" {ontouchstart} {ontouchmove} {ontouchend} class="refresher">
 	<!-- {#if pulling || refreshing} -->
-	<div class="fixed top-3 right-0 left-0 w-full">
+	<div class="fixed top-16 right-0 left-0 w-full">
 		<div class="grid w-full content-start justify-items-center">
 			{#if shouldRefresh || refreshing}
-				<div class="bg-base-200 flex items-center justify-center gap-3">
-					<span class="loading loading-spinner loading-sm top-4"></span>
-					<div class="text-base-content text-lg">Refreshing</div>
+				<div
+					class={['flex items-center justify-center gap-3 pe-2', shouldRefresh && 'text-primary']}
+				>
+					<!-- <span class="loading loading-spinner loading-sm top-4"></span> -->
+					<Icon
+						icon="material-symbols:refresh"
+						class="size-6 transition-transform"
+						style="transform: rotate({rotateDeg}deg) scale({shouldRefresh ? 1.2 : 1});"
+					/>
+					<div class="text-lg">Let go to refresh</div>
 				</div>
 			{:else}
-				<div class="bg-base-200 flex items-center justify-center gap-3">
+				<div class="flex items-center justify-center gap-3">
 					<Icon icon="material-symbols:arrow-downward" class="size-6 opacity-75" />
-					<!-- <Icon
-							icon="material-symbols:refresh"
-							class="size-6"
-							style="transform: rotate({rotateDeg}deg);"
-						/> -->
-					<div class="text-base-content text-lg">Pull down to refresh</div>
+
+					<div class="text-base-content/70 text-lg">Pull down to refresh</div>
 				</div>
 			{/if}
 		</div>

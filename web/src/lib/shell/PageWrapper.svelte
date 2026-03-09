@@ -3,6 +3,8 @@
 	import type { Snippet } from 'svelte';
 	import Icon from '@iconify/svelte';
 	import { topLevelRoutes } from './nav';
+	import Refresher from '$lib/components/Refresher.svelte';
+	import { invalidateAll } from '$app/navigation';
 
 	let {
 		children,
@@ -122,15 +124,17 @@
 		</div>
 	</div>
 
-	<div
-		class={[
-			'bg-base-100 max-lg:min-h-[calc(100vh - 3.5rem - 6rem)] lg:min-h-[calc(100vh - 3.5rem - 1rem)] w-full p-4 max-lg:pb-24 lg:grid lg:px-12 ',
-			'mt-14 lg:pt-16'
-		]}
-		style="view-transition-name: content;"
-	>
-		{@render children?.()}
-	</div>
+	<Refresher onRefresh={() => invalidateAll()}>
+		<div
+			class={[
+				'bg-base-100 max-lg:min-h-[calc(100vh - 3.5rem - 6rem)] lg:min-h-[calc(100vh - 3.5rem - 1rem)] w-full p-4 max-lg:pb-24 lg:grid lg:px-12 ',
+				'mt-14 lg:pt-16'
+			]}
+			style="view-transition-name: content;"
+		>
+			{@render children?.()}
+		</div>
+	</Refresher>
 
 	{#if !focusedScreen}
 		<nav
