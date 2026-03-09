@@ -66,7 +66,7 @@
 	};
 </script>
 
-<div role="status" {ontouchstart} {ontouchmove} {ontouchend} class="refresher">
+<div role="status" {ontouchstart} {ontouchmove} {ontouchend} class="refresher w-full">
 	<!-- {#if pulling || refreshing} -->
 	<div class="fixed top-16 right-0 left-0 w-full">
 		<div class="grid w-full content-start justify-items-center">

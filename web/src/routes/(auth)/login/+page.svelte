@@ -115,9 +115,13 @@
 </svelte:head>
 
 <PageWrapper title="Login" focusedScreen showSettingsIcon={false} back={false}>
-	<form class={['grid h-full w-full max-w-sm content-center justify-self-center']}>
+	<form
+		class={[
+			'grid h-full min-h-[calc(100vh-3.5rem-6rem)] w-full content-center justify-self-center lg:min-h-[calc(100vh-3.5rem-1rem)] lg:max-w-sm'
+		]}
+	>
 		<div class="lg:bg-base-200 w-full rounded-2xl lg:p-8 lg:shadow-md">
-			<div class="w-full max-w-72 justify-self-center lg:max-w-lg">
+			<div class="mx-auto w-full max-w-72 lg:max-w-lg">
 				<enhanced:img
 					src={corgiEmail}
 					alt="email"
