@@ -303,7 +303,7 @@
 
 			<div class="grid w-full max-w-lg grid-cols-2 gap-2">
 				<button
-					class="btn btn-lg btn-primary w-full rounded-full"
+					class="btn btn-lg btn-primary w-full min-w-40 rounded-full p-8"
 					onclick={() => {
 						if (!started && !pauseTarget) {
 							start();
@@ -327,7 +327,7 @@
 					{/if}
 				</button>
 				<button
-					class="btn btn-lg btn-neutral btn-outline w-full rounded-full"
+					class="btn btn-lg btn-neutral btn-soft w-full min-w-40 rounded-full p-8"
 					onclick={() => stop()}>Reset</button
 				>
 			</div>

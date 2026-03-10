@@ -15,13 +15,15 @@
 			cursor: pointer;
 			text-align: center;
 
-			background: rgba(0, 0, 0, 0.01);
+			background: rgba(0, 0, 0, 0.02);
 			padding: 0.25rem;
+			margin-bottom: 0.25rem;
 			border-radius: calc(infinity * 1px);
 
 			label {
 				width: 100%;
 				font-size: 1.125rem;
+				padding: 2rem;
 				cursor: pointer;
 				height: var(--size);
 				position: relative;
