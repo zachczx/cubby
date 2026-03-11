@@ -36,3 +36,11 @@ web/android/app/capacitor.build.gradle
 web/android/capacitor.settings.gradle
 implementation.md
 .claude/settings.local.json
+
+# Eclipse / Android Studio artifacts
+.metadata/
+.bin/
+.settings/
+.project
+.classpath
+.factory
