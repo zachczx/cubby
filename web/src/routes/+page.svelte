@@ -11,9 +11,9 @@
 
 		const timeout = setTimeout(() => {
 			if (response.status === 204) {
-				goto(resolve('/app'));
+				goto(resolve('/app'), { replaceState: true });
 			} else {
-				goto(resolve('/login'));
+				goto(resolve('/login'), { replaceState: true });
 			}
 
 			clearTimeout(timeout);
