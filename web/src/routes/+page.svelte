@@ -9,6 +9,7 @@
 	onMount(async () => {
 		const response = await api.get('check');
 
+		// For web users, so they don't get in a redirect loop when pressing the back button on /app
 		const timeout = setTimeout(() => {
 			if (response.status === 204) {
 				goto(resolve('/app'), { replaceState: true });
