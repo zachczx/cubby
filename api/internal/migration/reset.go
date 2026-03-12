@@ -71,7 +71,8 @@ func Create(db *sqlx.DB) {
 			start_date TIMESTAMPTZ,  
 			cost DOUBLE PRECISION,    
 			created_at TIMESTAMPTZ DEFAULT NOW(),
-			updated_at TIMESTAMPTZ DEFAULT NOW()
+			updated_at TIMESTAMPTZ DEFAULT NOW(),
+			UNIQUE(name, family_id)
 		);`,
 
 		// entries
