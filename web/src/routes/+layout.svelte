@@ -6,6 +6,21 @@
 	import { topLevelRoutes } from '$lib/shell/nav';
 	import type { OnNavigate } from '@sveltejs/kit';
 	import { queryClient } from '$lib/queries';
+	import { Capacitor } from '@capacitor/core';
+	import { App } from '@capacitor/app';
+	import { onMount } from 'svelte';
+
+	onMount(() => {
+		if (Capacitor.isNativePlatform()) {
+			App.addListener('backButton', ({ canGoBack }) => {
+				if (canGoBack) {
+					window.history.back();
+				} else {
+					App.exitApp();
+				}
+			});
+		}
+	});
 
 	onNavigate((navigation) => {
 		if (!document.startViewTransition) return;
