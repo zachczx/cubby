@@ -46,7 +46,11 @@
 
 	let camelCaseName = $derived(toCamelCase(inputTrackerDetails.display));
 
-	let clean = $derived.by(() => ({ ...inputTrackerDetails, name: camelCaseName }));
+	let clean = $derived.by(() => ({
+		...inputTrackerDetails,
+		name: camelCaseName,
+		interval: intervalString
+	}));
 
 	async function handleSubmission() {
 		try {
