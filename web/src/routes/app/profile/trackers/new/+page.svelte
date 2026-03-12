@@ -23,6 +23,8 @@
 		}
 	});
 
+	let duplicate = $state(false);
+
 	async function addTracker(inputTrackerDetails: TrackerInput) {
 		if (!user.isSuccess) return;
 
@@ -33,17 +35,25 @@
 				family: userOwnedFamily
 			};
 
-			const response = await api
-				.post('trackers', {
-					body: JSON.stringify(formData)
-				})
-				.json<string>();
+			const response = await api.post('trackers', {
+				body: JSON.stringify(formData)
+			});
 
-			if (response) {
-				addToast('success', 'Added successfully!');
-				await tanstackClient.refetchQueries(allTrackersRefetchOptions());
-				goto(router.tracker(response));
+			if (response.status === 409) {
+				duplicate = true;
+				addToast('error', 'Tracker name needs to be unique!');
+				return;
 			}
+
+			if (!response.ok) {
+				addToast('error', 'Error creating tracker!');
+				return;
+			}
+
+			const id = await response.json<string>();
+			addToast('success', 'Added successfully!');
+			await tanstackClient.refetchQueries(allTrackersRefetchOptions());
+			goto(router.tracker(id));
 		} catch (err) {
 			console.log(err);
 			addToast('error', 'Failed to add tracker');
@@ -57,6 +67,6 @@
 	>
 		<h1 class="text-primary mb-4 text-center text-4xl font-bold max-lg:hidden">Add Tracker</h1>
 
-		<TrackerForm onsubmit={addTracker} />
+		<TrackerForm onsubmit={addTracker} bind:duplicate />
 	</div>
 </PageWrapper>

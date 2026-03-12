@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 type IDResponse struct {
@@ -70,6 +71,8 @@ func WriteError(w http.ResponseWriter, err error) {
 		return
 	}
 
+	var pgErr *pgconn.PgError
+
 	switch {
 	case errors.Is(err, sql.ErrNoRows):
 		errResp = ErrorResponse{
@@ -79,6 +82,14 @@ func WriteError(w http.ResponseWriter, err error) {
 		writeJSON(w, http.StatusNotFound, errResp)
 		return
 		// Need more cases
+
+	case errors.As(err, &pgErr) && pgErr.Code == "23505":
+		errResp = ErrorResponse{
+			Status:  http.StatusConflict,
+			Message: "record already exists",
+		}
+		writeJSON(w, http.StatusConflict, errResp)
+		return
 	}
 
 	slog.Error("internal error", "error", err)

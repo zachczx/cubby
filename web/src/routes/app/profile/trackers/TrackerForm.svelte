@@ -8,11 +8,13 @@
 	let {
 		onsubmit,
 		currentTracker,
-		edit = false
+		edit = false,
+		duplicate = $bindable(false)
 	}: {
 		onsubmit: (trackerDetails: TrackerInput) => Promise<TrackerDB> | Promise<void>;
 		currentTracker?: TrackerDB;
 		edit?: boolean;
+		duplicate?: boolean;
 	} = $props();
 
 	let intervalString = $state('1');
@@ -77,14 +79,16 @@
 
 <form class="grid w-full content-start gap-4" onsubmit={() => handleSubmission()}>
 	<fieldset class="fieldset">
-		<legend class="fieldset-legend -mb-2 text-lg">Display Name</legend>
+		<legend class={['fieldset-legend -mb-2 text-lg', duplicate && 'text-error']}
+			>Display Name</legend
+		>
 		<input
 			type="text"
 			name="display"
 			placeholder="Give your new tracker a name"
 			bind:value={inputTrackerDetails.display}
 			autocomplete="off"
-			class="input input-lg w-full"
+			class={['input input-lg w-full', duplicate && 'input-error']}
 		/>
 	</fieldset>
 
