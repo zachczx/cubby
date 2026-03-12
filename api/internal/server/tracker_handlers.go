@@ -12,7 +12,7 @@ import (
 	"github.com/zachczx/cubby/api/internal/user"
 )
 
-func (s *Service) CreateHandler(w http.ResponseWriter, r *http.Request) {
+func (s *Service) NewHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	userID, err := s.GetUserIDFromContext(r.Context())
