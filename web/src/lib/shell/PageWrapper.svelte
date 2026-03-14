@@ -110,7 +110,7 @@
 		</div>
 		<div class="lg:navbar-end">
 			{#if showSettingsIcon}
-				<div id="mobile-hamburger" class="dropdown flex items-center lg:hidden">
+				<div id="mobile-hamburger" class="dropdown flex items-center max-lg:-me-1 lg:hidden">
 					<a href="/app/profile" class="btn btn-ghost px-2 py-0"
 						><Icon icon="material-symbols:settings" class="size-6" /></a
 					>
