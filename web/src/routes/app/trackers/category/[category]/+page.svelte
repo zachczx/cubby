@@ -112,10 +112,7 @@
 	<main class="h-full">
 		<div id="mobile" class="grid w-full max-w-lg gap-8 justify-self-center lg:text-base">
 			<section class="grid gap-4 py-4">
-				{#if trackersDb.isPending}
-					<SkeletonActionCard />
-					<SkeletonActionCard />
-				{:else if entries.tasks && entries.tasks.length > 0}
+				{#if entries.tasks && entries.tasks.length > 0}
 					{#each entries.tasks as task (task.trackerData.id)}
 						<ActionCard
 							options={{
@@ -133,11 +130,14 @@
 							}}
 						></ActionCard>
 					{/each}
-				{:else}
+				{:else if trackersDb.isSuccess}
 					<div class="justify-self-center">
 						<enhanced:img src={EmptyCorgi} alt="nothing" />
 						<p class="text-center">Nothing being tracked!</p>
 					</div>
+				{:else}
+					<SkeletonActionCard />
+					<SkeletonActionCard />
 				{/if}
 			</section>
 
@@ -167,11 +167,6 @@
 			<section class="grid gap-4 py-2">
 				<h2 class="text-base-content/70 text-lg font-bold">Recent Activity</h2>
 
-				{#if allEntriesDB.isPending}
-					<SkeletonActionCard size="compact" />
-					<SkeletonActionCard size="compact" />
-					<SkeletonActionCard size="compact" />
-				{/if}
 				{#if latestEntries && latestEntries.length > 0}
 					<div class="border-base-300/50 rounded-2xl border bg-white/70">
 						{#each latestEntries as entry (entry.id)}
@@ -189,11 +184,17 @@
 							</div>
 						{/each}
 					</div>
-				{:else if !latestEntries || latestEntries.length === 0}
+				{:else if allEntriesDB.isError}
+					Error!
+				{:else if allEntriesDB.isSuccess}
 					<div class="justify-self-center">
 						<enhanced:img src={EmptyCorgi} alt="nothing" />
 						<p class="text-center">No tasks!</p>
 					</div>
+				{:else}
+					<SkeletonActionCard size="compact" />
+					<SkeletonActionCard size="compact" />
+					<SkeletonActionCard size="compact" />
 				{/if}
 			</section>
 		</div>

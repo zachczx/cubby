@@ -75,11 +75,7 @@
 	<div class="grid w-full rounded-2xl lg:h-min lg:max-w-lg lg:justify-self-center">
 		<h1 class="text-primary mb-4 text-center text-4xl font-bold max-lg:hidden">Active Trackers</h1>
 
-		{#if trackersDb.isPending}
-			<div class="grid min-h-32 content-center justify-center">
-				<span class="loading loading-md loading-spinner"></span>
-			</div>
-		{:else}
+		{#if trackersDb.isSuccess}
 			<div class="grid gap-8">
 				{#each Object.values(trackers) as trackerList}
 					<section
@@ -96,6 +92,12 @@
 						{/each}
 					</section>
 				{/each}
+			</div>
+		{:else if trackersDb.isError}
+			<div class="grid min-h-32 content-center justify-center">Error!</div>
+		{:else}
+			<div class="grid min-h-32 content-center justify-center">
+				<span class="loading loading-md loading-spinner"></span>
 			</div>
 		{/if}
 	</div>

@@ -135,7 +135,7 @@
 				{/if}
 			</nav>
 
-			{#if families.isPending}
+			{#if !families.isSuccess}
 				<div class="skeleton h-27.5 w-full justify-self-center"></div>
 				<div class="skeleton h-27.5 w-full justify-self-center"></div>
 			{/if}

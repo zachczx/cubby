@@ -77,11 +77,7 @@
 				<h1 class="text-primary mb-8 text-center text-4xl font-bold max-lg:hidden">Account Info</h1>
 			{/if}
 
-			{#if user.isPending || family.isPending}
-				<div class="flex justify-center p-8">
-					<span class="loading loading-spinner text-primary"></span>
-				</div>
-			{:else}
+			{#if user.isSuccess && family.isSuccess}
 				<form
 					class="border-neutral/20 grid gap-6 rounded-xl border bg-white/70 p-8 shadow"
 					{onsubmit}
@@ -134,6 +130,12 @@
 						{/if}
 					</div>
 				</form>
+			{:else if user.isError || family.isError}
+				<div class="flex justify-center p-8">Error loading account.</div>
+			{:else}
+				<div class="flex justify-center p-8">
+					<span class="loading loading-spinner text-primary"></span>
+				</div>
 			{/if}
 		</div>
 	</div>

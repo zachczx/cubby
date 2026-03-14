@@ -152,11 +152,7 @@
 			<section class="grid gap-4 py-2">
 				<h2 class="text-base-content/70 text-lg font-bold">Pinned</h2>
 
-				{#if allEntriesDb.isPending}
-					<SkeletonActionCard size="compact" />
-					<SkeletonActionCard size="compact" />
-					<SkeletonActionCard size="compact" />
-				{:else if allEntriesDb.isSuccess}
+				{#if allEntriesDb.isSuccess}
 					{#each entries.pinned as entry (entry.trackerData?.id)}
 						<ActionCard
 							options={{
@@ -174,8 +170,12 @@
 							}}
 						></ActionCard>
 					{/each}
-				{:else}
+				{:else if allEntriesDb.isError}
 					Error!
+				{:else}
+					<SkeletonActionCard size="compact" />
+					<SkeletonActionCard size="compact" />
+					<SkeletonActionCard size="compact" />
 				{/if}
 			</section>
 
@@ -193,11 +193,7 @@
 					{/each}
 				</div>
 
-				{#if allEntriesDb.isPending}
-					<SkeletonActionCard size="compact" />
-					<SkeletonActionCard size="compact" />
-					<SkeletonActionCard size="compact" />
-				{:else if allEntriesDb.isSuccess}
+				{#if allEntriesDb.isSuccess}
 					<div class="border-base-300/50 rounded-2xl border bg-white/70">
 						{#each entries.general as entry, i (entry.trackerData?.id)}
 							<ActionCard
@@ -218,24 +214,18 @@
 							></ActionCard>
 						{/each}
 					</div>
-					<!-- {:else if allEntriesDb.isSuccess && allEntriesDb.data && entries.general && entries.general.length === 0}
-					<div class="justify-self-center">
-						<enhanced:img src={EmptyCorgi} alt="nothing" />
-						<p class="text-center">No tasks!</p>
-					</div> -->
-				{:else}
+				{:else if allEntriesDb.isError}
 					Error!
+				{:else}
+					<SkeletonActionCard size="compact" />
+					<SkeletonActionCard size="compact" />
+					<SkeletonActionCard size="compact" />
 				{/if}
 			</section>
 
 			<section class="grid gap-4 py-2">
 				<h2 class="text-base-content/70 text-lg font-bold">Subscriptions</h2>
 
-				{#if allEntriesDb.isPending}
-					<SkeletonActionCard size="compact" />
-					<SkeletonActionCard size="compact" />
-					<SkeletonActionCard size="compact" />
-				{/if}
 				{#if allEntriesDb.isSuccess && subscriptions && subscriptions.length > 0}
 					<div class="border-base-300/50 rounded-2xl border bg-white/70">
 						{#each subscriptions as sub, i (sub.id)}
@@ -261,6 +251,12 @@
 						<enhanced:img src={EmptyCorgi} alt="nothing" />
 						<p class="text-center">No subscriptions!</p>
 					</div>
+				{:else if allEntriesDb.isError}
+					Error!
+				{:else}
+					<SkeletonActionCard size="compact" />
+					<SkeletonActionCard size="compact" />
+					<SkeletonActionCard size="compact" />
 				{/if}
 			</section>
 

@@ -61,19 +61,21 @@
 			<h2 class="text-2xl font-bold">You've been invited!</h2>
 
 			<ul class="ms-6 list-disc space-y-2">
-				{#if invite.isPending}
+				{#if invite.isSuccess}
+					<li>
+						You can see and use <span class="font-bold">{invite.data.familyName}</span>'s trackers.
+					</li>
+					<li>You can leave <span class="font-bold">{invite.data.familyName}</span> any time.</li>
+					<li>Your personal trackers will remain private unless you share them.</li>
+				{:else if invite.isError}
+					<li>Error loading invite.</li>
+				{:else}
 					<li><div class="skeleton h-5 w-68 rounded-full"></div></li>
 					<li><div class="skeleton h-5 w-52 rounded-full"></div></li>
 					<li>
 						<div class="skeleton mb-2 h-5 w-full rounded-full"></div>
 						<div class="skeleton h-5 w-26 rounded-full"></div>
 					</li>
-				{:else if invite.isSuccess}
-					<li>
-						You can see and use <span class="font-bold">{invite.data.familyName}</span>'s trackers.
-					</li>
-					<li>You can leave <span class="font-bold">{invite.data.familyName}</span> any time.</li>
-					<li>Your personal trackers will remain private unless you share them.</li>
 				{/if}
 			</ul>
 		</div>

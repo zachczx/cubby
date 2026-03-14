@@ -113,10 +113,7 @@
 	<main class="h-full">
 		<div id="mobile" class="grid w-full max-w-lg gap-8 justify-self-center lg:text-base">
 			<section class="grid gap-4 py-4">
-				{#if trackersDb.isPending}
-					<SkeletonActionCard />
-					<SkeletonActionCard />
-				{:else if tasks && tasks.length > 0}
+				{#if tasks && tasks.length > 0}
 					{#each tasks as task (task.trackerData.id)}
 						{#if task.trackerData.kind === 'task'}
 							<ActionCard
@@ -135,11 +132,14 @@
 							></ActionCard>
 						{/if}
 					{/each}
-				{:else}
+				{:else if trackersDb.isSuccess}
 					<div class="justify-self-center">
 						<enhanced:img src={EmptyCorgi} alt="nothing" />
 						<p class="text-center">Nothing being tracked!</p>
 					</div>
+				{:else}
+					<SkeletonActionCard />
+					<SkeletonActionCard />
 				{/if}
 			</section>
 

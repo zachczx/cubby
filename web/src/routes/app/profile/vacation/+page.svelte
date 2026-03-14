@@ -91,15 +91,17 @@
 						</button>
 					</div>
 					<ul class="list-disc">
-						{#if vacations.isPending}
-							<span class="loading loading-spinner loading-md"></span>
-						{:else if vacations.isSuccess}
+						{#if vacations.isSuccess}
 							{#each vacations.data as v}
 								{@const dateTime = formatTime(v.startDateTime, v.endDateTime)}
 								<li class="ms-6 py-0.5">
 									{dateTime}
 								</li>
 							{/each}
+						{:else if vacations.isError}
+							Error!
+						{:else}
+							<span class="loading loading-spinner loading-md"></span>
 						{/if}
 					</ul>
 				</div>

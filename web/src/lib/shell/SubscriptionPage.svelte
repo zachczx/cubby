@@ -166,7 +166,7 @@
 									</div>
 								{/if}
 							{/if}
-							{#if allEntriesDb.isPending}
+							{#if !allEntriesDb.isSuccess}
 								<div class="custom-loader"></div>
 							{/if}
 						{/snippet}
@@ -200,7 +200,7 @@
 									</div>
 								{/if}
 							{/if}
-							{#if allEntriesDb.isPending}
+							{#if !allEntriesDb.isSuccess}
 								<div class="custom-loader"></div>
 							{/if}
 						{/snippet}
