@@ -196,7 +196,7 @@
 <PageWrapper title="Count">
 	<div
 		class={[
-			'grid min-h-[calc(100vh-3.5rem-6rem)] w-full grid-rows-[auto_1fr_auto] justify-items-center lg:min-h-[calc(100vh-3.5rem-1rem)]'
+			'grid min-h-[calc(100vh-3.5rem-6rem)] w-full grid-rows-[auto_1fr_auto] justify-items-center '
 		]}
 	>
 		<label
