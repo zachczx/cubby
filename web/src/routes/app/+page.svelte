@@ -194,26 +194,33 @@
 				</div>
 
 				{#if allEntriesDb.isSuccess}
-					<div class="border-base-300/50 rounded-2xl border bg-white/70">
-						{#each entries.general as entry, i (entry.trackerData?.id)}
-							<ActionCard
-								options={{
-									tracker: entry.trackerData,
-									size: 'list',
-									title: entry.trackerData?.display,
-									entries: entry.entries,
-									route: router.tracker(entry.trackerData?.id),
-									icon: getTrackerIcon(entry.trackerData?.icon),
-									lastChild: i === entries.general.length - 1 ? true : undefined,
-									button: {
-										status: buttonStatuses?.[entry.trackerName],
-										text: entry.trackerData?.actionLabel
-									},
-									streak: entry.streak
-								}}
-							></ActionCard>
-						{/each}
-					</div>
+					{#if entries.general && entries.general.length > 0}
+						<div class="border-base-300/50 rounded-2xl border bg-white/70">
+							{#each entries.general as entry, i (entry.trackerData?.id)}
+								<ActionCard
+									options={{
+										tracker: entry.trackerData,
+										size: 'list',
+										title: entry.trackerData?.display,
+										entries: entry.entries,
+										route: router.tracker(entry.trackerData?.id),
+										icon: getTrackerIcon(entry.trackerData?.icon),
+										lastChild: i === entries.general.length - 1 ? true : undefined,
+										button: {
+											status: buttonStatuses?.[entry.trackerName],
+											text: entry.trackerData?.actionLabel
+										},
+										streak: entry.streak
+									}}
+								></ActionCard>
+							{/each}
+						</div>
+					{:else}
+						<div class="justify-self-center">
+							<enhanced:img src={EmptyCorgi} alt="nothing" />
+							<p class="text-center">Nothing upcoming!</p>
+						</div>
+					{/if}
 				{:else if allEntriesDb.isError}
 					Error!
 				{:else}
