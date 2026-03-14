@@ -13,14 +13,14 @@ import (
 func (s *Service) CreateEntryHandler(w http.ResponseWriter, r *http.Request) {
 	trackerID, err := uuid.Parse(r.PathValue("trackerID"))
 	if err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
 	var input entry.EntryInput
 
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
@@ -30,7 +30,7 @@ func (s *Service) CreateEntryHandler(w http.ResponseWriter, r *http.Request) {
 
 		performedAt, err = time.Parse(time.RFC3339, *input.PerformedAt)
 		if err != nil {
-			response.WriteError(w, err)
+			response.WriteError(r.Context(), w, err)
 			return
 		}
 	} else {
@@ -54,11 +54,11 @@ func (s *Service) CreateEntryHandler(w http.ResponseWriter, r *http.Request) {
 
 	new, err := entry.Create(s.DB, e)
 	if err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
-	response.WriteJSONStatus(w, http.StatusCreated, new)
+	response.WriteJSONStatus(r.Context(), w, http.StatusCreated, new)
 }
 
 func (s *Service) GetAllEntriesHandler(w http.ResponseWriter, r *http.Request) {
@@ -70,11 +70,11 @@ func (s *Service) GetAllEntriesHandler(w http.ResponseWriter, r *http.Request) {
 
 	entries, err := entry.GetAll(s.DB, userID)
 	if err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
-	response.WriteJSON(w, entries)
+	response.WriteJSON(r.Context(), w, entries)
 }
 
 func (s *Service) DeleteEntryHandler(w http.ResponseWriter, r *http.Request) {
@@ -87,12 +87,12 @@ func (s *Service) DeleteEntryHandler(w http.ResponseWriter, r *http.Request) {
 	e := r.PathValue("entryID")
 	entryID, err := uuid.Parse(e)
 	if err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
 	if err := entry.Delete(s.DB, userID, entryID); err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
@@ -109,14 +109,14 @@ func (s *Service) EditEntryHandler(w http.ResponseWriter, r *http.Request) {
 	e := r.PathValue("entryID")
 	entryID, err := uuid.Parse(e)
 	if err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
 	var input entry.EntryInput
 
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
@@ -126,13 +126,13 @@ func (s *Service) EditEntryHandler(w http.ResponseWriter, r *http.Request) {
 
 		performedAt, err = time.Parse(time.RFC3339, *input.PerformedAt)
 		if err != nil {
-			response.WriteError(w, err)
+			response.WriteError(r.Context(), w, err)
 			return
 		}
 	}
 
 	if err := entry.Edit(s.DB, userID, entryID, performedAt); err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 

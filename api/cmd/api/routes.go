@@ -1,9 +1,12 @@
 package main
 
 import (
+	"context"
 	"net/http"
 	"slices"
 
+	"github.com/google/uuid"
+	"github.com/zachczx/cubby/api/internal/logging"
 	"github.com/zachczx/cubby/api/internal/response"
 	"github.com/zachczx/cubby/api/internal/server"
 )
@@ -58,9 +61,9 @@ func NewHTTPHandler(s *server.Service) http.Handler {
 	return mux
 }
 
-func Index(w http.ResponseWriter, _ *http.Request) {
+func Index(w http.ResponseWriter, r *http.Request) {
 	if _, err := w.Write([]byte("Cubby")); err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 }
@@ -69,7 +72,7 @@ func Healthcheck(w http.ResponseWriter, _ *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func CORS(s *server.Service, next http.Handler) http.Handler {
+func CORSMiddleware(s *server.Service, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
 
@@ -88,5 +91,16 @@ func CORS(s *server.Service, next http.Handler) http.Handler {
 		}
 
 		next.ServeHTTP(w, r)
+	})
+}
+
+func RequestIDMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		u, _ := uuid.NewV7()
+		uuid := u.String()
+		ctx := context.WithValue(r.Context(), logging.RequestIDKey, uuid)
+		w.Header().Set("X-Request-ID", uuid)
+
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

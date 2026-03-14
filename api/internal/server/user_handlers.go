@@ -35,8 +35,6 @@ func (s *Service) CheckHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println("check")
-
 	w.WriteHeader(http.StatusNoContent)
 }
 
@@ -54,12 +52,12 @@ func (s *Service) ChangeTaskLookaheadDaysHandler(w http.ResponseWriter, r *http.
 	var days TaskDays
 
 	if err := json.NewDecoder(r.Body).Decode(&days); err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
 	if err := user.ChangeTaskLookaheadDays(s.DB, userID, days.TaskDays); err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
@@ -80,12 +78,12 @@ func (s *Service) ChangePreferredCharacterHandler(w http.ResponseWriter, r *http
 	var char PreferredCharacter
 
 	if err := json.NewDecoder(r.Body).Decode(&char); err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
 	if err := user.ChangePreferredCharacter(s.DB, userID, char.PreferredCharacter); err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
@@ -106,12 +104,12 @@ func (s *Service) ToggleSoundHandler(w http.ResponseWriter, r *http.Request) {
 	var soundInput SoundInput
 
 	if err := json.NewDecoder(r.Body).Decode(&soundInput); err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
 	if err := user.ToggleSound(s.DB, userID, soundInput.SoundOn); err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
@@ -132,13 +130,13 @@ func (s *Service) UpdateAccountInfoHandler(w http.ResponseWriter, r *http.Reques
 
 	var input AccountInfoInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
 	if input.Name != "" {
 		if err := user.UpdateName(s.DB, userID, input.Name); err != nil {
-			response.WriteError(w, err)
+			response.WriteError(r.Context(), w, err)
 			return
 		}
 	}
@@ -146,12 +144,12 @@ func (s *Service) UpdateAccountInfoHandler(w http.ResponseWriter, r *http.Reques
 	if input.FamilyName != "" {
 		ownedFamilyID, err := user.GetUserFamilyID(s.DB, userID)
 		if err != nil {
-			response.WriteError(w, err)
+			response.WriteError(r.Context(), w, err)
 			return
 		}
 
 		if err := user.UpdateFamilyName(s.DB, ownedFamilyID, input.FamilyName); err != nil {
-			response.WriteError(w, err)
+			response.WriteError(r.Context(), w, err)
 			return
 		}
 	}

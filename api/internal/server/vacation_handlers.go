@@ -19,24 +19,24 @@ func (s *Service) CreateVacationHandler(w http.ResponseWriter, r *http.Request) 
 
 	ownedFamilyID, err := user.GetUserFamilyID(s.DB, userID)
 	if err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
 	var input user.VacationRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
 	if err := validateVacationInputDateTimes(input); err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
 	if err := user.CreateVacation(s.DB, userID, ownedFamilyID, input); err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
@@ -60,24 +60,24 @@ func (s *Service) GetVacationsHandler(w http.ResponseWriter, r *http.Request) {
 
 	families, err := user.GetUsersFamilies(s.DB, userID)
 	if err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
 	vacations, err := user.GetVacations(s.DB, families)
 	if err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
-	response.WriteJSON(w, vacations)
+	response.WriteJSON(r.Context(), w, vacations)
 }
 
 func (s *Service) DeleteVacationHandler(w http.ResponseWriter, r *http.Request) {
 	vid := r.PathValue("vacationID")
 	vacationID, err := uuid.Parse(vid)
 	if err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
@@ -88,7 +88,7 @@ func (s *Service) DeleteVacationHandler(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if err := user.DeleteVacation(s.DB, userID, vacationID); err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 

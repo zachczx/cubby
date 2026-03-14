@@ -37,15 +37,6 @@ func Migrate() {
 	}
 }
 
-// var trackerUUIDs = Trackers{
-// Gummy:       uuid.MustParse("019c5b83-e669-707a-9e66-c3f8032d1168"),
-// Spray:       uuid.MustParse("019c5b83-e66e-731b-b3f7-962df23bc89b"),
-// Towel:       uuid.MustParse("019c5b83-e672-7f03-9122-bca3a4c1508e"),
-// PetChewable: uuid.MustParse("019c5b83-e664-710e-a12e-89755f2e2b33"),
-// PetBath:  uuid.MustParse("019c5b83-e65e-7f34-a2ff-baade24726c4"),
-// BedSheet: uuid.MustParse("019c5b83-e659-705a-b03e-f45d7b229314"),
-// }
-
 var mapperIDs = map[string]IDPair{
 	"8t9hsvqah63rs7h": {
 		Name: "Gummy",

@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -14,6 +14,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
 	"github.com/zachczx/cubby/api/internal/database"
+	"github.com/zachczx/cubby/api/internal/logging"
 	"github.com/zachczx/cubby/api/internal/notifier"
 	"github.com/zachczx/cubby/api/internal/server"
 	"github.com/zachczx/cubby/api/internal/tracker"
@@ -34,8 +35,10 @@ func main() {
 			log.Printf("Warning: Error loading .env file: %v", err)
 		}
 	} else {
-		fmt.Println("env init: ok")
+		slog.Info("App init", "env init", "ok")
 	}
+
+	logging.Init()
 
 	db, err := sqlx.Connect("pgx", database.GetConnectionString())
 	if err != nil {
@@ -66,11 +69,11 @@ func main() {
 
 	mux := NewHTTPHandler(s)
 
-	fmt.Println("Listening on:", ":"+os.Getenv("API_LISTEN_ADDR"))
+	slog.Info("server started", "port", ":"+os.Getenv("API_LISTEN_ADDR"))
 	server := &http.Server{
 		Addr:              ":" + os.Getenv("API_LISTEN_ADDR"),
 		ReadHeaderTimeout: defaultTimeout,
-		Handler:           CORS(s, mux),
+		Handler:           RequestIDMiddleware(CORSMiddleware(s, mux)),
 	}
 
 	osCtx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
@@ -85,7 +88,7 @@ func main() {
 	}()
 
 	<-osCtx.Done()
-	log.Println("shutting down gracefully, press ctrl+c again to force")
+	slog.Info("server graceful shutdown started", "status", "started")
 
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cancel()
@@ -94,5 +97,5 @@ func main() {
 		log.Fatal("server forced shutdown: ", err)
 	}
 
-	log.Println("Server exiting")
+	slog.Info("server exited", "status", "ok")
 }

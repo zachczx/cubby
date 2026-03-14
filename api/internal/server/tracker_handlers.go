@@ -2,11 +2,11 @@ package server
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/zachczx/cubby/api/internal/logging"
 	"github.com/zachczx/cubby/api/internal/response"
 	"github.com/zachczx/cubby/api/internal/tracker"
 	"github.com/zachczx/cubby/api/internal/user"
@@ -23,13 +23,13 @@ func (s *Service) NewHandler(w http.ResponseWriter, r *http.Request) {
 
 	familyID, err := user.GetUserFamilyID(s.DB, userID)
 	if err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
 	var input tracker.TrackerInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
@@ -37,7 +37,7 @@ func (s *Service) NewHandler(w http.ResponseWriter, r *http.Request) {
 	if input.StartDate != "" {
 		sd, err := time.Parse(time.RFC3339, input.StartDate)
 		if err != nil {
-			response.WriteError(w, err)
+			response.WriteError(r.Context(), w, err)
 			return
 		}
 		startDate = &sd
@@ -62,11 +62,11 @@ func (s *Service) NewHandler(w http.ResponseWriter, r *http.Request) {
 
 	trackerID, err := tracker.New(s.DB, t)
 	if err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
-	response.WriteJSON(w, trackerID)
+	response.WriteJSON(r.Context(), w, trackerID)
 }
 
 func (s *Service) EditHandler(w http.ResponseWriter, r *http.Request) {
@@ -81,13 +81,13 @@ func (s *Service) EditHandler(w http.ResponseWriter, r *http.Request) {
 	tid := r.PathValue("trackerID")
 	trackerID, err := uuid.Parse(tid)
 	if err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
 	var input tracker.TrackerInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
@@ -95,7 +95,7 @@ func (s *Service) EditHandler(w http.ResponseWriter, r *http.Request) {
 	if input.StartDate != "" {
 		sd, err := time.Parse(time.RFC3339, input.StartDate)
 		if err != nil {
-			response.WriteError(w, err)
+			response.WriteError(r.Context(), w, err)
 			return
 		}
 		startDate = &sd
@@ -119,7 +119,7 @@ func (s *Service) EditHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := tracker.Edit(s.DB, t); err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
@@ -130,7 +130,7 @@ func (s *Service) DeleteHandler(w http.ResponseWriter, r *http.Request) {
 	t := r.PathValue("trackerID")
 	trackerID, err := uuid.Parse(t)
 	if err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
@@ -141,7 +141,7 @@ func (s *Service) DeleteHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := tracker.Delete(s.DB, trackerID, userID); err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
@@ -152,7 +152,7 @@ func (s *Service) GetHandler(w http.ResponseWriter, r *http.Request) {
 	t := r.PathValue("trackerID")
 	trackerID, err := uuid.Parse(t)
 	if err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
@@ -164,11 +164,11 @@ func (s *Service) GetHandler(w http.ResponseWriter, r *http.Request) {
 
 	tracker, err := tracker.Get(s.DB, trackerID, userID)
 	if err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
-	response.WriteJSON(w, tracker)
+	response.WriteJSON(r.Context(), w, tracker)
 }
 
 func (s *Service) GetAllHandler(w http.ResponseWriter, r *http.Request) {
@@ -180,11 +180,11 @@ func (s *Service) GetAllHandler(w http.ResponseWriter, r *http.Request) {
 
 	tracker, err := tracker.GetAll(s.DB, userID)
 	if err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
-	response.WriteJSON(w, tracker)
+	response.WriteJSON(r.Context(), w, tracker)
 }
 
 type TrackerToggle struct {
@@ -196,7 +196,7 @@ func (s *Service) TogglePinHandler(w http.ResponseWriter, r *http.Request) {
 	t := r.PathValue("trackerID")
 	trackerID, err := uuid.Parse(t)
 	if err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
@@ -209,12 +209,12 @@ func (s *Service) TogglePinHandler(w http.ResponseWriter, r *http.Request) {
 	var toggle TrackerToggle
 
 	if err := json.NewDecoder(r.Body).Decode(&toggle); err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
 	if err := tracker.TogglePin(s.DB, userID, trackerID, toggle.Pinned); err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
@@ -225,7 +225,7 @@ func (s *Service) ToggleShowHandler(w http.ResponseWriter, r *http.Request) {
 	t := r.PathValue("trackerID")
 	trackerID, err := uuid.Parse(t)
 	if err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
@@ -238,12 +238,12 @@ func (s *Service) ToggleShowHandler(w http.ResponseWriter, r *http.Request) {
 	var toggle TrackerToggle
 
 	if err := json.NewDecoder(r.Body).Decode(&toggle); err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
 	if err := tracker.ToggleShow(s.DB, userID, trackerID, toggle.Show); err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
@@ -256,20 +256,19 @@ func (s *Service) GenerateHandler(w http.ResponseWriter, r *http.Request) {
 		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}
-
-	fmt.Println(userID)
+	logging.Info(r.Context(), "user", "userID", userID)
 
 	t, err := tracker.GetTrackersLast(s.DB)
 	if err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
 	newT, err := tracker.CalculateTrackersLastDue(t)
 	if err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
-	response.WriteJSON(w, newT)
+	response.WriteJSON(r.Context(), w, newT)
 }

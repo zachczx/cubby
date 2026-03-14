@@ -1,15 +1,16 @@
 package response
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log/slog"
 	"net/http"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/zachczx/cubby/api/internal/logging"
 )
 
 type IDResponse struct {
@@ -23,27 +24,27 @@ type ErrorResponse struct {
 	Errors  map[string]string `json:"errors,omitempty"`
 }
 
-func WriteJSON(w http.ResponseWriter, data any) {
+func WriteJSON(ctx context.Context, w http.ResponseWriter, data any) {
 	bytes, err := json.Marshal(data)
 	if err != nil {
-		fmt.Println(err)
-		WriteError(w, err)
+		logging.Error(ctx, "marshal error", "err", err)
+		WriteError(ctx, w, err)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 
 	if _, err := w.Write(bytes); err != nil {
-		fmt.Println(err)
-		WriteError(w, err)
+		logging.Error(ctx, "write bytes error", "error", err)
+		WriteError(ctx, w, err)
 	}
 }
 
-func WriteJSONStatus(w http.ResponseWriter, status int, data any) {
+func WriteJSONStatus(ctx context.Context, w http.ResponseWriter, status int, data any) {
 	bytes, err := json.Marshal(data)
 	if err != nil {
-		fmt.Println(err)
-		WriteError(w, err)
+		logging.Error(ctx, "marshal error", "err", err)
+		WriteError(ctx, w, err)
 		return
 	}
 
@@ -51,12 +52,12 @@ func WriteJSONStatus(w http.ResponseWriter, status int, data any) {
 	w.WriteHeader(status)
 
 	if _, err := w.Write(bytes); err != nil {
-		fmt.Println(err)
-		WriteError(w, err)
+		logging.Error(ctx, "write bytes error", "error", err)
+		WriteError(ctx, w, err)
 	}
 }
 
-func WriteError(w http.ResponseWriter, err error) {
+func WriteError(ctx context.Context, w http.ResponseWriter, err error) {
 	var errResp ErrorResponse
 
 	var valErr *ValidationError
@@ -67,7 +68,7 @@ func WriteError(w http.ResponseWriter, err error) {
 			Message: valErr.Message,
 			Field:   valErr.Field,
 		}
-		writeJSON(w, http.StatusBadRequest, errResp)
+		writeJSON(ctx, w, http.StatusBadRequest, errResp)
 		return
 	}
 
@@ -79,32 +80,31 @@ func WriteError(w http.ResponseWriter, err error) {
 			Status:  http.StatusNotFound,
 			Message: "could not find resource",
 		}
-		writeJSON(w, http.StatusNotFound, errResp)
+		writeJSON(ctx, w, http.StatusNotFound, errResp)
 		return
-		// Need more cases
 
 	case errors.As(err, &pgErr) && pgErr.Code == "23505":
 		errResp = ErrorResponse{
 			Status:  http.StatusConflict,
 			Message: "record already exists",
 		}
-		writeJSON(w, http.StatusConflict, errResp)
+		writeJSON(ctx, w, http.StatusConflict, errResp)
 		return
 	}
 
-	slog.Error("internal error", "error", err)
+	logging.Error(ctx, "internal error", "error", err)
 	errResp = ErrorResponse{
 		Status:  http.StatusInternalServerError,
 		Message: "an error occurred",
 	}
 
-	writeJSON(w, http.StatusInternalServerError, errResp)
+	writeJSON(ctx, w, http.StatusInternalServerError, errResp)
 }
 
-func writeJSON(w http.ResponseWriter, status int, data any) {
+func writeJSON(ctx context.Context, w http.ResponseWriter, status int, data any) {
 	bytes, err := json.Marshal(data)
 	if err != nil {
-		slog.Error("marshal error", "error", err)
+		logging.Error(ctx, "marshal error", "error", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -112,7 +112,7 @@ func writeJSON(w http.ResponseWriter, status int, data any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	if _, err := w.Write(bytes); err != nil {
-		slog.Error("write response error", "error", err)
+		logging.Error(ctx, "write response error", "error", err)
 	}
 }
 

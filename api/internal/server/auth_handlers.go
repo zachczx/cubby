@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"os"
 	"time"
@@ -17,6 +16,7 @@ import (
 	otpEmail "github.com/stytchauth/stytch-go/v16/stytch/consumer/otp/email"
 	"github.com/stytchauth/stytch-go/v16/stytch/consumer/sessions"
 	"github.com/stytchauth/stytch-go/v16/stytch/consumer/users"
+	"github.com/zachczx/cubby/api/internal/logging"
 	"github.com/zachczx/cubby/api/internal/response"
 )
 
@@ -44,7 +44,7 @@ func (s *Service) RequireAuthentication(h http.HandlerFunc) http.HandlerFunc {
 				UserID: u.UserID,
 			})
 			if err != nil {
-				log.Printf("Error fetching user details: %v", err)
+				logging.Error(r.Context(), "failed to fetch user details", "error", err)
 				response.RespondWithError(w, http.StatusInternalServerError, "internal server error")
 				return
 			}
@@ -60,7 +60,7 @@ func (s *Service) RequireAuthentication(h http.HandlerFunc) http.HandlerFunc {
 
 		localUserID, err := s.UserManager.GetInternalUserID(s.DB, email)
 		if err != nil {
-			log.Printf("Error getting internal user: %v", err)
+			logging.Error(r.Context(), "failed to get internal user", "error", err)
 			response.RespondWithError(w, http.StatusUnauthorized, "user not found")
 			return
 		}
@@ -74,7 +74,7 @@ func (s *Service) RequireAuthentication(h http.HandlerFunc) http.HandlerFunc {
 
 func (s *Service) SendMagicLinkHandler(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		log.Printf("Error parsing form: %v\n", err)
+		logging.Error(r.Context(), "failed to parse form", "error", err)
 		http.Error(w, "failed to parse form data", http.StatusInternalServerError)
 		return
 	}
@@ -91,7 +91,7 @@ func (s *Service) SendMagicLinkHandler(w http.ResponseWriter, r *http.Request) {
 			Email: email,
 		})
 	if err != nil {
-		log.Printf("Error sending email: %v\n", err)
+		logging.Error(r.Context(), "failed to send magic link email", "error", err)
 		http.Error(w, "error sending email", http.StatusInternalServerError)
 		return
 	}
@@ -101,7 +101,7 @@ func (s *Service) SendMagicLinkHandler(w http.ResponseWriter, r *http.Request) {
 
 func (s *Service) SendOTPHandler(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		log.Printf("Error parsing form: %v\n", err)
+		logging.Error(r.Context(), "failed to parse form", "error", err)
 		http.Error(w, "failed to parse form data", http.StatusInternalServerError)
 		return
 	}
@@ -118,14 +118,14 @@ func (s *Service) SendOTPHandler(w http.ResponseWriter, r *http.Request) {
 			Email: email,
 		})
 	if err != nil {
-		log.Printf("Error sending email: %v\n", err)
-		response.WriteError(w, err)
+		logging.Error(r.Context(), "failed to send OTP email", "error", err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
 	mID := OTPInput{MethodID: resp.EmailID}
 
-	response.WriteJSON(w, mID)
+	response.WriteJSON(r.Context(), w, mID)
 }
 
 func (s *Service) MagicLinkHandler(w http.ResponseWriter, r *http.Request) {
@@ -133,7 +133,7 @@ func (s *Service) MagicLinkHandler(w http.ResponseWriter, r *http.Request) {
 	token := r.URL.Query().Get("token")
 
 	if tokenType != "magic_links" {
-		fmt.Printf("Error: unrecognized token type %s\n", tokenType)
+		logging.Error(r.Context(), "unrecognized token type", "tokenType", tokenType)
 		http.Error(w, fmt.Sprintf("Unrecognized token type %s", tokenType), http.StatusBadRequest)
 		return
 	}
@@ -143,7 +143,7 @@ func (s *Service) MagicLinkHandler(w http.ResponseWriter, r *http.Request) {
 		SessionDurationMinutes: 43200,
 	})
 	if err != nil {
-		fmt.Printf("Error authenticating: %v\n", err)
+		logging.Error(r.Context(), "magic link authentication failed", "error", err)
 		http.Error(w, "failed to authenticate", http.StatusInternalServerError)
 		return
 	}
@@ -153,14 +153,14 @@ func (s *Service) MagicLinkHandler(w http.ResponseWriter, r *http.Request) {
 
 	isNewUser, userID, err := s.UserManager.SyncUserInternal(s.DB, resp.User.Emails[0].Email, *resp.User.CreatedAt)
 	if err != nil {
-		fmt.Printf("error SyncUserInternal: %v\n", err)
+		logging.Error(r.Context(), "user sync failed", "error", err)
 		http.Error(w, "failed to sync user", http.StatusInternalServerError)
 		return
 	}
 
 	if isNewUser {
 		if err := s.TrackerDefaultCreator.CreateDefaults(s.DB, userID); err != nil {
-			fmt.Printf("Error creating default trackers: %v\n", err)
+			logging.Error(r.Context(), "failed to create default trackers", "error", err)
 		}
 	}
 
@@ -174,7 +174,7 @@ func (s *Service) MagicLinkHandler(w http.ResponseWriter, r *http.Request) {
 	// Seems like a case of cookie not being set yet, but redirect succeding, therefore causing frontend to fail auth check.
 
 	if err := generateRedirectHTML(w, redirectURL); err != nil {
-		fmt.Printf("Error authenticating: %v\n", err)
+		logging.Error(r.Context(), "redirect generation failed", "error", err)
 		http.Error(w, "failed to redirect", http.StatusInternalServerError)
 		return
 	}
@@ -224,7 +224,7 @@ func (s *Service) VerifyOTPHandler(w http.ResponseWriter, r *http.Request) {
 	var otpInput OTPInput
 
 	if err := json.NewDecoder(r.Body).Decode(&otpInput); err != nil {
-		fmt.Printf("error decode json: %v\n", err)
+		logging.Error(r.Context(), "failed to decode request body", "error", err)
 		http.Error(w, "failed to decode json", http.StatusInternalServerError)
 		return
 	}
@@ -235,8 +235,8 @@ func (s *Service) VerifyOTPHandler(w http.ResponseWriter, r *http.Request) {
 		SessionDurationMinutes: 43200,
 	})
 	if err != nil {
-		fmt.Printf("Error authenticating: %v\n", err)
-		response.WriteError(w, err)
+		logging.Error(r.Context(), "otp authentication failed", "error", err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
@@ -245,14 +245,14 @@ func (s *Service) VerifyOTPHandler(w http.ResponseWriter, r *http.Request) {
 
 	isNewUser, userID, err := s.UserManager.SyncUserInternal(s.DB, resp.User.Emails[0].Email, *resp.User.CreatedAt)
 	if err != nil {
-		fmt.Printf("error SyncUserInternal: %v\n", err)
+		logging.Error(r.Context(), "user sync failed", "error", err)
 		http.Error(w, "failed to sync user", http.StatusInternalServerError)
 		return
 	}
 
 	if isNewUser {
 		if err := s.TrackerDefaultCreator.CreateDefaults(s.DB, userID); err != nil {
-			fmt.Printf("Error creating default trackers: %v\n", err)
+			logging.Error(r.Context(), "failed to create default trackers", "error", err)
 		}
 	}
 
@@ -261,7 +261,7 @@ func (s *Service) VerifyOTPHandler(w http.ResponseWriter, r *http.Request) {
 		Onboarding: isNewUser,
 	}
 
-	response.WriteJSON(w, status)
+	response.WriteJSON(r.Context(), w, status)
 }
 
 func (s *Service) GetUserHandler(w http.ResponseWriter, r *http.Request) {
@@ -288,7 +288,7 @@ func (s *Service) GetUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.WriteJSON(w, localUser)
+	response.WriteJSON(r.Context(), w, localUser)
 }
 
 func (s *Service) GetAuthenticatedUser(w http.ResponseWriter, r *http.Request) *users.User {
@@ -312,7 +312,7 @@ func (s *Service) GetAuthenticatedUser(w http.ResponseWriter, r *http.Request) *
 		SessionDurationMinutes: 43200,
 	})
 	if err != nil {
-		log.Printf("getAuthenticatedUser: %v\n", err)
+		logging.Error(r.Context(), "session authentication failed", "error", err)
 		return nil
 	}
 
@@ -324,7 +324,7 @@ func (s *Service) GetAuthenticatedUser(w http.ResponseWriter, r *http.Request) *
 func (s *Service) Logout(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("stytch_session_token")
 	if err != nil {
-		response.WriteError(w, fmt.Errorf("logout read cookie error: %w", err))
+		response.WriteError(r.Context(), w, fmt.Errorf("logout read cookie error: %w", err))
 		return
 	}
 
@@ -332,7 +332,7 @@ func (s *Service) Logout(w http.ResponseWriter, r *http.Request) {
 		SessionToken: cookie.Value,
 	})
 	if err != nil {
-		response.WriteError(w, fmt.Errorf("error revoking session: %w", err))
+		response.WriteError(r.Context(), w, fmt.Errorf("error revoking session: %w", err))
 		return
 	}
 	_ = resp

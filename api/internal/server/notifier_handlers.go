@@ -26,7 +26,7 @@ func (s *Service) PushTokenHandler(w http.ResponseWriter, r *http.Request) {
 	var t PushTokenInput
 
 	if err := json.NewDecoder(r.Body).Decode(&t); err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
@@ -36,7 +36,7 @@ func (s *Service) PushTokenHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := notifier.SavePushToken(s.DB, userID, t.Token, t.Platform); err != nil {
-		response.WriteError(w, err)
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 }
