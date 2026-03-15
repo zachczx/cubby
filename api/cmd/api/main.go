@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -69,7 +70,14 @@ func main() {
 
 	mux := NewHTTPHandler(s)
 
-	slog.Info("server started", "port", ":"+os.Getenv("API_LISTEN_ADDR"))
+	rawPort := os.Getenv("API_LISTEN_ADDR")
+	// Satisfy gosec linter.
+	portInt, err := strconv.Atoi(rawPort)
+	if err != nil {
+		portInt = 7002
+	}
+	port := ":" + strconv.Itoa(portInt)
+	slog.Info("server started", "port", port)
 	server := &http.Server{
 		Addr:              ":" + os.Getenv("API_LISTEN_ADDR"),
 		ReadHeaderTimeout: defaultTimeout,

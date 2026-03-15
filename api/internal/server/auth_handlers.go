@@ -73,9 +73,11 @@ func (s *Service) RequireAuthentication(h http.HandlerFunc) http.HandlerFunc {
 }
 
 func (s *Service) SendMagicLinkHandler(w http.ResponseWriter, r *http.Request) {
+	r.Body = http.MaxBytesReader(w, r.Body, 10240)
+
 	if err := r.ParseForm(); err != nil {
 		logging.Error(r.Context(), "failed to parse form", "error", err)
-		http.Error(w, "failed to parse form data", http.StatusInternalServerError)
+		http.Error(w, "request body too large or malformed", http.StatusInternalServerError)
 		return
 	}
 
@@ -100,9 +102,11 @@ func (s *Service) SendMagicLinkHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Service) SendOTPHandler(w http.ResponseWriter, r *http.Request) {
+	r.Body = http.MaxBytesReader(w, r.Body, 10240)
+
 	if err := r.ParseForm(); err != nil {
 		logging.Error(r.Context(), "failed to parse form", "error", err)
-		http.Error(w, "failed to parse form data", http.StatusInternalServerError)
+		http.Error(w, "request body too large or malformed", http.StatusInternalServerError)
 		return
 	}
 

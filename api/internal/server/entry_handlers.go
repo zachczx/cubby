@@ -17,7 +17,7 @@ func (s *Service) CreateEntryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var input entry.EntryInput
+	var input entry.Input
 
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		response.WriteError(r.Context(), w, err)
@@ -113,7 +113,7 @@ func (s *Service) EditEntryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var input entry.EntryInput
+	var input entry.Input
 
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		response.WriteError(r.Context(), w, err)

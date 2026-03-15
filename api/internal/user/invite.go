@@ -25,7 +25,7 @@ type InviteRequest struct {
 	InviteeEmail string    `json:"inviteeEmail"`
 }
 
-// For accepting or declining an invite
+// For accepting or declining an invite.
 type InviteActionRequest struct {
 	InviteID uuid.UUID    `json:"inviteId"`
 	Status   InviteStatus `json:"status"` // "accepted" or "declined"
@@ -39,7 +39,6 @@ const (
 	StatusDeclined InviteStatus = "declined"
 )
 
-// Then in your logic, you can easily validate:
 func (s InviteStatus) IsValid() bool {
 	switch s {
 	case StatusPending, StatusAccepted, StatusDeclined:

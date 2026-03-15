@@ -129,7 +129,9 @@ func GetUsersFamilies(db *sqlx.DB, userID uuid.UUID) ([]FamilyResponse, error) {
 									FROM families_users fu
 									LEFT JOIN users ON fu.user_id = users.id
 									WHERE fu.family_id IN (?)`, familyIDs)
-
+	if err != nil {
+		return nil, fmt.Errorf("fetch members In: %w", err)
+	}
 	query = db.Rebind(query)
 	mRows, err := db.Query(query, args...)
 	if err != nil {

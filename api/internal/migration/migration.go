@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	_ "github.com/jackc/pgx/v5/stdlib" // Register pgx driver
+	_ "github.com/jackc/pgx/v5/stdlib" // Register pgx driver.
 	"github.com/jmoiron/sqlx"
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/mattn/go-sqlite3" // Register sqlite driver.
 	"github.com/zachczx/cubby/api/internal/entry"
 )
 

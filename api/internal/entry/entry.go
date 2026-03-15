@@ -20,7 +20,7 @@ type Entry struct {
 	UpdatedAt    time.Time `db:"updated_at" json:"updatedAt"`
 }
 
-type EntryInput struct {
+type Input struct {
 	ID           *uuid.UUID `db:"id" json:"id"`
 	TrackerID    uuid.UUID  `db:"tracker_id" json:"trackerId"`
 	PerformedAt  *string    `db:"performed_at" json:"performedAt"`
