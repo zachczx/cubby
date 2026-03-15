@@ -79,7 +79,11 @@ func main() {
 	osCtx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	go tracker.StartNotifications(osCtx, s.DB, s.Notifier)
+	go func() {
+		if err := tracker.StartNotifications(osCtx, s.DB, s.Notifier); err != nil {
+			slog.Error("notification failure", "error", err)
+		}
+	}()
 
 	go func() {
 		if err := server.ListenAndServe(); err != nil {
