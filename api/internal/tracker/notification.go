@@ -64,7 +64,7 @@ func CheckAndNotify(db *sqlx.DB, fcm *notifier.FCMClient) error {
 		return fmt.Errorf("getUsersWithTokens: %w", err)
 	}
 
-	if err := fcm.SendBatchMessages(db, ctx, userTokens); err != nil {
+	if err := fcm.SendBatchMessages(ctx, db, userTokens); err != nil {
 		return fmt.Errorf("sendBatchMessages: %w", err)
 	}
 

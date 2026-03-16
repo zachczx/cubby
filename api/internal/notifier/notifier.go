@@ -167,7 +167,7 @@ func BatchMessageBuilder(userTokens []UserToken) ([]*messaging.Message, error) {
 	return FCMMessages, nil
 }
 
-func (f *FCMClient) SendBatchMessages(db *sqlx.DB, ctx context.Context, userTokens []UserToken) error {
+func (f *FCMClient) SendBatchMessages(ctx context.Context, db *sqlx.DB, userTokens []UserToken) error {
 	if len(userTokens) == 0 {
 		return nil
 	}
@@ -221,7 +221,7 @@ func SavePushToken(db *sqlx.DB, userID uuid.UUID, token string, platform string)
 	if err != nil {
 		return fmt.Errorf("begin transaction: %w", err)
 	}
-	defer tx.Rollback()
+	defer tx.Rollback() //nolint:errcheck
 
 	qDel := `DELETE FROM push_tokens WHERE user_id = $1 AND platform = $2`
 	if _, err := tx.Exec(qDel, userID, platform); err != nil {

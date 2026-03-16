@@ -9,7 +9,7 @@ import (
 	"github.com/zachczx/cubby/api/internal/user"
 )
 
-var trackerDefaults = []TrackerInput{
+var trackerDefaults = []Input{
 	{
 		Name:         "bedsheet",
 		Display:      "Bedsheet",

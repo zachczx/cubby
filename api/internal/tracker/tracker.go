@@ -31,7 +31,7 @@ type Tracker struct {
 	IsOwner    bool   `json:"isOwner" db:"-"`
 }
 
-type TrackerInput struct {
+type Input struct {
 	Name         string   `json:"name"`
 	Display      string   `json:"display"`
 	Interval     int      `json:"interval"`
@@ -168,7 +168,7 @@ func ToggleShow(db *sqlx.DB, userID uuid.UUID, trackerID uuid.UUID, show bool) e
 	return nil
 }
 
-type TrackerLatestEntry struct {
+type LatestEntry struct {
 	Tracker
 
 	LastEntry        *time.Time `db:"last_entry" json:"lastEntry"`
@@ -177,14 +177,14 @@ type TrackerLatestEntry struct {
 	DueStatus        *string    `json:"dueStatus" db:"-"`
 }
 
-func GetTrackersLast(db *sqlx.DB) ([]TrackerLatestEntry, error) {
+func GetTrackersLast(db *sqlx.DB) ([]LatestEntry, error) {
 	q := `SELECT t.*, e.last_entry, e.last_interval, e.last_interval_unit, f.name AS family_name FROM trackers t
 			JOIN (
 				SELECT tracker_id, MAX(performed_at) AS last_entry, interval AS last_interval, interval_unit AS last_interval_unit FROM entries GROUP BY tracker_id, last_interval, last_interval_unit
 			) AS e ON t.id = e.tracker_id
 			JOIN families f ON t.family_id = f.id`
 
-	var t []TrackerLatestEntry
+	var t []LatestEntry
 
 	if err := db.Select(&t, q); err != nil {
 		return nil, fmt.Errorf("get trackers list: %w", err)
@@ -193,10 +193,8 @@ func GetTrackersLast(db *sqlx.DB) ([]TrackerLatestEntry, error) {
 	return t, nil
 }
 
-func CalculateTrackersLastDue(tDB []TrackerLatestEntry) ([]TrackerLatestEntry, error) {
-	var newT []TrackerLatestEntry
-
-	newT = tDB
+func CalculateTrackersLastDue(tDB []LatestEntry) ([]LatestEntry, error) {
+	newT := tDB
 
 	for i := range tDB {
 		var threshold time.Time
@@ -222,18 +220,18 @@ func CalculateTrackersLastDue(tDB []TrackerLatestEntry) ([]TrackerLatestEntry, e
 		}
 
 		if time.Now().After(threshold) {
-			new := "due"
-			newT[i].DueStatus = &new
+			n := "due"
+			newT[i].DueStatus = &n
 		} else {
-			new := "ok"
-			newT[i].DueStatus = &new
+			n := "ok"
+			newT[i].DueStatus = &n
 		}
 	}
 
 	return newT, nil
 }
 
-func GetDueTrackerID(trackers []TrackerLatestEntry) ([]uuid.UUID, error) {
+func GetDueTrackerID(trackers []LatestEntry) ([]uuid.UUID, error) {
 	var due []uuid.UUID
 
 	for _, t := range trackers {

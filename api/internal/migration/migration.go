@@ -216,7 +216,6 @@ func MigrateEntries(sqliteDB *sqlx.DB, pgDB *sqlx.DB) error {
 			)`
 
 	for _, p := range pgEntries {
-
 		_, err := pgDB.Exec(q, p.TrackerID, p.Interval, p.IntervalUnit, p.PerformedBy, p.PerformedAt, p.Remark, p.CreatedAt, p.UpdatedAt)
 		if err != nil {
 			return fmt.Errorf("insert %s: %w", p.TrackerID, err)

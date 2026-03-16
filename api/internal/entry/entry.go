@@ -34,7 +34,7 @@ func Create(db *sqlx.DB, e Entry) (Entry, error) {
 			VALUES ($1, $2, $3, $4, $5, $6)
 			RETURNING id, tracker_id, interval, interval_unit, performed_by, performed_at, remark, created_at, updated_at`
 
-	var new Entry
+	var newE Entry
 	err := db.QueryRow(q, e.TrackerID,
 		e.Interval,
 		e.IntervalUnit,
@@ -42,21 +42,21 @@ func Create(db *sqlx.DB, e Entry) (Entry, error) {
 		e.PerformedAt,
 		e.Remark).
 		Scan(
-			&new.ID,
-			&new.TrackerID,
-			&new.Interval,
-			&new.IntervalUnit,
-			&new.PerformedBy,
-			&new.PerformedAt,
-			&new.Remark,
-			&new.CreatedAt,
-			&new.UpdatedAt,
+			&newE.ID,
+			&newE.TrackerID,
+			&newE.Interval,
+			&newE.IntervalUnit,
+			&newE.PerformedBy,
+			&newE.PerformedAt,
+			&newE.Remark,
+			&newE.CreatedAt,
+			&newE.UpdatedAt,
 		)
 	if err != nil {
 		return Entry{}, fmt.Errorf("create entry sql: %w", err)
 	}
 
-	return new, nil
+	return newE, nil
 }
 
 func GetAll(db *sqlx.DB, userID uuid.UUID) ([]Entry, error) {

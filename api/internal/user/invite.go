@@ -123,7 +123,7 @@ func AcceptFamilyInvite(db *sqlx.DB, userID uuid.UUID, inviteID uuid.UUID) error
 	if err != nil {
 		return fmt.Errorf("accept family begin tx: %w", err)
 	}
-	defer tx.Rollback()
+	defer tx.Rollback() //nolint:errcheck
 
 	insertQ := `INSERT INTO families_users (family_id, user_id) VALUES ($1, $2)`
 

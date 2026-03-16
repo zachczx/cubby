@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jmoiron/sqlx"
 	"github.com/zachczx/cubby/api/internal/logging"
 	"github.com/zachczx/cubby/api/internal/response"
 	"github.com/zachczx/cubby/api/internal/tracker"
@@ -28,7 +27,7 @@ func (s *Service) NewHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var input tracker.TrackerInput
+	var input tracker.Input
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		response.WriteError(r.Context(), w, err)
 		return
@@ -86,7 +85,7 @@ func (s *Service) EditHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var input tracker.TrackerInput
+	var input tracker.Input
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		response.WriteError(r.Context(), w, err)
 		return
@@ -193,7 +192,7 @@ type TrackerToggle struct {
 	Show   bool `json:"show" db:"show"`
 }
 
-func (s *Service) HandleToggle(w http.ResponseWriter, r *http.Request, fn func(db *sqlx.DB, userID uuid.UUID, trackerID uuid.UUID, toggle TrackerToggle) error) {
+func (s *Service) HandleToggle(w http.ResponseWriter, r *http.Request, fn func(userID uuid.UUID, trackerID uuid.UUID, toggle TrackerToggle) error) {
 	t := r.PathValue("trackerID")
 	trackerID, err := uuid.Parse(t)
 	if err != nil {
@@ -214,7 +213,7 @@ func (s *Service) HandleToggle(w http.ResponseWriter, r *http.Request, fn func(d
 		return
 	}
 
-	if err := fn(s.DB, userID, trackerID, toggle); err != nil {
+	if err := fn(userID, trackerID, toggle); err != nil {
 		response.WriteError(r.Context(), w, err)
 		return
 	}
@@ -223,13 +222,13 @@ func (s *Service) HandleToggle(w http.ResponseWriter, r *http.Request, fn func(d
 }
 
 func (s *Service) TogglePinHandler(w http.ResponseWriter, r *http.Request) {
-	s.HandleToggle(w, r, func(db *sqlx.DB, userID uuid.UUID, trackerID uuid.UUID, toggle TrackerToggle) error {
+	s.HandleToggle(w, r, func(userID uuid.UUID, trackerID uuid.UUID, toggle TrackerToggle) error {
 		return tracker.TogglePin(s.DB, userID, trackerID, toggle.Pinned)
 	})
 }
 
 func (s *Service) ToggleShowHandler(w http.ResponseWriter, r *http.Request) {
-	s.HandleToggle(w, r, func(db *sqlx.DB, userID uuid.UUID, trackerID uuid.UUID, toggle TrackerToggle) error {
+	s.HandleToggle(w, r, func(userID uuid.UUID, trackerID uuid.UUID, toggle TrackerToggle) error {
 		return tracker.ToggleShow(s.DB, userID, trackerID, toggle.Show)
 	})
 }
