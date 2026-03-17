@@ -9,17 +9,13 @@
 	import { getTrackerStatus } from '$lib/notification';
 	import ActionCard from '$lib/ui/ActionCard.svelte';
 	import EmptyCorgi from '$lib/assets/empty.webp?w=200&enhanced';
-	import FluentEmojiFlatStopwatch from '$lib/assets/expressive-icons/FluentEmojiFlatStopwatch.svelte';
-	import FluentEmojiFlatAirplane from '$lib/assets/expressive-icons/FluentEmojiFlatAirplane.svelte';
 	import { getColoredTrackers, getTrackerIcon, generateSubscriptionEntries } from '$lib/mapper';
 	import SkeletonActionCard from '$lib/ui/SkeletonActionCard.svelte';
 	import { calculateStreak } from '$lib/streaks';
-	import { onMount, type Component } from 'svelte';
+	import { onMount } from 'svelte';
 	import { router } from '$lib/routes';
 	import { api } from '$lib/api';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
-	import { goto } from '$app/navigation';
-	import { resolve } from '$app/paths';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
@@ -266,29 +262,6 @@
 					<SkeletonActionCard size="compact" />
 				{/if}
 			</section>
-
-			<section class="grid gap-0 py-0">
-				<h2 class="text-base-content/70 text-lg font-bold">Quick Links</h2>
-				<div class="flex items-center gap-2">
-					{@render quickLink('Stopwatch', '/app/count', FluentEmojiFlatStopwatch, 'size-8')}
-					{@render quickLink(
-						'Vacation',
-						'/app/profile/vacation',
-						FluentEmojiFlatAirplane,
-						'size-8'
-					)}
-				</div>
-			</section>
 		</div>
 	</main>
 </PageWrapper>
-
-{#snippet quickLink(name: string, href: string, Icon: Component, size: string)}
-	<a
-		{href}
-		class="active:bg-neutral/10 focus-within:bg-neutral/10 focus-within:text-base-content active:text-base-content text-neutral grid aspect-square w-24 content-center justify-items-center gap-1 rounded-2xl p-2 text-sm font-semibold"
-	>
-		<Icon class={size}></Icon>
-		{name}</a
-	>
-{/snippet}

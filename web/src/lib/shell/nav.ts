@@ -33,6 +33,14 @@ export const topLevelRoutes = {
 			desktopNav: true,
 			mobileNav: true,
 			icon: 'material-symbols:pets'
+		},
+		{
+			id: 'tools',
+			href: router.app('count'),
+			label: 'Tools',
+			desktopNav: true,
+			mobileNav: true,
+			icon: 'material-symbols:widgets'
 		}
 	],
 	topNavAnimation: [
