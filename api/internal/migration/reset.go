@@ -10,7 +10,7 @@ import (
 func WipeData(db *sqlx.DB) {
 	log.Println("🔥 Truncating all tables...")
 
-	query := `DROP TABLE IF EXISTS entries, invites, trackers, families, users CASCADE;`
+	query := `DROP TABLE IF EXISTS tracker_user_settings, entries, invites, trackers, families, users CASCADE;`
 
 	_, err := db.Exec(query)
 	if err != nil {
@@ -131,6 +131,16 @@ func Create(db *sqlx.DB) {
 			UNIQUE(tracker_id, user_id)
 		);`,
 
+		`CREATE TABLE IF NOT EXISTS tracker_user_settings (
+			id UUID PRIMARY KEY DEFAULT uuidv7(),
+			tracker_id UUID NOT NULL REFERENCES trackers(id) ON DELETE CASCADE,
+			user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+			is_muted BOOLEAN DEFAULT FALSE,
+			created_at TIMESTAMPTZ DEFAULT NOW(),
+			updated_at TIMESTAMPTZ DEFAULT NOW(),
+			UNIQUE(tracker_id, user_id)
+		);`,
+
 		// FK, lookup indexes
 		`CREATE INDEX IF NOT EXISTS idx_families_owner_id ON families(owner_id);`,
 		`CREATE INDEX IF NOT EXISTS idx_families_users_user_id ON families_users(user_id);`,
@@ -142,6 +152,8 @@ func Create(db *sqlx.DB) {
 		`CREATE INDEX IF NOT EXISTS idx_invites_invitee_id ON invites(invitee_id);`,
 		`CREATE INDEX IF NOT EXISTS idx_push_tokens_user_id ON push_tokens(user_id);`,
 		`CREATE INDEX IF NOT EXISTS idx_notification_logs_lookup ON notification_logs(tracker_id, user_id);`,
+		`CREATE INDEX IF NOT EXISTS idx_tracker_user_settings_user_id ON tracker_user_settings(user_id);`,
+		`CREATE INDEX IF NOT EXISTS idx_tracker_user_settings_tracker_id ON tracker_user_settings(tracker_id);`,
 
 		// Date time filter indexes
 		`CREATE INDEX IF NOT EXISTS idx_entries_tracker_time ON entries(tracker_id, performed_at DESC);`,
