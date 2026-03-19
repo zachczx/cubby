@@ -142,7 +142,7 @@
 	});
 </script>
 
-<PageWrapper title="Cubby" back={false}>
+<PageWrapper title="Dashboard" back={false}>
 	<main class="h-full">
 		<div id="mobile" class="grid w-full max-w-lg gap-8 justify-self-center lg:text-base">
 			<section class="grid gap-4 py-2">
