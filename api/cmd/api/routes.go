@@ -51,6 +51,8 @@ func NewHTTPHandler(s *server.Service) http.Handler {
 	mux.HandleFunc("PATCH /trackers/{trackerID}/pinned", s.RequireAuthentication(s.TogglePinHandler))
 	mux.HandleFunc("PATCH /trackers/{trackerID}/show", s.RequireAuthentication(s.ToggleShowHandler))
 
+	mux.HandleFunc("POST /trackers/{trackerID}/toggle-mute", s.RequireAuthentication(s.ToggleMuteHandler))
+
 	mux.HandleFunc("GET /entries", s.RequireAuthentication(s.GetAllEntriesHandler))
 	mux.HandleFunc("DELETE /entries/{entryID}", s.RequireAuthentication(s.DeleteEntryHandler))
 	mux.HandleFunc("PATCH /entries/{entryID}", s.RequireAuthentication(s.EditEntryHandler))

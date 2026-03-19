@@ -5,13 +5,18 @@
 	import { topLevelRoutes } from './nav';
 	import Refresher from '$lib/components/Refresher.svelte';
 	import { invalidateAll } from '$app/navigation';
+	import { api } from '$lib/api';
+	import { addToast } from '$lib/ui/ArkToaster.svelte';
+	import { useQueryClient } from '@tanstack/svelte-query';
+	import { getAllTrackersQueryKey } from '$lib/queries';
 
 	let {
 		children,
 		title,
 		back = true,
 		focusedScreen = false,
-		showSettingsIcon = true
+		showSettingsIcon = true,
+		trackerMuteToggle
 	}: {
 		children: Snippet;
 		title: string | undefined;
@@ -19,6 +24,7 @@
 		focusedScreen?: boolean;
 		focusedScreenAction?: Snippet;
 		showSettingsIcon?: boolean;
+		trackerMuteToggle?: { trackerId: string | undefined; isMuted: boolean | undefined };
 	} = $props();
 
 	let currentSection = $derived.by(() => {
@@ -44,6 +50,34 @@
 	});
 
 	const defaultTitle = 'Cubby';
+	const tanstackClient = useQueryClient();
+
+	async function muteHandler(changeTo: 'mute' | 'unmute') {
+		const trackerId = trackerMuteToggle?.trackerId;
+		if (!trackerId) return;
+		const response = await api.post(`trackers/${trackerId}/toggle-mute`, {
+			body: JSON.stringify({
+				isMuted: changeTo === 'mute'
+			})
+		});
+
+		if (response.status === 204) {
+			const message = changeTo === 'mute' ? 'Muted notifications' : 'Enabled notifications';
+			addToast('success', message);
+
+			tanstackClient.setQueryData(
+				getAllTrackersQueryKey(),
+				(oldTrackers: TrackerDB[] | undefined) =>
+					oldTrackers?.map((t) => {
+						if (t.id === trackerId) {
+							console.log('here');
+							return { ...t, isMuted: changeTo === 'mute' };
+						}
+						return t;
+					})
+			);
+		}
+	}
 </script>
 
 <svelte:head>
@@ -108,7 +142,20 @@
 				{/each}
 			</ul>
 		</div>
-		<div class="lg:navbar-end">
+		<div class="lg:navbar-end flex">
+			{#key trackerMuteToggle}
+				{#if trackerMuteToggle}
+					{#if trackerMuteToggle?.isMuted}
+						<button class="btn btn-ghost px-2 py-0" onclick={() => muteHandler('unmute')}>
+							<Icon icon="material-symbols:notifications-off" class="size-6 opacity-80" />
+						</button>
+					{:else}
+						<button class="btn btn-ghost px-2 py-0" onclick={() => muteHandler('mute')}>
+							<Icon icon="material-symbols:notifications" class="size-6" />
+						</button>
+					{/if}
+				{/if}
+			{/key}
 			{#if showSettingsIcon}
 				<div id="mobile-hamburger" class="dropdown flex items-center max-lg:-me-1 lg:hidden">
 					<a href="/app/profile" class="btn btn-ghost px-2 py-0"

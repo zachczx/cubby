@@ -96,6 +96,7 @@ interface TrackerDB extends TrackerInput {
 	isOwner: boolean;
 	startDate?: string;
 	cost?: number;
+	isMuted: boolean;
 }
 
 interface Family {

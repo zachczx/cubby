@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -254,4 +255,40 @@ func (s *Service) GenerateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response.WriteJSON(r.Context(), w, newT)
+}
+
+type MutedInput struct {
+	IsMuted bool `json:"isMuted"`
+}
+
+func (s *Service) ToggleMuteHandler(w http.ResponseWriter, r *http.Request) {
+	t := r.PathValue("trackerID")
+	trackerID, err := uuid.Parse(t)
+	if err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	userID, err := s.GetUserIDFromContext(r.Context())
+	if err != nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+	logging.Info(r.Context(), "user", "userID", userID)
+
+	var mutedInput MutedInput
+
+	if err := json.NewDecoder(r.Body).Decode(&mutedInput); err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	fmt.Println(mutedInput)
+
+	if err := tracker.MuteTracker(s.DB, trackerID, userID, mutedInput.IsMuted); err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }

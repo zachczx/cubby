@@ -81,7 +81,7 @@ var notificationWindowHours time.Duration = -6
 
 func GetUsersWithTokens(db *sqlx.DB, trackerIDs []uuid.UUID) ([]UserToken, error) {
 	var tokens []UserToken
-	notificationThreshold := time.Now().Add(notificationWindowHours * time.Hour)
+	notificationThreshold := time.Now().Add(-notificationWindowHours * time.Hour)
 
 	q := `SELECT 
 				pt.token,
@@ -98,10 +98,12 @@ func GetUsersWithTokens(db *sqlx.DB, trackerIDs []uuid.UUID) ([]UserToken, error
 				SELECT family_id, user_id FROM families_users
 				) AS fu ON t.family_id = fu.family_id
 			LEFT JOIN notification_logs nl ON t.id = nl.tracker_id AND fu.user_id = nl.user_id
-			LEFT JOIN users u ON fu.user_id = u.id
-			LEFT JOIN push_tokens pt ON u.id = pt.user_id
+			JOIN users u ON fu.user_id = u.id
+			JOIN push_tokens pt ON u.id = pt.user_id
+			LEFT JOIN tracker_user_settings tus ON t.id = tus.tracker_id AND fu.user_id = tus.user_id
 			WHERE t.id IN (?) 
-			AND (nl.id IS NULL OR nl.updated_at < (?))`
+			AND (nl.id IS NULL OR nl.updated_at < (?))
+			AND (tus.is_muted = FALSE OR tus.is_muted IS NULL)`
 
 	query, args, err := sqlx.In(q, trackerIDs, notificationThreshold)
 	if err != nil {

@@ -79,9 +79,14 @@
 
 		return totalDuration > 0 ? Math.floor(lifetimeSpend / totalDuration) : lifetimeSpend;
 	});
+
+	let trackerMuteToggle = $derived({
+		trackerId: options.tracker?.id,
+		isMuted: options.tracker?.isMuted
+	});
 </script>
 
-<PageWrapper title={options.labels.pageTitle}>
+<PageWrapper title={options.labels.pageTitle} {trackerMuteToggle}>
 	<main class="grid w-full max-w-xl content-start justify-items-center gap-4 justify-self-center">
 		<div class="grid w-full content-start justify-items-center gap-4">
 			<StatusHeroImage notification={{ level: 'ok', show: true }} kind="subscription" />

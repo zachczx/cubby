@@ -12,6 +12,7 @@ export const getRootKey = () => rootKey;
 
 // Helper to get the allLogs query key
 export const getAllEntriesQueryKey = () => [...getRootKey(), 'entries-all'];
+export const getAllTrackersQueryKey = () => [...getRootKey(), 'trackers-all'];
 
 function createQueryFactory<T>(key: string[], queryFn: () => Promise<T>) {
 	return {
@@ -37,7 +38,7 @@ export const allEntriesQueryOptions = allEntriesQuery.options;
 export const allEntriesRefetchOptions = allEntriesQuery.refetch;
 
 const allTrackersQuery = createQueryFactory(
-	['allTrackers'],
+	['trackers-all'],
 	async (): Promise<TrackerDB[]> => await api.get(`trackers`).json()
 );
 export const allTrackersQueryOptions = allTrackersQuery.options;

@@ -26,6 +26,7 @@ type Tracker struct {
 	Cost         *float64   `json:"cost,omitempty" db:"cost"`
 	CreatedAt    time.Time  `json:"createdAt" db:"created_at"`
 	UpdatedAt    time.Time  `json:"updatedAt" db:"updated_at"`
+	IsMuted      bool       `json:"isMuted" db:"is_muted"`
 
 	FamilyName string `json:"familyName" db:"family_name"`
 	IsOwner    bool   `json:"isOwner" db:"-"`
@@ -112,20 +113,18 @@ func Delete(db *sqlx.DB, trackerID uuid.UUID, userID uuid.UUID) error {
 
 func Get(db *sqlx.DB, trackerID uuid.UUID, userID uuid.UUID) (Tracker, error) {
 	var t Tracker
-	fmt.Println(trackerID, userID)
 	q := `SELECT * FROM trackers WHERE id=$1 AND owner_id=$2`
-
 	if err := db.Get(&t, q, trackerID, userID); err != nil {
 		return Tracker{}, fmt.Errorf("select tracker: %w", err)
 	}
-
 	return t, nil
 }
 
 func GetAll(db *sqlx.DB, userID uuid.UUID) ([]Tracker, error) {
 	var t []Tracker
-	q := `SELECT t.*, f.name AS family_name FROM trackers t
+	q := `SELECT t.*, f.name AS family_name, COALESCE(tus.is_muted, false) AS is_muted FROM trackers t
 			JOIN families f ON t.family_id = f.id   
+			LEFT JOIN tracker_user_settings tus ON tus.user_id = $1 AND tus.tracker_id = t.id
 			WHERE t.owner_id = $1 OR t.family_id IN (
 				SELECT family_id FROM families_users WHERE user_id = $1
 			)
@@ -240,4 +239,23 @@ func GetDueTrackerID(trackers []LatestEntry) ([]uuid.UUID, error) {
 		}
 	}
 	return due, nil
+}
+
+func MuteTracker(db *sqlx.DB, trackerID uuid.UUID, userID uuid.UUID, isMuted bool) error {
+	var q string
+
+	if isMuted {
+		q = `INSERT INTO tracker_user_settings (tracker_id, user_id, is_muted) VALUES ($1, $2, TRUE)
+				ON CONFLICT (tracker_id, user_id) DO UPDATE SET is_muted = TRUE`
+	}
+
+	if !isMuted {
+		q = `DELETE FROM tracker_user_settings WHERE tracker_id = $1 AND user_id = $2`
+	}
+
+	if _, err := db.Exec(q, trackerID, userID); err != nil {
+		return fmt.Errorf("mute tracker exec: %w", err)
+	}
+
+	return nil
 }
