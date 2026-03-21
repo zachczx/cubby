@@ -44,7 +44,7 @@
 
 		PushNotifications.addListener('pushNotificationReceived', (notification) => {
 			console.log('Push received: ' + JSON.stringify(notification));
-			addToast('info', JSON.stringify(notification));
+			addToast('info', notification.body ?? notification.title ?? 'New notification');
 		});
 
 		PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
