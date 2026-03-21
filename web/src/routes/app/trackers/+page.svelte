@@ -7,198 +7,221 @@
 	import ActionCard from '$lib/ui/ActionCard.svelte';
 	import { createQuery } from '@tanstack/svelte-query';
 	import { allEntriesQueryOptions, allTrackersQueryOptions, userQueryOptions } from '$lib/queries';
-	import { getColoredTrackers, getTrackerIcon } from '$lib/mapper.js';
+	import { getColoredTrackers, getTrackerIcon, generateSubscriptionEntries } from '$lib/mapper.js';
 	import SkeletonActionCard from '$lib/ui/SkeletonActionCard.svelte';
 	import EmptyCorgi from '$lib/assets/empty.webp?w=200&enhanced';
 	import { getTrackerStatus } from '$lib/notification.js';
+	import { calculateStreak } from '$lib/streaks';
+	import { router } from '$lib/routes';
+	import Icon from '@iconify/svelte';
 
-	let { data } = $props();
+	const categories = [
+		{ id: 'all', label: 'All', icon: 'material-symbols:checklist' },
+		{ id: 'personal', label: 'Personal', icon: 'material-symbols:person' },
+		{ id: 'household', label: 'Household', icon: 'material-symbols:laundry' },
+		{ id: 'pet', label: 'Pet', icon: 'material-symbols:pets' }
+	] as const;
+
+	let selectedCategory = $state<string>('all');
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
 
+	const trackersDb = createQuery(allTrackersQueryOptions);
+	const allEntriesDb = createQuery(allEntriesQueryOptions);
+	const userOptions = createQuery(userQueryOptions);
+
 	let buttonStatuses = $derived.by(() => {
-		if (!currentTrackers) return;
+		if (!trackersDb.isSuccess || !trackersDb.data) return;
 
 		const statuses = <Record<string, ButtonState>>{};
-
-		for (const t of currentTrackers) {
+		for (const t of trackersDb.data) {
 			statuses[t.name] = 'default';
 		}
 		return statuses;
 	});
 
-	const trackersDb = createQuery(allTrackersQueryOptions);
-	const allEntriesDb = createQuery(allEntriesQueryOptions);
-	const userOptions = createQuery(userQueryOptions);
-
 	let currentTrackers = $derived.by(() => {
 		if (!trackersDb.isSuccess || !trackersDb.data || !userOptions.isSuccess || !userOptions.data)
-			return;
+			return { pinned: [], general: [] };
 
-		const categoryTrackers = data.category
-			? trackersDb.data.filter((tracker) => tracker.category === data.category)
-			: trackersDb.data;
+		const filtered =
+			selectedCategory === 'all'
+				? trackersDb.data
+				: trackersDb.data.filter((tracker) => tracker.category === selectedCategory);
 
-		return getColoredTrackers(categoryTrackers);
-	});
+		const colored = getColoredTrackers(filtered);
 
-	let entriesByTracker = $derived.by(() => {
-		const map = new Map();
-		if (!allEntriesDb.isSuccess || !allEntriesDb.data) return map;
-
-		for (const entry of allEntriesDb.data) {
-			if (!map.has(entry.trackerId)) {
-				map.set(entry.trackerId, []);
-			}
-
-			map.get(entry.trackerId).push(entry);
-		}
-
-		return map;
-	});
-
-	let latestEntries: EntryWithTracker[] = $derived.by(() => {
-		if (!allEntriesDb.isSuccess || !allEntriesDb.data || !currentTrackers) return [];
-
-		const trackerMap = new Map(currentTrackers.map((t) => [t.id, t]));
-
-		// Use flatMap to transform entries AND filter out any without matching trackers in one step.
-		// Returns [] to skip entries where tracker is undefined (flatmap flattens empty [], so nothing added), so I dont need a separate
-		// .filter() for null values + verbose type guards. TypeScript automatically infers the correct type.
-		return allEntriesDb.data
-			.filter((entry) => trackerMap.has(entry.trackerId))
-			.slice(0, 5)
-			.flatMap((entry) => {
-				const tracker = trackerMap.get(entry.trackerId);
-				if (!tracker) return [];
-
-				return [{ ...entry, tracker }];
-			});
-	});
-
-	let entries = $derived.by(() => {
-		if (!trackersDb.isSuccess || !trackersDb.data || !allEntriesDb.isSuccess || !allEntriesDb.data)
-			return;
-
-		return currentTrackers?.map((tracker) => {
-			const associatedEntries = entriesByTracker.get(tracker.id) || [];
-
-			return {
-				trackerName: tracker.name,
-				trackerData: tracker,
-				entries: associatedEntries,
-				notification: getTrackerStatus(associatedEntries)
-			};
-		});
-	});
-
-	let tasks = $derived.by(() => {
-		if (!entries) return;
-		return entries.filter((entry) => entry.trackerData.kind === 'task');
+		return {
+			pinned: colored.filter((t) => t.pinned && t.show && t.kind === 'task'),
+			general: colored.filter((t) => !t.pinned && t.show && t.kind === 'task')
+		};
 	});
 
 	let subscriptions = $derived.by(() => {
-		if (!entries) return;
-		return entries.filter((entry) => entry.trackerData.kind === 'subscription');
+		if (!trackersDb.isSuccess || !trackersDb.data || !userOptions.isSuccess || !userOptions.data)
+			return [];
+
+		const filtered =
+			selectedCategory === 'all'
+				? trackersDb.data
+				: trackersDb.data.filter((tracker) => tracker.category === selectedCategory);
+
+		const colored = getColoredTrackers(filtered);
+
+		return colored
+			.filter((t) => t.show && t.kind === 'subscription')
+			.map((sub) => ({
+				...sub,
+				entryData: generateSubscriptionEntries(sub, userOptions.data!.id)
+			}));
 	});
+
+	let entries = $derived.by(() => {
+		if (!allEntriesDb.isSuccess || !allEntriesDb.data)
+			return { pinned: [], general: [] };
+
+		return {
+			pinned: classifyTrackers(currentTrackers.pinned, allEntriesDb.data),
+			general: classifyTrackers(currentTrackers.general, allEntriesDb.data)
+		};
+	});
+
+	function classifyTrackers(trackers: TrackerDB[], entries: EntryDB[]) {
+		const data = [];
+
+		for (const t of trackers) {
+			const entryData = entries.filter((entry) => t.id === entry.trackerId);
+
+			data.push({
+				trackerName: t.name,
+				trackerData: t,
+				entries: entryData,
+				notification: getTrackerStatus(entryData),
+				streak: calculateStreak(entryData, t)
+			});
+		}
+
+		return data;
+	}
 </script>
 
-<PageWrapper
-	title={data.category
-		? data.category.charAt(0).toUpperCase() + data.category.slice(1)
-		: 'Trackers'}
->
+<PageWrapper title="Tasks">
 	<main class="h-full">
 		<div id="mobile" class="grid w-full max-w-lg gap-8 justify-self-center lg:text-base">
-			<section class="grid gap-4 py-4">
-				{#if tasks && tasks.length > 0}
-					{#each tasks as task (task.trackerData.id)}
-						{#if task.trackerData.kind === 'task'}
+			<nav class="border-b-base-300/50 flex border-b">
+				{#each categories as cat (cat.id)}
+					<button
+						class="text-base-content/50 relative flex grow items-center justify-center gap-1.5 px-3 py-2.5 text-sm font-medium transition-colors {selectedCategory === cat.id ? 'text-primary !font-semibold' : 'hover:text-base-content/70'}"
+						onclick={() => (selectedCategory = cat.id)}
+					>
+						<Icon icon={cat.icon} class="size-4" />
+						{cat.label}
+						{#if selectedCategory === cat.id}
+							<span class="bg-primary absolute bottom-0 left-0 h-0.5 w-full rounded-full"></span>
+						{/if}
+					</button>
+				{/each}
+			</nav>
+
+			<section class="grid gap-4 py-2">
+				<h2 class="text-base-content/70 text-lg font-bold">Pinned</h2>
+
+				{#if allEntriesDb.isSuccess}
+					{#if entries.pinned.length > 0}
+						{#each entries.pinned as entry (entry.trackerData.id)}
 							<ActionCard
 								options={{
+									tracker: entry.trackerData,
 									size: 'compact',
-									tracker: task.trackerData,
-									title: task.trackerData.display,
-									route: `/app/${task.trackerData.category}/${task.trackerData.id}`,
-									entries: task.entries,
-									icon: getTrackerIcon(task.trackerData.icon),
+									title: entry.trackerData.display,
+									entries: entry.entries,
+									route: router.tracker(entry.trackerData.id),
+									icon: getTrackerIcon(entry.trackerData.icon),
 									button: {
-										text: task.trackerData.actionLabel,
-										status: buttonStatuses?.[task.trackerData.name]
-									}
+										status: buttonStatuses?.[entry.trackerName],
+										text: entry.trackerData.actionLabel
+									},
+									streak: entry.streak
 								}}
 							></ActionCard>
-						{/if}
-					{/each}
-				{:else if trackersDb.isSuccess}
-					<div class="justify-self-center">
-						<enhanced:img src={EmptyCorgi} alt="nothing" />
-						<p class="text-center">Nothing being tracked!</p>
-					</div>
+						{/each}
+					{:else if trackersDb.isSuccess}
+						<p class="text-base-content/50 py-4 text-center">No pinned tasks</p>
+					{/if}
+				{:else if allEntriesDb.isError}
+					Error!
 				{:else}
-					<SkeletonActionCard />
-					<SkeletonActionCard />
+					<SkeletonActionCard size="compact" />
+					<SkeletonActionCard size="compact" />
 				{/if}
 			</section>
 
-			{#if subscriptions && subscriptions.length > 0}
+			<section class="grid gap-4 py-2">
+				<h2 class="text-base-content/70 text-lg font-bold">Other Tasks</h2>
+
+				{#if allEntriesDb.isSuccess}
+					{#if entries.general.length > 0}
+						<div class="border-base-300/50 rounded-2xl border bg-white/70">
+							{#each entries.general as entry, i (entry.trackerData.id)}
+								<ActionCard
+									options={{
+										tracker: entry.trackerData,
+										size: 'list',
+										title: entry.trackerData.display,
+										entries: entry.entries,
+										route: router.tracker(entry.trackerData.id),
+										icon: getTrackerIcon(entry.trackerData.icon),
+										lastChild: i === entries.general.length - 1 ? true : undefined,
+										button: {
+											status: buttonStatuses?.[entry.trackerName],
+											text: entry.trackerData.actionLabel
+										},
+										streak: entry.streak
+									}}
+								></ActionCard>
+							{/each}
+						</div>
+					{:else if trackersDb.isSuccess}
+						<div class="justify-self-center">
+							<enhanced:img src={EmptyCorgi} alt="nothing" />
+							<p class="text-center">Nothing being tracked!</p>
+						</div>
+					{/if}
+				{:else if allEntriesDb.isError}
+					Error!
+				{:else}
+					<SkeletonActionCard size="compact" />
+					<SkeletonActionCard size="compact" />
+				{/if}
+			</section>
+
+			{#if subscriptions.length > 0}
 				<section class="grid gap-4 py-2">
 					<h2 class="text-base-content/70 text-lg font-bold">Subscriptions</h2>
 
-					{#each subscriptions as subscription (subscription.trackerData.id)}
-						{#if subscription.trackerData.kind === 'subscription'}
+					<div class="border-base-300/50 rounded-2xl border bg-white/70">
+						{#each subscriptions as sub, i (sub.id)}
 							<ActionCard
 								options={{
-									size: 'compact',
-									tracker: subscription.trackerData,
-									title: subscription.trackerData.display,
-									route: `/app/${subscription.trackerData.category}/${subscription.trackerData.id}`,
-									entries: subscription.entries,
-									icon: getTrackerIcon(subscription.trackerData.icon),
+									tracker: sub,
+									size: 'list',
+									title: sub.display,
+									entries: sub.entryData,
+									route: router.tracker(sub.id),
+									icon: getTrackerIcon(sub.icon),
+									lastChild: i === subscriptions.length - 1 ? true : undefined,
 									button: {
-										text: subscription.trackerData.actionLabel,
-										status: buttonStatuses?.[subscription.trackerData.name]
+										status: buttonStatuses?.[sub.name],
+										text: sub.actionLabel
 									}
 								}}
 							></ActionCard>
-						{/if}
-					{/each}
+						{/each}
+					</div>
 				</section>
 			{/if}
-
-			<section class="grid gap-4 py-2">
-				<h2 class="text-base-content/70 text-lg font-bold">Recent Activity</h2>
-
-				<div class="border-base-300/50 rounded-2xl border bg-white/70">
-					{#if latestEntries && latestEntries.length > 0}
-						{#each latestEntries as entry (entry.id)}
-							{@const fromNow = dayjs(entry.performedAt).fromNow()}
-							<div class={['border-b-base-300/50 grid gap-4 border-b px-2 py-1']}>
-								<div class="flex items-center p-2">
-									<div class="flex grow items-center gap-4">
-										<div class="flex items-center gap-2 align-baseline">
-											{entry.tracker.display}
-										</div>
-									</div>
-
-									<div class="text-base-content/70 flex h-full items-center">{fromNow}</div>
-								</div>
-							</div>
-						{/each}
-					{:else if !latestEntries || latestEntries.length === 0}
-						<div class="justify-self-center">
-							<enhanced:img src={EmptyCorgi} alt="nothing" />
-							<p class="text-center">No tasks!</p>
-						</div>
-					{:else}
-						<SkeletonActionCard size="compact" />
-						<SkeletonActionCard size="compact" />
-						<SkeletonActionCard size="compact" />
-					{/if}
-				</div>
-			</section>
 		</div>
 	</main>
 </PageWrapper>
