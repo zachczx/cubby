@@ -2,25 +2,26 @@ package migration
 
 import (
 	"log"
+	"log/slog"
+	"os"
 
 	_ "github.com/jackc/pgx/v5/stdlib" // Import pgx driver
 	"github.com/jmoiron/sqlx"
 )
 
 func WipeData(db *sqlx.DB) {
-	log.Println("🔥 Truncating all tables...")
-
 	query := `DROP TABLE IF EXISTS tracker_user_settings, entries, invites, trackers, families, users CASCADE;`
-
 	_, err := db.Exec(query)
 	if err != nil {
-		log.Fatalf("❌ Drop tables failed: %v", err)
+		slog.Error("failed to drop tables", "error", err)
+		os.Exit(1)
 	}
-	log.Println("✅ All tables dropped successfully.")
+
+	slog.Info("drop tables", "status", "success")
 }
 
 func Create(db *sqlx.DB) {
-	log.Println("🚀 Starting schema creation...")
+	slog.Info("create schema", "status", "success")
 
 	schema := []string{
 		// Users
@@ -174,9 +175,9 @@ func Create(db *sqlx.DB) {
 	for i, query := range schema {
 		_, err := db.Exec(query)
 		if err != nil {
-			log.Fatalf("❌ Error executing statement #%d:\nQuery: %s\nError: %v", i+1, query, err)
+			log.Fatalf("error executing statement #%d:\nQuery: %s\nError: %v", i+1, query, err)
 		}
 	}
 
-	log.Println("✅ Schema initialized successfully!")
+	slog.Info("schema init", "status", "success")
 }
