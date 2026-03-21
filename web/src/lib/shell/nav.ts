@@ -5,34 +5,26 @@ export const topLevelRoutes = {
 		{
 			id: 'home',
 			href: '/app',
-			label: 'Home',
+			label: 'Dashboard',
 			desktopNav: true,
 			mobileNav: true,
 			icon: 'material-symbols:home'
 		},
 		{
-			id: 'personal',
-			href: router.tracker('category/personal'),
-			label: 'Personal',
+			id: 'tasks',
+			href: '/app/trackers',
+			label: 'Tasks',
 			desktopNav: true,
 			mobileNav: true,
-			icon: 'material-symbols:person'
+			icon: 'material-symbols:checklist'
 		},
 		{
-			id: 'household',
-			href: router.tracker('category/household'),
-			label: 'Household',
+			id: 'gym',
+			href: router.app('gym'),
+			label: 'Gym',
 			desktopNav: true,
 			mobileNav: true,
-			icon: 'material-symbols:laundry'
-		},
-		{
-			id: 'pet',
-			href: router.tracker('category/pet'),
-			label: 'Pet',
-			desktopNav: true,
-			mobileNav: true,
-			icon: 'material-symbols:pets'
+			icon: 'material-symbols:fitness-center'
 		},
 		{
 			id: 'tools',
