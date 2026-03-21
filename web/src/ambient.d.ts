@@ -162,6 +162,38 @@ interface TrackerPageOptions {
 	};
 }
 
+// Gym types
+
+interface WorkoutDB {
+	id: string;
+	userId: string;
+	startTime: string;
+	endTime: string | null;
+	notes: string | null;
+	createdAt: string;
+	updatedAt: string;
+	sets: SetDB[];
+}
+
+interface SetDB {
+	id: string;
+	workoutId: string;
+	exerciseId: string;
+	weightKg: number | null;
+	reps: number | null;
+	setType: string;
+	isCompleted: boolean;
+	createdAt: string;
+	updatedAt: string;
+}
+
+interface SetInput {
+	exerciseId: string;
+	weightKg: number | null;
+	reps: number | null;
+	setType: string;
+}
+
 type Collections = EntryDB | VacationDB;
 
 type CalendarRecord = Collections;
