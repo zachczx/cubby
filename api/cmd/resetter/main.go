@@ -8,6 +8,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
 	"github.com/zachczx/cubby/api/internal/database"
+	"github.com/zachczx/cubby/api/internal/logging"
 	"github.com/zachczx/cubby/api/internal/migration"
 )
 
@@ -22,6 +23,8 @@ func main() {
 	} else {
 		fmt.Println("env init: ok")
 	}
+
+	logging.Init()
 
 	db, err := sqlx.Connect("pgx", database.GetConnectionString())
 	if err != nil {
