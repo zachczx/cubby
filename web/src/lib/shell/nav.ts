@@ -24,7 +24,7 @@ export const topLevelRoutes = {
 			label: 'Gym',
 			desktopNav: true,
 			mobileNav: true,
-			icon: 'material-symbols:fitness-center'
+			icon: 'material-symbols:exercise'
 		},
 		{
 			id: 'tools',
