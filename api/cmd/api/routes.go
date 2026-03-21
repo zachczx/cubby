@@ -59,10 +59,6 @@ func NewHTTPHandler(s *server.Service) http.Handler {
 	mux.HandleFunc("GET /notifications/generate", s.RequireAuthentication(s.GenerateHandler))
 	mux.HandleFunc("POST /tokens", s.RequireAuthentication(s.PushTokenHandler))
 
-	mux.HandleFunc("GET /gym/exercises", s.RequireAuthentication(s.GetAllExercisesHandler))
-	mux.HandleFunc("POST /gym/exercises", s.RequireAuthentication(s.NewExerciseHandler))
-	mux.HandleFunc("PATCH /gym/exercises/{exerciseID}", s.RequireAuthentication(s.EditExerciseHandler))
-	mux.HandleFunc("DELETE /gym/exercises/{exerciseID}", s.RequireAuthentication(s.DeleteExerciseHandler))
 	mux.HandleFunc("GET /gym/workouts", s.RequireAuthentication(s.GetAllWorkoutsHandler))
 	mux.HandleFunc("POST /gym/workouts", s.RequireAuthentication(s.NewWorkoutHandler))
 	mux.HandleFunc("PATCH /gym/workouts/{workoutID}", s.RequireAuthentication(s.EditWorkoutHandler))

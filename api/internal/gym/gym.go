@@ -6,20 +6,6 @@ import (
 	"github.com/google/uuid"
 )
 
-type Exercise struct {
-	ID              uuid.UUID  `db:"id"               json:"id"`
-	Name            string     `db:"name"             json:"name"`
-	Category        string     `db:"category"         json:"category"`
-	OwnerID *uuid.UUID `db:"owner_id" json:"ownerId"`
-	CreatedAt       time.Time  `db:"created_at"       json:"createdAt"`
-	UpdatedAt       time.Time  `db:"updated_at"       json:"updatedAt"`
-}
-
-type ExerciseInput struct {
-	Name     string `json:"name"`
-	Category string `json:"category"`
-}
-
 type Workout struct {
 	ID        uuid.UUID  `db:"id"         json:"id"`
 	UserID    uuid.UUID  `db:"user_id"    json:"userId"`
@@ -38,21 +24,20 @@ type WorkoutInput struct {
 }
 
 type Set struct {
-	ID           uuid.UUID `db:"id"           json:"id"`
-	WorkoutID    uuid.UUID `db:"workout_id"   json:"workoutId"`
-	ExerciseID   uuid.UUID `db:"exercise_id"  json:"exerciseId"`
-	WeightKg     *float64  `db:"weight_kg"    json:"weightKg"`
-	Reps         *int16    `db:"reps"         json:"reps"`
-	SetType      string    `db:"set_type"     json:"setType"`
-	IsCompleted  bool      `db:"is_completed" json:"isCompleted"`
-	CreatedAt    time.Time `db:"created_at"   json:"createdAt"`
-	UpdatedAt    time.Time `db:"updated_at"   json:"updatedAt"`
-	ExerciseName string    `db:"exercise_name" json:"exerciseName"`
+	ID          uuid.UUID `db:"id"           json:"id"`
+	WorkoutID   uuid.UUID `db:"workout_id"   json:"workoutId"`
+	ExerciseID  string    `db:"exercise_id"  json:"exerciseId"`
+	WeightKg    *float64  `db:"weight_kg"    json:"weightKg"`
+	Reps        *int16    `db:"reps"         json:"reps"`
+	SetType     string    `db:"set_type"     json:"setType"`
+	IsCompleted bool      `db:"is_completed" json:"isCompleted"`
+	CreatedAt   time.Time `db:"created_at"   json:"createdAt"`
+	UpdatedAt   time.Time `db:"updated_at"   json:"updatedAt"`
 }
 
 type SetInput struct {
-	ExerciseID uuid.UUID `json:"exerciseId"`
-	WeightKg   *float64  `json:"weightKg"`
-	Reps       *int16    `json:"reps"`
-	SetType    string    `json:"setType"`
+	ExerciseID string   `json:"exerciseId"`
+	WeightKg   *float64 `json:"weightKg"`
+	Reps       *int16   `json:"reps"`
+	SetType    string   `json:"setType"`
 }

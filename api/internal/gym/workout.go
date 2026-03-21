@@ -46,11 +46,9 @@ func GetAllWorkouts(db *sqlx.DB, userID uuid.UUID) ([]Workout, error) {
 		workouts[i].Sets = []Set{}
 	}
 
-	sq := `SELECT s.*, e.name AS exercise_name
-			FROM gym_sets s
-			JOIN gym_exercises e ON s.exercise_id = e.id
-			WHERE s.workout_id IN (?)
-			ORDER BY s.created_at ASC`
+	sq := `SELECT * FROM gym_sets
+			WHERE workout_id IN (?)
+			ORDER BY created_at ASC`
 
 	query, args, err := sqlx.In(sq, ids)
 	if err != nil {
