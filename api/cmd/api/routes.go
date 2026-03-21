@@ -50,7 +50,6 @@ func NewHTTPHandler(s *server.Service) http.Handler {
 	mux.HandleFunc("DELETE /trackers/{trackerID}", s.RequireAuthentication(s.DeleteHandler))
 	mux.HandleFunc("PATCH /trackers/{trackerID}/pinned", s.RequireAuthentication(s.TogglePinHandler))
 	mux.HandleFunc("PATCH /trackers/{trackerID}/show", s.RequireAuthentication(s.ToggleShowHandler))
-
 	mux.HandleFunc("POST /trackers/{trackerID}/toggle-mute", s.RequireAuthentication(s.ToggleMuteHandler))
 
 	mux.HandleFunc("GET /entries", s.RequireAuthentication(s.GetAllEntriesHandler))
@@ -59,6 +58,18 @@ func NewHTTPHandler(s *server.Service) http.Handler {
 
 	mux.HandleFunc("GET /notifications/generate", s.RequireAuthentication(s.GenerateHandler))
 	mux.HandleFunc("POST /tokens", s.RequireAuthentication(s.PushTokenHandler))
+
+	mux.HandleFunc("GET /gym/exercises", s.RequireAuthentication(s.GetAllExercisesHandler))
+	mux.HandleFunc("POST /gym/exercises", s.RequireAuthentication(s.NewExerciseHandler))
+	mux.HandleFunc("PATCH /gym/exercises/{exerciseID}", s.RequireAuthentication(s.EditExerciseHandler))
+	mux.HandleFunc("DELETE /gym/exercises/{exerciseID}", s.RequireAuthentication(s.DeleteExerciseHandler))
+	mux.HandleFunc("GET /gym/workouts", s.RequireAuthentication(s.GetAllWorkoutsHandler))
+	mux.HandleFunc("POST /gym/workouts", s.RequireAuthentication(s.NewWorkoutHandler))
+	mux.HandleFunc("PATCH /gym/workouts/{workoutID}", s.RequireAuthentication(s.EditWorkoutHandler))
+	mux.HandleFunc("DELETE /gym/workouts/{workoutID}", s.RequireAuthentication(s.DeleteWorkoutHandler))
+	mux.HandleFunc("POST /gym/workouts/{workoutID}/sets", s.RequireAuthentication(s.NewSetHandler))
+	mux.HandleFunc("PATCH /gym/sets/{setID}", s.RequireAuthentication(s.EditSetHandler))
+	mux.HandleFunc("DELETE /gym/sets/{setID}", s.RequireAuthentication(s.DeleteSetHandler))
 
 	return mux
 }
