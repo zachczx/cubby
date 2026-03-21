@@ -99,3 +99,11 @@ export const singleInviteRefetchOptions = (inviteId: string): RefetchQueryFilter
 	queryKey: [...rootKey, 'invites', inviteId],
 	exact: true
 });
+
+const allWorkoutsQuery = createQueryFactory(
+	['gym-workouts'],
+	async (): Promise<WorkoutDB[]> => await api.get('gym/workouts').json()
+);
+export const allWorkoutsQueryOptions = allWorkoutsQuery.options;
+export const allWorkoutsRefetchOptions = allWorkoutsQuery.refetch;
+export const getAllWorkoutsQueryKey = () => [...getRootKey(), 'gym-workouts'];
