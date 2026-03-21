@@ -10,7 +10,7 @@ import (
 )
 
 func WipeData(db *sqlx.DB) {
-	query := `DROP TABLE IF EXISTS gym_sets, gym_workouts, gym_exercises, tracker_user_settings, notification_logs, push_tokens, invites, vacations, entries, trackers, families_users, families, users CASCADE;`
+	query := `DROP TABLE IF EXISTS gym_sets, gym_workouts, tracker_user_settings, notification_logs, push_tokens, invites, vacations, entries, trackers, families_users, families, users CASCADE;`
 	_, err := db.Exec(query)
 	if err != nil {
 		slog.Error("failed to drop tables", "error", err)
@@ -143,15 +143,6 @@ func Create(db *sqlx.DB) {
 		);`,
 
 		// Gym
-		`CREATE TABLE IF NOT EXISTS gym_exercises (
-			id UUID PRIMARY KEY DEFAULT uuidv7(),
-			name TEXT NOT NULL,
-			category TEXT NOT NULL,
-			owner_id UUID REFERENCES users(id) ON DELETE SET NULL,
-			created_at TIMESTAMPTZ DEFAULT NOW(),
-			updated_at TIMESTAMPTZ DEFAULT NOW()
-		);`,
-
 		`CREATE TABLE IF NOT EXISTS gym_workouts (
 			id UUID PRIMARY KEY DEFAULT uuidv7(),
 			user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -165,7 +156,7 @@ func Create(db *sqlx.DB) {
 		`CREATE TABLE IF NOT EXISTS gym_sets (
 			id UUID PRIMARY KEY DEFAULT uuidv7(),
 			workout_id UUID NOT NULL REFERENCES gym_workouts(id) ON DELETE CASCADE,
-			exercise_id UUID NOT NULL REFERENCES gym_exercises(id) ON DELETE CASCADE,
+			exercise_id TEXT NOT NULL,
 			weight_kg NUMERIC(6,2),
 			reps SMALLINT,
 			set_type VARCHAR(50) DEFAULT 'working',
@@ -188,10 +179,8 @@ func Create(db *sqlx.DB) {
 		`CREATE INDEX IF NOT EXISTS idx_tracker_user_settings_user_id ON tracker_user_settings(user_id);`,
 		`CREATE INDEX IF NOT EXISTS idx_tracker_user_settings_tracker_id ON tracker_user_settings(tracker_id);`,
 
-		`CREATE INDEX IF NOT EXISTS idx_gym_exercises_owner_id ON gym_exercises(owner_id);`,
 		`CREATE INDEX IF NOT EXISTS idx_gym_workouts_user_id ON gym_workouts(user_id);`,
 		`CREATE INDEX IF NOT EXISTS idx_gym_sets_workout_id ON gym_sets(workout_id);`,
-		`CREATE INDEX IF NOT EXISTS idx_gym_sets_exercise_id ON gym_sets(exercise_id);`,
 		`CREATE INDEX IF NOT EXISTS idx_gym_sets_chronological ON gym_sets(workout_id, created_at ASC);`,
 
 		// Date time filter indexes
@@ -211,7 +200,6 @@ func Create(db *sqlx.DB) {
 		// Case insensitive lookups
 		`CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email_lower ON users(LOWER(email));`,
 
-		`CREATE INDEX IF NOT EXISTS idx_gym_exercises_name_lower ON gym_exercises(LOWER(name));`,
 	}
 
 	for i, query := range schema {
