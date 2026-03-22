@@ -85,7 +85,7 @@
 	<title>{title ? title : defaultTitle}</title>
 </svelte:head>
 
-<div class="grid h-dvh w-full justify-items-center">
+<div class="grid min-h-dvh w-full justify-items-center">
 	<header
 		class={[
 			'bg-base-100 text-base-content fixed top-0 z-1 w-full px-4 lg:hidden',
@@ -217,7 +217,7 @@
 	{#if !focusedScreen}
 		<nav
 			class={[
-				'fixed bottom-4 left-1/2 z-1 -translate-x-1/2 lg:hidden',
+				'fixed bottom-4 left-1/2 z-10 -translate-x-1/2 lg:hidden',
 				'bg-base-content/85 flex items-center gap-1 rounded-full px-3 py-2 shadow-lg backdrop-blur-md',
 				title === 'Login' ? 'hidden' : undefined
 			]}
