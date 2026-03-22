@@ -29,7 +29,7 @@
 
 <div class="grid w-full max-w-lg gap-3">
 	{#each segments as segment, i (i)}
-		<div class="border-base-300/50 flex items-center gap-3 rounded-xl border bg-white/70 px-4 py-3">
+		<div class="border-base-300/50 flex items-center gap-3 rounded-xl border bg-base-50 px-4 py-3">
 			<span class="text-base-content/70 min-w-16 text-sm font-semibold">{segment.label}</span>
 			<div class="flex items-center gap-1">
 				<button

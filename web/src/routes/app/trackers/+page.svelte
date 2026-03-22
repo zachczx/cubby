@@ -163,7 +163,7 @@
 
 				{#if allEntriesDb.isSuccess}
 					{#if entries.general.length > 0}
-						<div class="border-base-300/50 rounded-2xl border bg-white/70">
+						<div class="border-base-300/50 rounded-2xl border bg-base-50">
 							{#each entries.general as entry, i (entry.trackerData.id)}
 								<ActionCard
 									options={{
@@ -201,7 +201,7 @@
 				<section class="grid gap-4 py-2">
 					<h2 class="text-base-content/70 text-lg font-bold">Subscriptions</h2>
 
-					<div class="border-base-300/50 rounded-2xl border bg-white/70">
+					<div class="border-base-300/50 rounded-2xl border bg-base-50">
 						{#each subscriptions as sub, i (sub.id)}
 							<ActionCard
 								options={{

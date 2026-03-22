@@ -168,7 +168,7 @@
 				<h2 class="text-base-content/70 text-lg font-bold">Recent Activity</h2>
 
 				{#if latestEntries && latestEntries.length > 0}
-					<div class="border-base-300/50 rounded-2xl border bg-white/70">
+					<div class="border-base-300/50 rounded-2xl border bg-base-50">
 						{#each latestEntries as entry (entry.id)}
 							{@const fromNow = dayjs(entry.performedAt).fromNow()}
 							<div class={['border-b-base-300/50 grid gap-4 border-b px-2 py-1']}>

@@ -101,7 +101,7 @@
 					{@const formatted = dayjs(entry.performedAt).format('hh:mma')}
 					{#if editMode[entry.id]}
 						<div
-							class="border-base-300 grid min-h-18 content-center gap-2 rounded-2xl border bg-white/70 px-2 py-2"
+							class="border-base-300 grid min-h-18 content-center gap-2 rounded-2xl border bg-base-50 px-2 py-2"
 						>
 							<form class="grid w-full content-center" onsubmit={(evt) => saveEdit(evt, entry)}>
 								<input
@@ -119,7 +119,7 @@
 						</div>
 					{:else}
 						<div
-							class="border-base-300 grid min-h-18 grid-cols-[1fr_auto] content-center gap-4 rounded-2xl border bg-white/70 px-2 py-2"
+							class="border-base-300 grid min-h-18 grid-cols-[1fr_auto] content-center gap-4 rounded-2xl border bg-base-50 px-2 py-2"
 						>
 							<div class="flex items-center p-2 text-lg font-bold">
 								{formatted}

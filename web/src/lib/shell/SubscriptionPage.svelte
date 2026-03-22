@@ -226,7 +226,7 @@
 								{#each year as entry}
 									{@const formatted = dayjs(entry).format('D MMM')}
 									<div
-										class="border-base-300 grid min-h-18 grid-cols-3 items-baseline gap-4 rounded-2xl border bg-white/70 px-2 py-2"
+										class="border-base-300 grid min-h-18 grid-cols-3 items-baseline gap-4 rounded-2xl border bg-base-50 px-2 py-2"
 									>
 										<div class="flex p-2 text-lg font-bold">
 											{formatted}

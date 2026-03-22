@@ -100,9 +100,9 @@
 
 <PageWrapper title="Manage Family">
 	<div
-		class="grid w-full rounded-2xl lg:h-min lg:max-w-lg lg:justify-self-center lg:bg-white/70 lg:p-8 lg:shadow-md"
+		class="grid w-full rounded-2xl lg:h-min lg:max-w-lg lg:justify-self-center lg:bg-base-50 lg:p-8 lg:shadow-md"
 	>
-		<h1 class="text-primary mb-4 text-center text-4xl font-bold max-lg:hidden">Family</h1>
+		<h1 class="mb-4 text-center text-3xl font-bold max-lg:hidden">Family</h1>
 
 		<div class="grid w-full content-start gap-8">
 			<nav class="flex items-center gap-2">
@@ -160,7 +160,7 @@
 						{/each}
 					{/if}
 
-					<section class="border-base-300 grid min-h-18 gap-4 rounded-2xl border bg-white/70 p-4">
+					<section class="border-base-300 grid min-h-18 gap-4 rounded-2xl border bg-base-50 p-4">
 						<h2 class="text-xl font-bold">Members ({numberOfMembers})</h2>
 
 						<ul class="grid list-disc">
@@ -235,7 +235,7 @@
 					</section>
 
 					{#if family.isOwner}
-						<section class="border-base-300 grid min-h-18 rounded-2xl border bg-white/70 p-4">
+						<section class="border-base-300 grid min-h-18 rounded-2xl border bg-base-50 p-4">
 							<h2 class="mb-4 text-xl font-bold">Invite Someone</h2>
 							{#if families.isPending && !families.data}
 								<div class="custom-loader"></div>

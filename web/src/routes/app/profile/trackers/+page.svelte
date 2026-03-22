@@ -12,9 +12,9 @@
 
 <PageWrapper title="Manage Trackers">
 	<div
-		class="grid w-full rounded-2xl max-lg:h-full max-lg:grid-rows-[1fr_auto] lg:h-min lg:max-w-md lg:justify-self-center lg:bg-white/70 lg:p-8 lg:shadow-md"
+		class="grid w-full rounded-2xl max-lg:h-full max-lg:grid-rows-[1fr_auto] lg:h-min lg:max-w-md lg:justify-self-center lg:bg-base-50 lg:p-8 lg:shadow-md"
 	>
-		<h1 class="text-primary mb-4 text-center text-4xl font-bold max-lg:hidden">Manage Trackers</h1>
+		<h1 class="mb-4 text-center text-3xl font-bold max-lg:hidden">Manage Trackers</h1>
 		<div class="grid w-full content-start">
 			{@render menuItem('new', 'New Tracker')}
 			{@render menuItem('edit', 'Edit Tracker')}

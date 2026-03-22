@@ -6,7 +6,7 @@
 
 {#if size === 'compact'}
 	<section
-		class="skeleton border-base-300 grid min-h-18 gap-4 rounded-2xl border bg-white/70 px-2 py-2"
+		class="skeleton border-base-300 grid min-h-18 gap-4 rounded-2xl border bg-base-50 px-2 py-2"
 	>
 		<div class="flex items-center">
 			<div class="flex grow items-center gap-4">
@@ -27,7 +27,7 @@
 		</div>
 	</section>
 {:else}
-	<section class="border-base-300 skeleton grid min-h-24 gap-4 rounded-3xl border bg-white/70 p-4">
+	<section class="border-base-300 skeleton grid min-h-24 gap-4 rounded-3xl border bg-base-50 p-4">
 		<div class="flex items-center">
 			<div class="flex grow items-center gap-4">
 				<div class="skeleton aspect-square size-12 rounded-full opacity-75"></div>

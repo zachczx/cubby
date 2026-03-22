@@ -65,7 +65,7 @@
 
 <PageWrapper title="Account Info">
 	<div
-		class="grid w-full rounded-2xl max-lg:h-full max-lg:grid-rows-[1fr_auto] lg:h-min lg:max-w-md lg:justify-self-center lg:bg-white/70 lg:p-8 lg:shadow-md"
+		class="grid w-full rounded-2xl max-lg:h-full max-lg:grid-rows-[1fr_auto] lg:h-min lg:max-w-md lg:justify-self-center lg:bg-base-50 lg:p-8 lg:shadow-md"
 	>
 		<div class="w-full max-w-lg justify-self-center overflow-y-auto">
 			{#if isOnboarding}
@@ -79,7 +79,7 @@
 
 			{#if user.isSuccess && family.isSuccess}
 				<form
-					class="border-neutral/20 grid gap-6 rounded-xl border bg-white/70 p-8 shadow"
+					class="border-neutral/20 grid gap-6 rounded-xl border bg-base-50 p-8 shadow"
 					{onsubmit}
 				>
 					<fieldset class="fieldset">

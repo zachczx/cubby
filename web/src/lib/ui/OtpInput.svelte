@@ -24,7 +24,7 @@
 			<PinInput.Input
 				{index}
 				class={[
-					'border-primary/10 flex h-18 items-center justify-center rounded-xl border-2 bg-white/70 text-center'
+					'border-primary/10 flex h-18 items-center justify-center rounded-xl border-2 bg-base-50 text-center'
 				]}
 			/>
 		{/each}

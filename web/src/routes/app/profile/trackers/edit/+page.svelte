@@ -29,13 +29,13 @@
 
 <PageWrapper title="Edit Tracker">
 	<div class="grid w-full rounded-2xl lg:h-min lg:max-w-lg lg:justify-self-center">
-		<h1 class="text-primary mb-4 text-center text-4xl font-bold max-lg:hidden">Edit Trackers</h1>
+		<h1 class="mb-4 text-center text-3xl font-bold max-lg:hidden">Edit Trackers</h1>
 
 		{#if trackersDb.isSuccess}
 			<div class="grid gap-8">
 				{#each Object.values(trackers) as trackerList}
 					<section
-						class="border-base-300 grid min-h-18 content-start rounded-2xl border bg-white/70 p-6"
+						class="border-base-300 grid min-h-18 content-start rounded-2xl border bg-base-50 p-6"
 					>
 						{#if trackerList && trackerList.length > 0}
 							<h2 class="mb-2 flex items-center gap-4 text-xl font-bold">

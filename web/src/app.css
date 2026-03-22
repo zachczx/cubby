@@ -36,6 +36,7 @@
 
 @theme {
 	--font-body: 'Nunito Variable', sans-serif;
+	--color-base-50: #faf8f2;
 	--color-base-nav: #3d3935;
 	--color-base-popover: #fbf9f6;
 	--color-base-input: #fbf9f6;

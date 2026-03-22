@@ -193,7 +193,7 @@
 					{:else}
 						{#each workoutsDb.data as workout (workout.id)}
 							{@const exerciseGroups = groupSetsByExercise(workout.sets)}
-							<div class="border-base-300/50 rounded-2xl border bg-white/70">
+							<div class="border-base-300/50 rounded-2xl border bg-base-50">
 								<div class="flex items-center justify-between px-4 pt-3 pb-2">
 									<a href="/app/gym/{workout.id}" class="grid grow gap-0">
 										<div
