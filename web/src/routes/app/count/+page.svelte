@@ -487,7 +487,7 @@
 			</div>
 		</main>
 
-		<SegmentedControl items={2}>
+		<SegmentedControl class="scale-80" items={2}>
 			<label>
 				<input
 					type="radio"

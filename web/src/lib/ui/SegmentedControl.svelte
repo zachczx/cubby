@@ -1,10 +1,17 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 
-	let { children, items }: { children: Snippet; items: number } = $props();
+	let {
+		children,
+		items,
+		class: className
+	}: { children: Snippet; items: number; class?: string } = $props();
 </script>
 
-<form class="segmented-control" style="grid-template-columns: repeat({items}, minmax(0, 1fr))">
+<form
+	class={['segmented-control', className]}
+	style="grid-template-columns: repeat({items}, minmax(0, 1fr))"
+>
 	{@render children()}
 </form>
 
