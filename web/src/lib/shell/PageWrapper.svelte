@@ -198,7 +198,7 @@
 	<Refresher onRefresh={() => invalidateAll()}>
 		<div
 			class={[
-				'bg-base-100 w-full p-4 lg:grid lg:px-12',
+				'bg-base-100 w-full p-4 lg:mx-auto lg:max-w-5xl lg:grid lg:px-12',
 				!noPaddingBottom && 'max-lg:pb-24',
 				back
 					? 'max-lg:mt-24 max-lg:min-h-[calc(100vh-6rem-6rem)]'
