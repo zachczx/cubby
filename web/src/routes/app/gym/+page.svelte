@@ -10,6 +10,7 @@
 	import { exercises } from '$lib/exercises';
 	import Icon from '@iconify/svelte';
 	import { Combobox, useListCollection } from '@ark-ui/svelte/combobox';
+	import CorgiGym from '$lib/assets/corgi_gym.webp?w=240&enhanced';
 
 	dayjs.extend(relativeTime);
 
@@ -40,7 +41,6 @@
 	const kgToLb = (kg: number) => Math.round(kg * 2.20462 * 10) / 10;
 	const lbToKg = (lb: number) => Math.round((lb / 2.20462) * 10) / 10;
 
-	// Group sets by exercise within a workout
 	function groupSetsByExercise(sets: SetDB[]) {
 		const groups: { exerciseId: string; exerciseName: string; sets: SetDB[] }[] = [];
 		const map = new Map<string, SetDB[]>();
@@ -151,7 +151,12 @@
 			<section class="grid gap-4 py-2">
 				<div class="flex items-center justify-between">
 					<h2 class="text-base-content/70 text-lg font-bold">Workouts</h2>
-					<div class="border-base-300 flex overflow-hidden rounded-lg border text-sm">
+					<div
+						class={[
+							'border-base-300 flex overflow-hidden rounded-lg border text-sm',
+							!workoutsDb.data || workoutsDb.data.length === 0 ? 'hidden' : undefined
+						]}
+					>
 						<button
 							class={[
 								'px-3 py-1 font-medium transition-colors',
@@ -177,11 +182,13 @@
 					</div>
 				</div>
 
-				{#if workoutsDb.isSuccess && workoutsDb.data}
-					{#if workoutsDb.data.length === 0}
+				{#if workoutsDb.isSuccess}
+					{#if !workoutsDb.data || workoutsDb.data.length === 0}
 						<div class="grid justify-items-center gap-2 py-8">
-							<Icon icon="material-symbols:fitness-center" class="text-base-content/20 size-16" />
-							<p class="text-base-content/50">No workouts yet</p>
+							<enhanced:img src={CorgiGym} alt="No workout" />
+							<button class="text-base-content/70 font-medium" onclick={startWorkout}
+								>Add your first workout!</button
+							>
 						</div>
 					{:else}
 						{#each workoutsDb.data as workout (workout.id)}
