@@ -9,6 +9,7 @@
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
 	import { useQueryClient } from '@tanstack/svelte-query';
 	import { getAllTrackersQueryKey } from '$lib/queries';
+	import Logo from '$lib/assets/transparent-top.webp?w=200&enhanced';
 
 	let {
 		children,
@@ -85,46 +86,78 @@
 </svelte:head>
 
 <div class="grid h-dvh w-full justify-items-center">
-	<div
+	<header
 		class={[
-			'navbar border-b-base-300/50 bg-base-nav text-primary-content fixed top-0 z-1 min-h-14 items-center border-b pe-4',
-			back ? 'lg:ps-4' : 'ps-4'
+			'bg-base-100 text-base-content fixed top-0 z-1 w-full px-4 lg:hidden',
+			back ? 'pt-2 pb-3' : 'py-2'
 		]}
 		style="view-transition-name: top-nav"
 	>
-		<div class="navbar-start grow">
+		<div class="flex min-h-10 items-center justify-between">
 			{#if back}
 				<button
 					aria-label="go back"
-					class="cursor-pointer p-2 max-lg:me-4 lg:hidden"
+					class="-ml-2 cursor-pointer rounded-full p-2"
 					onclick={() => {
 						if (window) {
 							history.back();
 						}
 					}}
 				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						width="32"
-						height="32"
-						class="lucide:arrow-left size-6"
-						viewBox="0 0 24 24"
-						><path
-							fill="none"
-							stroke="currentColor"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="m12 19l-7-7l7-7m7 7H5"
-						/></svg
-					>
+					<Icon icon="material-symbols:arrow-back" class="size-5" />
 				</button>
+			{:else}
+				<div class="flex items-center gap-2">
+					<div class="avatar">
+						<div class="bg-primary/50 border-primary/50 w-10 rounded-full border-2">
+							<enhanced:img src={Logo} alt="Cubby" class="scale-150" />
+						</div>
+					</div>
+
+					<h1 class="text-xl font-bold">{title ? title : defaultTitle}</h1>
+				</div>
 			{/if}
 
-			<a class="hidden text-xl font-bold lg:flex" href="/app">Cubby</a>
-			<span class="text-xl font-bold lg:hidden">{title ? title : defaultTitle}</span>
+			<div class="bg-base-content/5 flex items-center gap-1 rounded-full px-1">
+				{#key trackerMuteToggle}
+					{#if trackerMuteToggle}
+						{#if trackerMuteToggle?.isMuted}
+							<button class="btn btn-ghost btn-sm px-2" onclick={() => muteHandler('unmute')}>
+								<Icon icon="material-symbols:notifications-off" class="size-5 opacity-80" />
+							</button>
+						{:else}
+							<button class="btn btn-ghost btn-sm px-2" onclick={() => muteHandler('mute')}>
+								<Icon icon="material-symbols:notifications" class="size-5" />
+							</button>
+						{/if}
+					{/if}
+				{/key}
+				{#if showSettingsIcon}
+					<a href="/app/profile" class="btn btn-ghost btn-sm px-2">
+						<Icon icon="material-symbols:settings" class="size-5" />
+					</a>
+				{/if}
+			</div>
 		</div>
-		<div id="desktop-menu" class="navbar-center hidden lg:flex">
+
+		{#if back}
+			<h1 class="mt-1 text-[1.75rem] leading-tight font-bold">
+				{title ? title : defaultTitle}
+			</h1>
+		{/if}
+	</header>
+
+	<div
+		class={[
+			'navbar border-b-base-300/50 bg-base-nav text-primary-content fixed top-0 z-1 hidden min-h-14 items-center border-b pe-4 lg:flex',
+			back ? 'lg:ps-4' : 'ps-4'
+		]}
+		style="view-transition-name: top-nav-desktop"
+	>
+		<div class="navbar-start grow">
+			<a class="text-xl font-bold" href="/app">Cubby</a>
+		</div>
+		<div id="desktop-menu" class="navbar-center">
 			<ul class="menu menu-horizontal gap-8 px-1 text-lg">
 				{#each topLevelRoutes.animation as route}
 					{#if route.desktopNav}
@@ -142,7 +175,7 @@
 				{/each}
 			</ul>
 		</div>
-		<div class="lg:navbar-end flex">
+		<div class="navbar-end flex">
 			{#key trackerMuteToggle}
 				{#if trackerMuteToggle}
 					{#if trackerMuteToggle?.isMuted}
@@ -157,12 +190,7 @@
 				{/if}
 			{/key}
 			{#if showSettingsIcon}
-				<div id="mobile-hamburger" class="dropdown flex items-center max-lg:-me-1 lg:hidden">
-					<a href="/app/profile" class="btn btn-ghost px-2 py-0"
-						><Icon icon="material-symbols:settings" class="size-6" /></a
-					>
-				</div>
-				<div id="desktop-logout" class="hidden items-center text-sm lg:flex">
+				<div id="desktop-logout" class="flex items-center text-sm">
 					<a href="/app/profile" class="btn btn-ghost px-2 py-0"
 						><Icon icon="material-symbols:settings" class="size-6" /></a
 					><a href="/logout" class="btn btn-outline btn-sm ms-2">Logout</a>
@@ -174,8 +202,11 @@
 	<Refresher onRefresh={() => invalidateAll()}>
 		<div
 			class={[
-				'bg-base-100 max-lg:min-h-[calc(100vh - 3.5rem - 6rem)] lg:min-h-[calc(100vh - 3.5rem - 1rem)] w-full p-4 max-lg:pb-24 lg:grid lg:px-12 ',
-				'mt-14 lg:pt-16'
+				'bg-base-100 w-full p-4 max-lg:pb-24 lg:grid lg:px-12',
+				back
+					? 'max-lg:mt-24 max-lg:min-h-[calc(100vh-6rem-6rem)]'
+					: 'max-lg:mt-14 max-lg:min-h-[calc(100vh-3.5rem-6rem)]',
+				'lg:mt-14 lg:min-h-[calc(100vh-3.5rem-1rem)] lg:pt-16'
 			]}
 			style="view-transition-name: content;"
 		>
