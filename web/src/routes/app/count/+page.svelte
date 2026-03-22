@@ -19,6 +19,7 @@
 	import TimerDisplay from './TimerDisplay.svelte';
 	import SegmentList from './SegmentList.svelte';
 	import SegmentProgress from './SegmentProgress.svelte';
+	import ProgressRing from './ProgressRing.svelte';
 
 	const user = createQuery(userQueryOptions);
 	const profilesQuery = createQuery(timerProfilesQueryOptions);
@@ -271,6 +272,12 @@
 		!isTimerActive && mode === 'quick' ? doubleDigits(targetSeconds) : doubleDigits(sec)
 	);
 
+	let timerTotal = $derived.by(() => {
+		if (mode === 'quick') return targetTotalSeconds;
+		return segmentDurations[currentSegmentIndex] ?? 0;
+	});
+	let progress = $derived(timerTotal > 0 ? remainingSeconds / timerTotal : 1);
+
 	let playSound = $state(false);
 	let playSoundInitialized = false;
 
@@ -361,13 +368,15 @@
 			</div>
 
 			{#if mode === 'quick'}
-				<QuickTimePicker
-					bind:minutes={targetMinutes}
-					bind:seconds={targetSeconds}
-					disabled={isTimerActive}
-					displayMinutes={isTimerActive ? displayMin : undefined}
-					displaySeconds={isTimerActive ? displaySec : undefined}
-				/>
+				<ProgressRing {progress} active={isTimerActive}>
+					<QuickTimePicker
+						bind:minutes={targetMinutes}
+						bind:seconds={targetSeconds}
+						disabled={isTimerActive}
+						displayMinutes={isTimerActive ? displayMin : undefined}
+						displaySeconds={isTimerActive ? displaySec : undefined}
+					/>
+				</ProgressRing>
 			{:else if !isTimerActive}
 				{#if profilesQuery.isPending}
 					<span class="loading loading-spinner loading-md"></span>
@@ -420,7 +429,9 @@
 						{selectedProfile.segments[currentSegmentIndex]?.label}
 					</p>
 				{/if}
-				<TimerDisplay minutes={displayMin} seconds={displaySec} />
+				<ProgressRing {progress} active={isTimerActive}>
+					<TimerDisplay minutes={displayMin} seconds={displaySec} />
+				</ProgressRing>
 			{/if}
 
 			<div class="grid w-full max-w-lg grid-cols-2 gap-2">
