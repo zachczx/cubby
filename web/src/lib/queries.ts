@@ -100,6 +100,13 @@ export const singleInviteRefetchOptions = (inviteId: string): RefetchQueryFilter
 	exact: true
 });
 
+const timerProfilesQuery = createQueryFactory(
+	['timer-profiles'],
+	async (): Promise<TimerProfileDB[]> => await api.get('timer-profiles').json()
+);
+export const timerProfilesQueryOptions = timerProfilesQuery.options;
+export const timerProfilesRefetchOptions = timerProfilesQuery.refetch;
+
 const allWorkoutsQuery = createQueryFactory(
 	['gym-workouts'],
 	async (): Promise<WorkoutDB[]> => await api.get('gym/workouts').json()

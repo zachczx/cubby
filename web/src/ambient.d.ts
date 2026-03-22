@@ -194,6 +194,29 @@ interface SetInput {
 	setType: string;
 }
 
+// Timer profile types
+
+interface TimerSegmentDef {
+	label: string;
+	defaultSeconds: number;
+}
+
+interface TimerProfileDB {
+	id: string;
+	userId: string;
+	name: string;
+	segments: TimerSegmentDef[];
+	isDefault: boolean;
+	createdAt: string;
+	updatedAt: string;
+}
+
+interface TimerProfileInput {
+	name: string;
+	segments: TimerSegmentDef[];
+	isDefault: boolean;
+}
+
 type Collections = EntryDB | VacationDB;
 
 type CalendarRecord = Collections;
