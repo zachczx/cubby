@@ -217,39 +217,29 @@
 	{#if !focusedScreen}
 		<nav
 			class={[
-				'dock border-t-base-content/15 fixed h-20 border-t-2 pb-2 lg:hidden',
+				'fixed bottom-4 left-1/2 z-1 -translate-x-1/2 lg:hidden',
+				'bg-base-content/85 flex items-center gap-1 rounded-full px-3 py-2 shadow-lg backdrop-blur-md',
 				title === 'Login' ? 'hidden' : undefined
 			]}
 			style="view-transition-name: bottom-nav"
 		>
 			{#each topLevelRoutes.animation as route}
-				<a href={route.href} aria-current={currentSection === route.id ? 'page' : undefined}>
+				<a
+					href={route.href}
+					aria-current={currentSection === route.id ? 'page' : undefined}
+					class={[
+						'flex flex-col items-center gap-0.5 rounded-full px-5 py-2 transition-colors',
+						currentSection === route.id ? 'text-primary bg-white font-bold' : 'text-white/80'
+					]}
+				>
 					{#if route.icon}
-						<Icon icon={route.icon} class="size-[1.5em]" />
+						<Icon icon={route.icon} class={[currentSection === route.id ? 'size-7' : 'size-5']} />
 					{/if}
-					<span class="text-sm tracking-wider">{route.label}</span>
+					<span class={['text-xs', currentSection === route.id ? 'tracking-wider' : undefined]}
+						>{route.label}</span
+					>
 				</a>
 			{/each}
 		</nav>
 	{/if}
 </div>
-
-<style>
-	.dock {
-		a[aria-current='page'] {
-			font-weight: bold;
-			color: var(--color-primary);
-
-			&::after {
-				view-transition-name: activepage;
-				position: absolute;
-				top: bottom;
-				left: 50%;
-				width: 2rem;
-				transform: translateX(-50%);
-				height: 0.25rem;
-				background-color: var(--color-primary);
-			}
-		}
-	}
-</style>
