@@ -41,7 +41,7 @@
 		>
 			<Icon icon="material-symbols:keyboard-arrow-up" class="size-8" />
 		</button>
-		<span class="text-8xl tabular-nums" aria-live="polite" aria-label={shownMinutes}>
+		<span class="text-7xl tabular-nums" aria-live="polite" aria-label={shownMinutes}>
 			{shownMinutes}
 		</span>
 		<button
@@ -55,7 +55,7 @@
 			<Icon icon="material-symbols:keyboard-arrow-down" class="size-8" />
 		</button>
 	</div>
-	<span class="text-base-content/30 text-8xl">:</span>
+	<span class="text-base-content/30 text-7xl">:</span>
 	<div class="flex flex-col items-center text-center">
 		<button
 			class={[
@@ -67,7 +67,7 @@
 		>
 			<Icon icon="material-symbols:keyboard-arrow-up" class="size-8" />
 		</button>
-		<span class="text-8xl tabular-nums" aria-live="polite" aria-label={shownSeconds}>
+		<span class="text-7xl tabular-nums" aria-live="polite" aria-label={shownSeconds}>
 			{shownSeconds}
 		</span>
 		<button
