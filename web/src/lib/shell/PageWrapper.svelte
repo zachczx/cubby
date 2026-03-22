@@ -149,57 +149,51 @@
 		{/if}
 	</header>
 
-	<div
-		class={[
-			'navbar border-b-base-300/50 bg-base-nav text-primary-content fixed top-0 z-1 hidden min-h-14 items-center border-b pe-4 lg:flex',
-			back ? 'lg:ps-4' : 'ps-4'
-		]}
+	<!-- Desktop: minimal transparent nav -->
+	<header
+		class="bg-base-100 text-base-content fixed top-0 z-1 hidden w-full items-center px-8 py-3 lg:flex"
 		style="view-transition-name: top-nav-desktop"
 	>
-		<div class="navbar-start grow">
+		<div class="flex grow items-center gap-2">
 			<a class="text-xl font-bold" href="/app">Cubby</a>
 		</div>
-		<div id="desktop-menu" class="navbar-center">
-			<ul class="menu menu-horizontal gap-8 px-1 text-lg">
-				{#each topLevelRoutes.animation as route}
-					{#if route.desktopNav}
-						<li>
-							<a
-								href={route.href}
-								class={[
-									'px-4 py-2',
-									currentSection === route.id && 'rounded-full bg-white/30 font-bold',
-									currentSection !== route.id && 'rounded-full hover:bg-white/20'
-								]}>{route.label}</a
-							>
-						</li>
-					{/if}
-				{/each}
-			</ul>
-		</div>
-		<div class="navbar-end flex">
+		<nav class="flex items-center gap-1">
+			{#each topLevelRoutes.animation as route}
+				{#if route.desktopNav}
+					<a
+						href={route.href}
+						class={[
+							'rounded-full px-4 py-2 font-medium transition-colors',
+							currentSection === route.id
+								? 'bg-primary/15 text-primary font-bold'
+								: 'text-base-content/60 hover:bg-base-content/5 hover:text-base-content'
+						]}>{route.label}</a
+					>
+				{/if}
+			{/each}
+		</nav>
+		<div class="flex grow items-center justify-end gap-1">
 			{#key trackerMuteToggle}
 				{#if trackerMuteToggle}
 					{#if trackerMuteToggle?.isMuted}
-						<button class="btn btn-ghost px-2 py-0" onclick={() => muteHandler('unmute')}>
-							<Icon icon="material-symbols:notifications-off" class="size-6 opacity-80" />
+						<button class="btn btn-ghost btn-sm px-2" onclick={() => muteHandler('unmute')}>
+							<Icon icon="material-symbols:notifications-off" class="size-5 opacity-80" />
 						</button>
 					{:else}
-						<button class="btn btn-ghost px-2 py-0" onclick={() => muteHandler('mute')}>
-							<Icon icon="material-symbols:notifications" class="size-6" />
+						<button class="btn btn-ghost btn-sm px-2" onclick={() => muteHandler('mute')}>
+							<Icon icon="material-symbols:notifications" class="size-5" />
 						</button>
 					{/if}
 				{/if}
 			{/key}
 			{#if showSettingsIcon}
-				<div id="desktop-logout" class="flex items-center text-sm">
-					<a href="/app/profile" class="btn btn-ghost px-2 py-0"
-						><Icon icon="material-symbols:settings" class="size-6" /></a
-					><a href="/logout" class="btn btn-outline btn-sm ms-2">Logout</a>
-				</div>
+				<a href="/app/profile" class="btn btn-ghost btn-sm px-2">
+					<Icon icon="material-symbols:settings" class="size-5" />
+				</a>
+				<a href="/logout" class="btn btn-ghost btn-sm text-base-content/60">Logout</a>
 			{/if}
 		</div>
-	</div>
+	</header>
 
 	<Refresher onRefresh={() => invalidateAll()}>
 		<div
