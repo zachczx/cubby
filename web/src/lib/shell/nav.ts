@@ -5,7 +5,7 @@ export const topLevelRoutes = {
 		{
 			id: 'home',
 			href: '/app',
-			label: 'Dashboard',
+			label: 'Home',
 			desktopNav: true,
 			mobileNav: true,
 			icon: 'material-symbols:home'
