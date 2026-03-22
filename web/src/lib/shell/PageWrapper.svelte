@@ -233,7 +233,7 @@
 					]}
 				>
 					{#if route.icon}
-						<Icon icon={route.icon} class={[currentSection === route.id ? 'size-7' : 'size-5']} />
+						<Icon icon={route.icon} class={[currentSection === route.id ? 'size-6' : 'size-5']} />
 					{/if}
 					<span class={['text-xs', currentSection === route.id ? 'tracking-wider' : undefined]}
 						>{route.label}</span
