@@ -18,6 +18,7 @@ import (
 	"github.com/stytchauth/stytch-go/v16/stytch/consumer/users"
 	"github.com/zachczx/cubby/api/internal/logging"
 	"github.com/zachczx/cubby/api/internal/response"
+	"github.com/zachczx/cubby/api/internal/timer"
 )
 
 type contextKey string
@@ -166,6 +167,9 @@ func (s *Service) MagicLinkHandler(w http.ResponseWriter, r *http.Request) {
 		if err := s.TrackerDefaultCreator.CreateDefaults(s.DB, userID); err != nil {
 			logging.Error(r.Context(), "failed to create default trackers", "error", err)
 		}
+		if err := timer.CreateDefaults(s.DB, userID); err != nil {
+			logging.Error(r.Context(), "failed to create default timer profiles", "error", err)
+		}
 	}
 
 	redirectURL := os.Getenv("PUBLIC_WEB_URL")
@@ -257,6 +261,9 @@ func (s *Service) VerifyOTPHandler(w http.ResponseWriter, r *http.Request) {
 	if isNewUser {
 		if err := s.TrackerDefaultCreator.CreateDefaults(s.DB, userID); err != nil {
 			logging.Error(r.Context(), "failed to create default trackers", "error", err)
+		}
+		if err := timer.CreateDefaults(s.DB, userID); err != nil {
+			logging.Error(r.Context(), "failed to create default timer profiles", "error", err)
 		}
 	}
 

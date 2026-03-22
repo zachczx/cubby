@@ -10,7 +10,7 @@ import (
 )
 
 func WipeData(db *sqlx.DB) {
-	query := `DROP TABLE IF EXISTS gym_sets, gym_workouts, tracker_user_settings, notification_logs, push_tokens, invites, vacations, entries, trackers, families_users, families, users CASCADE;`
+	query := `DROP TABLE IF EXISTS timer_profiles, gym_sets, gym_workouts, tracker_user_settings, notification_logs, push_tokens, invites, vacations, entries, trackers, families_users, families, users CASCADE;`
 	_, err := db.Exec(query)
 	if err != nil {
 		slog.Error("failed to drop tables", "error", err)
@@ -188,6 +188,21 @@ func Create(db *sqlx.DB) {
 		`CREATE INDEX IF NOT EXISTS idx_vacations_dates ON vacations(start_date_time, end_date_time);`,
 
 		`CREATE INDEX IF NOT EXISTS idx_gym_workouts_start_time ON gym_workouts(start_time DESC);`,
+
+		// Timer profiles
+		`CREATE TABLE IF NOT EXISTS timer_profiles (
+			id UUID PRIMARY KEY DEFAULT uuidv7(),
+			user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+			name TEXT NOT NULL,
+			segments JSONB NOT NULL DEFAULT '[]'::jsonb,
+			is_default BOOLEAN DEFAULT FALSE,
+			created_at TIMESTAMPTZ DEFAULT NOW(),
+			updated_at TIMESTAMPTZ DEFAULT NOW()
+		);`,
+
+		`CREATE INDEX IF NOT EXISTS idx_timer_profiles_user_id ON timer_profiles(user_id);`,
+		// Partial unique index: PG doesn't support WHERE on constraints, but unique indexes enforce the same way.
+		`CREATE UNIQUE INDEX IF NOT EXISTS idx_timer_profiles_one_default ON timer_profiles(user_id) WHERE is_default = TRUE;`,
 
 		// Partial Indexes for highly filtered data
 		`CREATE INDEX IF NOT EXISTS idx_trackers_active_owner ON trackers(owner_id) WHERE show = true;`,

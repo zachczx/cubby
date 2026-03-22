@@ -59,6 +59,11 @@ func NewHTTPHandler(s *server.Service) http.Handler {
 	mux.HandleFunc("GET /notifications/generate", s.RequireAuthentication(s.GenerateHandler))
 	mux.HandleFunc("POST /tokens", s.RequireAuthentication(s.PushTokenHandler))
 
+	mux.HandleFunc("GET /timer-profiles", s.RequireAuthentication(s.GetAllTimerProfilesHandler))
+	mux.HandleFunc("POST /timer-profiles", s.RequireAuthentication(s.NewTimerProfileHandler))
+	mux.HandleFunc("PATCH /timer-profiles/{profileID}", s.RequireAuthentication(s.EditTimerProfileHandler))
+	mux.HandleFunc("DELETE /timer-profiles/{profileID}", s.RequireAuthentication(s.DeleteTimerProfileHandler))
+
 	mux.HandleFunc("GET /gym/workouts", s.RequireAuthentication(s.GetAllWorkoutsHandler))
 	mux.HandleFunc("POST /gym/workouts", s.RequireAuthentication(s.NewWorkoutHandler))
 	mux.HandleFunc("PATCH /gym/workouts/{workoutID}", s.RequireAuthentication(s.EditWorkoutHandler))
