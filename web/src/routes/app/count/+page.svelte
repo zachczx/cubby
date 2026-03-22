@@ -483,41 +483,42 @@
 				{/if}
 			</div>
 
-			<div>
+			<div class="flex items-center gap-1">
 				<button
 					aria-label="toggle sound"
-					class="btn btn-ghost btn-xl"
+					class="btn btn-ghost btn-sm"
 					onclick={() => (playSound = !playSound)}
 				>
 					{#if playSound}
-						<Icon icon="material-symbols:volume-up" width="1em" height="1em" />
+						<Icon icon="material-symbols:volume-up" width="20" height="20" />
 					{:else}
-						<Icon icon="material-symbols:volume-off" width="1em" height="1em" />
+						<Icon icon="material-symbols:volume-off" width="20" height="20" />
+					{/if}
+				</button>
+				<button
+					aria-label="switch voice"
+					class="btn btn-soft btn-neutral btn-sm min-w-26 rounded-full"
+					onclick={() => {
+						const next = character === 'robot' ? 'furnando' : 'robot';
+						character = next;
+						changeCharacterHandler(next);
+					}}
+				>
+					{#if user.isSuccess}
+						<Icon
+							icon={character === 'robot'
+								? 'material-symbols:smart-toy-outline'
+								: 'mdi:google-downasaur'}
+							width="20"
+							height="20"
+						/>
+						<span class="text-xs capitalize">{character}</span>
+					{:else}
+						<span class="loading loading-spinner loading-xs"></span>
 					{/if}
 				</button>
 			</div>
 		</main>
-
-		<SegmentedControl class="scale-80" items={2}>
-			<label>
-				<input
-					type="radio"
-					bind:group={character}
-					value="robot"
-					name="character"
-					onclick={() => changeCharacterHandler('robot')}
-				/>Robot
-			</label>
-			<label>
-				<input
-					type="radio"
-					bind:group={character}
-					value="furnando"
-					name="character"
-					onclick={() => changeCharacterHandler('furnando')}
-				/>Furnando
-			</label>
-		</SegmentedControl>
 	</div>
 </PageWrapper>
 
