@@ -44,6 +44,8 @@
 		}
 	};
 
+	const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 	const ontouchend = async () => {
 		if (refreshing) return;
 
@@ -53,6 +55,7 @@
 			translateY = 60;
 
 			await onRefresh();
+			await sleep(800);
 
 			translateY = 0;
 			pulling = false;
@@ -67,31 +70,33 @@
 </script>
 
 <div role="status" {ontouchstart} {ontouchmove} {ontouchend} class="refresher w-full">
-	<!-- {#if pulling || refreshing} -->
-	<div class="fixed top-16 right-0 left-0 w-full">
-		<div class="grid w-full content-start justify-items-center">
-			{#if shouldRefresh || refreshing}
-				<div
-					class={['flex items-center justify-center gap-3 pe-2', shouldRefresh && 'text-primary']}
-				>
-					<!-- <span class="loading loading-spinner loading-sm top-4"></span> -->
-					<Icon
-						icon="material-symbols:refresh"
-						class="size-6 transition-transform"
-						style="transform: rotate({rotateDeg}deg) scale({shouldRefresh ? 1.2 : 1});"
-					/>
-					<div class="text-lg">Let go to refresh</div>
-				</div>
-			{:else}
-				<div class="flex items-center justify-center gap-3">
-					<Icon icon="material-symbols:arrow-downward" class="size-6 opacity-75" />
+	{#if pulling || refreshing}
+		<div class="fixed top-20 right-0 left-0 z-1 w-full lg:top-16">
+			<div class="grid w-full content-start justify-items-center">
+				{#if refreshing}
+					<div class="text-base-content/70 flex items-center justify-center gap-3">
+						<span class="text-base-content/70 loading loading-spinner loading-sm"></span>
+						<div class="text-lg">Refreshing...</div>
+					</div>
+				{:else if shouldRefresh}
+					<div class="text-primary flex items-center justify-center gap-3 pe-2">
+						<Icon
+							icon="material-symbols:refresh"
+							class="size-6 transition-transform"
+							style="transform: rotate({rotateDeg}deg) scale(1.2);"
+						/>
+						<div class="text-lg">Let go to refresh</div>
+					</div>
+				{:else}
+					<div class="flex items-center justify-center gap-3">
+						<Icon icon="material-symbols:arrow-downward" class="size-6 opacity-75" />
 
-					<div class="text-base-content/70 text-lg">Pull down to refresh</div>
-				</div>
-			{/if}
+						<div class="text-base-content/70 text-lg">Pull down to refresh</div>
+					</div>
+				{/if}
+			</div>
 		</div>
-	</div>
-	<!-- {/if} -->
+	{/if}
 
 	<div class="content-wrapper" style="transform: translateY({translateY}px)">
 		{@render children()}
