@@ -66,7 +66,7 @@
 				</form>
 			</div>
 		</div>
-		<div class="text-lg">
+		<div class="mt-4 text-lg">
 			<a href="/logout" class="btn btn-neutral btn-lg w-full rounded-full">Logout</a>
 		</div>
 	</div>
