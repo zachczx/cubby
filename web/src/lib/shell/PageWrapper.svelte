@@ -16,6 +16,7 @@
 		title,
 		back = true,
 		focusedScreen = false,
+		noPaddingBottom = false,
 		showSettingsIcon = true,
 		trackerMuteToggle
 	}: {
@@ -23,6 +24,7 @@
 		title: string | undefined;
 		back?: boolean;
 		focusedScreen?: boolean;
+		noPaddingBottom?: boolean;
 		focusedScreenAction?: Snippet;
 		showSettingsIcon?: boolean;
 		trackerMuteToggle?: { trackerId: string | undefined; isMuted: boolean | undefined };
@@ -202,7 +204,8 @@
 	<Refresher onRefresh={() => invalidateAll()}>
 		<div
 			class={[
-				'bg-base-100 w-full p-4 max-lg:pb-24 lg:grid lg:px-12',
+				'bg-base-100 w-full p-4 lg:grid lg:px-12',
+				!noPaddingBottom && 'max-lg:pb-24',
 				back
 					? 'max-lg:mt-24 max-lg:min-h-[calc(100vh-6rem-6rem)]'
 					: 'max-lg:mt-14 max-lg:min-h-[calc(100vh-3.5rem-6rem)]',

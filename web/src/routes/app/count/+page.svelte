@@ -331,26 +331,9 @@
 	});
 </script>
 
-<PageWrapper title="Count">
-	<div
-		class="grid min-h-[calc(100vh-3.5rem-6rem)] w-full grid-rows-[auto_1fr_auto] justify-items-center"
-	>
-		<label
-			class={[
-				'btn w-36 justify-self-end',
-				keepAwakeOption ? 'btn-soft btn-primary' : 'btn-neutral btn-soft opacity-75',
-				!isAndroid && 'opacity-0'
-			]}
-		>
-			<input type="checkbox" class="hidden" bind:checked={keepAwakeOption} />
-			{#if keepAwakeOption}
-				Screen: Awake
-			{:else}
-				Screen: Auto
-			{/if}
-		</label>
-
-		<main class="grid h-full max-w-xl content-center justify-items-center gap-8 p-2">
+<PageWrapper title="Count" noPaddingBottom>
+	<div class="grid h-[calc(100dvh-6rem-2rem)] w-full grid-rows-[auto_1fr] justify-items-center">
+		<div class="grid justify-items-center gap-2">
 			<div
 				class={[
 					'transition-opacity duration-300',
@@ -359,14 +342,72 @@
 			>
 				<SegmentedControl items={2}>
 					<label>
-						<input type="radio" bind:group={mode} value="quick" name="mode" />Quick
+						<input type="radio" bind:group={mode} value="quick" name="mode" />Single
 					</label>
 					<label>
-						<input type="radio" bind:group={mode} value="profile" name="mode" />Profiles
+						<input type="radio" bind:group={mode} value="profile" name="mode" />Multi
 					</label>
 				</SegmentedControl>
 			</div>
+			<div class="flex items-center gap-1">
+				<button
+					aria-label="toggle sound"
+					class={[
+						'btn btn-sm rounded-full',
+						playSound ? 'btn-soft btn-primary' : 'btn-neutral btn-soft opacity-75'
+					]}
+					onclick={() => (playSound = !playSound)}
+				>
+					<Icon
+						icon={playSound ? 'material-symbols:volume-up' : 'material-symbols:volume-off'}
+						width="20"
+						height="20"
+					/>
+					{playSound ? 'Sound' : 'Muted'}
+				</button>
+				<button
+					aria-label="switch voice"
+					class="btn btn-soft btn-neutral btn-sm min-w-26 rounded-full"
+					onclick={() => {
+						const next = character === 'robot' ? 'furnando' : 'robot';
+						character = next;
+						changeCharacterHandler(next);
+					}}
+				>
+					{#if user.isSuccess}
+						<Icon
+							icon={character === 'robot'
+								? 'material-symbols:smart-toy-outline'
+								: 'mdi:google-downasaur'}
+							width="20"
+							height="20"
+						/>
+						<span class="text-xs capitalize">{character}</span>
+					{:else}
+						<span class="loading loading-spinner loading-xs"></span>
+					{/if}
+				</button>
+				<label
+					class={[
+						'btn btn-sm rounded-full',
+						keepAwakeOption ? 'btn-soft btn-primary' : 'btn-neutral btn-soft opacity-75',
+						isAndroid && 'hidden'
+					]}
+				>
+					<input type="checkbox" class="hidden" bind:checked={keepAwakeOption} />
+					<Icon
+						icon={keepAwakeOption
+							? 'material-symbols:screen-lock-portrait'
+							: 'material-symbols:bedtime'}
+						width="20"
+						height="20"
+					/>
+					{keepAwakeOption ? 'Awake' : 'Auto'}
+				</label>
+			</div>
+		</div>
 
+		<main class="mt-8 grid h-full max-w-xl content-start justify-items-center gap-8 p-2">
 			{#if mode === 'quick'}
 				<ProgressRing {progress} active={isTimerActive}>
 					<QuickTimePicker
@@ -481,42 +522,6 @@
 						Reset
 					</button>
 				{/if}
-			</div>
-
-			<div class="flex items-center gap-1">
-				<button
-					aria-label="toggle sound"
-					class="btn btn-ghost btn-sm"
-					onclick={() => (playSound = !playSound)}
-				>
-					{#if playSound}
-						<Icon icon="material-symbols:volume-up" width="20" height="20" />
-					{:else}
-						<Icon icon="material-symbols:volume-off" width="20" height="20" />
-					{/if}
-				</button>
-				<button
-					aria-label="switch voice"
-					class="btn btn-soft btn-neutral btn-sm min-w-26 rounded-full"
-					onclick={() => {
-						const next = character === 'robot' ? 'furnando' : 'robot';
-						character = next;
-						changeCharacterHandler(next);
-					}}
-				>
-					{#if user.isSuccess}
-						<Icon
-							icon={character === 'robot'
-								? 'material-symbols:smart-toy-outline'
-								: 'mdi:google-downasaur'}
-							width="20"
-							height="20"
-						/>
-						<span class="text-xs capitalize">{character}</span>
-					{:else}
-						<span class="loading loading-spinner loading-xs"></span>
-					{/if}
-				</button>
 			</div>
 		</main>
 	</div>
