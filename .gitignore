@@ -35,7 +35,7 @@ web/android/.idea/
 web/android/app/capacitor.build.gradle
 web/android/capacitor.settings.gradle
 implementation.md
-.claude/settings.local.json
+.claude
 
 # Eclipse / Android Studio artifacts
 .metadata/
