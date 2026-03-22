@@ -146,15 +146,3 @@
 		</label>
 	</div>
 {/snippet}
-
-<input type="checkbox" class="hidden" /><svg class="hidden"></svg><svg class="hidden"></svg>
-
-<style>
-	input[type='checkbox']:checked + svg {
-		margin-inline-end: 3rem;
-	}
-
-	input[type='checkbox']:checked + svg + svg {
-		display: none;
-	}
-</style>
