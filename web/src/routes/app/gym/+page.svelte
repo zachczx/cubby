@@ -88,11 +88,22 @@
 		}
 	}
 
-	async function deleteWorkout(workoutId: string) {
-		const response = await api.delete(`gym/workouts/${workoutId}`);
+	let deletingWorkoutId = $state<string | null>(null);
+	let deleteWorkoutDialog = $state<HTMLDialogElement>();
+
+	function openDeleteWorkout(workoutId: string) {
+		deletingWorkoutId = workoutId;
+		deleteWorkoutDialog?.showModal();
+	}
+
+	async function confirmDeleteWorkout() {
+		if (!deletingWorkoutId) return;
+		const response = await api.delete(`gym/workouts/${deletingWorkoutId}`);
 		if (response.status === 204) {
 			addToast('success', 'Workout deleted');
 			queryClient.invalidateQueries({ queryKey: getAllWorkoutsQueryKey() });
+			deleteWorkoutDialog?.close();
+			deletingWorkoutId = null;
 		} else {
 			addToast('error', 'Failed to delete workout');
 		}
@@ -146,10 +157,21 @@
 		}
 	}
 
-	async function deleteSet(setId: string) {
-		const response = await api.delete(`gym/sets/${setId}`);
+	let deletingSet = $state<SetDB | null>(null);
+	let deleteSetDialog = $state<HTMLDialogElement>();
+
+	function openDeleteSet(set: SetDB) {
+		deletingSet = set;
+		deleteSetDialog?.showModal();
+	}
+
+	async function confirmDeleteSet() {
+		if (!deletingSet) return;
+		const response = await api.delete(`gym/sets/${deletingSet.id}`);
 		if (response.status === 204) {
 			queryClient.invalidateQueries({ queryKey: getAllWorkoutsQueryKey() });
+			deleteSetDialog?.close();
+			deletingSet = null;
 		} else {
 			addToast('error', 'Failed to delete set');
 		}
@@ -272,7 +294,7 @@
 									</a>
 									<button
 										class="btn btn-ghost btn-sm btn-square"
-										onclick={() => deleteWorkout(workout.id)}
+										onclick={() => openDeleteWorkout(workout.id)}
 									>
 										<Icon icon="material-symbols:delete-outline" class="text-error size-5" />
 									</button>
@@ -339,7 +361,7 @@
 																	</button>
 																	<button
 																		class="btn btn-ghost btn-xs btn-square"
-																		onclick={() => deleteSet(set.id)}
+																		onclick={() => openDeleteSet(set)}
 																	>
 																		<Icon
 																			icon="material-symbols:close"
@@ -553,4 +575,60 @@
 	<form method="dialog" class="modal-backdrop">
 		<button>close</button>
 	</form>
+</dialog>
+
+<dialog bind:this={deleteSetDialog} class="modal modal-bottom sm:modal-middle">
+	<div class="modal-box grid gap-8">
+		<form method="dialog">
+			<button class="btn btn-sm btn-circle btn-ghost absolute top-2 right-2">✕</button>
+		</form>
+		<div class="grid gap-4">
+			<div
+				class="bg-error/10 text-error flex aspect-square size-20 items-center justify-center justify-self-center rounded-full"
+			>
+				<Icon icon="material-symbols:delete-outline" class="size-10" />
+			</div>
+			<h2 class="text-2xl font-bold">Delete this set?</h2>
+			{#if deletingSet}
+				<p class="text-base-content/60">
+					This will permanently remove the
+					<span class="text-base-content font-semibold">
+						{#if deletingSet.weightKg != null}{weightUnit === 'lb' ? kgToLb(deletingSet.weightKg) : deletingSet.weightKg}{weightUnit}{/if}{#if deletingSet.weightKg != null && deletingSet.reps != null} × {/if}{#if deletingSet.reps != null}{deletingSet.reps} reps{/if}
+					</span>
+					set from {getExerciseName(deletingSet.exerciseId)}.
+				</p>
+			{/if}
+		</div>
+		<div class="grid gap-4">
+			<button class="btn btn-error btn-lg" onclick={confirmDeleteSet}>Delete</button>
+			<button
+				class="btn btn-outline btn-neutral btn-lg w-full"
+				onclick={() => deleteSetDialog?.close()}>Cancel</button
+			>
+		</div>
+	</div>
+</dialog>
+
+<dialog bind:this={deleteWorkoutDialog} class="modal modal-bottom sm:modal-middle">
+	<div class="modal-box grid gap-8">
+		<form method="dialog">
+			<button class="btn btn-sm btn-circle btn-ghost absolute top-2 right-2">✕</button>
+		</form>
+		<div class="grid gap-4">
+			<div
+				class="bg-error/10 text-error flex aspect-square size-20 items-center justify-center justify-self-center rounded-full"
+			>
+				<Icon icon="material-symbols:delete-outline" class="size-10" />
+			</div>
+			<h2 class="text-2xl font-bold">Delete workout?</h2>
+			<p class="text-base-content/60">All sets in this workout will be deleted.</p>
+		</div>
+		<div class="grid gap-4">
+			<button class="btn btn-error btn-lg" onclick={confirmDeleteWorkout}>Delete</button>
+			<button
+				class="btn btn-outline btn-neutral btn-lg w-full"
+				onclick={() => deleteWorkoutDialog?.close()}>Cancel</button
+			>
+		</div>
+	</div>
 </dialog>
