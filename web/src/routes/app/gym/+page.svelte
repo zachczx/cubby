@@ -154,6 +154,44 @@
 			addToast('error', 'Failed to delete set');
 		}
 	}
+
+	let editingSet = $state<SetDB | null>(null);
+	let editWeight = $state<number | null>(null);
+	let editReps = $state<number | null>(null);
+	let editDialog = $state<HTMLDialogElement>();
+
+	function openEditSet(set: SetDB) {
+		editingSet = set;
+		editWeight =
+			set.weightKg != null
+				? weightUnit === 'lb'
+					? kgToLb(set.weightKg)
+					: set.weightKg
+				: null;
+		editReps = set.reps;
+		editDialog?.showModal();
+	}
+
+	async function saveEditSet() {
+		if (!editingSet) return;
+		const weightKg =
+			editWeight != null && weightUnit === 'lb' ? lbToKg(editWeight) : editWeight;
+		const response = await api.patch(`gym/sets/${editingSet.id}`, {
+			body: JSON.stringify({
+				exerciseId: editingSet.exerciseId,
+				weightKg,
+				reps: editReps,
+				setType: editingSet.setType
+			})
+		});
+		if (response.status === 204) {
+			queryClient.invalidateQueries({ queryKey: getAllWorkoutsQueryKey() });
+			editDialog?.close();
+			editingSet = null;
+		} else {
+			addToast('error', 'Failed to update set');
+		}
+	}
 </script>
 
 <PageWrapper title="Gym">
@@ -281,6 +319,15 @@
 																	{/if}
 																</span>
 																<div class="flex items-center gap-1">
+																	<button
+																		class="btn btn-ghost btn-xs btn-square"
+																		onclick={() => openEditSet(set)}
+																	>
+																		<Icon
+																			icon="material-symbols:edit-outline"
+																			class="text-base-content/50 size-3.5"
+																		/>
+																	</button>
 																	<button
 																		class="btn btn-ghost btn-xs btn-square"
 																		onclick={() => duplicateSet(workout.id, set)}
@@ -450,6 +497,58 @@
 				</button>
 			{/each}
 		</div>
+	</div>
+	<form method="dialog" class="modal-backdrop">
+		<button>close</button>
+	</form>
+</dialog>
+
+<dialog bind:this={editDialog} class="modal modal-bottom sm:modal-middle">
+	<div class="modal-box grid gap-4">
+		<div class="flex items-center justify-between">
+			<h3 class="text-lg font-bold">
+				{editingSet ? getExerciseName(editingSet.exerciseId) : ''}
+			</h3>
+			<form method="dialog">
+				<button class="btn btn-ghost btn-sm btn-square">
+					<Icon icon="material-symbols:close" class="size-5" />
+				</button>
+			</form>
+		</div>
+
+		<div class="flex items-center gap-2">
+			<input
+				type="number"
+				class="input input-bordered w-full rounded-lg"
+				placeholder="Reps"
+				bind:value={editReps}
+			/>
+			<span class="text-base-content/40 text-lg font-bold">×</span>
+			<div class="flex grow">
+				<input
+					type="number"
+					class="input input-bordered w-full rounded-lg"
+					placeholder={weightUnit}
+					bind:value={editWeight}
+				/>
+				<button
+					class="btn btn-ghost"
+					onclick={() => {
+						if (editWeight != null) {
+							editWeight =
+								weightUnit === 'kg' ? kgToLb(editWeight) : lbToKg(editWeight);
+						}
+						weightUnit = weightUnit === 'kg' ? 'lb' : 'kg';
+					}}
+				>
+					{weightUnit}
+				</button>
+			</div>
+		</div>
+
+		<button class="btn btn-primary btn-lg w-full rounded-full" onclick={saveEditSet}>
+			Save
+		</button>
 	</div>
 	<form method="dialog" class="modal-backdrop">
 		<button>close</button>
