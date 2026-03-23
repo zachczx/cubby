@@ -183,6 +183,7 @@ interface SetDB {
 	reps: number | null;
 	setType: string;
 	isCompleted: boolean;
+	position: number;
 	createdAt: string;
 	updatedAt: string;
 }

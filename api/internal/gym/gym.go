@@ -31,8 +31,14 @@ type Set struct {
 	Reps        *int16    `db:"reps"         json:"reps"`
 	SetType     string    `db:"set_type"     json:"setType"`
 	IsCompleted bool      `db:"is_completed" json:"isCompleted"`
+	Position    int16     `db:"position"     json:"position"`
 	CreatedAt   time.Time `db:"created_at"   json:"createdAt"`
 	UpdatedAt   time.Time `db:"updated_at"   json:"updatedAt"`
+}
+
+type ReorderSetInput struct {
+	SetID     uuid.UUID `json:"setId"`
+	Direction string    `json:"direction"`
 }
 
 type SetInput struct {

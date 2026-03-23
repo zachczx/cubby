@@ -161,6 +161,7 @@ func Create(db *sqlx.DB) {
 			reps SMALLINT,
 			set_type VARCHAR(50) DEFAULT 'working',
 			is_completed BOOLEAN DEFAULT FALSE,
+			position SMALLINT NOT NULL DEFAULT 0,
 			created_at TIMESTAMPTZ DEFAULT NOW(),
 			updated_at TIMESTAMPTZ DEFAULT NOW()
 		);`,

@@ -157,6 +157,17 @@
 		}
 	}
 
+	async function reorderSet(setId: string, direction: 'up' | 'down') {
+		const response = await api.post('gym/sets/reorder', {
+			body: JSON.stringify({ setId, direction })
+		});
+		if (response.status === 204) {
+			queryClient.invalidateQueries({ queryKey: getAllWorkoutsQueryKey() });
+		} else {
+			addToast('error', 'Failed to reorder set');
+		}
+	}
+
 	let deletingSet = $state<SetDB | null>(null);
 	let deleteSetDialog = $state<HTMLDialogElement>();
 
@@ -341,6 +352,28 @@
 																	{/if}
 																</span>
 																<div class="flex items-center gap-1">
+																	{#if si > 0}
+																		<button
+																			class="btn btn-ghost btn-xs btn-square"
+																			onclick={() => reorderSet(set.id, 'up')}
+																		>
+																			<Icon
+																				icon="material-symbols:arrow-upward"
+																				class="text-base-content/50 size-3.5"
+																			/>
+																		</button>
+																	{/if}
+																	{#if si < group.sets.length - 1}
+																		<button
+																			class="btn btn-ghost btn-xs btn-square"
+																			onclick={() => reorderSet(set.id, 'down')}
+																		>
+																			<Icon
+																				icon="material-symbols:arrow-downward"
+																				class="text-base-content/50 size-3.5"
+																			/>
+																		</button>
+																	{/if}
 																	<button
 																		class="btn btn-ghost btn-xs btn-square"
 																		onclick={() => openEditSet(set)}

@@ -144,6 +144,27 @@ func (s *Service) EditSetHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+func (s *Service) ReorderSetHandler(w http.ResponseWriter, r *http.Request) {
+	userID, err := s.GetUserIDFromContext(r.Context())
+	if err != nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	var input gym.ReorderSetInput
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	if err := gym.ReorderSet(s.DB, userID, input); err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func (s *Service) DeleteSetHandler(w http.ResponseWriter, r *http.Request) {
 	userID, err := s.GetUserIDFromContext(r.Context())
 	if err != nil {

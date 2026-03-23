@@ -48,7 +48,7 @@ func GetAllWorkouts(db *sqlx.DB, userID uuid.UUID) ([]Workout, error) {
 
 	sq := `SELECT * FROM gym_sets
 			WHERE workout_id IN (?)
-			ORDER BY created_at ASC`
+			ORDER BY exercise_id, position ASC`
 
 	query, args, err := sqlx.In(sq, ids)
 	if err != nil {
