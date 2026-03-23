@@ -9,7 +9,6 @@
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
 	import { exercises } from '$lib/exercises';
 	import Icon from '@iconify/svelte';
-	import { Combobox, useListCollection } from '@ark-ui/svelte/combobox';
 	import CorgiGym from '$lib/assets/corgi_gym.webp?w=240&enhanced';
 
 	dayjs.extend(relativeTime);
@@ -23,13 +22,26 @@
 		return exerciseMap.get(exerciseId)?.name ?? exerciseId;
 	}
 
-	const exerciseItems = exercises.map((e) => ({ label: e.name, value: e.id }));
-	const exerciseCollection = useListCollection({
-		initialItems: exerciseItems,
-		filter: (itemString, filterText) => {
-			return itemString.toLowerCase().includes(filterText.toLowerCase());
-		}
-	});
+	let exerciseSearch = $state('');
+	let addSetDialog = $state<HTMLDialogElement>();
+	let exerciseDialog = $state<HTMLDialogElement>();
+	let filteredExercises = $derived(
+		exerciseSearch
+			? exercises.filter((e) => e.name.toLowerCase().includes(exerciseSearch.toLowerCase()))
+			: exercises
+	);
+
+	function openExercisePicker() {
+		exerciseSearch = '';
+		exerciseDialog?.showModal();
+	}
+
+	function pickExercise(id: string) {
+		selectedExerciseId = id;
+		const ex = exerciseMap.get(id);
+		weightMode = ex?.equipment === 'dumbbell' ? 'each' : 'total';
+		exerciseDialog?.close();
+	}
 
 	let addingSetToWorkout = $state<string | null>(null);
 	let selectedExerciseId = $state('');
@@ -111,6 +123,7 @@
 			setType = 'working';
 			weightMode = 'total';
 			addingSetToWorkout = null;
+			addSetDialog?.close();
 		} else {
 			addToast('error', 'Failed to add set');
 		}
@@ -296,139 +309,18 @@
 									</div>
 								{/if}
 
-								{#if addingSetToWorkout === workout.id}
-									<div class="border-t-base-300/50 grid gap-3 border-t px-4 py-3">
-										<Combobox.Root
-											collection={exerciseCollection.collection()}
-											inputBehavior="autohighlight"
-											openOnClick
-											onValueChange={(e) => {
-												selectedExerciseId = e.value[0] ?? '';
-												const ex = exerciseMap.get(selectedExerciseId);
-												weightMode = ex?.equipment === 'dumbbell' ? 'each' : 'total';
-											}}
-											onInputValueChange={(e) => {
-												exerciseCollection.filter(e.inputValue);
-											}}
-										>
-											<Combobox.Control class="flex gap-1">
-												<Combobox.Input
-													class="input input-bordered w-full rounded-lg"
-													placeholder="Search exercises..."
-												/>
-												<Combobox.Trigger class="btn btn-ghost btn-square">
-													<Icon icon="material-symbols:expand-more" class="size-5" />
-												</Combobox.Trigger>
-											</Combobox.Control>
-											<Combobox.Positioner>
-												<Combobox.Content
-													class="bg-base-100 border-base-300 z-50 max-h-60 overflow-y-auto rounded-xl border shadow-lg"
-												>
-													{#each exerciseCollection.collection().items as item (item.value)}
-														<Combobox.Item
-															{item}
-															class="hover:bg-base-200 data-highlighted:bg-base-200 cursor-pointer px-3 py-2"
-														>
-															{item.label}
-														</Combobox.Item>
-													{/each}
-												</Combobox.Content>
-											</Combobox.Positioner>
-										</Combobox.Root>
-
-										<div class="flex items-center gap-2">
-											<input
-												type="number"
-												class="input input-bordered w-full rounded-lg"
-												placeholder="Reps"
-												bind:value={setReps}
-											/>
-											<span class="text-base-content/40 text-lg font-bold">×</span>
-											<div class="flex grow">
-												<input
-													type="number"
-													class="input input-bordered w-full rounded-lg"
-													placeholder={weightUnit}
-													bind:value={setWeight}
-												/>
-												<button
-													class="btn btn-ghost"
-													onclick={() => (weightUnit = weightUnit === 'kg' ? 'lb' : 'kg')}
-												>
-													{weightUnit}
-												</button>
-											</div>
-											<button
-												class="btn btn-ghost border-base-300 min-w-18 shrink-0 rounded-lg border"
-												onclick={() => (weightMode = weightMode === 'total' ? 'each' : 'total')}
-												title={weightMode === 'each' ? 'Per hand' : 'Both hands'}
-											>
-												{#if weightMode === 'each'}
-													<Icon icon="mdi:hand-back-left" class="size-5" />
-												{:else}
-													<Icon icon="mdi:hand-back-left" class="-mr-2 size-5" />
-													<Icon icon="mdi:hand-back-right" class="size-5" />
-												{/if}
-											</button>
-										</div>
-										{#if weightMode === 'each' && setWeight != null}
-											<p class="text-base-content/50 -mt-1 text-sm">
-												{setWeight} × 2 = {setWeight * 2}
-												{weightUnit} total
-											</p>
-										{/if}
-										<div
-											class="border-base-300 flex w-full overflow-hidden rounded-lg border text-sm"
-										>
-											{#each [
-												{ value: 'working', label: 'Working' },
-												{ value: 'warmup', label: 'Warmup' },
-												{ value: 'dropset', label: 'Drop' },
-												{ value: 'failure', label: 'Failure' }
-											] as opt (opt.value)}
-												<button
-													class={[
-														'flex-1 px-3 py-2 font-medium transition-colors',
-														setType === opt.value
-															? 'bg-primary text-primary-content'
-															: 'text-base-content/50 hover:bg-base-200'
-													]}
-													onclick={() => (setType = opt.value)}
-												>
-													{opt.label}
-												</button>
-											{/each}
-										</div>
-
-										<div class="flex gap-2">
-											<button
-												class="btn btn-primary grow rounded-lg"
-												onclick={() => addSet(workout.id)}
-											>
-												Add Set
-											</button>
-											<button
-												class="btn btn-ghost rounded-lg"
-												onclick={() => {
-													addingSetToWorkout = null;
-													selectedExerciseId = '';
-												}}
-											>
-												Cancel
-											</button>
-										</div>
-									</div>
-								{:else}
-									<div class="border-t-base-300/50 border-t px-4 py-3">
-										<button
-											class="btn btn-ghost btn-sm text-primary w-full"
-											onclick={() => (addingSetToWorkout = workout.id)}
-										>
-											<Icon icon="material-symbols:add" class="size-4" />
-											Add Set
-										</button>
-									</div>
-								{/if}
+								<div class="border-t-base-300/50 border-t px-4 py-3">
+									<button
+										class="btn btn-ghost btn-sm text-primary w-full"
+										onclick={() => {
+											addingSetToWorkout = workout.id;
+											addSetDialog?.showModal();
+										}}
+									>
+										<Icon icon="material-symbols:add" class="size-4" />
+										Add Set
+									</button>
+								</div>
 							</div>
 						{/each}
 					{/if}
@@ -440,3 +332,126 @@
 		</div>
 	</main>
 </PageWrapper>
+
+<dialog bind:this={addSetDialog} class="modal modal-bottom sm:modal-middle">
+	<div class="modal-box grid gap-4">
+		<div class="flex items-center justify-between">
+			<h3 class="text-lg font-bold">Add Set</h3>
+			<form method="dialog">
+				<button class="btn btn-ghost btn-sm btn-square">
+					<Icon icon="material-symbols:close" class="size-5" />
+				</button>
+			</form>
+		</div>
+
+		<button
+			class="btn btn-ghost border-base-300 w-full justify-between rounded-lg border"
+			onclick={openExercisePicker}
+		>
+			<span class={selectedExerciseId ? '' : 'text-base-content/50'}>
+				{selectedExerciseId ? getExerciseName(selectedExerciseId) : 'Select exercise...'}
+			</span>
+			<Icon icon="material-symbols:expand-more" class="size-5" />
+		</button>
+
+		<div class="flex items-center gap-2">
+			<input
+				type="number"
+				class="input input-bordered w-full rounded-lg"
+				placeholder="Reps"
+				bind:value={setReps}
+			/>
+			<span class="text-base-content/40 text-lg font-bold">×</span>
+			<div class="flex grow">
+				<input
+					type="number"
+					class="input input-bordered w-full rounded-lg"
+					placeholder={weightUnit}
+					bind:value={setWeight}
+				/>
+				<button
+					class="btn btn-ghost"
+					onclick={() => (weightUnit = weightUnit === 'kg' ? 'lb' : 'kg')}
+				>
+					{weightUnit}
+				</button>
+			</div>
+			<button
+				class="btn btn-ghost border-base-300 min-w-18 shrink-0 rounded-lg border"
+				onclick={() => (weightMode = weightMode === 'total' ? 'each' : 'total')}
+				title={weightMode === 'each' ? 'Per hand' : 'Both hands'}
+			>
+				{#if weightMode === 'each'}
+					<Icon icon="mdi:hand-back-left" class="size-5" />
+				{:else}
+					<Icon icon="mdi:hand-back-left" class="-mr-2 size-5" />
+					<Icon icon="mdi:hand-back-right" class="size-5" />
+				{/if}
+			</button>
+		</div>
+		{#if weightMode === 'each' && setWeight != null}
+			<p class="text-base-content/50 -mt-2 text-sm">
+				{setWeight} × 2 = {setWeight * 2}
+				{weightUnit} total
+			</p>
+		{/if}
+
+		<div class="border-base-300 flex w-full overflow-hidden rounded-lg border text-sm">
+			{#each [{ value: 'working', label: 'Working' }, { value: 'dropset', label: 'Drop' }, { value: 'failure', label: 'Failure' }] as opt (opt.value)}
+				<button
+					class={[
+						'flex-1 px-3 py-2 font-medium transition-colors',
+						setType === opt.value
+							? 'bg-primary text-primary-content'
+							: 'text-base-content/50 hover:bg-base-200'
+					]}
+					onclick={() => (setType = opt.value)}
+				>
+					{opt.label}
+				</button>
+			{/each}
+		</div>
+
+		<button
+			class="btn btn-primary btn-lg w-full rounded-full"
+			onclick={() => addingSetToWorkout && addSet(addingSetToWorkout)}
+		>
+			Add Set
+		</button>
+	</div>
+	<form method="dialog" class="modal-backdrop">
+		<button>close</button>
+	</form>
+</dialog>
+
+<dialog bind:this={exerciseDialog} class="modal modal-bottom sm:modal-middle">
+	<div class="modal-box flex max-h-[80vh] flex-col gap-3">
+		<div class="flex items-center justify-between">
+			<h3 class="text-lg font-bold">Select Exercise</h3>
+			<form method="dialog">
+				<button class="btn btn-ghost btn-sm btn-square">
+					<Icon icon="material-symbols:close" class="size-5" />
+				</button>
+			</form>
+		</div>
+		<input
+			type="text"
+			class="input input-lg w-full"
+			placeholder="Search exercises..."
+			bind:value={exerciseSearch}
+		/>
+		<div class="flex-1 overflow-y-auto">
+			{#each filteredExercises as ex (ex.id)}
+				<button
+					class="hover:bg-base-200 w-full cursor-pointer px-3 py-2.5 text-left"
+					onclick={() => pickExercise(ex.id)}
+				>
+					{ex.name}
+				</button>
+			{/each}
+		</div>
+	</div>
+	<form method="dialog" class="modal-backdrop">
+		<button>close</button>
+	</form>
+</dialog>
