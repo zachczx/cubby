@@ -37,6 +37,7 @@
 	let setReps = $state<number | null>(null);
 	let setType = $state('working');
 	let weightUnit = $state<'kg' | 'lb'>('kg');
+	let weightMode = $state<'total' | 'each'>('total');
 
 	const kgToLb = (kg: number) => Math.round(kg * 2.20462 * 10) / 10;
 	const lbToKg = (lb: number) => Math.round((lb / 2.20462) * 10) / 10;
@@ -88,7 +89,9 @@
 	async function addSet(workoutId: string) {
 		if (!selectedExerciseId) return;
 
-		const weightKg = setWeight != null && weightUnit === 'lb' ? lbToKg(setWeight) : setWeight;
+		const displayWeight = setWeight != null && weightMode === 'each' ? setWeight * 2 : setWeight;
+		const weightKg =
+			displayWeight != null && weightUnit === 'lb' ? lbToKg(displayWeight) : displayWeight;
 
 		const response = await api.post(`gym/workouts/${workoutId}/sets`, {
 			body: JSON.stringify({
@@ -106,6 +109,7 @@
 			setWeight = null;
 			setReps = null;
 			setType = 'working';
+			weightMode = 'total';
 			addingSetToWorkout = null;
 		} else {
 			addToast('error', 'Failed to add set');
@@ -193,7 +197,7 @@
 					{:else}
 						{#each workoutsDb.data as workout (workout.id)}
 							{@const exerciseGroups = groupSetsByExercise(workout.sets)}
-							<div class="border-base-300/50 rounded-2xl border bg-base-50">
+							<div class="border-base-300/50 bg-base-50 rounded-2xl border">
 								<div class="flex items-center justify-between px-4 pt-3 pb-2">
 									<a href="/app/gym/{workout.id}" class="grid grow gap-0">
 										<div
@@ -300,6 +304,8 @@
 											openOnClick
 											onValueChange={(e) => {
 												selectedExerciseId = e.value[0] ?? '';
+												const ex = exerciseMap.get(selectedExerciseId);
+												weightMode = ex?.equipment === 'dumbbell' ? 'each' : 'total';
 											}}
 											onInputValueChange={(e) => {
 												exerciseCollection.filter(e.inputValue);
@@ -330,33 +336,68 @@
 											</Combobox.Positioner>
 										</Combobox.Root>
 
-										<div class="flex gap-2">
-											<div class="flex w-full">
-												<input
-													type="number"
-													class="input input-bordered w-full rounded-l-lg rounded-r-none"
-													placeholder={weightUnit}
-													bind:value={setWeight}
-												/>
-												<button
-													class="btn btn-ghost border-base-300 rounded-l-none rounded-r-lg border"
-													onclick={() => (weightUnit = weightUnit === 'kg' ? 'lb' : 'kg')}
-												>
-													{weightUnit}
-												</button>
-											</div>
+										<div class="flex items-center gap-2">
 											<input
 												type="number"
 												class="input input-bordered w-full rounded-lg"
 												placeholder="Reps"
 												bind:value={setReps}
 											/>
-											<select class="select select-bordered rounded-lg" bind:value={setType}>
-												<option value="working">Working</option>
-												<option value="warmup">Warmup</option>
-												<option value="dropset">Drop</option>
-												<option value="failure">Failure</option>
-											</select>
+											<span class="text-base-content/40 text-lg font-bold">×</span>
+											<div class="flex grow">
+												<input
+													type="number"
+													class="input input-bordered w-full rounded-lg"
+													placeholder={weightUnit}
+													bind:value={setWeight}
+												/>
+												<button
+													class="btn btn-ghost"
+													onclick={() => (weightUnit = weightUnit === 'kg' ? 'lb' : 'kg')}
+												>
+													{weightUnit}
+												</button>
+											</div>
+											<button
+												class="btn btn-ghost border-base-300 min-w-18 shrink-0 rounded-lg border"
+												onclick={() => (weightMode = weightMode === 'total' ? 'each' : 'total')}
+												title={weightMode === 'each' ? 'Per hand' : 'Both hands'}
+											>
+												{#if weightMode === 'each'}
+													<Icon icon="mdi:hand-back-left" class="size-5" />
+												{:else}
+													<Icon icon="mdi:hand-back-left" class="-mr-2 size-5" />
+													<Icon icon="mdi:hand-back-right" class="size-5" />
+												{/if}
+											</button>
+										</div>
+										{#if weightMode === 'each' && setWeight != null}
+											<p class="text-base-content/50 -mt-1 text-sm">
+												{setWeight} × 2 = {setWeight * 2}
+												{weightUnit} total
+											</p>
+										{/if}
+										<div
+											class="border-base-300 flex w-full overflow-hidden rounded-lg border text-sm"
+										>
+											{#each [
+												{ value: 'working', label: 'Working' },
+												{ value: 'warmup', label: 'Warmup' },
+												{ value: 'dropset', label: 'Drop' },
+												{ value: 'failure', label: 'Failure' }
+											] as opt (opt.value)}
+												<button
+													class={[
+														'flex-1 px-3 py-2 font-medium transition-colors',
+														setType === opt.value
+															? 'bg-primary text-primary-content'
+															: 'text-base-content/50 hover:bg-base-200'
+													]}
+													onclick={() => (setType = opt.value)}
+												>
+													{opt.label}
+												</button>
+											{/each}
 										</div>
 
 										<div class="flex gap-2">
