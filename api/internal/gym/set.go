@@ -68,13 +68,12 @@ func ReorderSet(db *sqlx.DB, userID uuid.UUID, input ReorderSetInput) error {
 	}
 
 	// Swap positions
-	swapQ := `UPDATE gym_sets SET position = CASE
-				WHEN id = $1 THEN $2
-				WHEN id = $3 THEN $4
-			END, updated_at = NOW()
-			WHERE id IN ($1, $3)`
-	if _, err := db.Exec(swapQ, current.ID, neighbor.Position, neighbor.ID, current.Position); err != nil {
-		return fmt.Errorf("reorder set swap: %w", err)
+	swapQ := `UPDATE gym_sets SET position = $1::smallint, updated_at = NOW() WHERE id = $2`
+	if _, err := db.Exec(swapQ, neighbor.Position, current.ID); err != nil {
+		return fmt.Errorf("reorder set swap current: %w", err)
+	}
+	if _, err := db.Exec(swapQ, current.Position, neighbor.ID); err != nil {
+		return fmt.Errorf("reorder set swap neighbor: %w", err)
 	}
 
 	return nil
