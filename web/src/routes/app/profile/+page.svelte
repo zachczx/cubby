@@ -16,7 +16,7 @@
 
 	const tanstackClient = useQueryClient();
 
-	let sound = $derived.by(() => (user.isSuccess ? user.data?.sound : undefined));
+	let sound = $derived.by(() => (user.isSuccess ? user.data?.soundOn : undefined));
 
 	async function onchange(evt: Event) {
 		const target = evt.target;
@@ -45,7 +45,7 @@
 
 <PageWrapper title="Profile">
 	<div
-		class="grid w-full rounded-2xl max-lg:h-full max-lg:grid-rows-[1fr_auto] lg:h-min lg:max-w-md lg:justify-self-center lg:bg-base-50 lg:p-8 lg:shadow-md"
+		class="lg:bg-base-50 grid w-full rounded-2xl max-lg:h-full max-lg:grid-rows-[1fr_auto] lg:h-min lg:max-w-md lg:justify-self-center lg:p-8 lg:shadow-md"
 	>
 		<div class="overflow-y-auto">
 			<h1 class="mb-4 text-center text-3xl font-bold max-lg:hidden">Profile</h1>
