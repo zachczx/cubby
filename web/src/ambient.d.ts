@@ -168,7 +168,6 @@ interface WorkoutDB {
 	id: string;
 	userId: string;
 	startTime: string;
-	endTime: string | null;
 	notes: string | null;
 	createdAt: string;
 	updatedAt: string;
@@ -193,6 +192,10 @@ interface SetInput {
 	weightKg: number | null;
 	reps: number | null;
 	setType: string;
+}
+
+interface FavouriteExercisesDB {
+	exerciseIds: string[];
 }
 
 // Timer profile types

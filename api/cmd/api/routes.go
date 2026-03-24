@@ -72,6 +72,8 @@ func NewHTTPHandler(s *server.Service) http.Handler {
 	mux.HandleFunc("PATCH /gym/sets/{setID}", s.RequireAuthentication(s.EditSetHandler))
 	mux.HandleFunc("POST /gym/sets/reorder", s.RequireAuthentication(s.ReorderSetHandler))
 	mux.HandleFunc("DELETE /gym/sets/{setID}", s.RequireAuthentication(s.DeleteSetHandler))
+	mux.HandleFunc("GET /gym/favourites", s.RequireAuthentication(s.GetFavouritesHandler))
+	mux.HandleFunc("POST /gym/favourites", s.RequireAuthentication(s.ToggleFavouriteHandler))
 
 	return mux
 }

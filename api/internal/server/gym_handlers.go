@@ -185,3 +185,43 @@ func (s *Service) DeleteSetHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusNoContent)
 }
+
+func (s *Service) GetFavouritesHandler(w http.ResponseWriter, r *http.Request) {
+	userID, err := s.GetUserIDFromContext(r.Context())
+	if err != nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	ids, err := gym.GetFavourites(s.DB, userID)
+	if err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	response.WriteJSON(r.Context(), w, map[string][]string{"exerciseIds": ids})
+}
+
+func (s *Service) ToggleFavouriteHandler(w http.ResponseWriter, r *http.Request) {
+	userID, err := s.GetUserIDFromContext(r.Context())
+	if err != nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	var input struct {
+		ExerciseID string `json:"exerciseId"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	ids, err := gym.ToggleFavourite(s.DB, userID, input.ExerciseID)
+	if err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	response.WriteJSON(r.Context(), w, map[string][]string{"exerciseIds": ids})
+}

@@ -147,7 +147,6 @@ func Create(db *sqlx.DB) {
 			id UUID PRIMARY KEY DEFAULT uuidv7(),
 			user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 			start_time TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-			end_time TIMESTAMPTZ,
 			notes TEXT,
 			created_at TIMESTAMPTZ DEFAULT NOW(),
 			updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -164,6 +163,13 @@ func Create(db *sqlx.DB) {
 			position SMALLINT NOT NULL DEFAULT 0,
 			created_at TIMESTAMPTZ DEFAULT NOW(),
 			updated_at TIMESTAMPTZ DEFAULT NOW()
+		);`,
+
+		`CREATE TABLE IF NOT EXISTS gym_favourite_exercises (
+			user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+			exercise_id TEXT NOT NULL,
+			created_at TIMESTAMPTZ DEFAULT NOW(),
+			PRIMARY KEY (user_id, exercise_id)
 		);`,
 
 		// FK, lookup indexes
@@ -215,7 +221,6 @@ func Create(db *sqlx.DB) {
 
 		// Case insensitive lookups
 		`CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email_lower ON users(LOWER(email));`,
-
 	}
 
 	for i, query := range schema {

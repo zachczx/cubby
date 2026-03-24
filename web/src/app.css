@@ -41,7 +41,7 @@
 	--color-base-popover: #fbf9f6;
 	--color-base-input: #fbf9f6;
 	--color-bg-checked: rgba(216, 241, 222, 0.5);
-
+	--color-segmented: var(--color-slate-600);
 	--color-sage: rgba(138, 154, 91);
 }
 

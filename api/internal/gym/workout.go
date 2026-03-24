@@ -10,11 +10,11 @@ import (
 func NewWorkout(db *sqlx.DB, userID uuid.UUID) (Workout, error) {
 	q := `INSERT INTO gym_workouts (user_id)
 			VALUES ($1)
-			RETURNING id, user_id, start_time, end_time, notes, created_at, updated_at`
+			RETURNING id, user_id, start_time, notes, created_at, updated_at`
 
 	var w Workout
 	err := db.QueryRow(q, userID).Scan(
-		&w.ID, &w.UserID, &w.StartTime, &w.EndTime, &w.Notes, &w.CreatedAt, &w.UpdatedAt,
+		&w.ID, &w.UserID, &w.StartTime, &w.Notes, &w.CreatedAt, &w.UpdatedAt,
 	)
 	if err != nil {
 		return Workout{}, fmt.Errorf("new workout: %w", err)
@@ -71,10 +71,10 @@ func GetAllWorkouts(db *sqlx.DB, userID uuid.UUID) ([]Workout, error) {
 
 func EditWorkout(db *sqlx.DB, userID uuid.UUID, workoutID uuid.UUID, w WorkoutInput) error {
 	q := `UPDATE gym_workouts
-			SET start_time = $1, end_time = $2, notes = $3, updated_at = NOW()
-			WHERE id = $4 AND user_id = $5`
+			SET start_time = $1, notes = $2, updated_at = NOW()
+			WHERE id = $3 AND user_id = $4`
 
-	if _, err := db.Exec(q, w.StartTime, w.EndTime, w.Notes, workoutID, userID); err != nil {
+	if _, err := db.Exec(q, w.StartTime, w.Notes, workoutID, userID); err != nil {
 		return fmt.Errorf("edit workout: %w", err)
 	}
 

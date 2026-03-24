@@ -114,3 +114,11 @@ const allWorkoutsQuery = createQueryFactory(
 export const allWorkoutsQueryOptions = allWorkoutsQuery.options;
 export const allWorkoutsRefetchOptions = allWorkoutsQuery.refetch;
 export const getAllWorkoutsQueryKey = () => [...getRootKey(), 'gym-workouts'];
+
+const favouriteExercisesQuery = createQueryFactory(
+	['gym-favourites'],
+	async (): Promise<FavouriteExercisesDB> => await api.get('gym/favourites').json()
+);
+export const favouriteExercisesQueryOptions = favouriteExercisesQuery.options;
+export const favouriteExercisesRefetchOptions = favouriteExercisesQuery.refetch;
+export const getFavouriteExercisesQueryKey = () => [...getRootKey(), 'gym-favourites'];
