@@ -17,6 +17,7 @@
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
 	import { exercises } from '$lib/exercises';
 	import Icon from '@iconify/svelte';
+	import CorgiGym from '$lib/assets/corgi_gym.webp?w=240&enhanced';
 
 	let { data } = $props();
 
@@ -375,28 +376,28 @@
 								!workoutsDb.data || workoutsDb.data.length === 0 ? 'hidden' : undefined
 							]}
 						>
-						<button
-							class={[
-								'px-3 py-1 font-medium transition-colors',
-								weightUnit === 'kg'
-									? 'text-primary-content bg-segmented'
-									: 'text-base-content/50 hover:bg-base-200'
-							]}
-							onclick={() => (weightUnit = 'kg')}
-						>
-							kg
-						</button>
-						<button
-							class={[
-								'px-3 py-1 font-medium transition-colors',
-								weightUnit === 'lb'
-									? 'text-primary-content bg-segmented'
-									: 'text-base-content/50 hover:bg-base-200'
-							]}
-							onclick={() => (weightUnit = 'lb')}
-						>
-							lb
-						</button>
+							<button
+								class={[
+									'px-3 py-1 font-medium transition-colors',
+									weightUnit === 'kg'
+										? 'text-primary-content bg-segmented'
+										: 'text-base-content/50 hover:bg-base-200'
+								]}
+								onclick={() => (weightUnit = 'kg')}
+							>
+								kg
+							</button>
+							<button
+								class={[
+									'px-3 py-1 font-medium transition-colors',
+									weightUnit === 'lb'
+										? 'text-primary-content bg-segmented'
+										: 'text-base-content/50 hover:bg-base-200'
+								]}
+								onclick={() => (weightUnit = 'lb')}
+							>
+								lb
+							</button>
 						</div>
 					</div>
 
@@ -522,6 +523,12 @@
 						<Icon icon="material-symbols:add" class="size-4" />
 						Add Exercise
 					</button>
+				{:else if workoutsDb.isSuccess && !currentWorkout}
+					<div class="grid justify-items-center gap-4 py-16">
+						<enhanced:img src={CorgiGym} alt="Corgi Gymming" />
+						<p class="text-base-content/50 text-lg font-medium">Workout not found</p>
+						<a href="/app/gym" class="btn btn-primary btn-soft rounded-full">Back to Gym</a>
+					</div>
 				{:else}
 					<SkeletonActionCard />
 					<SkeletonActionCard />
@@ -726,7 +733,11 @@
 			</div>
 		</div>
 
-		<button class="btn btn-primary btn-lg w-full rounded-full" disabled={isSavingEdit} onclick={saveEditSet}>
+		<button
+			class="btn btn-primary btn-lg w-full rounded-full"
+			disabled={isSavingEdit}
+			onclick={saveEditSet}
+		>
 			{#if isSavingEdit}<span class="loading loading-spinner loading-sm"></span>{/if}
 			Save
 		</button>
@@ -790,7 +801,11 @@
 			<p class="text-base-content/60">All sets in this workout will be deleted.</p>
 		</div>
 		<div class="grid gap-4">
-			<button class="btn btn-error btn-lg" disabled={isDeletingWorkout} onclick={confirmDeleteWorkout}>
+			<button
+				class="btn btn-error btn-lg"
+				disabled={isDeletingWorkout}
+				onclick={confirmDeleteWorkout}
+			>
 				{#if isDeletingWorkout}<span class="loading loading-spinner loading-sm"></span>{/if}
 				Delete
 			</button>
