@@ -51,6 +51,11 @@
 		return exerciseMap.get(exerciseId)?.name ?? exerciseId;
 	}
 
+	function updateWorkoutsCache(updater: (workouts: WorkoutDB[]) => WorkoutDB[]) {
+		const current = queryClient.getQueryData<WorkoutDB[]>(getAllWorkoutsQueryKey());
+		if (current) queryClient.setQueryData(getAllWorkoutsQueryKey(), updater(current));
+	}
+
 	let exerciseSearch = $state('');
 	let addSetDialog = $state<HTMLDialogElement>();
 	let exerciseDialog = $state<HTMLDialogElement>();
@@ -71,11 +76,6 @@
 			const data: FavouriteExercisesDB = await response.json();
 			queryClient.setQueryData(getFavouriteExercisesQueryKey(), data);
 		}
-	}
-
-	function openExercisePicker() {
-		exerciseSearch = '';
-		exerciseDialog?.showModal();
 	}
 
 	function pickExercise(id: string) {
@@ -119,6 +119,11 @@
 	let setType = $state('working');
 	let weightUnit = $state<'kg' | 'lb'>('kg');
 	let weightMode = $state<'total' | 'each'>('total');
+	let isSubmittingSet = $state(false);
+	let reorderingSetId = $state<string | null>(null);
+	let isDeletingSet = $state(false);
+	let isDeletingWorkout = $state(false);
+	let isSavingEdit = $state(false);
 
 	const kgToLb = (kg: number) => Math.round(kg * 2.20462 * 10) / 10;
 	const lbToKg = (lb: number) => Math.round((lb / 2.20462) * 10) / 10;
@@ -149,7 +154,6 @@
 
 	let currentWorkout = $derived.by(() => {
 		if (workoutsDb.isPending || !workoutsDb.isSuccess) return;
-
 		return workoutsDb.data.find((w) => w.id === data.workoutId);
 	});
 
@@ -163,10 +167,13 @@
 
 	async function confirmDeleteWorkout() {
 		if (!deletingWorkoutId) return;
+		isDeletingWorkout = true;
 		const response = await api.delete(`gym/workouts/${deletingWorkoutId}`);
+		isDeletingWorkout = false;
 		if (response.status === 204) {
 			addToast('success', 'Workout deleted');
-			queryClient.invalidateQueries({ queryKey: getAllWorkoutsQueryKey() });
+			const deletedId = deletingWorkoutId;
+			updateWorkoutsCache((workouts) => workouts.filter((w) => w.id !== deletedId));
 			deleteWorkoutDialog?.close();
 			deletingWorkoutId = null;
 		} else {
@@ -176,6 +183,7 @@
 
 	async function addSet(workoutId: string) {
 		if (!selectedExerciseId) return;
+		isSubmittingSet = true;
 
 		const displayWeight = setWeight != null && weightMode === 'each' ? setWeight * 2 : setWeight;
 		const weightKg =
@@ -190,9 +198,13 @@
 			})
 		});
 
+		isSubmittingSet = false;
+
 		if (response.status === 201) {
-			addToast('success', 'Set added!');
-			queryClient.invalidateQueries({ queryKey: getAllWorkoutsQueryKey() });
+			const set: SetDB = await response.json();
+			updateWorkoutsCache((workouts) =>
+				workouts.map((w) => (w.id === workoutId ? { ...w, sets: [...w.sets, set] } : w))
+			);
 			selectedExerciseId = '';
 			setWeight = null;
 			setReps = null;
@@ -216,20 +228,47 @@
 		});
 
 		if (response.status === 201) {
-			queryClient.invalidateQueries({ queryKey: getAllWorkoutsQueryKey() });
+			const newSet: SetDB = await response.json();
+			updateWorkoutsCache((workouts) =>
+				workouts.map((w) => (w.id === workoutId ? { ...w, sets: [...w.sets, newSet] } : w))
+			);
 		} else {
 			addToast('error', 'Failed to add set');
 		}
 	}
 
 	async function reorderSet(setId: string, direction: 'up' | 'down') {
+		reorderingSetId = setId;
+
+		updateWorkoutsCache((workouts) =>
+			workouts.map((w) => {
+				const current = w.sets.find((s) => s.id === setId);
+				if (!current) return w;
+				const sameEx = w.sets
+					.filter((s) => s.exerciseId === current.exerciseId)
+					.sort((a, b) => a.position - b.position);
+				const idx = sameEx.findIndex((s) => s.id === setId);
+				const neighborIdx = direction === 'up' ? idx - 1 : idx + 1;
+				if (neighborIdx < 0 || neighborIdx >= sameEx.length) return w;
+				const neighbor = sameEx[neighborIdx];
+				return {
+					...w,
+					sets: w.sets.map((s) => {
+						if (s.id === current.id) return { ...s, position: neighbor.position };
+						if (s.id === neighbor.id) return { ...s, position: current.position };
+						return s;
+					})
+				};
+			})
+		);
+
 		const response = await api.post('gym/sets/reorder', {
 			body: JSON.stringify({ setId, direction })
 		});
-		if (response.status === 204) {
-			queryClient.invalidateQueries({ queryKey: getAllWorkoutsQueryKey() });
-		} else {
+		reorderingSetId = null;
+		if (response.status !== 204) {
 			addToast('error', 'Failed to reorder set');
+			queryClient.invalidateQueries({ queryKey: getAllWorkoutsQueryKey() });
 		}
 	}
 
@@ -243,9 +282,14 @@
 
 	async function confirmDeleteSet() {
 		if (!deletingSet) return;
+		isDeletingSet = true;
 		const response = await api.delete(`gym/sets/${deletingSet.id}`);
+		isDeletingSet = false;
 		if (response.status === 204) {
-			queryClient.invalidateQueries({ queryKey: getAllWorkoutsQueryKey() });
+			const deletedId = deletingSet.id;
+			updateWorkoutsCache((workouts) =>
+				workouts.map((w) => ({ ...w, sets: w.sets.filter((s) => s.id !== deletedId) }))
+			);
 			deleteSetDialog?.close();
 			deletingSet = null;
 		} else {
@@ -268,6 +312,7 @@
 
 	async function saveEditSet() {
 		if (!editingSet) return;
+		isSavingEdit = true;
 		const weightKg = editWeight != null && weightUnit === 'lb' ? lbToKg(editWeight) : editWeight;
 		const response = await api.patch(`gym/sets/${editingSet.id}`, {
 			body: JSON.stringify({
@@ -277,8 +322,15 @@
 				setType: editingSet.setType
 			})
 		});
+		isSavingEdit = false;
 		if (response.status === 204) {
-			queryClient.invalidateQueries({ queryKey: getAllWorkoutsQueryKey() });
+			const updatedSet = { ...editingSet, weightKg, reps: editReps };
+			updateWorkoutsCache((workouts) =>
+				workouts.map((w) => ({
+					...w,
+					sets: w.sets.map((s) => (s.id === updatedSet.id ? updatedSet : s))
+				}))
+			);
 			editDialog?.close();
 			editingSet = null;
 		} else {
@@ -390,6 +442,7 @@
 														{#if si > 0}
 															<button
 																class="btn btn-ghost btn-xs btn-square"
+																disabled={reorderingSetId === set.id}
 																onclick={() => reorderSet(set.id, 'up')}
 															>
 																<Icon
@@ -401,6 +454,7 @@
 														{#if si < group.sets.length - 1}
 															<button
 																class="btn btn-ghost btn-xs btn-square"
+																disabled={reorderingSetId === set.id}
 																onclick={() => reorderSet(set.id, 'down')}
 															>
 																<Icon
@@ -557,8 +611,10 @@
 
 		<button
 			class="btn btn-primary btn-lg w-full rounded-full"
+			disabled={isSubmittingSet}
 			onclick={() => addingSetToWorkout && addSet(addingSetToWorkout)}
 		>
+			{#if isSubmittingSet}<span class="loading loading-spinner loading-sm"></span>{/if}
 			Add Set
 		</button>
 	</div>
@@ -668,7 +724,10 @@
 			</div>
 		</div>
 
-		<button class="btn btn-primary btn-lg w-full rounded-full" onclick={saveEditSet}> Save </button>
+		<button class="btn btn-primary btn-lg w-full rounded-full" disabled={isSavingEdit} onclick={saveEditSet}>
+			{#if isSavingEdit}<span class="loading loading-spinner loading-sm"></span>{/if}
+			Save
+		</button>
 	</div>
 	<form method="dialog" class="modal-backdrop">
 		<button>close</button>
@@ -702,7 +761,10 @@
 			{/if}
 		</div>
 		<div class="grid gap-4">
-			<button class="btn btn-error btn-lg" onclick={confirmDeleteSet}>Delete</button>
+			<button class="btn btn-error btn-lg" disabled={isDeletingSet} onclick={confirmDeleteSet}>
+				{#if isDeletingSet}<span class="loading loading-spinner loading-sm"></span>{/if}
+				Delete
+			</button>
 			<button
 				class="btn btn-outline btn-neutral btn-lg w-full"
 				onclick={() => deleteSetDialog?.close()}>Cancel</button
@@ -726,7 +788,10 @@
 			<p class="text-base-content/60">All sets in this workout will be deleted.</p>
 		</div>
 		<div class="grid gap-4">
-			<button class="btn btn-error btn-lg" onclick={confirmDeleteWorkout}>Delete</button>
+			<button class="btn btn-error btn-lg" disabled={isDeletingWorkout} onclick={confirmDeleteWorkout}>
+				{#if isDeletingWorkout}<span class="loading loading-spinner loading-sm"></span>{/if}
+				Delete
+			</button>
 			<button
 				class="btn btn-outline btn-neutral btn-lg w-full"
 				onclick={() => deleteWorkoutDialog?.close()}>Cancel</button
