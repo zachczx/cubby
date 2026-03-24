@@ -4,8 +4,14 @@
 	import dayjs from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import updateLocale from 'dayjs/plugin/updateLocale';
+	import isToday from 'dayjs/plugin/isToday';
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
-	import { allWorkoutsQueryOptions, getAllWorkoutsQueryKey } from '$lib/queries';
+	import {
+		allWorkoutsQueryOptions,
+		getAllWorkoutsQueryKey,
+		favouriteExercisesQueryOptions,
+		getFavouriteExercisesQueryKey
+	} from '$lib/queries';
 	import { api } from '$lib/api';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
 	import { exercises } from '$lib/exercises';
@@ -15,6 +21,7 @@
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(updateLocale);
+	dayjs.extend(isToday);
 
 	dayjs.updateLocale('en', {
 		relativeTime: {
@@ -36,6 +43,7 @@
 
 	const queryClient = useQueryClient();
 	const workoutsDb = createQuery(allWorkoutsQueryOptions);
+	const favouritesDb = createQuery(favouriteExercisesQueryOptions);
 
 	const exerciseMap = new Map(exercises.map((e) => [e.id, e]));
 
@@ -52,6 +60,19 @@
 			: exercises
 	);
 
+	let favouriteIds = $derived(favouritesDb.data?.exerciseIds ?? []);
+	let favouriteExercises = $derived(exercises.filter((e) => favouriteIds.includes(e.id)));
+
+	async function toggleFavourite(exerciseId: string) {
+		const response = await api.post('gym/favourites', {
+			body: JSON.stringify({ exerciseId })
+		});
+		if (response.ok) {
+			const data: FavouriteExercisesDB = await response.json();
+			queryClient.setQueryData(getFavouriteExercisesQueryKey(), data);
+		}
+	}
+
 	function openExercisePicker() {
 		exerciseSearch = '';
 		exerciseDialog?.showModal();
@@ -61,7 +82,34 @@
 		selectedExerciseId = id;
 		const ex = exerciseMap.get(id);
 		weightMode = ex?.equipment === 'dumbbell' ? 'each' : 'total';
+		setWeight = null;
+		setReps = null;
+		setType = 'working';
 		exerciseDialog?.close();
+		addSetDialog?.showModal();
+	}
+
+	function openAddSet(workoutId: string, group: { exerciseId: string; sets: SetDB[] }) {
+		addingSetToWorkout = workoutId;
+		selectedExerciseId = group.exerciseId;
+		const ex = exerciseMap.get(group.exerciseId);
+		weightMode = ex?.equipment === 'dumbbell' ? 'each' : 'total';
+		const lastSet = group.sets[group.sets.length - 1];
+		if (lastSet) {
+			setWeight =
+				lastSet.weightKg != null
+					? weightUnit === 'lb'
+						? kgToLb(lastSet.weightKg)
+						: lastSet.weightKg
+					: null;
+			setReps = lastSet.reps;
+			setType = lastSet.setType;
+		} else {
+			setWeight = null;
+			setReps = null;
+			setType = 'working';
+		}
+		addSetDialog?.showModal();
 	}
 
 	let addingSetToWorkout = $state<string | null>(null);
@@ -104,16 +152,6 @@
 
 		return workoutsDb.data.find((w) => w.id === data.workoutId);
 	});
-
-	async function startWorkout() {
-		const response = await api.post('gym/workouts');
-		if (response.status === 201) {
-			addToast('success', 'Workout started!');
-			queryClient.invalidateQueries({ queryKey: getAllWorkoutsQueryKey() });
-		} else {
-			addToast('error', 'Failed to start workout');
-		}
-	}
 
 	let deletingWorkoutId = $state<string | null>(null);
 	let deleteWorkoutDialog = $state<HTMLDialogElement>();
@@ -253,12 +291,6 @@
 	<main class="h-full">
 		<div id="mobile" class="grid w-full max-w-lg gap-8 justify-self-center lg:text-base">
 			<section class="grid gap-4 py-2">
-				<button class="btn btn-primary btn-lg w-full rounded-full" onclick={startWorkout}>
-					End Workout
-				</button>
-			</section>
-
-			<section class="grid gap-4 py-2">
 				{#if workoutsDb.isSuccess && currentWorkout}
 					{@const exerciseGroups = groupSetsByExercise(currentWorkout.sets)}
 					<div class="flex items-center justify-between">
@@ -267,11 +299,12 @@
 								<div
 									class="text-base-content/90 flex items-center gap-2 align-baseline text-lg font-bold"
 								>
-									{dayjs(currentWorkout.startTime).fromNow()}{#if !currentWorkout.endTime}
+									{dayjs(currentWorkout.startTime).fromNow()}
+									{#if dayjs(currentWorkout.startTime).isToday()}
 										<div
 											class="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-xs font-bold"
 										>
-											Active
+											Today
 										</div>
 									{/if}
 								</div>
@@ -288,28 +321,28 @@
 								!workoutsDb.data || workoutsDb.data.length === 0 ? 'hidden' : undefined
 							]}
 						>
-							<button
-								class={[
-									'px-3 py-1 font-medium transition-colors',
-									weightUnit === 'kg'
-										? 'bg-primary text-primary-content'
-										: 'text-base-content/50 hover:bg-base-200'
-								]}
-								onclick={() => (weightUnit = 'kg')}
-							>
-								kg
-							</button>
-							<button
-								class={[
-									'px-3 py-1 font-medium transition-colors',
-									weightUnit === 'lb'
-										? 'bg-primary text-primary-content'
-										: 'text-base-content/50 hover:bg-base-200'
-								]}
-								onclick={() => (weightUnit = 'lb')}
-							>
-								lb
-							</button>
+						<button
+							class={[
+								'px-3 py-1 font-medium transition-colors',
+								weightUnit === 'kg'
+									? 'text-primary-content bg-segmented'
+									: 'text-base-content/50 hover:bg-base-200'
+							]}
+							onclick={() => (weightUnit = 'kg')}
+						>
+							kg
+						</button>
+						<button
+							class={[
+								'px-3 py-1 font-medium transition-colors',
+								weightUnit === 'lb'
+									? 'text-primary-content bg-segmented'
+									: 'text-base-content/50 hover:bg-base-200'
+							]}
+							onclick={() => (weightUnit = 'lb')}
+						>
+							lb
+						</button>
 						</div>
 					</div>
 
@@ -412,10 +445,7 @@
 								<div class="border-t-base-300/50 border-t px-4 py-3">
 									<button
 										class="btn btn-ghost btn-sm text-primary w-full"
-										onclick={() => {
-											addingSetToWorkout = currentWorkout.id;
-											addSetDialog?.showModal();
-										}}
+										onclick={() => openAddSet(currentWorkout.id, group)}
 									>
 										<Icon icon="material-symbols:add" class="size-4" />
 										Add Set
@@ -424,6 +454,18 @@
 							</div>
 						{/each}
 					{/if}
+
+					<button
+						class="btn btn-primary btn-soft w-full rounded-full"
+						onclick={() => {
+							addingSetToWorkout = currentWorkout.id;
+							exerciseSearch = '';
+							exerciseDialog?.showModal();
+						}}
+					>
+						<Icon icon="material-symbols:add" class="size-4" />
+						Add Exercise
+					</button>
 				{:else}
 					<SkeletonActionCard />
 					<SkeletonActionCard />
@@ -431,7 +473,7 @@
 
 				{#if currentWorkout}
 					<button
-						class="btn btn-soft btn-error mt-2 flex w-full items-center gap-2 rounded-full"
+						class="btn btn-ghost btn-error mt-2 flex w-full items-center gap-2 rounded-full"
 						onclick={() => openDeleteWorkout(currentWorkout.id)}
 					>
 						<Icon icon="material-symbols:delete-outline" class="text-error size-5" />Delete Workout
@@ -445,23 +487,15 @@
 <dialog bind:this={addSetDialog} class="modal modal-bottom sm:modal-middle">
 	<div class="modal-box grid gap-4">
 		<div class="flex items-center justify-between">
-			<h3 class="text-lg font-bold">Add Set</h3>
+			<h3 class="text-lg font-bold">
+				{selectedExerciseId ? getExerciseName(selectedExerciseId) : 'Add Set'}
+			</h3>
 			<form method="dialog">
 				<button class="btn btn-ghost btn-sm btn-square">
 					<Icon icon="material-symbols:close" class="size-5" />
 				</button>
 			</form>
 		</div>
-
-		<button
-			class="btn btn-ghost border-base-300 w-full justify-between rounded-lg border"
-			onclick={openExercisePicker}
-		>
-			<span class={selectedExerciseId ? '' : 'text-base-content/50'}>
-				{selectedExerciseId ? getExerciseName(selectedExerciseId) : 'Select exercise...'}
-			</span>
-			<Icon icon="material-symbols:expand-more" class="size-5" />
-		</button>
 
 		<div class="flex items-center gap-2">
 			<input
@@ -511,7 +545,7 @@
 					class={[
 						'flex-1 px-3 py-2 font-medium transition-colors',
 						setType === opt.value
-							? 'bg-primary text-primary-content'
+							? 'text-primary-content bg-segmented'
 							: 'text-base-content/50 hover:bg-base-200'
 					]}
 					onclick={() => (setType = opt.value)}
@@ -550,13 +584,40 @@
 			bind:value={exerciseSearch}
 		/>
 		<div class="flex-1 overflow-y-auto">
-			{#each filteredExercises as ex (ex.id)}
-				<button
-					class="hover:bg-base-200 w-full cursor-pointer px-3 py-2.5 text-left"
-					onclick={() => pickExercise(ex.id)}
+			{#if favouriteExercises.length > 0}
+				<p
+					class="text-base-content/50 px-3 pt-2 pb-1 text-xs font-semibold tracking-wider uppercase"
 				>
-					{ex.name}
-				</button>
+					Favourites
+				</p>
+				{#each favouriteExercises as ex (ex.id)}
+					<div class="hover:bg-base-200 flex w-full items-center gap-1 px-3 py-2.5">
+						<button class="flex-1 cursor-pointer text-left" onclick={() => pickExercise(ex.id)}>
+							{ex.name}
+						</button>
+						<button class="btn btn-ghost btn-xs btn-square" onclick={() => toggleFavourite(ex.id)}>
+							<Icon icon="material-symbols:star" class="text-warning size-4" />
+						</button>
+					</div>
+				{/each}
+				<div class="divider my-0"></div>
+			{/if}
+			{#each filteredExercises as ex (ex.id)}
+				<div class="hover:bg-base-200 flex w-full items-center gap-1 px-3 py-2.5">
+					<button class="flex-1 cursor-pointer text-left" onclick={() => pickExercise(ex.id)}>
+						{ex.name}
+					</button>
+					<button class="btn btn-ghost btn-xs btn-square" onclick={() => toggleFavourite(ex.id)}>
+						<Icon
+							icon={favouriteIds.includes(ex.id)
+								? 'material-symbols:star'
+								: 'material-symbols:star-outline'}
+							class={favouriteIds.includes(ex.id)
+								? 'text-warning size-4'
+								: 'text-base-content/30 size-4'}
+						/>
+					</button>
+				</div>
 			{/each}
 		</div>
 	</div>
