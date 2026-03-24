@@ -1,7 +1,7 @@
 {
 	"name": "cubby",
 	"private": true,
-	"version": "4.7.0",
+	"version": "4.8.0",
 	"type": "module",
 	"engines": {
 		"node": ">=24"
@@ -40,12 +40,12 @@
 		"prettier-plugin-svelte": "^3.5.1",
 		"prettier-plugin-tailwindcss": "^0.7.2",
 		"rollup-plugin-visualizer": "^7.0.1",
-		"svelte": "^5.54.1",
+		"svelte": "^5.55.0",
 		"svelte-check": "^4.4.5",
 		"tailwindcss": "^4.2.2",
 		"typescript": "^5.9.3",
-		"typescript-eslint": "^8.57.1",
-		"vite": "^8.0.1"
+		"typescript-eslint": "^8.57.2",
+		"vite": "^8.0.2"
 	},
 	"dependencies": {
 		"@ark-ui/svelte": "^5.19.1",
@@ -59,8 +59,8 @@
 		"@fontsource-variable/nunito": "^5.2.7",
 		"@fontsource-variable/quicksand": "^5.2.10",
 		"@sveltejs/adapter-static": "^3.0.10",
-		"@tanstack/svelte-query": "^6.1.7",
-		"@tanstack/svelte-query-devtools": "^6.1.7",
+		"@tanstack/svelte-query": "^6.1.10",
+		"@tanstack/svelte-query-devtools": "^6.1.10",
 		"canvas-confetti": "^1.9.4",
 		"chart.js": "^4.5.1",
 		"dayjs": "^1.11.20",
