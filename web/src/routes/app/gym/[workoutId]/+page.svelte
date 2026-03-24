@@ -13,6 +13,7 @@
 		getFavouriteExercisesQueryKey
 	} from '$lib/queries';
 	import { api } from '$lib/api';
+	import { goto } from '$app/navigation';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
 	import { exercises } from '$lib/exercises';
 	import Icon from '@iconify/svelte';
@@ -176,6 +177,7 @@
 			updateWorkoutsCache((workouts) => workouts.filter((w) => w.id !== deletedId));
 			deleteWorkoutDialog?.close();
 			deletingWorkoutId = null;
+			goto('/app/gym');
 		} else {
 			addToast('error', 'Failed to delete workout');
 		}
