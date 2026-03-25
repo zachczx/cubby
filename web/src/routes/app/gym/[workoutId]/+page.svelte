@@ -126,6 +126,36 @@
 	let isDeletingSet = $state(false);
 	let isDeletingWorkout = $state(false);
 	let isSavingEdit = $state(false);
+	let isSavingNotes = $state(false);
+	let notesDialog = $state<HTMLDialogElement>();
+	let editingNotes = $state('');
+
+	function openEditNotes() {
+		editingNotes = currentWorkout?.notes ?? '';
+		notesDialog?.showModal();
+	}
+
+	async function saveNotes() {
+		if (!currentWorkout) return;
+		isSavingNotes = true;
+		const response = await api.patch(`gym/workouts/${currentWorkout.id}`, {
+			body: JSON.stringify({
+				startTime: currentWorkout.startTime,
+				notes: editingNotes || null
+			})
+		});
+		isSavingNotes = false;
+		if (response.status === 204) {
+			updateWorkoutsCache((workouts) =>
+				workouts.map((w) =>
+					w.id === currentWorkout.id ? { ...w, notes: editingNotes || null } : w
+				)
+			);
+			notesDialog?.close();
+		} else {
+			addToast('error', 'Failed to save notes');
+		}
+	}
 
 	const kgToLb = (kg: number) => Math.round(kg * 2.20462 * 10) / 10;
 	const lbToKg = (lb: number) => Math.round((lb / 2.20462) * 10) / 10;
@@ -401,9 +431,29 @@
 						</div>
 					</div>
 
-					{#if currentWorkout.notes}
-						<p class="text-base-content/70 px-4 pb-2">{currentWorkout.notes}</p>
-					{/if}
+					<div class="px-4">
+						{#if currentWorkout.notes}
+							<div class="flex items-center gap-2 rounded-lg py-2 italic">
+								<p class="text-base-content/70 text-sm whitespace-pre-wrap">
+									{currentWorkout.notes}
+								</p>
+								<button class="btn btn-ghost btn-xs btn-square shrink-0" onclick={openEditNotes}>
+									<Icon
+										icon="material-symbols:edit-outline"
+										class="text-base-content/50 size-3.5"
+									/>
+								</button>
+							</div>
+						{:else}
+							<button
+								class="btn btn-ghost btn-sm text-base-content/50 w-full gap-1 rounded-lg"
+								onclick={openEditNotes}
+							>
+								<Icon icon="material-symbols:note-add-outline" class="size-4" />
+								Add notes
+							</button>
+						{/if}
+					</div>
 
 					{#if exerciseGroups.length > 0}
 						{#each exerciseGroups as group, gi (group.exerciseId)}
@@ -739,6 +789,36 @@
 			onclick={saveEditSet}
 		>
 			{#if isSavingEdit}<span class="loading loading-spinner loading-sm"></span>{/if}
+			Save
+		</button>
+	</div>
+	<form method="dialog" class="modal-backdrop">
+		<button>close</button>
+	</form>
+</dialog>
+
+<dialog bind:this={notesDialog} class="modal modal-bottom sm:modal-middle">
+	<div class="modal-box grid gap-4">
+		<div class="flex items-center justify-between">
+			<h3 class="text-lg font-bold">Notes</h3>
+			<form method="dialog">
+				<button class="btn btn-ghost btn-sm btn-square">
+					<Icon icon="material-symbols:close" class="size-5" />
+				</button>
+			</form>
+		</div>
+		<textarea
+			class="textarea textarea-bordered w-full resize-none"
+			rows="4"
+			placeholder="Add notes about this workout..."
+			bind:value={editingNotes}
+		></textarea>
+		<button
+			class="btn btn-primary btn-lg w-full rounded-full"
+			disabled={isSavingNotes}
+			onclick={saveNotes}
+		>
+			{#if isSavingNotes}<span class="loading loading-spinner loading-sm"></span>{/if}
 			Save
 		</button>
 	</div>
