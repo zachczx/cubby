@@ -89,7 +89,13 @@
 			</section>
 
 			<section class="grid gap-4 py-2">
-				<h2 class="text-base-content/70 text-lg font-bold">Workouts</h2>
+				<div class="flex items-center justify-between">
+					<h2 class="text-base-content/70 text-lg font-bold">Workouts</h2>
+					<a href="/app/gym/stats" class="btn btn-ghost btn-sm gap-1">
+						<Icon icon="material-symbols:bar-chart" class="size-4" />
+						Stats
+					</a>
+				</div>
 
 				{#if workoutsDb.isSuccess}
 					{#if !workoutsDb.data || workoutsDb.data.length === 0}

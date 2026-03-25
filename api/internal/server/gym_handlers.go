@@ -225,3 +225,19 @@ func (s *Service) ToggleFavouriteHandler(w http.ResponseWriter, r *http.Request)
 
 	response.WriteJSON(r.Context(), w, map[string][]string{"exerciseIds": ids})
 }
+
+func (s *Service) GetGymSummaryHandler(w http.ResponseWriter, r *http.Request) {
+	userID, err := s.GetUserIDFromContext(r.Context())
+	if err != nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	summary, err := gym.GetSummary(s.DB, userID)
+	if err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	response.WriteJSON(r.Context(), w, summary)
+}

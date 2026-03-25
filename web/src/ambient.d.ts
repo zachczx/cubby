@@ -198,6 +198,19 @@ interface FavouriteExercisesDB {
 	exerciseIds: string[];
 }
 
+interface ExerciseCount {
+	exerciseId: string;
+	count: number;
+}
+
+interface WorkoutSummaryDB {
+	totalWorkoutsThisMonth: number;
+	totalVolumeThisMonth: number;
+	totalSetsThisMonth: number;
+	topExercises: ExerciseCount[];
+	failureExercises: ExerciseCount[];
+}
+
 // Timer profile types
 
 interface TimerSegmentDef {
