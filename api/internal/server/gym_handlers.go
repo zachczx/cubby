@@ -241,3 +241,19 @@ func (s *Service) GetGymSummaryHandler(w http.ResponseWriter, r *http.Request) {
 
 	response.WriteJSON(r.Context(), w, summary)
 }
+
+func (s *Service) GetGymCalendarHandler(w http.ResponseWriter, r *http.Request) {
+	userID, err := s.GetUserIDFromContext(r.Context())
+	if err != nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	entries, err := gym.GetCalendarWorkouts(s.DB, userID)
+	if err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	response.WriteJSON(r.Context(), w, entries)
+}

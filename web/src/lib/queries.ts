@@ -129,3 +129,10 @@ const gymSummaryQuery = createQueryFactory(
 );
 export const gymSummaryQueryOptions = gymSummaryQuery.options;
 export const gymSummaryRefetchOptions = gymSummaryQuery.refetch;
+
+const gymCalendarQuery = createQueryFactory(
+	['gym-stats-calendar'],
+	async (): Promise<WorkoutCalendarEntryDB[]> => await api.get('gym/stats/calendar').json()
+);
+export const gymCalendarQueryOptions = gymCalendarQuery.options;
+export const gymCalendarRefetchOptions = gymCalendarQuery.refetch;

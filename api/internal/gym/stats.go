@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 )
 
 type WorkoutSummary struct {
@@ -65,4 +66,38 @@ func GetSummary(db *sqlx.DB, userID uuid.UUID) (WorkoutSummary, error) {
 	}
 
 	return summary, nil
+}
+
+type WorkoutCalendarEntry struct {
+	WorkoutID     string         `db:"workout_id"      json:"workoutId"`
+	StartTime     string         `db:"start_time"      json:"startTime"`
+	ExerciseCount int            `db:"exercise_count"  json:"exerciseCount"`
+	SetCount      int            `db:"set_count"       json:"setCount"`
+	ExerciseIDs   pq.StringArray `db:"exercise_ids"    json:"exerciseIds"`
+}
+
+func GetCalendarWorkouts(db *sqlx.DB, userID uuid.UUID) ([]WorkoutCalendarEntry, error) {
+	// FILTER excludes null values from LEFT JOIN when workout doesnt have any sets
+	calendarQ := `SELECT
+			gw.id as workout_id,
+			gw.start_time,
+			COUNT(DISTINCT gs.exercise_id) as exercise_count,
+			COUNT(gs.id) as set_count,
+			COALESCE(ARRAY_AGG(DISTINCT gs.exercise_id) FILTER (WHERE gs.exercise_id IS NOT NULL), '{}') as exercise_ids
+		FROM gym_workouts gw
+		LEFT JOIN gym_sets gs ON gs.workout_id = gw.id
+		WHERE gw.user_id = $1
+		GROUP BY gw.id, gw.start_time
+		ORDER BY gw.start_time DESC`
+
+	var entries []WorkoutCalendarEntry
+	if err := db.Select(&entries, calendarQ, userID); err != nil {
+		return nil, fmt.Errorf("calendar workouts: %w", err)
+	}
+
+	if entries == nil {
+		entries = []WorkoutCalendarEntry{}
+	}
+
+	return entries, nil
 }

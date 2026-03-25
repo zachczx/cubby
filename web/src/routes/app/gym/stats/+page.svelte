@@ -101,6 +101,20 @@
 					</section>
 				{/if}
 
+				<section class="grid gap-4 py-2">
+					<h2 class="text-base-content/70 text-lg font-bold">Explore</h2>
+					<div class="border-base-300/50 bg-base-50 overflow-hidden rounded-2xl border">
+						<a
+							href="/app/gym/stats/calendar"
+							class="border-b-base-300/50 flex items-center gap-3 border-b px-4 py-3"
+						>
+							<Icon icon="material-symbols:calendar-month" class="text-primary size-5" />
+							<span class="grow font-medium">Workout Calendar</span>
+							<Icon icon="material-symbols:chevron-right" class="text-base-content/30 size-5" />
+						</a>
+					</div>
+				</section>
+
 				{#if s.totalWorkoutsThisMonth === 0}
 					<div class="grid justify-items-center gap-2 py-12">
 						<Icon icon="material-symbols:bar-chart-outline" class="text-base-content/20 size-16" />

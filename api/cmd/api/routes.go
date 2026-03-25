@@ -75,6 +75,7 @@ func NewHTTPHandler(s *server.Service) http.Handler {
 	mux.HandleFunc("GET /gym/favourites", s.RequireAuthentication(s.GetFavouritesHandler))
 	mux.HandleFunc("POST /gym/favourites", s.RequireAuthentication(s.ToggleFavouriteHandler))
 	mux.HandleFunc("GET /gym/stats/summary", s.RequireAuthentication(s.GetGymSummaryHandler))
+	mux.HandleFunc("GET /gym/stats/calendar", s.RequireAuthentication(s.GetGymCalendarHandler))
 
 	return mux
 }
