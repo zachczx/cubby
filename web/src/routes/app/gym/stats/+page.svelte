@@ -105,9 +105,22 @@
 					<h2 class="text-base-content/70 text-lg font-bold">Explore</h2>
 					<div class="border-base-300/50 bg-base-50 overflow-hidden rounded-2xl border">
 						<a
-							href="/app/gym/stats/calendar"
+							href="/app/gym/stats/exercises"
 							class="border-b-base-300/50 flex items-center gap-3 border-b px-4 py-3"
 						>
+							<Icon icon="material-symbols:search" class="text-primary size-5" />
+							<span class="grow font-medium">Exercise Progress</span>
+							<Icon icon="material-symbols:chevron-right" class="text-base-content/30 size-5" />
+						</a>
+						<a
+							href="/app/gym/stats/muscles"
+							class="border-b-base-300/50 flex items-center gap-3 border-b px-4 py-3"
+						>
+							<Icon icon="material-symbols:fitness-center" class="text-primary size-5" />
+							<span class="grow font-medium">Muscle Failure Stats</span>
+							<Icon icon="material-symbols:chevron-right" class="text-base-content/30 size-5" />
+						</a>
+						<a href="/app/gym/stats/calendar" class="flex items-center gap-3 px-4 py-3">
 							<Icon icon="material-symbols:calendar-month" class="text-primary size-5" />
 							<span class="grow font-medium">Workout Calendar</span>
 							<Icon icon="material-symbols:chevron-right" class="text-base-content/30 size-5" />

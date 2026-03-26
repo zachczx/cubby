@@ -136,3 +136,24 @@ const gymCalendarQuery = createQueryFactory(
 );
 export const gymCalendarQueryOptions = gymCalendarQuery.options;
 export const gymCalendarRefetchOptions = gymCalendarQuery.refetch;
+
+export const gymMusclesQueryOptions = (weeks: number) =>
+	queryOptions<ExerciseFailureStatsDB[]>({
+		queryKey: ['gym-stats-muscles', weeks],
+		queryFn: async () => await api.get(`gym/stats/muscles?weeks=${weeks}`).json(),
+		staleTime: staleTime
+	});
+
+export const gymExerciseQueryOptions = (exerciseId: string) =>
+	queryOptions<ExerciseSetStatsDB[]>({
+		queryKey: ['gym-stats-exercise', exerciseId],
+		queryFn: async () => await api.get(`gym/stats/exercises/${encodeURIComponent(exerciseId)}`).json(),
+		staleTime: staleTime
+	});
+
+export const gymUserExercisesQueryOptions = () =>
+	queryOptions<UserExerciseDB[]>({
+		queryKey: ['gym-stats-user-exercises'],
+		queryFn: async () => await api.get('gym/stats/exercises').json(),
+		staleTime: staleTime
+	});

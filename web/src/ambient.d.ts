@@ -219,6 +219,33 @@ interface WorkoutCalendarEntryDB {
 	exerciseIds: string[];
 }
 
+interface ExerciseFailureStatsDB {
+	exerciseId: string;
+	failureCount: number;
+	lastFailureDate: string | null;
+	totalSets: number;
+}
+
+interface MuscleStatsDB {
+	muscle: string;
+	failureCount: number;
+	lastFailureDate: string | null;
+	totalSets: number;
+	failureRate: number;
+}
+
+interface ExerciseSetStatsDB {
+	date: string;
+	weightKg: number;
+	reps: number;
+	setType: string;
+}
+
+interface UserExerciseDB {
+	exerciseId: string;
+	setCount: number;
+}
+
 // Timer profile types
 
 interface TimerSegmentDef {

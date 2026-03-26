@@ -3,6 +3,7 @@ package server
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/google/uuid"
 	"github.com/zachczx/cubby/api/internal/gym"
@@ -256,4 +257,65 @@ func (s *Service) GetGymCalendarHandler(w http.ResponseWriter, r *http.Request) 
 	}
 
 	response.WriteJSON(r.Context(), w, entries)
+}
+
+func (s *Service) GetGymMusclesHandler(w http.ResponseWriter, r *http.Request) {
+	userID, err := s.GetUserIDFromContext(r.Context())
+	if err != nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	weeks := 4
+	if wVal := r.URL.Query().Get("weeks"); wVal != "" {
+		if w, err := strconv.Atoi(wVal); err == nil && w > 0 {
+			weeks = w
+		}
+	}
+
+	stats, err := gym.GetMusclesFailureStats(s.DB, userID, weeks)
+	if err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	response.WriteJSON(r.Context(), w, stats)
+}
+
+func (s *Service) GetGymUserExercisesHandler(w http.ResponseWriter, r *http.Request) {
+	userID, err := s.GetUserIDFromContext(r.Context())
+	if err != nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	exercises, err := gym.GetUserExercises(s.DB, userID)
+	if err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	response.WriteJSON(r.Context(), w, exercises)
+}
+
+func (s *Service) GetGymExerciseStatsHandler(w http.ResponseWriter, r *http.Request) {
+	userID, err := s.GetUserIDFromContext(r.Context())
+	if err != nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	exerciseID := r.PathValue("exerciseID")
+	if exerciseID == "" {
+		response.RespondWithError(w, http.StatusBadRequest, "exercise_id is required")
+		return
+	}
+
+	stats, err := gym.GetExerciseStats(s.DB, userID, exerciseID)
+	if err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	response.WriteJSON(r.Context(), w, stats)
 }
