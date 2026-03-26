@@ -464,9 +464,18 @@
 										gi < exerciseGroups.length - 1 && 'border-b-base-300/50 border-b'
 									]}
 								>
-									<p class="text-base-content/80 mb-2 font-semibold tracking-wide">
-										{group.exerciseName}
-									</p>
+									<div class="mb-2 flex items-center justify-between">
+										<p class="text-base-content/80 font-semibold tracking-wide">
+											{group.exerciseName}
+										</p>
+										<a
+											href="/app/gym/stats/exercises/{group.exerciseId}"
+											class="btn btn-ghost btn-xs"
+										>
+											<Icon icon="material-symbols:show-chart" class="size-4" />
+											History
+										</a>
+									</div>
 									<div class="grid gap-2">
 										{#each group.sets as set, si (set.id)}
 											<div class="flex items-center gap-3">
