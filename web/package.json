@@ -1,7 +1,7 @@
 {
 	"name": "cubby",
 	"private": true,
-	"version": "4.9.0",
+	"version": "4.10.0",
 	"type": "module",
 	"engines": {
 		"node": ">=24"
@@ -20,17 +20,17 @@
 		"mob:prod": "vite build --mode production && npx cap sync && npx cap run android"
 	},
 	"devDependencies": {
-		"@capacitor/cli": "^8.2.0",
+		"@capacitor/cli": "^8.3.0",
 		"@eslint/compat": "^2.0.3",
 		"@eslint/js": "^10.0.1",
-		"@event-calendar/core": "5.5.1",
+		"@event-calendar/core": "5.6.0",
 		"@iconify/svelte": "^5.2.1",
 		"@sveltejs/enhanced-img": "^0.10.4",
 		"@sveltejs/kit": "^2.55.0",
 		"@sveltejs/vite-plugin-svelte": "^7.0.0",
 		"@tailwindcss/vite": "^4.2.2",
 		"@types/canvas-confetti": "^1.9.0",
-		"@types/event-calendar__core": "^5.0.0",
+		"@types/event-calendar__core": "^5.5.0",
 		"daisyui": "^5.5.19",
 		"eslint": "^10.1.0",
 		"eslint-config-prettier": "^10.1.8",
@@ -43,19 +43,19 @@
 		"svelte": "^5.55.0",
 		"svelte-check": "^4.4.5",
 		"tailwindcss": "^4.2.2",
-		"typescript": "^5.9.3",
+		"typescript": "^6.0.2",
 		"typescript-eslint": "^8.57.2",
-		"vite": "^8.0.2"
+		"vite": "^8.0.3"
 	},
 	"dependencies": {
 		"@ark-ui/svelte": "^5.19.1",
 		"@capacitor-community/keep-awake": "^8.0.0",
 		"@capacitor-community/native-audio": "^8.0.0",
 		"@capacitor-community/safe-area": "8.0.1",
-		"@capacitor/android": "^8.2.0",
-		"@capacitor/app": "^8.0.1",
-		"@capacitor/core": "^8.2.0",
-		"@capacitor/push-notifications": "^8.0.2",
+		"@capacitor/android": "^8.3.0",
+		"@capacitor/app": "^8.1.0",
+		"@capacitor/core": "^8.3.0",
+		"@capacitor/push-notifications": "^8.0.3",
 		"@fontsource-variable/nunito": "^5.2.7",
 		"@fontsource-variable/quicksand": "^5.2.10",
 		"@sveltejs/adapter-static": "^3.0.10",
