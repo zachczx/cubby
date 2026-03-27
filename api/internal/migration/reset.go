@@ -10,7 +10,7 @@ import (
 )
 
 func WipeData(db *sqlx.DB) {
-	query := `DROP TABLE IF EXISTS timer_profiles, gym_sets, gym_workouts, tracker_user_settings, notification_logs, push_tokens, invites, vacations, entries, trackers, families_users, families, users CASCADE;`
+	query := `DROP TABLE IF EXISTS timer_profiles, gym_sets, gym_workouts, tracker_user_settings, notification_logs, push_tokens, invites, vacations, entries, trackers, families_users, families, users, market_prices CASCADE;`
 	_, err := db.Exec(query)
 	if err != nil {
 		slog.Error("failed to drop tables", "error", err)
@@ -172,6 +172,22 @@ func Create(db *sqlx.DB) {
 			PRIMARY KEY (user_id, exercise_id)
 		);`,
 
+		// Market Prices
+		`CREATE TABLE IF NOT EXISTS market_prices (
+			id UUID PRIMARY KEY DEFAULT uuidv7(),
+			user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+			item_name TEXT NOT NULL,
+			category TEXT,
+			country TEXT,
+			store TEXT,
+			unit TEXT,
+			quantity NUMERIC(8,2),
+			price NUMERIC(8,2) NOT NULL,
+			is_promo BOOLEAN DEFAULT FALSE,
+			created_at TIMESTAMPTZ DEFAULT NOW(),
+			updated_at TIMESTAMPTZ DEFAULT NOW()
+		);`,
+
 		// FK, lookup indexes
 		`CREATE INDEX IF NOT EXISTS idx_families_owner_id ON families(owner_id);`,
 		`CREATE INDEX IF NOT EXISTS idx_families_users_user_id ON families_users(user_id);`,
@@ -189,6 +205,9 @@ func Create(db *sqlx.DB) {
 		`CREATE INDEX IF NOT EXISTS idx_gym_workouts_user_id ON gym_workouts(user_id);`,
 		`CREATE INDEX IF NOT EXISTS idx_gym_sets_workout_id ON gym_sets(workout_id);`,
 		`CREATE INDEX IF NOT EXISTS idx_gym_sets_chronological ON gym_sets(workout_id, created_at ASC);`,
+
+		`CREATE INDEX IF NOT EXISTS idx_market_prices_user_id ON market_prices(user_id);`,
+		`CREATE INDEX IF NOT EXISTS idx_market_prices_item_name ON market_prices(item_name);`,
 
 		// Date time filter indexes
 		`CREATE INDEX IF NOT EXISTS idx_entries_tracker_time ON entries(tracker_id, performed_at DESC);`,

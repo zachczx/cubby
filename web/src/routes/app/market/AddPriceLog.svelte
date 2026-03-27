@@ -1,0 +1,287 @@
+<!-- svelte-ignore state_referenced_locally -->
+<script lang="ts">
+	import Icon from '@iconify/svelte';
+	import { createQuery } from '@tanstack/svelte-query';
+	import {
+		marketPricesQueryOptions,
+		createMarketPriceMutation,
+		updateMarketPriceMutation
+	} from '$lib/queries';
+	import { addToast } from '$lib/ui/ArkToaster.svelte';
+
+	let {
+		onClose,
+		editPrice = null
+	}: {
+		onClose: () => void;
+		editPrice?: any | null;
+	} = $props();
+
+	const categories = [
+		'Fruit',
+		'Vegetable',
+		'Dairy',
+		'Meat',
+		'Seafood',
+		'Bakery',
+		'Pantry',
+		'Frozen',
+		'Beverage',
+		'Snack',
+		'Other'
+	];
+	const units = ['kg', 'g', 'each', 'bunch', 'punnet', 'pack', 'bottle', 'can', 'litre', 'dozen'];
+
+	const pricesQuery = createQuery(marketPricesQueryOptions);
+
+	let itemName = $state(editPrice?.itemName ?? '');
+	let category = $state(editPrice?.category ?? '');
+	let country = $state(editPrice?.country ?? '');
+	let store = $state(editPrice?.store ?? '');
+	let unit = $state(editPrice?.unit ?? '');
+	let quantity = $state(editPrice?.quantity?.toString() ?? '');
+	let price = $state(editPrice?.price?.toString() ?? '');
+	let isPromo = $state(editPrice?.isPromo ?? false);
+
+	let isSubmitting = $state(false);
+	let showSuggestions = $state(false);
+
+	let existingNames = $derived.by(() => {
+		if (!pricesQuery.isSuccess || !pricesQuery.data) return [];
+		const seen = new Set<string>();
+		const names: string[] = [];
+		for (const p of pricesQuery.data) {
+			const lower = p.itemName.toLowerCase();
+			if (!seen.has(lower)) {
+				seen.add(lower);
+				names.push(p.itemName);
+			}
+		}
+		return names.sort((a, b) => a.localeCompare(b));
+	});
+
+	let suggestions = $derived.by(() => {
+		if (!itemName || !showSuggestions) return [];
+		const lower = itemName.toLowerCase();
+		return existingNames
+			.filter((n) => n.toLowerCase() !== lower && n.toLowerCase().includes(lower))
+			.slice(0, 6);
+	});
+
+	function selectSuggestion(name: string) {
+		itemName = name;
+		showSuggestions = false;
+	}
+
+	function handleNameInput() {
+		showSuggestions = true;
+	}
+
+	function handleNameBlur() {
+		setTimeout(() => {
+			showSuggestions = false;
+		}, 150);
+	}
+
+	async function handleSubmit(e: SubmitEvent) {
+		e.preventDefault();
+		const trimmedName = itemName.trim();
+		if (!trimmedName || !price) return;
+
+		isSubmitting = true;
+		try {
+			const payload = {
+				itemName: trimmedName,
+				category: category || null,
+				country: country || null,
+				store: store || null,
+				unit: unit || null,
+				quantity: quantity ? parseFloat(quantity) : null,
+				price: parseFloat(price),
+				isPromo
+			};
+
+			if (editPrice) {
+				await updateMarketPriceMutation(editPrice.id, payload);
+				addToast('success', 'Price updated successfully!');
+				onClose();
+			} else {
+				const res = await createMarketPriceMutation(payload);
+				if (res) {
+					addToast('success', 'Price logged successfully!');
+					onClose();
+				} else {
+					addToast('error', 'Failed to log price');
+				}
+			}
+		} catch (err) {
+			addToast('error', editPrice ? 'Failed to update price' : 'Failed to log price');
+		} finally {
+			isSubmitting = false;
+		}
+	}
+</script>
+
+<dialog class="modal modal-open modal-bottom sm:modal-middle bg-base-300/50 backdrop-blur-[2px]">
+	<div class="modal-box outline-base-300/50 relative outline">
+		<button
+			class="btn btn-sm btn-circle btn-ghost absolute top-4 right-4 focus:outline-none"
+			onclick={onClose}
+		>
+			<Icon icon="material-symbols:close" class="size-5" />
+		</button>
+
+		<h3 class="mb-6 text-xl font-bold">{editPrice ? 'Edit Price Log' : 'Add Price Log'}</h3>
+
+		<form onsubmit={handleSubmit} class="grid gap-4">
+			<div class="form-control relative w-full">
+				<label for="item-name" class="label py-1"
+					><span class="label-text text-base-content/80 font-medium">Item Name*</span></label
+				>
+				<input
+					id="item-name"
+					type="text"
+					bind:value={itemName}
+					oninput={handleNameInput}
+					onfocus={() => (showSuggestions = true)}
+					onblur={handleNameBlur}
+					placeholder="e.g. Fuji Apple"
+					class="input input-bordered focus:outline-primary w-full transition-all"
+					required
+					autocomplete="off"
+				/>
+				{#if suggestions.length > 0}
+					<div
+						class="bg-base-100 border-base-300/50 absolute top-full right-0 left-0 z-50 mt-1 overflow-hidden rounded-xl border shadow-lg"
+					>
+						{#each suggestions as suggestion}
+							<button
+								type="button"
+								class="hover:bg-base-200/70 w-full px-4 py-2.5 text-left text-sm transition-colors"
+								onmousedown={() => selectSuggestion(suggestion)}
+							>
+								{suggestion}
+							</button>
+						{/each}
+					</div>
+				{/if}
+			</div>
+
+			<div class="grid grid-cols-3 gap-4">
+				<div class="form-control w-full">
+					<label for="price" class="label py-1"
+						><span class="label-text text-base-content/80 font-medium">Price ($)*</span></label
+					>
+					<input
+						id="price"
+						type="number"
+						step="0.01"
+						min="0"
+						bind:value={price}
+						placeholder="0.00"
+						class="input input-bordered focus:outline-primary w-full transition-all"
+						required
+					/>
+				</div>
+				<div class="form-control w-full">
+					<label for="quantity" class="label py-1"
+						><span class="label-text text-base-content/80 font-medium">Qty</span></label
+					>
+					<input
+						id="quantity"
+						type="number"
+						step="0.01"
+						min="0"
+						bind:value={quantity}
+						placeholder="1"
+						class="input input-bordered focus:outline-primary w-full transition-all"
+					/>
+				</div>
+				<div class="form-control w-full">
+					<label for="unit" class="label py-1"
+						><span class="label-text text-base-content/80 font-medium">Unit</span></label
+					>
+					<select
+						id="unit"
+						bind:value={unit}
+						class="select select-bordered focus:outline-primary w-full transition-all"
+					>
+						<option value="">—</option>
+						{#each units as u}
+							<option value={u}>{u}</option>
+						{/each}
+					</select>
+				</div>
+			</div>
+
+			<div class="grid grid-cols-2 gap-4">
+				<div class="form-control w-full">
+					<label for="category" class="label py-1"
+						><span class="label-text text-base-content/80 font-medium">Category</span></label
+					>
+					<select
+						id="category"
+						bind:value={category}
+						class="select select-bordered focus:outline-primary w-full transition-all"
+					>
+						<option value="">—</option>
+						{#each categories as cat}
+							<option value={cat}>{cat}</option>
+						{/each}
+					</select>
+				</div>
+				<div class="form-control w-full">
+					<label for="store" class="label py-1"
+						><span class="label-text text-base-content/80 font-medium">Store</span></label
+					>
+					<input
+						id="store"
+						type="text"
+						bind:value={store}
+						placeholder="e.g. NTUC"
+						class="input input-bordered focus:outline-primary w-full transition-all"
+					/>
+				</div>
+			</div>
+
+			<div class="grid grid-cols-2 gap-4">
+				<div class="form-control w-full">
+					<label for="country" class="label py-1"
+						><span class="label-text text-base-content/80 font-medium">Country</span></label
+					>
+					<input
+						id="country"
+						type="text"
+						bind:value={country}
+						placeholder="e.g. Japan"
+						class="input input-bordered focus:outline-primary w-full transition-all"
+					/>
+				</div>
+				<div class="form-control w-full justify-end">
+					<label class="label cursor-pointer justify-start gap-3 py-1">
+						<input type="checkbox" bind:checked={isPromo} class="toggle toggle-sm toggle-warning" />
+						<span class="label-text text-base-content/80 font-medium">On Sale / Promo</span>
+					</label>
+				</div>
+			</div>
+
+			<div class="mt-6 grid grid-cols-2 gap-3">
+				<button
+					type="button"
+					class="btn btn-ghost bg-base-200/50 hover:bg-base-300/50 rounded-2xl border border-transparent"
+					onclick={onClose}
+					disabled={isSubmitting}>Cancel</button
+				>
+				<button type="submit" class="btn btn-primary rounded-2xl" disabled={isSubmitting}>
+					{#if isSubmitting}
+						<span class="loading loading-spinner"></span>
+					{/if}
+					Save Price
+				</button>
+			</div>
+		</form>
+	</div>
+	<form method="dialog" class="modal-backdrop">
+		<button onclick={onClose}>close</button>
+	</form>
+</dialog>

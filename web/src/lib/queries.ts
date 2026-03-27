@@ -157,3 +157,34 @@ export const gymUserExercisesQueryOptions = () =>
 		queryFn: async () => await api.get('gym/stats/exercises').json(),
 		staleTime: staleTime
 	});
+
+// Market queries
+const marketPricesQuery = createQueryFactory(
+	['market-prices'],
+	async (): Promise<MarketPriceDB[]> => await api.get('market/prices').json()
+);
+export const marketPricesQueryOptions = marketPricesQuery.options;
+export const marketPricesRefetchOptions = marketPricesQuery.refetch;
+
+const marketInsightsQuery = createQueryFactory(
+	['market-insights'],
+	async (): Promise<MarketInsightDB[]> => await api.get('market/insights').json()
+);
+export const marketInsightsQueryOptions = marketInsightsQuery.options;
+export const marketInsightsRefetchOptions = marketInsightsQuery.refetch;
+
+export async function createMarketPriceMutation(input: MarketPriceInput) {
+	return await api
+		.post('market/prices', {
+			body: JSON.stringify(input)
+		})
+		.json<string>();
+}
+
+export async function updateMarketPriceMutation(id: string, input: MarketPriceInput) {
+	return await api
+		.patch(`market/prices/${id}`, {
+			body: JSON.stringify(input)
+		})
+		.json<void>();
+}

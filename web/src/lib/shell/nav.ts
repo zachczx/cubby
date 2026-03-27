@@ -27,6 +27,14 @@ export const topLevelRoutes = {
 			icon: 'material-symbols:exercise'
 		},
 		{
+			id: 'market',
+			href: router.app('market'),
+			label: 'Market',
+			desktopNav: true,
+			mobileNav: true,
+			icon: 'material-symbols:shopping-bag'
+		},
+		{
 			id: 'tools',
 			href: router.app('count'),
 			label: 'Tools',

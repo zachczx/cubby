@@ -269,6 +269,48 @@ interface TimerProfileInput {
 	isDefault: boolean;
 }
 
+// Market types
+
+interface MarketPriceDB {
+	id: string;
+	itemName: string;
+	category: string | null;
+	country: string | null;
+	store: string | null;
+	unit: string | null;
+	quantity: number | null;
+	price: number;
+	isPromo: boolean;
+	createdAt: string;
+	updatedAt: string;
+}
+
+interface MarketInsightDB {
+	itemName: string;
+	category: string | null;
+	country: string | null;
+	lowestPrice: number;
+	lowestUnit: number | null;
+	lowestStore: string | null;
+	lowestDate: string;
+	latestPrice: number;
+	latestUnit: number | null;
+	latestStore: string | null;
+	latestDate: string;
+	deltaPercent: number;
+}
+
+interface MarketPriceInput {
+	itemName: string;
+	category: string | null;
+	country: string | null;
+	store: string | null;
+	unit: string | null;
+	quantity: number | null;
+	price: number;
+	isPromo: boolean;
+}
+
 type Collections = EntryDB | VacationDB;
 
 type CalendarRecord = Collections;
