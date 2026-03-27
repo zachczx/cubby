@@ -257,11 +257,32 @@
 						class="input input-bordered focus:outline-primary w-full transition-all"
 					/>
 				</div>
-				<div class="form-control w-full justify-end">
-					<label class="label cursor-pointer justify-start gap-3 py-1">
-						<input type="checkbox" bind:checked={isPromo} class="toggle toggle-sm toggle-warning" />
-						<span class="label-text text-base-content/80 font-medium">On Sale / Promo</span>
-					</label>
+				<div class="form-control w-full">
+					<label class="label py-1"
+						><span class="label-text text-base-content/80 font-medium">Price Type</span></label
+					>
+					<div class="border-base-300 flex h-9 overflow-hidden rounded-lg border text-sm">
+						<button
+							type="button"
+							class={[
+								'flex-1 font-medium transition-colors',
+								!isPromo ? 'text-primary-content bg-segmented' : 'text-base-content/50 hover:bg-base-200'
+							]}
+							onclick={() => (isPromo = false)}
+						>
+							Regular
+						</button>
+						<button
+							type="button"
+							class={[
+								'flex-1 font-medium transition-colors',
+								isPromo ? 'text-primary-content bg-segmented' : 'text-base-content/50 hover:bg-base-200'
+							]}
+							onclick={() => (isPromo = true)}
+						>
+							Promo
+						</button>
+					</div>
 				</div>
 			</div>
 
