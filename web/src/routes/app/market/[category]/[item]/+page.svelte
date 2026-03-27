@@ -78,8 +78,15 @@
 </script>
 
 <PageWrapper title={data.item}>
-	<main class="h-full relative pb-24">
+	<main class="h-full">
 		<div class="grid w-full max-w-lg gap-8 justify-self-center lg:text-base">
+			<section class="grid gap-4 py-2">
+				<button class="btn btn-primary btn-lg w-full rounded-full" onclick={openAddModal}>
+					<Icon icon="material-symbols:add" class="size-6" />
+					Add Price Log
+				</button>
+			</section>
+
 			<!-- Insight Summary -->
 			{#if insightsQuery.isLoading}
 				<div class="skeleton h-40 w-full rounded-2xl"></div>
@@ -201,14 +208,6 @@
 				{/if}
 			</section>
 		</div>
-
-		<button
-			class="btn btn-primary btn-circle fixed bottom-24 right-6 shadow-xl z-40 sm:bottom-12 sm:right-12"
-			onclick={openAddModal}
-			aria-label="Add Price Log"
-		>
-			<Icon icon="material-symbols:add" class="size-6 text-primary-content" />
-		</button>
 	</main>
 </PageWrapper>
 

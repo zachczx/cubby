@@ -53,8 +53,15 @@
 </script>
 
 <PageWrapper title="Market">
-	<main class="relative h-full pb-24">
+	<main class="h-full">
 		<div class="grid w-full max-w-lg gap-8 justify-self-center lg:text-base">
+			<section class="grid gap-4 py-2">
+				<button class="btn btn-primary btn-lg w-full rounded-full" onclick={openAddModal}>
+					<Icon icon="material-symbols:add" class="size-6" />
+					Add Price Log
+				</button>
+			</section>
+
 			<section class="grid gap-4 py-2">
 				<h2 class="text-base-content/70 text-lg font-bold">Categories</h2>
 
@@ -93,14 +100,6 @@
 				{/if}
 			</section>
 		</div>
-
-		<button
-			class="btn btn-primary btn-circle fixed right-6 bottom-24 z-40 shadow-xl sm:right-12 sm:bottom-12"
-			onclick={openAddModal}
-			aria-label="Add Price Log"
-		>
-			<Icon icon="material-symbols:add" class="text-primary-content size-6" />
-		</button>
 	</main>
 </PageWrapper>
 
