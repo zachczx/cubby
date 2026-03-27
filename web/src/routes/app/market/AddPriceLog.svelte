@@ -42,6 +42,7 @@
 	let quantity = $state(editPrice?.quantity?.toString() ?? '');
 	let price = $state(editPrice?.price?.toString() ?? '');
 	let isPromo = $state(editPrice?.isPromo ?? false);
+	let remarks = $state(editPrice?.remarks ?? '');
 
 	let isSubmitting = $state(false);
 	let showSuggestions = $state(false);
@@ -98,7 +99,8 @@
 				unit: unit || null,
 				quantity: quantity ? parseFloat(quantity) : null,
 				price: parseFloat(price),
-				isPromo
+				isPromo,
+				remarks: remarks.trim() || null
 			};
 
 			if (editPrice) {
@@ -284,6 +286,19 @@
 						</button>
 					</div>
 				</div>
+			</div>
+
+			<div class="form-control w-full">
+				<label for="remarks" class="label py-1"
+					><span class="label-text text-base-content/80 font-medium">Remarks</span></label
+				>
+				<input
+					id="remarks"
+					type="text"
+					bind:value={remarks}
+					placeholder="e.g. Members promo, bulk buy"
+					class="input input-bordered focus:outline-primary w-full transition-all"
+				/>
 			</div>
 
 			<div class="mt-6 grid grid-cols-2 gap-3">

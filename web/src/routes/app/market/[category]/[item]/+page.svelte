@@ -160,6 +160,9 @@
 										{/if}
 										<span>· {dayjs(price.createdAt).fromNow()}</span>
 									</div>
+									{#if price.remarks}
+										<span class="text-xs text-base-content/40 italic">{price.remarks}</span>
+									{/if}
 								</div>
 								<div class="flex items-center gap-3">
 									<div class="flex flex-col items-end">

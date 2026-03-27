@@ -281,6 +281,7 @@ interface MarketPriceDB {
 	quantity: number | null;
 	price: number;
 	isPromo: boolean;
+	remarks: string | null;
 	createdAt: string;
 	updatedAt: string;
 }
@@ -309,6 +310,7 @@ interface MarketPriceInput {
 	quantity: number | null;
 	price: number;
 	isPromo: boolean;
+	remarks: string | null;
 }
 
 type Collections = EntryDB | VacationDB;

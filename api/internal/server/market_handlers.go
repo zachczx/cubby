@@ -50,6 +50,7 @@ func (s *Service) LogMarketPriceHandler(w http.ResponseWriter, r *http.Request) 
 		Quantity: input.Quantity,
 		Price:    input.Price,
 		IsPromo:  input.IsPromo,
+		Remarks:  input.Remarks,
 	}
 
 	priceID, err := market.LogPrice(s.DB, p)
@@ -121,6 +122,7 @@ func (s *Service) UpdateMarketPriceHandler(w http.ResponseWriter, r *http.Reques
 		Quantity: input.Quantity,
 		Price:    input.Price,
 		IsPromo:  input.IsPromo,
+		Remarks:  input.Remarks,
 	}
 
 	if err := market.UpdatePrice(s.DB, p); err != nil {

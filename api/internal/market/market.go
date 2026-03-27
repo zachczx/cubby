@@ -20,6 +20,7 @@ type MarketPrice struct {
 	Quantity  *float64  `json:"quantity" db:"quantity"`
 	Price     float64   `json:"price" db:"price"`
 	IsPromo   bool      `json:"isPromo" db:"is_promo"`
+	Remarks   *string   `json:"remarks" db:"remarks"`
 	CreatedAt time.Time `json:"createdAt" db:"created_at"`
 	UpdatedAt time.Time `json:"updatedAt" db:"updated_at"`
 }
@@ -48,6 +49,7 @@ type Input struct {
 	Quantity *float64 `json:"quantity"`
 	Price    float64  `json:"price"`
 	IsPromo  bool     `json:"isPromo"`
+	Remarks  *string  `json:"remarks"`
 }
 
 func LogPrice(db *sqlx.DB, p MarketPrice) (uuid.UUID, error) {
