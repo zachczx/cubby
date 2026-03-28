@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/zachczx/cubby/api/internal/market"
 	"github.com/zachczx/cubby/api/internal/response"
+	"github.com/zachczx/cubby/api/internal/user"
 )
 
 func (s *Service) LogMarketPriceHandler(w http.ResponseWriter, r *http.Request) {
@@ -17,6 +18,12 @@ func (s *Service) LogMarketPriceHandler(w http.ResponseWriter, r *http.Request) 
 	userID, err := s.GetUserIDFromContext(r.Context())
 	if err != nil {
 		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	familyID, err := user.GetUserFamilyID(s.DB, userID)
+	if err != nil {
+		response.WriteError(r.Context(), w, err)
 		return
 	}
 
@@ -40,8 +47,10 @@ func (s *Service) LogMarketPriceHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	loggedBy := userID
 	p := market.MarketPrice{
-		UserID:   userID,
+		FamilyID: familyID,
+		LoggedBy: &loggedBy,
 		ItemName: input.ItemName,
 		Category: input.Category,
 		Country:  input.Country,
@@ -113,7 +122,6 @@ func (s *Service) UpdateMarketPriceHandler(w http.ResponseWriter, r *http.Reques
 
 	p := market.MarketPrice{
 		ID:       priceID,
-		UserID:   userID,
 		ItemName: input.ItemName,
 		Category: input.Category,
 		Country:  input.Country,
@@ -125,7 +133,7 @@ func (s *Service) UpdateMarketPriceHandler(w http.ResponseWriter, r *http.Reques
 		Remarks:  input.Remarks,
 	}
 
-	if err := market.UpdatePrice(s.DB, p); err != nil {
+	if err := market.UpdatePrice(s.DB, p, userID); err != nil {
 		response.WriteError(r.Context(), w, err)
 		return
 	}

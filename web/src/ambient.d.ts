@@ -273,6 +273,7 @@ interface TimerProfileInput {
 
 interface MarketPriceDB {
 	id: string;
+	loggedBy: string | null;
 	itemName: string;
 	category: string | null;
 	country: string | null;

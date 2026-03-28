@@ -10,19 +10,20 @@ import (
 )
 
 type MarketPrice struct {
-	ID        uuid.UUID `json:"id" db:"id"`
-	UserID    uuid.UUID `json:"-" db:"user_id"`
-	ItemName  string    `json:"itemName" db:"item_name"`
-	Category  *string   `json:"category" db:"category"`
-	Country   *string   `json:"country" db:"country"`
-	Store     *string   `json:"store" db:"store"`
-	Unit      *string   `json:"unit" db:"unit"`
-	Quantity  *float64  `json:"quantity" db:"quantity"`
-	Price     float64   `json:"price" db:"price"`
-	IsPromo   bool      `json:"isPromo" db:"is_promo"`
-	Remarks   *string   `json:"remarks" db:"remarks"`
-	CreatedAt time.Time `json:"createdAt" db:"created_at"`
-	UpdatedAt time.Time `json:"updatedAt" db:"updated_at"`
+	ID        uuid.UUID  `json:"id" db:"id"`
+	FamilyID  uuid.UUID  `json:"-" db:"family_id"`
+	LoggedBy  *uuid.UUID `json:"loggedBy" db:"logged_by"`
+	ItemName  string     `json:"itemName" db:"item_name"`
+	Category  *string    `json:"category" db:"category"`
+	Country   *string    `json:"country" db:"country"`
+	Store     *string    `json:"store" db:"store"`
+	Unit      *string    `json:"unit" db:"unit"`
+	Quantity  *float64   `json:"quantity" db:"quantity"`
+	Price     float64    `json:"price" db:"price"`
+	IsPromo   bool       `json:"isPromo" db:"is_promo"`
+	Remarks   *string    `json:"remarks" db:"remarks"`
+	CreatedAt time.Time  `json:"createdAt" db:"created_at"`
+	UpdatedAt time.Time  `json:"updatedAt" db:"updated_at"`
 }
 
 type MarketInsight struct {
@@ -56,9 +57,9 @@ func LogPrice(db *sqlx.DB, p MarketPrice) (uuid.UUID, error) {
 	var newID uuid.UUID
 
 	q := `INSERT INTO market_prices (
-				user_id, item_name, category, country, store, unit, quantity, price, is_promo, created_at, updated_at
+				family_id, logged_by, item_name, category, country, store, unit, quantity, price, is_promo, remarks, created_at, updated_at
 			) VALUES (
-				:user_id, :item_name, :category, :country, :store, :unit, :quantity, :price, :is_promo, NOW(), NOW()
+				:family_id, :logged_by, :item_name, :category, :country, :store, :unit, :quantity, :price, :is_promo, :remarks, NOW(), NOW()
 			) RETURNING id`
 
 	rows, err := db.NamedQuery(q, p)
@@ -78,9 +79,13 @@ func LogPrice(db *sqlx.DB, p MarketPrice) (uuid.UUID, error) {
 
 func GetPrices(db *sqlx.DB, userID uuid.UUID) ([]MarketPrice, error) {
 	var p []MarketPrice
-	q := `SELECT * FROM market_prices
-			WHERE user_id = $1
-			ORDER BY created_at DESC`
+	q := `SELECT mp.* FROM market_prices mp
+			WHERE mp.family_id IN (
+				SELECT family_id FROM families_users WHERE user_id = $1
+				UNION
+				SELECT id FROM families WHERE owner_id = $1
+			)
+			ORDER BY mp.created_at DESC`
 
 	if err := db.Select(&p, q, userID); err != nil {
 		return nil, fmt.Errorf("select market prices: %w", err)
@@ -132,7 +137,11 @@ func getLatestPrices(db *sqlx.DB, userID uuid.UUID) ([]latestRow, error) {
 		COALESCE(price / NULLIF(quantity, 0), price) AS unit_price,
 		store, created_at
 	FROM market_prices
-	WHERE user_id = $1
+	WHERE family_id IN (
+		SELECT family_id FROM families_users WHERE user_id = $1
+		UNION
+		SELECT id FROM families WHERE owner_id = $1
+	)
 	ORDER BY LOWER(item_name), LOWER(COALESCE(country, '')), created_at DESC`
 
 	if err := db.Select(&rows, q, userID); err != nil {
@@ -148,7 +157,11 @@ func getLowestPrices(db *sqlx.DB, userID uuid.UUID) ([]lowestRow, error) {
 		COALESCE(price / NULLIF(quantity, 0), price) AS unit_price,
 		store, created_at
 	FROM market_prices
-	WHERE user_id = $1
+	WHERE family_id IN (
+		SELECT family_id FROM families_users WHERE user_id = $1
+		UNION
+		SELECT id FROM families WHERE owner_id = $1
+	)
 	ORDER BY LOWER(item_name), LOWER(COALESCE(country, '')), unit_price ASC, created_at DESC`
 
 	if err := db.Select(&rows, q, userID); err != nil {
@@ -212,7 +225,11 @@ func GetInsights(db *sqlx.DB, userID uuid.UUID) ([]MarketInsight, error) {
 func DeletePrice(db *sqlx.DB, userID uuid.UUID, priceID uuid.UUID) error {
 	q := `DELETE FROM market_prices
 			WHERE id = $1
-			AND user_id = $2`
+			AND family_id IN (
+				SELECT family_id FROM families_users WHERE user_id = $2
+				UNION
+				SELECT id FROM families WHERE owner_id = $2
+			)`
 
 	if _, err := db.Exec(q, priceID, userID); err != nil {
 		return fmt.Errorf("delete market price: %w", err)
@@ -221,20 +238,31 @@ func DeletePrice(db *sqlx.DB, userID uuid.UUID, priceID uuid.UUID) error {
 	return nil
 }
 
-func UpdatePrice(db *sqlx.DB, p MarketPrice) error {
+func UpdatePrice(db *sqlx.DB, p MarketPrice, userID uuid.UUID) error {
 	q := `UPDATE market_prices SET
-			item_name = :item_name,
-			category = :category,
-			country = :country,
-			store = :store,
-			unit = :unit,
-			quantity = :quantity,
-			price = :price,
-			is_promo = :is_promo,
+			item_name = $1,
+			category = $2,
+			country = $3,
+			store = $4,
+			unit = $5,
+			quantity = $6,
+			price = $7,
+			is_promo = $8,
+			remarks = $9,
 			updated_at = NOW()
-		WHERE id = :id AND user_id = :user_id`
+		WHERE id = $10
+		AND family_id IN (
+			SELECT family_id FROM families_users WHERE user_id = $11
+			UNION
+			SELECT id FROM families WHERE owner_id = $11
+		)`
 
-	if _, err := db.NamedExec(q, p); err != nil {
+	_, err := db.Exec(q,
+		p.ItemName, p.Category, p.Country, p.Store, p.Unit,
+		p.Quantity, p.Price, p.IsPromo, p.Remarks,
+		p.ID, userID,
+	)
+	if err != nil {
 		return fmt.Errorf("update market price: %w", err)
 	}
 

@@ -175,7 +175,8 @@ func Create(db *sqlx.DB) {
 		// Market Prices
 		`CREATE TABLE IF NOT EXISTS market_prices (
 			id UUID PRIMARY KEY DEFAULT uuidv7(),
-			user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+			family_id UUID NOT NULL REFERENCES families(id) ON DELETE CASCADE,
+			logged_by UUID REFERENCES users(id) ON DELETE SET NULL,
 			item_name TEXT NOT NULL,
 			category TEXT,
 			country TEXT,
@@ -184,6 +185,7 @@ func Create(db *sqlx.DB) {
 			quantity NUMERIC(8,2),
 			price NUMERIC(8,2) NOT NULL,
 			is_promo BOOLEAN DEFAULT FALSE,
+			remarks TEXT,
 			created_at TIMESTAMPTZ DEFAULT NOW(),
 			updated_at TIMESTAMPTZ DEFAULT NOW()
 		);`,
@@ -206,7 +208,7 @@ func Create(db *sqlx.DB) {
 		`CREATE INDEX IF NOT EXISTS idx_gym_sets_workout_id ON gym_sets(workout_id);`,
 		`CREATE INDEX IF NOT EXISTS idx_gym_sets_chronological ON gym_sets(workout_id, created_at ASC);`,
 
-		`CREATE INDEX IF NOT EXISTS idx_market_prices_user_id ON market_prices(user_id);`,
+		`CREATE INDEX IF NOT EXISTS idx_market_prices_family_id ON market_prices(family_id);`,
 		`CREATE INDEX IF NOT EXISTS idx_market_prices_item_name ON market_prices(item_name);`,
 
 		// Date time filter indexes
