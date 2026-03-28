@@ -134,5 +134,5 @@
 </PageWrapper>
 
 {#if isModalOpen}
-	<AddPriceLog onClose={handleCloseModal} {editPrice} />
+	<AddPriceLog paramCategory={data.category} onClose={handleCloseModal} {editPrice} />
 {/if}

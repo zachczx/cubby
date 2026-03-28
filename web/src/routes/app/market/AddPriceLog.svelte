@@ -8,14 +8,16 @@
 		updateMarketPriceMutation
 	} from '$lib/queries';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
-	import { marketCategories } from '$lib/market';
+	import { marketCategories, type MarketCategoryValue } from '$lib/market';
 
 	let {
 		onClose,
-		editPrice = null
+		editPrice = null,
+		paramCategory
 	}: {
 		onClose: () => void;
 		editPrice?: any | null;
+		paramCategory?: MarketCategoryValue;
 	} = $props();
 
 	const units = ['kg', 'g', 'each', 'bunch', 'punnet', 'pack', 'bottle', 'can', 'litre', 'dozen'];
@@ -23,7 +25,7 @@
 	const pricesQuery = createQuery(marketPricesQueryOptions);
 
 	let itemName = $state(editPrice?.itemName ?? '');
-	let category = $state(editPrice?.category ?? 'fruit');
+	let category = $state(editPrice?.category ?? paramCategory ?? 'fruit');
 	let country = $state(editPrice?.country ?? '');
 	let store = $state(editPrice?.store ?? '');
 	let unit = $state(editPrice?.unit ?? 'pack');
