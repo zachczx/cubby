@@ -40,7 +40,7 @@
 	});
 </script>
 
-<PageWrapper title={data.category}>
+<PageWrapper title={data.category.charAt(0).toUpperCase() + data.category.slice(1)}>
 	<main class="h-full">
 		<div class="grid w-full max-w-lg gap-8 justify-self-center lg:text-base">
 			<section class="grid gap-4 py-2">
