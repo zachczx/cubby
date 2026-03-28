@@ -37,6 +37,10 @@
 	let isSubmitting = $state(false);
 	let showSuggestions = $state(false);
 
+	function toTitleCase(s: string): string {
+		return s.replace(/\S+/g, (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+	}
+
 	let existingNames = $derived.by(() => {
 		if (!pricesQuery.isSuccess || !pricesQuery.data) return [];
 		const seen = new Set<string>();
@@ -45,7 +49,7 @@
 			const lower = p.itemName.toLowerCase();
 			if (!seen.has(lower)) {
 				seen.add(lower);
-				names.push(p.itemName);
+				names.push(toTitleCase(p.itemName));
 			}
 		}
 		return names.sort((a, b) => a.localeCompare(b));

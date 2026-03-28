@@ -202,19 +202,20 @@
 											>
 										{/if}
 									</div>
-								<button
-									class="btn btn-ghost btn-sm btn-circle text-base-content/40 hover:text-error"
-									onclick={() => requestDelete(price)}
-									aria-label="Delete price"
-								>
-									<Icon icon="material-symbols:delete-outline" class="size-4" />
-								</button>
+
 									<button
 										class="btn btn-ghost btn-sm btn-circle text-base-content/40 hover:text-primary"
 										onclick={() => openEditModal(price)}
 										aria-label="Edit price"
 									>
 										<Icon icon="material-symbols:edit-outline" class="size-4" />
+									</button>
+									<button
+										class="btn btn-ghost btn-sm btn-circle text-base-content/40 hover:text-error"
+										onclick={() => requestDelete(price)}
+										aria-label="Delete price"
+									>
+										<Icon icon="material-symbols:delete-outline" class="size-4" />
 									</button>
 								</div>
 							</div>
@@ -261,8 +262,9 @@
 				{#if isDeleting}<span class="loading loading-spinner loading-sm"></span>{/if}
 				Delete
 			</button>
-			<button class="btn btn-outline btn-neutral btn-lg w-full" onclick={() => deleteDialog?.close()}
-				>Cancel</button
+			<button
+				class="btn btn-outline btn-neutral btn-lg w-full"
+				onclick={() => deleteDialog?.close()}>Cancel</button
 			>
 		</div>
 	</div>
