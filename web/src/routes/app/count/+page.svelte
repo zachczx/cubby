@@ -149,6 +149,8 @@
 	let started = $state(false);
 	let timerInterval: ReturnType<typeof setInterval> | undefined = $state();
 	let transitionTimeout: ReturnType<typeof setTimeout> | undefined = $state();
+	let endTime: number = 0;
+	let lastReportedSecond: number = -1;
 
 	function doubleDigits(num: number): string {
 		if (num < 0) return '00';
@@ -159,18 +161,20 @@
 		return { min: Math.floor(total / 60), sec: total % 60 };
 	}
 
-	function tick() {
-		remainingSeconds -= 1;
-		if (remainingSeconds > 0 && playSound) {
-			audioPlayer?.play();
-			play(remainingSeconds, character);
-		}
-
+	function updateRemaining() {
+		const now = Date.now();
+		remainingSeconds = Math.max(0, Math.round((endTime - now) / 1000));
 		const ms = getMinSec(remainingSeconds);
 		min = ms.min;
 		sec = ms.sec;
 
-		if (remainingSeconds === 0) {
+		if (remainingSeconds > 0 && playSound && remainingSeconds !== lastReportedSecond) {
+			lastReportedSecond = remainingSeconds;
+			audioPlayer?.play();
+			play(remainingSeconds, character);
+		}
+
+		if (remainingSeconds <= 0) {
 			clearInterval(timerInterval);
 			timerInterval = undefined;
 
@@ -179,15 +183,16 @@
 			}
 
 			if (mode === 'profile' && currentSegmentIndex < segmentDurations.length - 1) {
-				// Auto go to next segment after 1s pause
 				transitionTimeout = setTimeout(() => {
 					currentSegmentIndex += 1;
 					remainingSeconds = segmentDurations[currentSegmentIndex];
+					endTime = Date.now() + remainingSeconds * 1000;
+					lastReportedSecond = remainingSeconds;
 					const ms = getMinSec(remainingSeconds);
 					min = ms.min;
 					sec = ms.sec;
-					tick();
-					timerInterval = setInterval(tick, 1000);
+					updateRemaining();
+					timerInterval = setInterval(updateRemaining, 250);
 				}, 1000);
 			} else {
 				started = false;
@@ -205,9 +210,11 @@
 			remainingSeconds = segmentDurations[0];
 		}
 
+		endTime = Date.now() + remainingSeconds * 1000;
+		lastReportedSecond = remainingSeconds;
 		started = true;
-		tick();
-		timerInterval = setInterval(tick, 1000);
+		updateRemaining();
+		timerInterval = setInterval(updateRemaining, 250);
 	}
 
 	function stop() {
@@ -222,7 +229,7 @@
 	}
 
 	function pause() {
-		pauseTarget = min * 60 + sec;
+		pauseTarget = Math.max(0, Math.round((endTime - Date.now()) / 1000));
 		clearInterval(timerInterval);
 		clearTimeout(transitionTimeout);
 		timerInterval = undefined;
@@ -232,9 +239,11 @@
 
 	function resume() {
 		remainingSeconds = pauseTarget;
+		endTime = Date.now() + remainingSeconds * 1000;
+		lastReportedSecond = remainingSeconds;
 		started = true;
-		tick();
-		timerInterval = setInterval(tick, 1000);
+		updateRemaining();
+		timerInterval = setInterval(updateRemaining, 250);
 	}
 
 	function skip() {
@@ -250,15 +259,18 @@
 			}
 			currentSegmentIndex += 1;
 			remainingSeconds = segmentDurations[currentSegmentIndex];
+			endTime = Date.now() + remainingSeconds * 1000;
+			lastReportedSecond = remainingSeconds;
 			const ms = getMinSec(remainingSeconds);
 			min = ms.min;
 			sec = ms.sec;
-			tick();
-			timerInterval = setInterval(tick, 1000);
+			updateRemaining();
+			timerInterval = setInterval(updateRemaining, 250);
 		} else {
 			remainingSeconds = 0;
 			min = 0;
 			sec = 0;
+			lastReportedSecond = -1;
 			started = false;
 		}
 	}
