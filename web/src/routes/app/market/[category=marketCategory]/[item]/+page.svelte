@@ -18,7 +18,9 @@
 
 	let isModalOpen = $state(false);
 	let editPrice = $state<any | null>(null);
-	let deletingId = $state<string | null>(null);
+	let deleteDialog = $state<HTMLDialogElement | null>(null);
+	let pendingDeletePrice = $state<any | null>(null);
+	let isDeleting = $state(false);
 
 	function openAddModal() {
 		editPrice = null;
@@ -37,17 +39,25 @@
 		insightsQuery.refetch();
 	}
 
-	async function handleDelete(id: string) {
-		deletingId = id;
+	function requestDelete(price: any) {
+		pendingDeletePrice = price;
+		deleteDialog?.showModal();
+	}
+
+	async function confirmDelete() {
+		if (!pendingDeletePrice) return;
+		isDeleting = true;
 		try {
-			await api.delete(`market/prices/${id}`);
+			await api.delete(`market/prices/${pendingDeletePrice.id}`);
 			addToast('success', 'Price deleted');
 			pricesQuery.refetch();
 			insightsQuery.refetch();
 		} catch {
 			addToast('error', 'Failed to delete');
 		} finally {
-			deletingId = null;
+			isDeleting = false;
+			pendingDeletePrice = null;
+			deleteDialog?.close();
 		}
 	}
 
@@ -192,18 +202,13 @@
 											>
 										{/if}
 									</div>
-									<button
-										class="btn btn-ghost btn-sm btn-circle text-base-content/40 hover:text-error"
-										onclick={() => handleDelete(price.id)}
-										disabled={deletingId === price.id}
-										aria-label="Delete price"
-									>
-										{#if deletingId === price.id}
-											<span class="loading loading-spinner loading-xs"></span>
-										{:else}
-											<Icon icon="material-symbols:delete-outline" class="size-4" />
-										{/if}
-									</button>
+								<button
+									class="btn btn-ghost btn-sm btn-circle text-base-content/40 hover:text-error"
+									onclick={() => requestDelete(price)}
+									aria-label="Delete price"
+								>
+									<Icon icon="material-symbols:delete-outline" class="size-4" />
+								</button>
 									<button
 										class="btn btn-ghost btn-sm btn-circle text-base-content/40 hover:text-primary"
 										onclick={() => openEditModal(price)}
@@ -228,3 +233,40 @@
 {#if isModalOpen}
 	<AddPriceLog onClose={handleCloseModal} {editPrice} />
 {/if}
+
+<dialog bind:this={deleteDialog} class="modal modal-bottom sm:modal-middle">
+	<div class="modal-box grid gap-8">
+		<form method="dialog">
+			<button class="btn btn-sm btn-circle btn-ghost absolute top-2 right-2">✕</button>
+		</form>
+		<div class="grid gap-4">
+			<div
+				class="bg-error/10 text-error flex aspect-square size-20 items-center justify-center justify-self-center rounded-full"
+			>
+				<Icon icon="material-symbols:delete-outline" class="size-10" />
+			</div>
+			<h2 class="text-2xl font-bold">Delete this price?</h2>
+			{#if pendingDeletePrice}
+				<p class="text-base-content/60">
+					This will permanently remove the
+					<span class="text-base-content font-semibold">
+						${pendingDeletePrice.price.toFixed(2)}
+					</span>
+					entry from {dayjs(pendingDeletePrice.createdAt).fromNow()}.
+				</p>
+			{/if}
+		</div>
+		<div class="grid gap-4">
+			<button class="btn btn-error btn-lg" disabled={isDeleting} onclick={confirmDelete}>
+				{#if isDeleting}<span class="loading loading-spinner loading-sm"></span>{/if}
+				Delete
+			</button>
+			<button class="btn btn-outline btn-neutral btn-lg w-full" onclick={() => deleteDialog?.close()}
+				>Cancel</button
+			>
+		</div>
+	</div>
+	<form method="dialog" class="modal-backdrop">
+		<button>close</button>
+	</form>
+</dialog>
