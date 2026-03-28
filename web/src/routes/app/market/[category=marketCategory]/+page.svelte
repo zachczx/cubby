@@ -46,7 +46,7 @@
 			<section class="grid gap-4 py-2">
 				<button class="btn btn-primary btn-lg w-full rounded-full" onclick={openAddModal}>
 					<Icon icon="material-symbols:add" class="size-6" />
-					Add Price Log
+					Add Price
 				</button>
 			</section>
 
@@ -60,7 +60,7 @@
 						{/each}
 					</div>
 				{:else if insightsQuery.isError}
-					<div class="border-base-300/50 bg-base-50 rounded-2xl border p-4 text-error">
+					<div class="border-base-300/50 bg-base-50 text-error rounded-2xl border p-4">
 						Failed to load items.
 					</div>
 				{:else if filteredInsights.length > 0}
@@ -68,13 +68,15 @@
 						{#each filteredInsights as insight}
 							<a
 								href={router.marketItem(data.category, insight.itemName)}
-								class="border-base-300/50 bg-base-50 rounded-2xl border p-4 flex flex-col gap-2 hover:border-primary/30 transition-colors"
+								class="border-base-300/50 bg-base-50 hover:border-primary/30 flex flex-col gap-2 rounded-2xl border p-4 transition-colors"
 							>
-								<div class="flex justify-between items-start">
+								<div class="flex items-start justify-between">
 									<div>
-										<h3 class="font-semibold text-lg">{insight.itemName}</h3>
+										<h3 class="text-lg font-semibold">{insight.itemName}</h3>
 										{#if insight.country}
-											<span class="text-xs text-base-content/50 uppercase tracking-wider">{insight.country}</span>
+											<span class="text-base-content/50 text-xs tracking-wider uppercase"
+												>{insight.country}</span
+											>
 										{/if}
 									</div>
 									{#if insight.deltaPercent <= 0}
@@ -83,29 +85,39 @@
 										<div class="badge badge-warning text-warning-content badge-sm">Near Lowest</div>
 									{/if}
 								</div>
-								<div class="grid grid-cols-2 gap-4 mt-2">
+								<div class="mt-2 grid grid-cols-2 gap-4">
 									<div class="flex flex-col">
-										<span class="text-xs text-base-content/60">Current</span>
+										<span class="text-base-content/60 text-xs">Current</span>
 										<span class="font-medium">${insight.latestPrice.toFixed(2)}</span>
 										{#if insight.latestUnit}
-											<span class="text-xs text-base-content/50">${insight.latestUnit.toFixed(2)} / unit</span>
+											<span class="text-base-content/50 text-xs"
+												>${insight.latestUnit.toFixed(2)} / unit</span
+											>
 										{/if}
 										{#if insight.latestStore}
-											<span class="text-xs text-base-content/50">{insight.latestStore}</span>
+											<span class="text-base-content/50 text-xs">{insight.latestStore}</span>
 										{/if}
 									</div>
 									<div class="flex flex-col">
-										<span class="text-xs text-base-content/60">Lowest</span>
-										<span class="font-medium text-success">${insight.lowestPrice.toFixed(2)}</span>
+										<span class="text-base-content/60 text-xs">Lowest</span>
+										<span class="text-success font-medium">${insight.lowestPrice.toFixed(2)}</span>
 										{#if insight.lowestUnit}
-											<span class="text-xs text-success/70">${insight.lowestUnit.toFixed(2)} / unit</span>
+											<span class="text-success/70 text-xs"
+												>${insight.lowestUnit.toFixed(2)} / unit</span
+											>
 										{/if}
 										{#if insight.lowestStore}
-											<span class="text-xs text-base-content/50">{insight.lowestStore}</span>
+											<span class="text-base-content/50 text-xs">{insight.lowestStore}</span>
 										{/if}
 									</div>
 								</div>
-								<span class="text-xs {insight.deltaPercent <= 0 ? 'text-success' : insight.deltaPercent <= 10 ? 'text-warning' : 'text-base-content/50'}">
+								<span
+									class="text-xs {insight.deltaPercent <= 0
+										? 'text-success'
+										: insight.deltaPercent <= 10
+											? 'text-warning'
+											: 'text-base-content/50'}"
+								>
 									{deltaLabel(insight.deltaPercent)}
 								</span>
 							</a>

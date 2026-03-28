@@ -83,23 +83,24 @@
 			<section class="grid gap-4 py-2">
 				<button class="btn btn-primary btn-lg w-full rounded-full" onclick={openAddModal}>
 					<Icon icon="material-symbols:add" class="size-6" />
-					Add Price Log
+					Add Price
 				</button>
 			</section>
 
-			<!-- Insight Summary -->
 			{#if insightsQuery.isLoading}
 				<div class="skeleton h-40 w-full rounded-2xl"></div>
 			{:else if insight}
 				<section>
-					<div class="border-base-300/50 bg-base-50 rounded-2xl border p-4 flex flex-col gap-3">
-						<div class="flex justify-between items-start">
-							<div class="flex gap-2 items-center">
+					<div class="border-base-300/50 bg-base-50 flex flex-col gap-3 rounded-2xl border p-4">
+						<div class="flex items-start justify-between">
+							<div class="flex items-center gap-2">
 								{#if insight.country}
-									<span class="text-xs text-base-content/50 uppercase tracking-wider">{insight.country}</span>
+									<span class="text-base-content/50 text-xs tracking-wider uppercase"
+										>{insight.country}</span
+									>
 								{/if}
 								{#if insight.category}
-									<span class="text-xs text-base-content/50">{insight.category}</span>
+									<span class="text-base-content/50 text-xs">{insight.category}</span>
 								{/if}
 							</div>
 							{#if insight.deltaPercent <= 0}
@@ -112,23 +113,29 @@
 						</div>
 						<div class="grid grid-cols-2 gap-4">
 							<div class="flex flex-col">
-								<span class="text-xs text-base-content/60">Current</span>
-								<span class="font-semibold text-xl">${insight.latestPrice.toFixed(2)}</span>
+								<span class="text-base-content/60 text-xs">Current</span>
+								<span class="text-xl font-semibold">${insight.latestPrice.toFixed(2)}</span>
 								{#if insight.latestUnit}
-									<span class="text-xs text-base-content/50">${insight.latestUnit.toFixed(2)} / unit</span>
+									<span class="text-base-content/50 text-xs"
+										>${insight.latestUnit.toFixed(2)} / unit</span
+									>
 								{/if}
 								{#if insight.latestStore}
-									<span class="text-xs text-base-content/50">@ {insight.latestStore}</span>
+									<span class="text-base-content/50 text-xs">@ {insight.latestStore}</span>
 								{/if}
 							</div>
 							<div class="flex flex-col">
-								<span class="text-xs text-base-content/60">Lowest</span>
-								<span class="font-semibold text-xl text-success">${insight.lowestPrice.toFixed(2)}</span>
+								<span class="text-base-content/60 text-xs">Lowest</span>
+								<span class="text-success text-xl font-semibold"
+									>${insight.lowestPrice.toFixed(2)}</span
+								>
 								{#if insight.lowestUnit}
-									<span class="text-xs text-success/70">${insight.lowestUnit.toFixed(2)} / unit</span>
+									<span class="text-success/70 text-xs"
+										>${insight.lowestUnit.toFixed(2)} / unit</span
+									>
 								{/if}
 								{#if insight.lowestStore}
-									<span class="text-xs text-base-content/50">@ {insight.lowestStore}</span>
+									<span class="text-base-content/50 text-xs">@ {insight.lowestStore}</span>
 								{/if}
 							</div>
 						</div>
@@ -136,46 +143,53 @@
 				</section>
 			{/if}
 
-			<!-- Price History -->
 			<section class="grid gap-4 py-2">
 				<h2 class="text-base-content/70 text-lg font-bold">Price History</h2>
 
 				{#if pricesQuery.isLoading}
 					<div class="skeleton h-16 w-full rounded-2xl"></div>
 				{:else if filteredPrices.length > 0}
-					<div class="border-base-300/50 rounded-2xl border bg-base-50 divide-y divide-base-300/50">
+					<div class="border-base-300/50 bg-base-50 divide-base-300/50 divide-y rounded-2xl border">
 						{#each filteredPrices as price}
 							{@const up = unitPrice(price.price, price.quantity)}
-							<div class="p-4 flex justify-between items-center hover:bg-base-200/50 transition-colors">
+							<div
+								class="hover:bg-base-200/50 flex items-center justify-between p-4 transition-colors"
+							>
 								<div class="flex flex-col gap-0.5">
 									<div class="flex items-center gap-2">
 										{#if price.isPromo}
 											<span class="badge badge-warning badge-xs text-warning-content">Sale</span>
 										{/if}
 									</div>
-									<div class="flex gap-2 text-xs text-base-content/60 items-center flex-wrap">
+									<div class="text-base-content/60 flex flex-wrap items-center gap-2 text-xs">
 										{#if price.quantity && price.unit}
 											<span>{price.quantity} {price.unit}</span>
 										{:else if price.unit}
 											<span>/ {price.unit}</span>
 										{/if}
 										{#if price.store}
-											<span class="flex items-center gap-1"><Icon icon="material-symbols:storefront" /> {price.store}</span>
+											<span class="flex items-center gap-1"
+												><Icon icon="material-symbols:storefront" /> {price.store}</span
+											>
 										{/if}
 										{#if price.country}
-											<span class="flex items-center gap-1"><Icon icon="material-symbols:public" /> {price.country}</span>
+											<span class="flex items-center gap-1"
+												><Icon icon="material-symbols:public" /> {price.country}</span
+											>
 										{/if}
 										<span>· {dayjs(price.createdAt).fromNow()}</span>
 									</div>
 									{#if price.remarks}
-										<span class="text-xs text-base-content/40 italic">{price.remarks}</span>
+										<span class="text-base-content/40 text-xs italic">{price.remarks}</span>
 									{/if}
 								</div>
 								<div class="flex items-center gap-3">
 									<div class="flex flex-col items-end">
-										<span class="font-semibold text-lg">${price.price.toFixed(2)}</span>
+										<span class="text-lg font-semibold">${price.price.toFixed(2)}</span>
 										{#if up}
-											<span class="text-xs text-base-content/50">${up.toFixed(2)}/{price.unit || 'unit'}</span>
+											<span class="text-base-content/50 text-xs"
+												>${up.toFixed(2)}/{price.unit || 'unit'}</span
+											>
 										{/if}
 									</div>
 									<button
