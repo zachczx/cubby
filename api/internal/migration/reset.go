@@ -210,6 +210,7 @@ func Create(db *sqlx.DB) {
 
 		`CREATE INDEX IF NOT EXISTS idx_market_prices_family_id ON market_prices(family_id);`,
 		`CREATE INDEX IF NOT EXISTS idx_market_prices_item_name ON market_prices(item_name);`,
+		`CREATE UNIQUE INDEX IF NOT EXISTS idx_market_prices_no_duplicate ON market_prices(family_id, LOWER(item_name), COALESCE(LOWER(store), ''), price, DATE(created_at AT TIME ZONE 'UTC'));`,
 
 		// Date time filter indexes
 		`CREATE INDEX IF NOT EXISTS idx_entries_tracker_time ON entries(tracker_id, performed_at DESC);`,

@@ -53,28 +53,60 @@ type Input struct {
 	Remarks  *string  `json:"remarks"`
 }
 
-func LogPrice(db *sqlx.DB, p MarketPrice) (uuid.UUID, error) {
-	var newID uuid.UUID
+type UpsertResult struct {
+	ID       uuid.UUID `json:"id"`
+	IsUpdate bool      `json:"isUpdate"`
+}
 
-	q := `INSERT INTO market_prices (
-				family_id, logged_by, item_name, category, country, store, unit, quantity, price, is_promo, remarks, created_at, updated_at
-			) VALUES (
-				:family_id, :logged_by, :item_name, :category, :country, :store, :unit, :quantity, :price, :is_promo, :remarks, NOW(), NOW()
-			) RETURNING id`
+func LogPrice(db *sqlx.DB, p MarketPrice) (UpsertResult, error) {
+	var result UpsertResult
 
-	rows, err := db.NamedQuery(q, p)
+	tx, err := db.Beginx()
 	if err != nil {
-		return newID, fmt.Errorf("new market price NamedQuery: %w", err)
+		return result, fmt.Errorf("begin tx: %w", err)
 	}
-	defer rows.Close()
+	defer tx.Rollback()
 
-	if rows.Next() {
-		if err := rows.Scan(&newID); err != nil {
-			return newID, fmt.Errorf("new market price scan: %w", err)
+	var existingID uuid.UUID
+	checkQ := `SELECT id FROM market_prices
+		WHERE family_id = $1
+		AND LOWER(item_name) = LOWER($2)
+		AND COALESCE(LOWER(store), '') = COALESCE(LOWER($3), '')
+		AND price = $4
+		AND DATE(created_at AT TIME ZONE 'UTC') = CURRENT_DATE
+		LIMIT 1`
+
+	err = tx.Get(&existingID, checkQ, p.FamilyID, p.ItemName, p.Store, p.Price)
+
+	if err == nil {
+		updateQ := `UPDATE market_prices SET
+				quantity = $1, unit = $2, is_promo = $3, remarks = $4,
+				logged_by = $5, updated_at = NOW()
+			WHERE id = $6`
+		if _, err := tx.Exec(updateQ, p.Quantity, p.Unit, p.IsPromo, p.Remarks, p.LoggedBy, existingID); err != nil {
+			return result, fmt.Errorf("update duplicate: %w", err)
 		}
+		result.ID = existingID
+		result.IsUpdate = true
+	} else {
+		insertQ := `INSERT INTO market_prices (
+				family_id, logged_by, item_name, category, country, store, unit, quantity, price, is_promo, remarks, created_at, updated_at
+			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW(), NOW())
+			RETURNING id`
+		if err := tx.Get(&result.ID, insertQ,
+			p.FamilyID, p.LoggedBy, p.ItemName, p.Category, p.Country,
+			p.Store, p.Unit, p.Quantity, p.Price, p.IsPromo, p.Remarks,
+		); err != nil {
+			return result, fmt.Errorf("insert market price: %w", err)
+		}
+		result.IsUpdate = false
 	}
 
-	return newID, nil
+	if err := tx.Commit(); err != nil {
+		return result, fmt.Errorf("commit: %w", err)
+	}
+
+	return result, nil
 }
 
 func GetPrices(db *sqlx.DB, userID uuid.UUID) ([]MarketPrice, error) {

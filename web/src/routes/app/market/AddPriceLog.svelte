@@ -100,7 +100,11 @@
 			} else {
 				const res = await createMarketPriceMutation(payload);
 				if (res) {
-					addToast('success', 'Price logged successfully!');
+					if (res.isUpdate) {
+						addToast('info', 'Duplicate found — updated existing entry for today.');
+					} else {
+						addToast('success', 'Price logged successfully!');
+					}
 					onClose();
 				} else {
 					addToast('error', 'Failed to log price');

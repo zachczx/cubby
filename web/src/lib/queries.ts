@@ -173,12 +173,17 @@ const marketInsightsQuery = createQueryFactory(
 export const marketInsightsQueryOptions = marketInsightsQuery.options;
 export const marketInsightsRefetchOptions = marketInsightsQuery.refetch;
 
+export interface MarketPriceUpsertResult {
+	id: string;
+	isUpdate: boolean;
+}
+
 export async function createMarketPriceMutation(input: MarketPriceInput) {
 	return await api
 		.post('market/prices', {
 			body: JSON.stringify(input)
 		})
-		.json<string>();
+		.json<MarketPriceUpsertResult>();
 }
 
 export async function updateMarketPriceMutation(id: string, input: MarketPriceInput) {

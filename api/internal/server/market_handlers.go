@@ -62,13 +62,13 @@ func (s *Service) LogMarketPriceHandler(w http.ResponseWriter, r *http.Request) 
 		Remarks:  input.Remarks,
 	}
 
-	priceID, err := market.LogPrice(s.DB, p)
+	result, err := market.LogPrice(s.DB, p)
 	if err != nil {
 		response.WriteError(r.Context(), w, err)
 		return
 	}
 
-	response.WriteJSON(r.Context(), w, priceID)
+	response.WriteJSON(r.Context(), w, result)
 }
 
 func (s *Service) GetMarketPricesHandler(w http.ResponseWriter, r *http.Request) {
