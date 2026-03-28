@@ -5,20 +5,7 @@
 	import { marketPricesQueryOptions } from '$lib/queries';
 	import { router } from '$lib/routes';
 	import AddPriceLog from './AddPriceLog.svelte';
-
-	const categories = [
-		{ name: 'Fruit', icon: 'material-symbols:nutrition' },
-		{ name: 'Vegetable', icon: 'material-symbols:eco' },
-		{ name: 'Dairy', icon: 'material-symbols:egg-alt' },
-		{ name: 'Meat', icon: 'material-symbols:restaurant' },
-		{ name: 'Seafood', icon: 'material-symbols:set-meal' },
-		{ name: 'Bakery', icon: 'material-symbols:bakery-dining' },
-		{ name: 'Pantry', icon: 'material-symbols:shelves' },
-		{ name: 'Frozen', icon: 'material-symbols:ac-unit' },
-		{ name: 'Beverage', icon: 'material-symbols:local-cafe' },
-		{ name: 'Snack', icon: 'material-symbols:cookie' },
-		{ name: 'Other', icon: 'material-symbols:category' }
-	];
+	import { marketCategories } from '$lib/market';
 
 	const pricesQuery = createQuery(marketPricesQueryOptions);
 
@@ -58,7 +45,7 @@
 			<section class="grid gap-4 py-2">
 				<button class="btn btn-primary btn-lg w-full rounded-full" onclick={openAddModal}>
 					<Icon icon="material-symbols:add" class="size-6" />
-					Add Price Log
+					Add Price
 				</button>
 			</section>
 
@@ -77,10 +64,10 @@
 					</div>
 				{:else}
 					<div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
-						{#each categories as cat}
-							{@const count = itemCounts[cat.name] ?? 0}
+						{#each marketCategories as cat}
+							{@const count = itemCounts[cat.value] ?? 0}
 							<a
-								href={router.marketCategory(cat.name)}
+								href={router.marketCategory(cat.value)}
 								class="border-base-300/50 bg-base-50 hover:border-primary/30 flex flex-col gap-2 rounded-2xl border p-4 transition-colors"
 							>
 								<div class="flex items-center gap-2">
@@ -89,7 +76,7 @@
 									</div>
 								</div>
 								<div>
-									<span class="font-semibold">{cat.name}</span>
+									<span class="font-semibold">{cat.label}</span>
 									<p class="text-base-content/50 text-xs">
 										{count === 0 ? 'No items' : `${count} item${count === 1 ? '' : 's'}`}
 									</p>

@@ -8,6 +8,7 @@
 		updateMarketPriceMutation
 	} from '$lib/queries';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
+	import { marketCategories } from '$lib/market';
 
 	let {
 		onClose,
@@ -17,28 +18,15 @@
 		editPrice?: any | null;
 	} = $props();
 
-	const categories = [
-		'Fruit',
-		'Vegetable',
-		'Dairy',
-		'Meat',
-		'Seafood',
-		'Bakery',
-		'Pantry',
-		'Frozen',
-		'Beverage',
-		'Snack',
-		'Other'
-	];
 	const units = ['kg', 'g', 'each', 'bunch', 'punnet', 'pack', 'bottle', 'can', 'litre', 'dozen'];
 
 	const pricesQuery = createQuery(marketPricesQueryOptions);
 
 	let itemName = $state(editPrice?.itemName ?? '');
-	let category = $state(editPrice?.category ?? '');
+	let category = $state(editPrice?.category ?? 'fruit');
 	let country = $state(editPrice?.country ?? '');
 	let store = $state(editPrice?.store ?? '');
-	let unit = $state(editPrice?.unit ?? '');
+	let unit = $state(editPrice?.unit ?? 'pack');
 	let quantity = $state(editPrice?.quantity?.toString() ?? '');
 	let price = $state(editPrice?.price?.toString() ?? '');
 	let isPromo = $state(editPrice?.isPromo ?? false);
@@ -226,9 +214,8 @@
 						bind:value={category}
 						class="select select-bordered focus:outline-primary w-full transition-all"
 					>
-						<option value="">—</option>
-						{#each categories as cat}
-							<option value={cat}>{cat}</option>
+						{#each marketCategories as cat}
+							<option value={cat.value}>{cat.label}</option>
 						{/each}
 					</select>
 				</div>
@@ -259,33 +246,29 @@
 						class="input input-bordered focus:outline-primary w-full transition-all"
 					/>
 				</div>
-				<div class="form-control w-full">
-					<label class="label py-1"
-						><span class="label-text text-base-content/80 font-medium">Price Type</span></label
+				<fieldset class="form-control w-full">
+					<legend class="label py-1"
+						><span class="label-text text-base-content/80 font-medium">Price Type</span></legend
 					>
-					<div class="border-base-300 flex h-9 overflow-hidden rounded-lg border text-sm">
-						<button
-							type="button"
-							class={[
-								'flex-1 font-medium transition-colors',
-								!isPromo ? 'text-primary-content bg-segmented' : 'text-base-content/50 hover:bg-base-200'
-							]}
-							onclick={() => (isPromo = false)}
-						>
-							Regular
-						</button>
-						<button
-							type="button"
-							class={[
-								'flex-1 font-medium transition-colors',
-								isPromo ? 'text-primary-content bg-segmented' : 'text-base-content/50 hover:bg-base-200'
-							]}
-							onclick={() => (isPromo = true)}
-						>
-							Promo
-						</button>
+					<div class="join w-full">
+						<input
+							type="radio"
+							name="price-type"
+							class="btn join-item checked:bg-segmented checked:text-primary-content flex-1"
+							aria-label="Regular"
+							checked={!isPromo}
+							onchange={() => (isPromo = false)}
+						/>
+						<input
+							type="radio"
+							name="price-type"
+							class="btn join-item checked:bg-segmented checked:text-primary-content flex-1"
+							aria-label="Promo"
+							checked={isPromo}
+							onchange={() => (isPromo = true)}
+						/>
 					</div>
-				</div>
+				</fieldset>
 			</div>
 
 			<div class="form-control w-full">

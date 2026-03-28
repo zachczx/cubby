@@ -402,32 +402,26 @@
 						</div>
 						<div
 							class={[
-								'border-base-300 flex overflow-hidden rounded-lg border text-sm',
+								'join text-sm',
 								!workoutsDb.data || workoutsDb.data.length === 0 ? 'hidden' : undefined
 							]}
 						>
-							<button
-								class={[
-									'px-3 py-1 font-medium transition-colors',
-									weightUnit === 'kg'
-										? 'text-primary-content bg-segmented'
-										: 'text-base-content/50 hover:bg-base-200'
-								]}
-								onclick={() => (weightUnit = 'kg')}
-							>
-								kg
-							</button>
-							<button
-								class={[
-									'px-3 py-1 font-medium transition-colors',
-									weightUnit === 'lb'
-										? 'text-primary-content bg-segmented'
-										: 'text-base-content/50 hover:bg-base-200'
-								]}
-								onclick={() => (weightUnit = 'lb')}
-							>
-								lb
-							</button>
+							<input
+								type="radio"
+								name="weight-unit"
+								class="btn btn-sm join-item checked:bg-segmented checked:text-primary-content"
+								aria-label="kg"
+								checked={weightUnit === 'kg'}
+								onchange={() => (weightUnit = 'kg')}
+							/>
+							<input
+								type="radio"
+								name="weight-unit"
+								class="btn btn-sm join-item checked:bg-segmented checked:text-primary-content"
+								aria-label="lb"
+								checked={weightUnit === 'lb'}
+								onchange={() => (weightUnit = 'lb')}
+							/>
 						</div>
 					</div>
 
@@ -661,21 +655,19 @@
 			</p>
 		{/if}
 
-		<div class="border-base-300 flex w-full overflow-hidden rounded-lg border text-sm">
+		<fieldset class="join w-full text-sm">
+			<legend class="sr-only">Set Type</legend>
 			{#each [{ value: 'working', label: 'Working' }, { value: 'dropset', label: 'Drop' }, { value: 'failure', label: 'Failure' }] as opt (opt.value)}
-				<button
-					class={[
-						'flex-1 px-3 py-2 font-medium transition-colors',
-						setType === opt.value
-							? 'text-primary-content bg-segmented'
-							: 'text-base-content/50 hover:bg-base-200'
-					]}
-					onclick={() => (setType = opt.value)}
-				>
-					{opt.label}
-				</button>
+				<input
+					type="radio"
+					name="set-type"
+					class="btn join-item flex-1 checked:bg-segmented checked:text-primary-content"
+					aria-label={opt.label}
+					checked={setType === opt.value}
+					onchange={() => (setType = opt.value)}
+				/>
 			{/each}
-		</div>
+		</fieldset>
 
 		<button
 			class="btn btn-primary btn-lg w-full rounded-full"
