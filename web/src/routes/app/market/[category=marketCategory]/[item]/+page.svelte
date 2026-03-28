@@ -8,6 +8,7 @@
 	import { api } from '$lib/api';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
 	import AddPriceLog from '../../AddPriceLog.svelte';
+	import Sparkline from '$lib/ui/Sparkline.svelte';
 
 	dayjs.extend(relativeTime);
 
@@ -85,6 +86,13 @@
 		if (!pricesQuery.isSuccess || !pricesQuery.data) return [];
 		return pricesQuery.data.filter((p) => matchesItem(p.itemName));
 	});
+
+	let sparklineData = $derived.by(() => {
+		if (filteredPrices.length < 2) return [];
+		return [...filteredPrices]
+			.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+			.map((p) => ({ date: p.createdAt, price: p.price }));
+	});
 </script>
 
 <PageWrapper title={data.item}>
@@ -149,6 +157,14 @@
 								{/if}
 							</div>
 						</div>
+					</div>
+				</section>
+			{/if}
+
+			{#if sparklineData.length > 0}
+				<section>
+					<div class="border-base-300/50 bg-base-50 rounded-2xl border p-4">
+						<Sparkline points={sparklineData} />
 					</div>
 				</section>
 			{/if}
