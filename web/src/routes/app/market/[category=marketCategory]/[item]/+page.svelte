@@ -18,9 +18,9 @@
 	const insightsQuery = createQuery(marketInsightsQueryOptions);
 
 	let isModalOpen = $state(false);
-	let editPrice = $state<any | null>(null);
+	let editPrice = $state<MarketPriceDB | null>(null);
 	let deleteDialog = $state<HTMLDialogElement | null>(null);
-	let pendingDeletePrice = $state<any | null>(null);
+	let pendingDeletePrice = $state<MarketPriceDB | null>(null);
 	let isDeleting = $state(false);
 
 	function openAddModal() {

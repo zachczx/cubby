@@ -14,7 +14,7 @@
 	const pricesQuery = createQuery(marketPricesQueryOptions);
 
 	let isModalOpen = $state(false);
-	let editPrice = $state<any | null>(null);
+	let editPrice = $state<MarketPriceDB | null>(null);
 	let searchQuery = $state('');
 
 	function openAddModal() {

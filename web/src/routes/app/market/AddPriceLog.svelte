@@ -22,7 +22,7 @@
 		paramCategory
 	}: {
 		onClose: () => void;
-		editPrice?: any | null;
+		editPrice?: MarketPriceDB | null;
 		paramCategory?: MarketCategoryValue;
 	} = $props();
 
