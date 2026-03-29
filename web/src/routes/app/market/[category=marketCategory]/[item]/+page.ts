@@ -1,8 +1,7 @@
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({ params }) => {
-	return {
-		category: decodeURIComponent(params.category),
-		item: decodeURIComponent(params.item)
-	};
+	const category = params.category;
+	const item = params.item;
+	return { category, item };
 };

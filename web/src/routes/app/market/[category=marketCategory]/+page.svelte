@@ -4,6 +4,7 @@
 	import { createQuery } from '@tanstack/svelte-query';
 	import { marketInsightsQueryOptions } from '$lib/queries';
 	import { router } from '$lib/routes';
+	import { type MarketCategoryValue } from '$lib/market';
 	import AddPriceLog from '../AddPriceLog.svelte';
 
 	let { data } = $props();
@@ -134,5 +135,5 @@
 </PageWrapper>
 
 {#if isModalOpen}
-	<AddPriceLog paramCategory={data.category} onClose={handleCloseModal} {editPrice} />
+	<AddPriceLog paramCategory={data.category as MarketCategoryValue} onClose={handleCloseModal} {editPrice} />
 {/if}
