@@ -18,15 +18,20 @@
 	const padX = 4;
 	const padY = 8;
 
-	let linePath = $derived.by(() => {
-		if (points.length < 2) return '';
+	let stats = $derived.by(() => {
+		if (points.length < 2) return null;
 		const prices = points.map((p) => p.price);
 		const min = Math.min(...prices);
 		const max = Math.max(...prices);
 		const range = max - min || 1;
 		const innerW = width - padX * 2;
 		const innerH = height - padY * 2;
+		return { min, max, range, innerW, innerH };
+	});
 
+	let linePath = $derived.by(() => {
+		if (!stats) return '';
+		const { min, range, innerW, innerH } = stats;
 		return points
 			.map((p, i) => {
 				const x = padX + (i / (points.length - 1)) * innerW;
@@ -37,21 +42,15 @@
 	});
 
 	let areaPath = $derived.by(() => {
-		if (!linePath) return '';
-		const innerW = width - padX * 2;
+		if (!linePath || !stats) return '';
 		const firstX = padX;
-		const lastX = padX + innerW;
+		const lastX = padX + stats.innerW;
 		return `${linePath} L${lastX.toFixed(1)},${height} L${firstX.toFixed(1)},${height} Z`;
 	});
 
 	let latestDot = $derived.by(() => {
-		if (points.length < 2) return null;
-		const prices = points.map((p) => p.price);
-		const min = Math.min(...prices);
-		const max = Math.max(...prices);
-		const range = max - min || 1;
-		const innerW = width - padX * 2;
-		const innerH = height - padY * 2;
+		if (!stats) return null;
+		const { min, range, innerW, innerH } = stats;
 		const last = points[points.length - 1];
 		const x = padX + innerW;
 		const y = padY + innerH - ((last.price - min) / range) * innerH;
@@ -59,13 +58,9 @@
 	});
 
 	let minMaxLabels = $derived.by(() => {
-		if (points.length < 2) return null;
-		const prices = points.map((p) => p.price);
-		const min = Math.min(...prices);
-		const max = Math.max(...prices);
+		if (!stats) return null;
+		const { min, max, innerW, innerH } = stats;
 		if (min === max) return null;
-		const innerW = width - padX * 2;
-		const innerH = height - padY * 2;
 
 		let minX = padX,
 			minY = padY + innerH;
