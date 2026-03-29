@@ -27,7 +27,18 @@
 		{#snippet children(toast)}
 			<Toast.Root>
 				<div class="content">
-					<div><Icon icon="material-symbols:check-circle" class="size-[1.3em]" /></div>
+					<div>
+						<Icon
+							icon={toast().type === 'error'
+								? 'material-symbols:error'
+								: toast().type === 'warning'
+									? 'material-symbols:warning'
+									: toast().type === 'info'
+										? 'material-symbols:info'
+										: 'material-symbols:check-circle'}
+							class="size-[1.3em]"
+						/>
+					</div>
 					<div>
 						<!-- {#if toast().title}
 						<Toast.Title>{toast().title}</Toast.Title>
