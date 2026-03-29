@@ -148,7 +148,7 @@
 			<section class="grid gap-4 py-2">
 				<h2 class="text-base-content/70 text-lg font-bold">Pinned</h2>
 
-				{#if allEntriesDb.isSuccess}
+				{#if allEntriesDb.isSuccess && trackersDb.isSuccess && userOptions.isSuccess}
 					{#each entries.pinned as entry (entry.trackerData?.id)}
 						<ActionCard
 							options={{
@@ -189,7 +189,7 @@
 					{/each}
 				</div>
 
-				{#if allEntriesDb.isSuccess}
+				{#if allEntriesDb.isSuccess && trackersDb.isSuccess && userOptions.isSuccess}
 					{#if entries.general && entries.general.length > 0}
 						<div class="border-base-300/50 rounded-2xl border bg-base-50">
 							{#each entries.general as entry, i (entry.trackerData?.id)}
@@ -229,7 +229,7 @@
 			<section class="grid gap-4 py-2">
 				<h2 class="text-base-content/70 text-lg font-bold">Subscriptions</h2>
 
-				{#if allEntriesDb.isSuccess && subscriptions && subscriptions.length > 0}
+				{#if allEntriesDb.isSuccess && trackersDb.isSuccess && userOptions.isSuccess && subscriptions && subscriptions.length > 0}
 					<div class="border-base-300/50 rounded-2xl border bg-base-50">
 						{#each subscriptions as sub, i (sub.id)}
 							<ActionCard
@@ -249,7 +249,7 @@
 							></ActionCard>
 						{/each}
 					</div>
-				{:else if allEntriesDb.isSuccess && subscriptions && subscriptions.length === 0}
+				{:else if allEntriesDb.isSuccess && trackersDb.isSuccess && userOptions.isSuccess && subscriptions && subscriptions.length === 0}
 					<div class="justify-self-center">
 						<enhanced:img src={EmptyCorgi} alt="nothing" />
 						<p class="text-center">No subscriptions!</p>

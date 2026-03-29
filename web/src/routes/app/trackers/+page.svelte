@@ -128,7 +128,7 @@
 			<section class="grid gap-4 py-2">
 				<h2 class="text-base-content/70 text-lg font-bold">Pinned</h2>
 
-				{#if allEntriesDb.isSuccess}
+				{#if allEntriesDb.isSuccess && trackersDb.isSuccess && userOptions.isSuccess}
 					{#if entries.pinned.length > 0}
 						{#each entries.pinned as entry (entry.trackerData.id)}
 							<ActionCard
@@ -147,10 +147,10 @@
 								}}
 							></ActionCard>
 						{/each}
-					{:else if trackersDb.isSuccess}
+					{:else}
 						<p class="text-base-content/50 py-4 text-center">No pinned tasks</p>
 					{/if}
-				{:else if allEntriesDb.isError}
+				{:else if allEntriesDb.isError || trackersDb.isError || userOptions.isError}
 					Error!
 				{:else}
 					<SkeletonActionCard size="compact" />
@@ -161,7 +161,7 @@
 			<section class="grid gap-4 py-2">
 				<h2 class="text-base-content/70 text-lg font-bold">Other Tasks</h2>
 
-				{#if allEntriesDb.isSuccess}
+				{#if allEntriesDb.isSuccess && trackersDb.isSuccess && userOptions.isSuccess}
 					{#if entries.general.length > 0}
 						<div class="border-base-300/50 rounded-2xl border bg-base-50">
 							{#each entries.general as entry, i (entry.trackerData.id)}
@@ -183,13 +183,13 @@
 								></ActionCard>
 							{/each}
 						</div>
-					{:else if trackersDb.isSuccess}
+					{:else}
 						<div class="justify-self-center">
 							<enhanced:img src={EmptyCorgi} alt="nothing" />
 							<p class="text-center">Nothing being tracked!</p>
 						</div>
 					{/if}
-				{:else if allEntriesDb.isError}
+				{:else if allEntriesDb.isError || trackersDb.isError || userOptions.isError}
 					Error!
 				{:else}
 					<SkeletonActionCard size="compact" />
@@ -197,7 +197,7 @@
 				{/if}
 			</section>
 
-			{#if subscriptions.length > 0}
+			{#if trackersDb.isSuccess && userOptions.isSuccess && subscriptions.length > 0}
 				<section class="grid gap-4 py-2">
 					<h2 class="text-base-content/70 text-lg font-bold">Subscriptions</h2>
 

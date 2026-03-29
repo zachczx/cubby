@@ -46,7 +46,8 @@
 	});
 
 	let entries = $derived.by(() => {
-		if (!allEntriesDB.isSuccess || !allEntriesDB.data) return { tasks: [], subscriptions: [] };
+		if (!allEntriesDB.isSuccess || !allEntriesDB.data || !trackersDb.isSuccess || !userOptions.isSuccess || !userOptions.data)
+			return { tasks: [], subscriptions: [] };
 
 		return {
 			tasks: classifyTrackers(categoryTrackers, allEntriesDB.data, 'task'),
@@ -88,6 +89,7 @@
 		if (
 			!allEntriesDB.isSuccess ||
 			!allEntriesDB.data ||
+			!trackersDb.isSuccess ||
 			categoryTrackers.length === 0 ||
 			!allTrackers.length
 		)
@@ -112,36 +114,40 @@
 	<main class="h-full">
 		<div id="mobile" class="grid w-full max-w-lg gap-8 justify-self-center lg:text-base">
 			<section class="grid gap-4 py-4">
-				{#if entries.tasks && entries.tasks.length > 0}
-					{#each entries.tasks as task (task.trackerData.id)}
-						<ActionCard
-							options={{
-								size: 'compact',
-								tracker: task.trackerData,
-								title: task.trackerData.display,
-								route: router.tracker(task.trackerData.id),
-								entries: task.entries,
-								icon: getTrackerIcon(task.trackerData.icon),
-								button: {
-									text: task.trackerData.actionLabel,
-									status: buttonStatuses?.[task.trackerData.name]
-								},
-								streak: task.streak
-							}}
-						></ActionCard>
-					{/each}
-				{:else if trackersDb.isSuccess}
-					<div class="justify-self-center">
-						<enhanced:img src={EmptyCorgi} alt="nothing" />
-						<p class="text-center">Nothing being tracked!</p>
-					</div>
+				{#if allEntriesDB.isSuccess && trackersDb.isSuccess && userOptions.isSuccess}
+					{#if entries.tasks.length > 0}
+						{#each entries.tasks as task (task.trackerData.id)}
+							<ActionCard
+								options={{
+									size: 'compact',
+									tracker: task.trackerData,
+									title: task.trackerData.display,
+									route: router.tracker(task.trackerData.id),
+									entries: task.entries,
+									icon: getTrackerIcon(task.trackerData.icon),
+									button: {
+										text: task.trackerData.actionLabel,
+										status: buttonStatuses?.[task.trackerData.name]
+									},
+									streak: task.streak
+								}}
+							></ActionCard>
+						{/each}
+					{:else}
+						<div class="justify-self-center">
+							<enhanced:img src={EmptyCorgi} alt="nothing" />
+							<p class="text-center">Nothing being tracked!</p>
+						</div>
+					{/if}
+				{:else if allEntriesDB.isError || trackersDb.isError || userOptions.isError}
+					Error!
 				{:else}
 					<SkeletonActionCard />
 					<SkeletonActionCard />
 				{/if}
 			</section>
 
-			{#if entries.subscriptions && entries.subscriptions.length > 0}
+			{#if allEntriesDB.isSuccess && trackersDb.isSuccess && userOptions.isSuccess && entries.subscriptions && entries.subscriptions.length > 0}
 				<section class="grid gap-4 py-2">
 					<h2 class="text-base-content/70 text-lg font-bold">Subscriptions</h2>
 
@@ -184,9 +190,9 @@
 							</div>
 						{/each}
 					</div>
-				{:else if allEntriesDB.isError}
+				{:else if allEntriesDB.isError || trackersDb.isError || userOptions.isError}
 					Error!
-				{:else if allEntriesDB.isSuccess}
+				{:else if allEntriesDB.isSuccess && trackersDb.isSuccess && userOptions.isSuccess}
 					<div class="justify-self-center">
 						<enhanced:img src={EmptyCorgi} alt="nothing" />
 						<p class="text-center">No tasks!</p>
