@@ -19,16 +19,18 @@
 	let {
 		onClose,
 		editPrice = null,
-		paramCategory
+		paramCategory,
+		paramItemName
 	}: {
 		onClose: () => void;
 		editPrice?: MarketPriceDB | null;
 		paramCategory?: MarketCategoryValue;
+		paramItemName?: string;
 	} = $props();
 
 	const pricesQuery = createQuery(marketPricesQueryOptions);
 
-	let itemName = $state(editPrice?.itemName ?? '');
+	let itemName = $state(editPrice?.itemName ?? (paramItemName ? toTitleCase(paramItemName) : ''));
 	let category = $state(editPrice?.category ?? paramCategory ?? 'fruit');
 	let country = $state(editPrice?.country ?? '');
 	let store = $state(editPrice?.store ?? '');
@@ -331,8 +333,16 @@
 				{#if customDateEnabled}
 					<div class="form-control w-full">
 						<div class="grid grid-cols-2 gap-2">
-							<input type="date" bind:value={date} class="input input-bordered focus:outline-primary w-full transition-all" />
-							<input type="time" bind:value={time} class="input input-bordered focus:outline-primary w-full transition-all" />
+							<input
+								type="date"
+								bind:value={date}
+								class="input input-bordered focus:outline-primary w-full transition-all"
+							/>
+							<input
+								type="time"
+								bind:value={time}
+								class="input input-bordered focus:outline-primary w-full transition-all"
+							/>
 						</div>
 					</div>
 				{/if}
