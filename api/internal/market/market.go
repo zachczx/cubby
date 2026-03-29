@@ -22,8 +22,8 @@ type MarketPrice struct {
 	Price     float64    `json:"price" db:"price"`
 	IsPromo   bool       `json:"isPromo" db:"is_promo"`
 	Remarks   *string    `json:"remarks" db:"remarks"`
-	CreatedAt time.Time  `json:"createdAt" db:"created_at"`
-	UpdatedAt time.Time  `json:"updatedAt" db:"updated_at"`
+	CreatedAt *time.Time `json:"createdAt,omitempty" db:"created_at"`
+	UpdatedAt *time.Time `json:"updatedAt,omitempty" db:"updated_at"`
 }
 
 type MarketInsight struct {
@@ -42,15 +42,17 @@ type MarketInsight struct {
 }
 
 type Input struct {
-	ItemName string   `json:"itemName"`
-	Category *string  `json:"category"`
-	Country  *string  `json:"country"`
-	Store    *string  `json:"store"`
-	Unit     *string  `json:"unit"`
-	Quantity *float64 `json:"quantity"`
-	Price    float64  `json:"price"`
-	IsPromo  bool     `json:"isPromo"`
-	Remarks  *string  `json:"remarks"`
+	ItemName  string   `json:"itemName"`
+	Category  *string  `json:"category"`
+	Country   *string  `json:"country"`
+	Store     *string  `json:"store"`
+	Unit      *string  `json:"unit"`
+	Quantity  *float64 `json:"quantity"`
+	Price     float64  `json:"price"`
+	IsPromo   bool     `json:"isPromo"`
+	Remarks   *string  `json:"remarks"`
+	CreatedAt *string  `json:"createdAt,omitempty"`
+	UpdatedAt *string  `json:"updatedAt,omitempty"`
 }
 
 type UpsertResult struct {
@@ -79,23 +81,43 @@ func LogPrice(db *sqlx.DB, p MarketPrice) (UpsertResult, error) {
 	err = tx.Get(&existingID, checkQ, p.FamilyID, p.ItemName, p.Store, p.Price)
 
 	if err == nil {
+		var updatedAt interface{}
+		if p.UpdatedAt == nil {
+			updatedAt = "NOW()"
+		} else {
+			updatedAt = p.UpdatedAt
+		}
+
 		updateQ := `UPDATE market_prices SET
 				quantity = $1, unit = $2, is_promo = $3, remarks = $4,
-				logged_by = $5, updated_at = NOW()
-			WHERE id = $6`
-		if _, err := tx.Exec(updateQ, p.Quantity, p.Unit, p.IsPromo, p.Remarks, p.LoggedBy, existingID); err != nil {
+				logged_by = $5, updated_at = $6
+			WHERE id = $7`
+		if _, err := tx.Exec(updateQ, p.Quantity, p.Unit, p.IsPromo, p.Remarks, p.LoggedBy, updatedAt, existingID); err != nil {
 			return result, fmt.Errorf("update duplicate: %w", err)
 		}
 		result.ID = existingID
 		result.IsUpdate = true
 	} else {
+		var createdAt, updatedAt interface{}
+		if p.CreatedAt == nil {
+			createdAt = "NOW()"
+		} else {
+			createdAt = p.CreatedAt
+		}
+		if p.UpdatedAt == nil {
+			updatedAt = "NOW()"
+		} else {
+			updatedAt = p.UpdatedAt
+		}
+
 		insertQ := `INSERT INTO market_prices (
 				family_id, logged_by, item_name, category, country, store, unit, quantity, price, is_promo, remarks, created_at, updated_at
-			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW(), NOW())
+			) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
 			RETURNING id`
 		if err := tx.Get(&result.ID, insertQ,
 			p.FamilyID, p.LoggedBy, p.ItemName, p.Category, p.Country,
 			p.Store, p.Unit, p.Quantity, p.Price, p.IsPromo, p.Remarks,
+			createdAt, updatedAt,
 		); err != nil {
 			return result, fmt.Errorf("insert market price: %w", err)
 		}
@@ -271,6 +293,13 @@ func DeletePrice(db *sqlx.DB, userID uuid.UUID, priceID uuid.UUID) error {
 }
 
 func UpdatePrice(db *sqlx.DB, p MarketPrice, userID uuid.UUID) error {
+	var updatedAt interface{}
+	if p.UpdatedAt == nil {
+		updatedAt = "NOW()"
+	} else {
+		updatedAt = p.UpdatedAt
+	}
+
 	q := `UPDATE market_prices SET
 			item_name = $1,
 			category = $2,
@@ -281,17 +310,18 @@ func UpdatePrice(db *sqlx.DB, p MarketPrice, userID uuid.UUID) error {
 			price = $7,
 			is_promo = $8,
 			remarks = $9,
-			updated_at = NOW()
-		WHERE id = $10
+			updated_at = $10
+		WHERE id = $11
 		AND family_id IN (
-			SELECT family_id FROM families_users WHERE user_id = $11
+			SELECT family_id FROM families_users WHERE user_id = $12
 			UNION
-			SELECT id FROM families WHERE owner_id = $11
+			SELECT id FROM families WHERE owner_id = $12
 		)`
 
 	_, err := db.Exec(q,
 		p.ItemName, p.Category, p.Country, p.Store, p.Unit,
 		p.Quantity, p.Price, p.IsPromo, p.Remarks,
+		updatedAt,
 		p.ID, userID,
 	)
 	if err != nil {

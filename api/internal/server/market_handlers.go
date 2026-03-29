@@ -3,6 +3,7 @@ package server
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"strings"
 
@@ -65,12 +66,12 @@ func (s *Service) LogMarketPriceHandler(w http.ResponseWriter, r *http.Request) 
 	// Parse custom timestamps if provided
 	if input.CreatedAt != nil {
 		if t, err := time.Parse(time.RFC3339, *input.CreatedAt); err == nil {
-			p.CreatedAt = t
+			p.CreatedAt = &t
 		}
 	}
 	if input.UpdatedAt != nil {
 		if t, err := time.Parse(time.RFC3339, *input.UpdatedAt); err == nil {
-			p.UpdatedAt = t
+			p.UpdatedAt = &t
 		}
 	}
 
@@ -143,6 +144,18 @@ func (s *Service) UpdateMarketPriceHandler(w http.ResponseWriter, r *http.Reques
 		Price:    input.Price,
 		IsPromo:  input.IsPromo,
 		Remarks:  input.Remarks,
+	}
+
+	// Parse custom timestamps if provided
+	if input.CreatedAt != nil {
+		if t, err := time.Parse(time.RFC3339, *input.CreatedAt); err == nil {
+			p.CreatedAt = &t
+		}
+	}
+	if input.UpdatedAt != nil {
+		if t, err := time.Parse(time.RFC3339, *input.UpdatedAt); err == nil {
+			p.UpdatedAt = &t
+		}
 	}
 
 	if err := market.UpdatePrice(s.DB, p, userID); err != nil {

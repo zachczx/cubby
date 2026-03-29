@@ -9,6 +9,12 @@
 	} from '$lib/queries';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
 	import { marketCategories, marketUnits, type MarketCategoryValue } from '$lib/market';
+	import dayjs from 'dayjs';
+	import utc from 'dayjs/plugin/utc';
+	import timezone from 'dayjs/plugin/timezone';
+
+	dayjs.extend(utc);
+	dayjs.extend(timezone);
 
 	let {
 		onClose,
@@ -27,10 +33,23 @@
 	let country = $state(editPrice?.country ?? '');
 	let store = $state(editPrice?.store ?? '');
 	let unit = $state(editPrice?.unit ?? 'pack');
-	let quantity = $state(editPrice?.quantity?.toString() ?? 'pack');
+	let quantity = $state(editPrice?.quantity?.toString() ?? '1');
 	let price = $state(editPrice?.price?.toString() ?? '');
 	let isPromo = $state(editPrice?.isPromo ?? false);
 	let remarks = $state(editPrice?.remarks ?? '');
+	let customDateEnabled = $state(false);
+	let date = $state(dayjs().format('YYYY-MM-DD'));
+	let time = $state(dayjs().format('HH:mm'));
+	let timestamp = $derived.by(() => {
+		const ts = dayjs(date + 'T' + time);
+		const tzTime = dayjs.tz(ts, 'Asia/Singapore');
+
+		if (tzTime.diff(dayjs(), 'hours') > 0) {
+			return dayjs();
+		}
+
+		return tzTime;
+	});
 
 	let isSubmitting = $state(false);
 	let showSuggestions = $state(false);
@@ -83,7 +102,18 @@
 
 		isSubmitting = true;
 		try {
-			const payload = {
+			const payload: {
+				itemName: typeof trimmedName;
+				category: typeof category | null;
+				country: typeof country | null;
+				store: typeof store | null;
+				unit: typeof unit | null;
+				quantity: number | null;
+				price: number;
+				isPromo: typeof isPromo;
+				remarks: typeof remarks | null;
+				createdAt?: string;
+			} = {
 				itemName: trimmedName,
 				category: category || null,
 				country: country || null,
@@ -94,6 +124,10 @@
 				isPromo,
 				remarks: remarks.trim() || null
 			};
+
+			if (customDateEnabled) {
+				payload.createdAt = timestamp.toISOString();
+			}
 
 			if (editPrice) {
 				await updateMarketPriceMutation(editPrice.id, payload);
@@ -134,7 +168,7 @@
 		<form onsubmit={handleSubmit} class="grid gap-4">
 			<div class="form-control relative w-full">
 				<label for="item-name" class="label py-1"
-					><span class="label-text text-base-content/80 font-medium">Item Name*</span></label
+					><span class="label-text text-base-content/80 font-medium">Item Name *</span></label
 				>
 				<input
 					id="item-name"
@@ -168,7 +202,7 @@
 			<div class="grid grid-cols-3 gap-4">
 				<div class="form-control w-full">
 					<label for="price" class="label py-1"
-						><span class="label-text text-base-content/80 font-medium">Price ($)*</span></label
+						><span class="label-text text-base-content/80 font-medium">Price ($) *</span></label
 					>
 					<input
 						id="price"
@@ -183,7 +217,7 @@
 				</div>
 				<div class="form-control w-full">
 					<label for="quantity" class="label py-1"
-						><span class="label-text text-base-content/80 font-medium">Qty</span></label
+						><span class="label-text text-base-content/80 font-medium">Qty *</span></label
 					>
 					<input
 						id="quantity"
@@ -192,12 +226,13 @@
 						min="0"
 						bind:value={quantity}
 						placeholder="1"
+						required
 						class="input input-bordered focus:outline-primary w-full transition-all"
 					/>
 				</div>
 				<div class="form-control w-full">
 					<label for="unit" class="label py-1"
-						><span class="label-text text-base-content/80 font-medium">Unit</span></label
+						><span class="label-text text-base-content/80 font-medium">Unit *</span></label
 					>
 					<select
 						id="unit"
@@ -214,7 +249,7 @@
 			<div class="grid grid-cols-2 gap-4">
 				<div class="form-control w-full">
 					<label for="category" class="label py-1"
-						><span class="label-text text-base-content/80 font-medium">Category</span></label
+						><span class="label-text text-base-content/80 font-medium">Category *</span></label
 					>
 					<select
 						id="category"
@@ -255,7 +290,7 @@
 				</div>
 				<fieldset class="form-control w-full">
 					<legend class="label py-1"
-						><span class="label-text text-base-content/80 font-medium">Price Type</span></legend
+						><span class="label-text text-base-content/80 font-medium">Price Type *</span></legend
 					>
 					<div class="join w-full">
 						<input
@@ -289,6 +324,29 @@
 					placeholder="e.g. Members promo, bulk buy"
 					class="input input-bordered focus:outline-primary w-full transition-all"
 				/>
+			</div>
+
+			<div class={['form-control w-full']}>
+				<div class="flex items-center">
+					<button
+						type="button"
+						class={[
+							'btn btn-sm my-1',
+							!customDateEnabled && 'btn-ghost',
+							customDateEnabled && 'btn-soft btn-primary'
+						]}
+						onclick={() => (customDateEnabled = !customDateEnabled)}
+						>Set Date/Time<Icon icon="material-symbols:arrow-right-alt" class="size-[1.3em]" />
+					</button>
+				</div>
+				{#if customDateEnabled}
+					<div class="form-control w-full">
+						<div class="grid grid-cols-2 gap-2">
+							<input type="date" bind:value={date} class="input input-bordered focus:outline-primary w-full transition-all" />
+							<input type="time" bind:value={time} class="input input-bordered focus:outline-primary w-full transition-all" />
+						</div>
+					</div>
+				{/if}
 			</div>
 
 			<div class="mt-6 grid grid-cols-2 gap-3">
