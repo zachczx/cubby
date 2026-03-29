@@ -112,7 +112,7 @@
 						</h2>
 						<a
 							href="/app/market/categories"
-							class="btn btn-ghost btn-xs text-base-content/50 gap-1"
+							class="btn btn-ghost btn-xs text-base-content/70 gap-1"
 						>
 							View All
 							<Icon icon="material-symbols:chevron-right" class="size-4" />

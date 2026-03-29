@@ -8,6 +8,7 @@ export const marketCategories = [
 	{ value: 'pantry', label: 'Pantry', icon: 'material-symbols:shelves' },
 	{ value: 'frozen', label: 'Frozen', icon: 'material-symbols:ac-unit' },
 	{ value: 'beverage', label: 'Beverage', icon: 'material-symbols:local-cafe' },
+	{ value: 'alcohol', label: 'Alcohol', icon: 'material-symbols:liquor' },
 	{ value: 'snack', label: 'Snack', icon: 'material-symbols:cookie' },
 	{ value: 'others', label: 'Others', icon: 'material-symbols:category' }
 ] as const;
