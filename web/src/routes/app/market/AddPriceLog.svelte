@@ -8,7 +8,7 @@
 		updateMarketPriceMutation
 	} from '$lib/queries';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
-	import { marketCategories, type MarketCategoryValue } from '$lib/market';
+	import { marketCategories, marketUnits, type MarketCategoryValue } from '$lib/market';
 
 	let {
 		onClose,
@@ -20,8 +20,6 @@
 		paramCategory?: MarketCategoryValue;
 	} = $props();
 
-	const units = ['kg', 'g', 'each', 'bunch', 'punnet', 'pack', 'bottle', 'can', 'litre', 'dozen'];
-
 	const pricesQuery = createQuery(marketPricesQueryOptions);
 
 	let itemName = $state(editPrice?.itemName ?? '');
@@ -29,7 +27,7 @@
 	let country = $state(editPrice?.country ?? '');
 	let store = $state(editPrice?.store ?? '');
 	let unit = $state(editPrice?.unit ?? 'pack');
-	let quantity = $state(editPrice?.quantity?.toString() ?? '');
+	let quantity = $state(editPrice?.quantity?.toString() ?? 'pack');
 	let price = $state(editPrice?.price?.toString() ?? '');
 	let isPromo = $state(editPrice?.isPromo ?? false);
 	let remarks = $state(editPrice?.remarks ?? '');
@@ -206,8 +204,7 @@
 						bind:value={unit}
 						class="select select-bordered focus:outline-primary w-full transition-all"
 					>
-						<option value="">—</option>
-						{#each units as u}
+						{#each marketUnits as u}
 							<option value={u}>{u}</option>
 						{/each}
 					</select>

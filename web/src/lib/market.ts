@@ -13,3 +13,17 @@ export const marketCategories = [
 ] as const;
 
 export type MarketCategoryValue = (typeof marketCategories)[number]['value'];
+
+export const marketUnits = [
+	'kg',
+	'g',
+	'each',
+	'bunch',
+	'punnet',
+	'pack',
+	'bottle',
+	'can',
+	'litre',
+	'dozen',
+	'carton'
+] as const;

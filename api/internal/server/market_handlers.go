@@ -62,6 +62,18 @@ func (s *Service) LogMarketPriceHandler(w http.ResponseWriter, r *http.Request) 
 		Remarks:  input.Remarks,
 	}
 
+	// Parse custom timestamps if provided
+	if input.CreatedAt != nil {
+		if t, err := time.Parse(time.RFC3339, *input.CreatedAt); err == nil {
+			p.CreatedAt = t
+		}
+	}
+	if input.UpdatedAt != nil {
+		if t, err := time.Parse(time.RFC3339, *input.UpdatedAt); err == nil {
+			p.UpdatedAt = t
+		}
+	}
+
 	result, err := market.LogPrice(s.DB, p)
 	if err != nil {
 		response.WriteError(r.Context(), w, err)
