@@ -9,6 +9,7 @@
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
 	import AddPriceLog from '../../AddPriceLog.svelte';
 	import Sparkline from '$lib/ui/Sparkline.svelte';
+	import { type MarketCategoryValue } from '$lib/market';
 
 	dayjs.extend(relativeTime);
 
@@ -248,7 +249,7 @@
 </PageWrapper>
 
 {#if isModalOpen}
-	<AddPriceLog onClose={handleCloseModal} {editPrice} />
+	<AddPriceLog onClose={handleCloseModal} {editPrice} paramItemName={data.item} paramCategory={data.category as MarketCategoryValue} />
 {/if}
 
 <dialog bind:this={deleteDialog} class="modal modal-bottom sm:modal-middle">
