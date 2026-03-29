@@ -95,7 +95,7 @@
 	});
 </script>
 
-<PageWrapper title={data.item}>
+<PageWrapper title={data.item.charAt(0).toUpperCase() + data.item.slice(1)}>
 	<main class="h-full">
 		<div class="grid w-full max-w-lg gap-8 justify-self-center lg:text-base">
 			<section class="grid gap-4 py-2">
