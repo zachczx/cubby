@@ -135,7 +135,7 @@
 									class="flex shrink-0 flex-col items-center gap-1.5"
 								>
 									<div
-										class="bg-primary/10 text-primary flex size-14 items-center justify-center rounded-2xl"
+										class="text-primary/80 bg-primary/10 flex size-14 items-center justify-center rounded-2xl"
 									>
 										<Icon icon={cat.icon} class="size-7" />
 									</div>
@@ -174,7 +174,7 @@
 								class="border-base-300/50 bg-base-50 hover:border-primary/30 flex items-center gap-3 rounded-2xl border p-3.5 transition-colors"
 							>
 								<div
-									class="bg-primary/10 text-primary flex size-10 shrink-0 items-center justify-center rounded-xl"
+									class="text-primary/80 bg-primary/10 flex size-10 shrink-0 items-center justify-center rounded-xl"
 								>
 									<Icon icon={getCategoryIcon(price.category)} class="size-5" />
 								</div>

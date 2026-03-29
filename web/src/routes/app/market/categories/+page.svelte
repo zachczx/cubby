@@ -73,7 +73,7 @@
 								class="border-base-300/50 bg-base-50 hover:border-primary/30 flex flex-col gap-2 rounded-2xl border p-4 transition-colors"
 							>
 								<div class="flex items-center gap-2">
-									<div class="bg-primary/10 text-primary rounded-xl p-2">
+									<div class="text-primary/80 bg-primary/10 rounded-xl p-2">
 										<Icon icon={cat.icon} class="size-5" />
 									</div>
 								</div>
