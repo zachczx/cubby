@@ -19,20 +19,20 @@ export const topLevelRoutes = {
 			icon: 'material-symbols:checklist'
 		},
 		{
-			id: 'gym',
-			href: router.app('gym'),
-			label: 'Gym',
-			desktopNav: true,
-			mobileNav: true,
-			icon: 'material-symbols:exercise'
-		},
-		{
 			id: 'market',
 			href: router.app('market'),
 			label: 'Market',
 			desktopNav: true,
 			mobileNav: true,
 			icon: 'material-symbols:shopping-bag'
+		},
+		{
+			id: 'gym',
+			href: router.app('gym'),
+			label: 'Gym',
+			desktopNav: true,
+			mobileNav: true,
+			icon: 'material-symbols:exercise'
 		},
 		{
 			id: 'tools',
