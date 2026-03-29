@@ -93,7 +93,7 @@ func LogPrice(db *sqlx.DB, p MarketPrice) (UpsertResult, error) {
 				logged_by = $5, updated_at = $6
 			WHERE id = $7`
 		if _, err := tx.Exec(updateQ, p.Quantity, p.Unit, p.IsPromo, p.Remarks, p.LoggedBy, updatedAt, existingID); err != nil {
-			return result, fmt.Errorf("update duplicate: %w", err)
+			return result, fmt.Errorf("failed to update duplicate: %w", err)
 		}
 		result.ID = existingID
 		result.IsUpdate = true
@@ -119,7 +119,7 @@ func LogPrice(db *sqlx.DB, p MarketPrice) (UpsertResult, error) {
 			p.Store, p.Unit, p.Quantity, p.Price, p.IsPromo, p.Remarks,
 			createdAt, updatedAt,
 		); err != nil {
-			return result, fmt.Errorf("insert market price: %w", err)
+			return result, fmt.Errorf("failed to insert market price: %w", err)
 		}
 		result.IsUpdate = false
 	}
@@ -143,10 +143,6 @@ func GetPrices(db *sqlx.DB, userID uuid.UUID) ([]MarketPrice, error) {
 
 	if err := db.Select(&p, q, userID); err != nil {
 		return nil, fmt.Errorf("select market prices: %w", err)
-	}
-
-	if p == nil {
-		p = []MarketPrice{}
 	}
 
 	return p, nil
@@ -224,6 +220,8 @@ func getLowestPrices(db *sqlx.DB, userID uuid.UUID) ([]lowestRow, error) {
 	return rows, nil
 }
 
+const roundingFactor = 10
+
 func GetInsights(db *sqlx.DB, userID uuid.UUID) ([]MarketInsight, error) {
 	latest, err := getLatestPrices(db, userID)
 	if err != nil {
@@ -250,7 +248,7 @@ func GetInsights(db *sqlx.DB, userID uuid.UUID) ([]MarketInsight, error) {
 		var delta float64
 		if low.UnitPrice != 0 {
 			delta = (l.UnitPrice - low.UnitPrice) / low.UnitPrice * 100
-			delta = float64(int(delta*10)) / 10 // round to 1 decimal
+			delta = float64(int(delta*roundingFactor)) / roundingFactor
 		}
 
 		insights = append(insights, MarketInsight{
@@ -267,10 +265,6 @@ func GetInsights(db *sqlx.DB, userID uuid.UUID) ([]MarketInsight, error) {
 			LatestDate:   l.CreatedAt,
 			DeltaPercent: delta,
 		})
-	}
-
-	if insights == nil {
-		insights = []MarketInsight{}
 	}
 
 	return insights, nil
