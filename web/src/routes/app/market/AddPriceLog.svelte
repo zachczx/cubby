@@ -102,18 +102,7 @@
 
 		isSubmitting = true;
 		try {
-			const payload: {
-				itemName: typeof trimmedName;
-				category: typeof category | null;
-				country: typeof country | null;
-				store: typeof store | null;
-				unit: typeof unit | null;
-				quantity: number | null;
-				price: number;
-				isPromo: typeof isPromo;
-				remarks: typeof remarks | null;
-				createdAt?: string;
-			} = {
+			const payload: MarketPriceInput = {
 				itemName: trimmedName,
 				category: category || null,
 				country: country || null,
