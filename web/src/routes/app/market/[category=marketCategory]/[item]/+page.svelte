@@ -4,7 +4,7 @@
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import Icon from '@iconify/svelte';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { marketPricesQueryOptions, marketInsightsQueryOptions } from '$lib/queries';
+	import { marketPricesQueryOptions, marketInsightsQueryOptions, queryClient } from '$lib/queries';
 	import { api } from '$lib/api';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
 	import AddPriceLog from '../../AddPriceLog.svelte';
@@ -52,8 +52,8 @@
 		try {
 			await api.delete(`market/prices/${pendingDeletePrice.id}`);
 			addToast('success', 'Price deleted');
-			pricesQuery.refetch();
-			insightsQuery.refetch();
+			queryClient.refetchQueries({ queryKey: ['cubby', 'market-prices'], exact: true });
+			queryClient.refetchQueries({ queryKey: ['cubby', 'market-insights'], exact: true });
 		} catch {
 			addToast('error', 'Failed to delete');
 		} finally {

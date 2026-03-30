@@ -179,17 +179,22 @@ export interface MarketPriceUpsertResult {
 }
 
 export async function createMarketPriceMutation(input: MarketPriceInput) {
-	return await api
+	const result = await api
 		.post('market/prices', {
 			body: JSON.stringify(input)
 		})
 		.json<MarketPriceUpsertResult>();
+	queryClient.refetchQueries({ queryKey: [...rootKey, 'market-prices'], exact: true });
+	queryClient.refetchQueries({ queryKey: [...rootKey, 'market-insights'], exact: true });
+	return result;
 }
 
 export async function updateMarketPriceMutation(id: string, input: MarketPriceInput) {
-	return await api
+	await api
 		.patch(`market/prices/${id}`, {
 			body: JSON.stringify(input)
 		})
 		.json<void>();
+	queryClient.refetchQueries({ queryKey: [...rootKey, 'market-prices'], exact: true });
+	queryClient.refetchQueries({ queryKey: [...rootKey, 'market-insights'], exact: true });
 }
