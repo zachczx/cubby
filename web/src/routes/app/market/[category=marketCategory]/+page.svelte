@@ -69,11 +69,11 @@
 						{#each filteredInsights as insight}
 							<a
 								href={router.marketItem(data.category, insight.itemName)}
-								class="border-base-300/50 bg-base-50 hover:border-primary/30 flex flex-col gap-2 rounded-2xl border p-4 transition-colors"
+								class="border-base-300/50 bg-base-50 hover:border-primary/30 flex flex-col gap-2 overflow-hidden rounded-2xl border p-4 transition-colors"
 							>
 								<div class="flex items-start justify-between">
-									<div>
-										<h3 class="text-lg font-semibold">{insight.itemName}</h3>
+									<div class="min-w-0">
+										<h3 class="truncate text-lg font-semibold">{insight.itemName}</h3>
 										{#if insight.country}
 											<span class="text-base-content/50 text-xs tracking-wider uppercase"
 												>{insight.country}</span
@@ -135,5 +135,9 @@
 </PageWrapper>
 
 {#if isModalOpen}
-	<AddPriceLog paramCategory={data.category as MarketCategoryValue} onClose={handleCloseModal} {editPrice} />
+	<AddPriceLog
+		paramCategory={data.category as MarketCategoryValue}
+		onClose={handleCloseModal}
+		{editPrice}
+	/>
 {/if}

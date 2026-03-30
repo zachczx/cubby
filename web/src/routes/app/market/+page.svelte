@@ -171,7 +171,7 @@
 									: (price.unit ?? '')}
 							<a
 								href={price.category ? router.marketItem(price.category, price.itemName) : '#'}
-								class="border-base-300/50 bg-base-50 hover:border-primary/30 flex items-center gap-3 rounded-2xl border p-3.5 transition-colors"
+								class="border-base-300/50 bg-base-50 hover:border-primary/30 flex items-center gap-3 overflow-hidden rounded-2xl border p-3.5 transition-colors"
 							>
 								<div
 									class="text-primary/80 bg-primary/10 flex size-10 shrink-0 items-center justify-center rounded-xl"
