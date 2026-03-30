@@ -10,6 +10,7 @@
 	import AddPriceLog from '../../AddPriceLog.svelte';
 	import Sparkline from '$lib/ui/Sparkline.svelte';
 	import { type MarketCategoryValue } from '$lib/market';
+	import { titleCase } from '$lib/utils';
 
 	dayjs.extend(relativeTime);
 
@@ -96,7 +97,7 @@
 	});
 </script>
 
-<PageWrapper title={data.item.charAt(0).toUpperCase() + data.item.slice(1)}>
+<PageWrapper title={titleCase(data.item)}>
 	<main class="h-full">
 		<div class="grid w-full max-w-lg gap-8 justify-self-center lg:text-base">
 			<section class="grid gap-4 py-2">
@@ -249,7 +250,12 @@
 </PageWrapper>
 
 {#if isModalOpen}
-	<AddPriceLog onClose={handleCloseModal} {editPrice} paramItemName={data.item} paramCategory={data.category as MarketCategoryValue} />
+	<AddPriceLog
+		onClose={handleCloseModal}
+		{editPrice}
+		paramItemName={data.item}
+		paramCategory={data.category as MarketCategoryValue}
+	/>
 {/if}
 
 <dialog bind:this={deleteDialog} class="modal modal-bottom sm:modal-middle">

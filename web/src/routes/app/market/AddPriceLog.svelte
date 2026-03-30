@@ -12,6 +12,7 @@
 	import dayjs from 'dayjs';
 	import utc from 'dayjs/plugin/utc';
 	import timezone from 'dayjs/plugin/timezone';
+	import { titleCase } from '$lib/utils';
 
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
@@ -30,7 +31,7 @@
 
 	const pricesQuery = createQuery(marketPricesQueryOptions);
 
-	let itemName = $state(editPrice?.itemName ?? (paramItemName ? toTitleCase(paramItemName) : ''));
+	let itemName = $state(editPrice?.itemName ?? (paramItemName ? titleCase(paramItemName) : ''));
 	let category = $state(editPrice?.category ?? paramCategory ?? 'fruit');
 	let country = $state(editPrice?.country ?? '');
 	let store = $state(editPrice?.store ?? '');
@@ -40,8 +41,12 @@
 	let isPromo = $state(editPrice?.isPromo ?? false);
 	let remarks = $state(editPrice?.remarks ?? '');
 	let customDateEnabled = $state(!!editPrice);
-	let date = $state(editPrice ? dayjs(editPrice.createdAt).format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD'));
-	let time = $state(editPrice ? dayjs(editPrice.createdAt).format('HH:mm') : dayjs().format('HH:mm'));
+	let date = $state(
+		editPrice ? dayjs(editPrice.createdAt).format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD')
+	);
+	let time = $state(
+		editPrice ? dayjs(editPrice.createdAt).format('HH:mm') : dayjs().format('HH:mm')
+	);
 	let timestamp = $derived.by(() => {
 		const ts = dayjs(date + 'T' + time);
 		const tzTime = dayjs.tz(ts, 'Asia/Singapore');
@@ -56,10 +61,6 @@
 	let isSubmitting = $state(false);
 	let showSuggestions = $state(false);
 
-	function toTitleCase(s: string): string {
-		return s.replace(/\S+/g, (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
-	}
-
 	let existingNames = $derived.by(() => {
 		if (!pricesQuery.isSuccess || !pricesQuery.data) return [];
 		const seen = new Set<string>();
@@ -68,7 +69,7 @@
 			const lower = p.itemName.toLowerCase();
 			if (!seen.has(lower)) {
 				seen.add(lower);
-				names.push(toTitleCase(p.itemName));
+				names.push(titleCase(p.itemName));
 			}
 		}
 		return names.sort((a, b) => a.localeCompare(b));

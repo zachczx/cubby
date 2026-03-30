@@ -6,6 +6,7 @@
 	import { router } from '$lib/routes';
 	import { type MarketCategoryValue } from '$lib/market';
 	import AddPriceLog from '../AddPriceLog.svelte';
+	import { titleCase } from '$lib/utils';
 
 	let { data } = $props();
 
@@ -41,7 +42,7 @@
 	});
 </script>
 
-<PageWrapper title={data.category.charAt(0).toUpperCase() + data.category.slice(1)}>
+<PageWrapper title={titleCase(data.category)}>
 	<main class="h-full">
 		<div class="grid w-full max-w-lg gap-8 justify-self-center lg:text-base">
 			<section class="grid gap-4 py-2">
