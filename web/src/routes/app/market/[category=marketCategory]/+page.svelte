@@ -26,11 +26,6 @@
 		insightsQuery.refetch();
 	}
 
-	function deltaLabel(d: number): string {
-		if (d <= 0) return 'At lowest';
-		return `+${d.toFixed(1)}% vs lowest`;
-	}
-
 	function matchesCategory(cat: string | null): boolean {
 		if (!cat) return false;
 		return cat.toLowerCase() === data.category.toLowerCase();
@@ -72,7 +67,7 @@
 								href={router.marketItem(data.category, insight.itemName)}
 								class="border-base-300/50 bg-base-50 hover:border-primary/30 flex flex-col gap-2 overflow-hidden rounded-2xl border p-4 transition-colors"
 							>
-								<div class="flex items-start justify-between">
+								<div class="flex items-center gap-2">
 									<div class="min-w-0">
 										<h3 class="truncate text-lg font-semibold">{insight.itemName}</h3>
 										{#if insight.country}
@@ -81,11 +76,6 @@
 											>
 										{/if}
 									</div>
-									{#if insight.deltaPercent <= 0}
-										<div class="badge badge-success text-success-content badge-sm">Best Price</div>
-									{:else if insight.deltaPercent <= 10}
-										<div class="badge badge-warning text-warning-content badge-sm">Near Lowest</div>
-									{/if}
 								</div>
 								<div class="mt-2 grid grid-cols-2 gap-4">
 									<div class="flex flex-col">
@@ -113,15 +103,6 @@
 										{/if}
 									</div>
 								</div>
-								<span
-									class="text-xs {insight.deltaPercent <= 0
-										? 'text-success'
-										: insight.deltaPercent <= 10
-											? 'text-warning'
-											: 'text-base-content/50'}"
-								>
-									{deltaLabel(insight.deltaPercent)}
-								</span>
 							</a>
 						{/each}
 					</div>

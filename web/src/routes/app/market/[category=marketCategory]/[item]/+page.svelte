@@ -64,11 +64,6 @@
 		}
 	}
 
-	function deltaLabel(d: number): string {
-		if (d <= 0) return 'At lowest';
-		return `+${d.toFixed(1)}% vs lowest`;
-	}
-
 	function unitPrice(price: number, quantity: number | null): number | null {
 		if (!quantity || quantity <= 0) return null;
 		return price / quantity;
@@ -112,23 +107,14 @@
 			{:else if insight}
 				<section>
 					<div class="border-base-300/50 bg-base-50 flex flex-col gap-3 rounded-2xl border p-4">
-						<div class="flex items-start justify-between">
-							<div class="flex items-center gap-2">
-								{#if insight.country}
-									<span class="text-base-content/50 text-xs tracking-wider uppercase"
-										>{insight.country}</span
-									>
-								{/if}
-								{#if insight.category}
-									<span class="text-base-content/50 text-xs">{insight.category}</span>
-								{/if}
-							</div>
-							{#if insight.deltaPercent <= 0}
-								<div class="badge badge-success text-success-content badge-sm">Best Price</div>
-							{:else if insight.deltaPercent <= 10}
-								<div class="badge badge-warning text-warning-content badge-sm">Near Lowest</div>
-							{:else}
-								<div class="badge badge-ghost badge-sm">{deltaLabel(insight.deltaPercent)}</div>
+						<div class="flex items-center gap-2">
+							{#if insight.country}
+								<span class="text-base-content/50 text-xs tracking-wider uppercase"
+									>{insight.country}</span
+								>
+							{/if}
+							{#if insight.category}
+								<span class="text-base-content/50 text-xs">{insight.category}</span>
 							{/if}
 						</div>
 						<div class="grid grid-cols-2 gap-4">

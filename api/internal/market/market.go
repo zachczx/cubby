@@ -27,18 +27,17 @@ type MarketPrice struct {
 }
 
 type MarketInsight struct {
-	ItemName     string    `json:"itemName" db:"item_name"`
-	Category     *string   `json:"category" db:"category"`
-	Country      *string   `json:"country" db:"country"`
-	LowestPrice  float64   `json:"lowestPrice" db:"lowest_price"`
-	LowestUnit   *float64  `json:"lowestUnit" db:"lowest_unit"`
-	LowestStore  *string   `json:"lowestStore" db:"lowest_store"`
-	LowestDate   time.Time `json:"lowestDate" db:"lowest_date"`
-	LatestPrice  float64   `json:"latestPrice" db:"latest_price"`
-	LatestUnit   *float64  `json:"latestUnit" db:"latest_unit"`
-	LatestStore  *string   `json:"latestStore" db:"latest_store"`
-	LatestDate   time.Time `json:"latestDate" db:"latest_date"`
-	DeltaPercent float64   `json:"deltaPercent" db:"delta_percent"`
+	ItemName    string    `json:"itemName" db:"item_name"`
+	Category    *string   `json:"category" db:"category"`
+	Country     *string   `json:"country" db:"country"`
+	LowestPrice float64   `json:"lowestPrice" db:"lowest_price"`
+	LowestUnit  *float64  `json:"lowestUnit" db:"lowest_unit"`
+	LowestStore *string   `json:"lowestStore" db:"lowest_store"`
+	LowestDate  time.Time `json:"lowestDate" db:"lowest_date"`
+	LatestPrice float64   `json:"latestPrice" db:"latest_price"`
+	LatestUnit  *float64  `json:"latestUnit" db:"latest_unit"`
+	LatestStore *string   `json:"latestStore" db:"latest_store"`
+	LatestDate  time.Time `json:"latestDate" db:"latest_date"`
 }
 
 type Input struct {
@@ -220,8 +219,6 @@ func getLowestPrices(db *sqlx.DB, userID uuid.UUID) ([]lowestRow, error) {
 	return rows, nil
 }
 
-const roundingFactor = 10
-
 func GetInsights(db *sqlx.DB, userID uuid.UUID) ([]MarketInsight, error) {
 	latest, err := getLatestPrices(db, userID)
 	if err != nil {
@@ -245,25 +242,18 @@ func GetInsights(db *sqlx.DB, userID uuid.UUID) ([]MarketInsight, error) {
 			continue
 		}
 
-		var delta float64
-		if low.UnitPrice != 0 {
-			delta = (l.UnitPrice - low.UnitPrice) / low.UnitPrice * 100
-			delta = float64(int(delta*roundingFactor)) / roundingFactor
-		}
-
 		insights = append(insights, MarketInsight{
-			ItemName:     l.ItemName,
-			Category:     l.Category,
-			Country:      l.Country,
-			LowestPrice:  low.Price,
-			LowestUnit:   &low.UnitPrice,
-			LowestStore:  low.Store,
-			LowestDate:   low.CreatedAt,
-			LatestPrice:  l.Price,
-			LatestUnit:   &l.UnitPrice,
-			LatestStore:  l.Store,
-			LatestDate:   l.CreatedAt,
-			DeltaPercent: delta,
+			ItemName:    l.ItemName,
+			Category:    l.Category,
+			Country:     l.Country,
+			LowestPrice: low.Price,
+			LowestUnit:  &low.UnitPrice,
+			LowestStore: low.Store,
+			LowestDate:  low.CreatedAt,
+			LatestPrice: l.Price,
+			LatestUnit:  &l.UnitPrice,
+			LatestStore: l.Store,
+			LatestDate:  l.CreatedAt,
 		})
 	}
 

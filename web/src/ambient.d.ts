@@ -299,7 +299,6 @@ interface MarketInsightDB {
 	latestUnit: number | null;
 	latestStore: string | null;
 	latestDate: string;
-	deltaPercent: number;
 }
 
 interface MarketPriceInput {
