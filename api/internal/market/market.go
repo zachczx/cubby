@@ -294,6 +294,13 @@ func UpdatePrice(db *sqlx.DB, p MarketPrice, userID uuid.UUID) error {
 		updatedAt = p.UpdatedAt
 	}
 
+	var createdAt interface{}
+	if p.CreatedAt == nil {
+		createdAt = "NOW()"
+	} else {
+		createdAt = p.CreatedAt
+	}
+
 	q := `UPDATE market_prices SET
 			item_name = $1,
 			category = $2,
@@ -304,18 +311,19 @@ func UpdatePrice(db *sqlx.DB, p MarketPrice, userID uuid.UUID) error {
 			price = $7,
 			is_promo = $8,
 			remarks = $9,
-			updated_at = $10
-		WHERE id = $11
+			updated_at = $10,
+			created_at = $11
+		WHERE id = $12
 		AND family_id IN (
-			SELECT family_id FROM families_users WHERE user_id = $12
+			SELECT family_id FROM families_users WHERE user_id = $13
 			UNION
-			SELECT id FROM families WHERE owner_id = $12
+			SELECT id FROM families WHERE owner_id = $13
 		)`
 
 	_, err := db.Exec(q,
 		p.ItemName, p.Category, p.Country, p.Store, p.Unit,
 		p.Quantity, p.Price, p.IsPromo, p.Remarks,
-		updatedAt,
+		updatedAt, createdAt,
 		p.ID, userID,
 	)
 	if err != nil {

@@ -39,9 +39,9 @@
 	let price = $state(editPrice?.price?.toString() ?? '');
 	let isPromo = $state(editPrice?.isPromo ?? false);
 	let remarks = $state(editPrice?.remarks ?? '');
-	let customDateEnabled = $state(false);
-	let date = $state(dayjs().format('YYYY-MM-DD'));
-	let time = $state(dayjs().format('HH:mm'));
+	let customDateEnabled = $state(!!editPrice);
+	let date = $state(editPrice ? dayjs(editPrice.createdAt).format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD'));
+	let time = $state(editPrice ? dayjs(editPrice.createdAt).format('HH:mm') : dayjs().format('HH:mm'));
 	let timestamp = $derived.by(() => {
 		const ts = dayjs(date + 'T' + time);
 		const tzTime = dayjs.tz(ts, 'Asia/Singapore');
@@ -348,7 +348,7 @@
 				{/if}
 			</div>
 
-			<div class="mt-6 grid grid-cols-2 gap-3">
+			<div class="mt-6 mb-4 grid grid-cols-2 gap-3">
 				<button
 					type="button"
 					class="btn btn-ghost bg-base-200/50 hover:bg-base-300/50 rounded-2xl border border-transparent"
