@@ -147,7 +147,9 @@
 </script>
 
 <dialog class="modal modal-open modal-bottom sm:modal-middle bg-base-300/50 backdrop-blur-[2px]">
-	<div class="modal-box outline-base-300/50 relative outline">
+	<div
+		class="modal-box outline-base-300/50 relative max-h-[85dvh] overflow-y-auto overscroll-contain outline"
+	>
 		<button
 			class="btn btn-sm btn-circle btn-ghost absolute top-4 right-4 focus:outline-none"
 			onclick={onClose}
@@ -176,7 +178,7 @@
 				/>
 				{#if suggestions.length > 0}
 					<div
-						class="bg-base-100 border-base-300/50 absolute top-full right-0 left-0 z-50 mt-1 overflow-hidden rounded-xl border shadow-lg"
+						class="bg-base-100 border-base-300/50 absolute top-full right-0 left-0 z-50 mt-1 max-h-48 overflow-hidden overflow-y-auto rounded-xl border shadow-lg"
 					>
 						{#each suggestions as suggestion}
 							<button
