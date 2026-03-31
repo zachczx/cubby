@@ -5,23 +5,9 @@
 	import { marketPricesQueryOptions } from '$lib/queries';
 	import { router } from '$lib/routes';
 	import { marketCategories } from '$lib/market';
-	import AddPriceLog from '../AddPriceLog.svelte';
+	import { goto } from '$app/navigation';
 
 	const pricesQuery = createQuery(marketPricesQueryOptions);
-
-	let isModalOpen = $state(false);
-	let editPrice = $state<MarketPriceDB | null>(null);
-
-	function openAddModal() {
-		editPrice = null;
-		isModalOpen = true;
-	}
-
-	function handleCloseModal() {
-		isModalOpen = false;
-		editPrice = null;
-		pricesQuery.refetch();
-	}
 
 	let itemCounts = $derived.by(() => {
 		if (!pricesQuery.isSuccess || !pricesQuery.data) return {};
@@ -43,7 +29,7 @@
 	<main class="h-full">
 		<div class="grid w-full max-w-lg gap-6 justify-self-center lg:text-base">
 			<section class="grid gap-3 py-2">
-				<button class="btn btn-primary btn-lg w-full rounded-full" onclick={openAddModal}>
+				<button class="btn btn-primary btn-lg w-full rounded-full" onclick={() => goto(router.marketAdd())}>
 					<Icon icon="material-symbols:add" class="size-6" />
 					Add Price
 				</button>
@@ -92,6 +78,3 @@
 	</main>
 </PageWrapper>
 
-{#if isModalOpen}
-	<AddPriceLog onClose={handleCloseModal} {editPrice} />
-{/if}

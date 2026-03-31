@@ -7,9 +7,9 @@
 	import { marketPricesQueryOptions, marketInsightsQueryOptions, queryClient } from '$lib/queries';
 	import { api } from '$lib/api';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
-	import AddPriceLog from '../../AddPriceLog.svelte';
+	import { goto } from '$app/navigation';
+	import { router } from '$lib/routes';
 	import Sparkline from '$lib/ui/Sparkline.svelte';
-	import { type MarketCategoryValue } from '$lib/market';
 	import { titleCase } from '$lib/utils';
 
 	dayjs.extend(relativeTime);
@@ -19,28 +19,9 @@
 	const pricesQuery = createQuery(marketPricesQueryOptions);
 	const insightsQuery = createQuery(marketInsightsQueryOptions);
 
-	let isModalOpen = $state(false);
-	let editPrice = $state<MarketPriceDB | null>(null);
 	let deleteDialog = $state<HTMLDialogElement | null>(null);
 	let pendingDeletePrice = $state<MarketPriceDB | null>(null);
 	let isDeleting = $state(false);
-
-	function openAddModal() {
-		editPrice = null;
-		isModalOpen = true;
-	}
-
-	function openEditModal(price: any) {
-		editPrice = price;
-		isModalOpen = true;
-	}
-
-	function handleCloseModal() {
-		isModalOpen = false;
-		editPrice = null;
-		pricesQuery.refetch();
-		insightsQuery.refetch();
-	}
 
 	function requestDelete(price: any) {
 		pendingDeletePrice = price;
@@ -96,7 +77,7 @@
 	<main class="h-full">
 		<div class="grid w-full max-w-lg gap-8 justify-self-center lg:text-base">
 			<section class="grid gap-4 py-2">
-				<button class="btn btn-primary btn-lg w-full rounded-full" onclick={openAddModal}>
+				<button class="btn btn-primary btn-lg w-full rounded-full" onclick={() => goto(router.marketAdd({ category: data.category, item: data.item }))}>
 					<Icon icon="material-symbols:add" class="size-6" />
 					Add Price
 				</button>
@@ -209,7 +190,7 @@
 
 									<button
 										class="btn btn-ghost btn-sm btn-circle text-base-content/40 hover:text-primary"
-										onclick={() => openEditModal(price)}
+										onclick={() => goto(router.marketEdit(price.id), { state: { price } })}
 										aria-label="Edit price"
 									>
 										<Icon icon="material-symbols:edit-outline" class="size-4" />
@@ -234,15 +215,6 @@
 		</div>
 	</main>
 </PageWrapper>
-
-{#if isModalOpen}
-	<AddPriceLog
-		onClose={handleCloseModal}
-		{editPrice}
-		paramItemName={data.item}
-		paramCategory={data.category as MarketCategoryValue}
-	/>
-{/if}
 
 <dialog bind:this={deleteDialog} class="modal modal-bottom sm:modal-middle">
 	<div class="modal-box grid gap-8">

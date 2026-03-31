@@ -4,27 +4,12 @@
 	import { createQuery } from '@tanstack/svelte-query';
 	import { marketInsightsQueryOptions } from '$lib/queries';
 	import { router } from '$lib/routes';
-	import { type MarketCategoryValue } from '$lib/market';
-	import AddPriceLog from '../AddPriceLog.svelte';
+	import { goto } from '$app/navigation';
 	import { titleCase } from '$lib/utils';
 
 	let { data } = $props();
 
 	const insightsQuery = createQuery(marketInsightsQueryOptions);
-
-	let isModalOpen = $state(false);
-	let editPrice = $state<MarketPriceDB | null>(null);
-
-	function openAddModal() {
-		editPrice = null;
-		isModalOpen = true;
-	}
-
-	function handleCloseModal() {
-		isModalOpen = false;
-		editPrice = null;
-		insightsQuery.refetch();
-	}
 
 	function matchesCategory(cat: string | null): boolean {
 		if (!cat) return false;
@@ -41,7 +26,7 @@
 	<main class="h-full">
 		<div class="grid w-full max-w-lg gap-8 justify-self-center lg:text-base">
 			<section class="grid gap-4 py-2">
-				<button class="btn btn-primary btn-lg w-full rounded-full" onclick={openAddModal}>
+				<button class="btn btn-primary btn-lg w-full rounded-full" onclick={() => goto(router.marketAdd({ category: data.category }))}>
 					<Icon icon="material-symbols:add" class="size-6" />
 					Add Price
 				</button>
@@ -116,10 +101,3 @@
 	</main>
 </PageWrapper>
 
-{#if isModalOpen}
-	<AddPriceLog
-		paramCategory={data.category as MarketCategoryValue}
-		onClose={handleCloseModal}
-		{editPrice}
-	/>
-{/if}
