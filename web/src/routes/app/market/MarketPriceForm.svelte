@@ -31,11 +31,16 @@
 
 	const pricesQuery = createQuery(marketPricesQueryOptions);
 
+	function getUnit(category: string): string {
+		if (category === 'alcohol') return 'bottle';
+		return 'pack';
+	}
+
 	let itemName = $state(editPrice?.itemName ?? (prefillItemName ? titleCase(prefillItemName) : ''));
 	let category = $state(editPrice?.category ?? prefillCategory ?? 'fruit');
 	let country = $state(editPrice?.country ?? '');
 	let store = $state(editPrice?.store ?? '');
-	let unit = $state(editPrice?.unit ?? 'pack');
+	let unit = $state(editPrice?.unit ?? getUnit(category));
 	let quantity = $state(editPrice?.quantity?.toString() ?? '1');
 	let price = $state(editPrice?.price?.toString() ?? '');
 	let isPromo = $state(editPrice?.isPromo ?? false);
@@ -61,11 +66,13 @@
 	let isSubmitting = $state(false);
 	let showSuggestions = $state(false);
 	let showCustomStore = $state(false);
+	let showDetails = $state(!!editPrice?.country || !!editPrice?.remarks);
 
 	const quickStores = ['FairPrice', 'Sheng Siong'];
 
 	let isCustomStore = $derived(
-		showCustomStore || (store !== '' && !quickStores.some((s) => s.toLowerCase() === store.toLowerCase()))
+		showCustomStore ||
+			(store !== '' && !quickStores.some((s) => s.toLowerCase() === store.toLowerCase()))
 	);
 
 	let existingNames = $derived.by(() => {
@@ -249,18 +256,6 @@
 				{/each}
 			</select>
 		</div>
-		<div class="form-control w-full">
-			<label for="country" class="label py-1"
-				><span class="label-text text-base-content/80 font-medium">Country</span></label
-			>
-			<input
-				id="country"
-				type="text"
-				bind:value={country}
-				placeholder="e.g. Japan"
-				class="input input-bordered focus:outline-primary w-full transition-all"
-			/>
-		</div>
 		<fieldset class="form-control w-full">
 			<legend class="label py-1"
 				><span class="label-text text-base-content/80 font-medium">Price Type *</span></legend
@@ -345,17 +340,45 @@
 		{/if}
 	</div>
 
-	<div class="form-control w-full">
-		<label for="remarks" class="label py-1"
-			><span class="label-text text-base-content/80 font-medium">Remarks</span></label
-		>
-		<input
-			id="remarks"
-			type="text"
-			bind:value={remarks}
-			placeholder="e.g. Members promo, bulk buy"
-			class="input input-bordered focus:outline-primary w-full transition-all"
-		/>
+	<div>
+		<button
+			type="button"
+			class={[
+				'btn btn-sm my-1',
+				!showDetails && 'btn-ghost',
+				showDetails && 'btn-soft btn-primary'
+			]}
+			onclick={() => (showDetails = !showDetails)}
+			>+ Details (Country, Remarks)<Icon icon="material-symbols:arrow-right-alt" class="size-[1.3em]" />
+		</button>
+		{#if showDetails}
+			<div class="grid grid-cols-2 gap-4 mt-2">
+				<div class="form-control w-full">
+					<label for="country" class="label py-1"
+						><span class="label-text text-base-content/80 font-medium">Country</span></label
+					>
+					<input
+						id="country"
+						type="text"
+						bind:value={country}
+						placeholder="e.g. Japan"
+						class="input input-bordered focus:outline-primary w-full transition-all"
+					/>
+				</div>
+				<div class="form-control w-full">
+					<label for="remarks" class="label py-1"
+						><span class="label-text text-base-content/80 font-medium">Remarks</span></label
+					>
+					<input
+						id="remarks"
+						type="text"
+						bind:value={remarks}
+						placeholder="e.g. Members promo, bulk buy"
+						class="input input-bordered focus:outline-primary w-full transition-all"
+					/>
+				</div>
+			</div>
+		{/if}
 	</div>
 
 	<div class={['form-control w-full']}>
