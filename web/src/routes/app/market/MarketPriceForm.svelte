@@ -60,6 +60,13 @@
 
 	let isSubmitting = $state(false);
 	let showSuggestions = $state(false);
+	let showCustomStore = $state(false);
+
+	const quickStores = ['FairPrice', 'Sheng Siong'];
+
+	let isCustomStore = $derived(
+		showCustomStore || (store !== '' && !quickStores.some((s) => s.toLowerCase() === store.toLowerCase()))
+	);
 
 	let existingNames = $derived.by(() => {
 		if (!pricesQuery.isSuccess || !pricesQuery.data) return [];
@@ -243,21 +250,6 @@
 			</select>
 		</div>
 		<div class="form-control w-full">
-			<label for="store" class="label py-1"
-				><span class="label-text text-base-content/80 font-medium">Store</span></label
-			>
-			<input
-				id="store"
-				type="text"
-				bind:value={store}
-				placeholder="e.g. NTUC"
-				class="input input-bordered focus:outline-primary w-full transition-all"
-			/>
-		</div>
-	</div>
-
-	<div class="grid grid-cols-2 gap-4">
-		<div class="form-control w-full">
 			<label for="country" class="label py-1"
 				><span class="label-text text-base-content/80 font-medium">Country</span></label
 			>
@@ -292,6 +284,65 @@
 				/>
 			</div>
 		</fieldset>
+	</div>
+
+	<div class="form-control w-full">
+		<span class="label py-1"
+			><span class="label-text text-base-content/80 font-medium">Store</span></span
+		>
+		{#if quickStores.length > 0 && !isCustomStore}
+			<div
+				class="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+			>
+				{#each quickStores as s}
+					<button
+						type="button"
+						class={[
+							'btn btn-sm shrink-0 rounded-full',
+							store.toLowerCase() === s.toLowerCase()
+								? 'btn-primary'
+								: 'btn-outline border-base-300'
+						]}
+						onclick={() => (store = store.toLowerCase() === s.toLowerCase() ? '' : s)}
+					>
+						{s}
+					</button>
+				{/each}
+				<button
+					type="button"
+					class="btn btn-sm btn-ghost shrink-0 rounded-full"
+					onclick={() => {
+						store = '';
+						showCustomStore = true;
+					}}
+				>
+					+ Other
+				</button>
+			</div>
+		{:else}
+			<div class="flex gap-2">
+				<input
+					id="store"
+					type="text"
+					bind:value={store}
+					placeholder="e.g. NTUC"
+					class="input input-bordered focus:outline-primary w-full transition-all"
+				/>
+				{#if quickStores.length > 0}
+					<button
+						type="button"
+						class="btn btn-ghost btn-sm self-center"
+						onclick={() => {
+							store = '';
+							showCustomStore = false;
+						}}
+						aria-label="Show store chips"
+					>
+						<Icon icon="material-symbols:close" class="size-4" />
+					</button>
+				{/if}
+			</div>
+		{/if}
 	</div>
 
 	<div class="form-control w-full">
