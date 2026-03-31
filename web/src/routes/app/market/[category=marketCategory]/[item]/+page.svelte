@@ -4,7 +4,7 @@
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import Icon from '@iconify/svelte';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { marketPricesQueryOptions, marketInsightsQueryOptions, queryClient } from '$lib/queries';
+	import { filteredMarketPricesQueryOptions, filteredMarketInsightsQueryOptions, queryClient } from '$lib/queries';
 	import { api } from '$lib/api';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
 	import { goto } from '$app/navigation';
@@ -16,8 +16,8 @@
 
 	let { data } = $props();
 
-	const pricesQuery = createQuery(marketPricesQueryOptions);
-	const insightsQuery = createQuery(marketInsightsQueryOptions);
+	const pricesQuery = createQuery(() => filteredMarketPricesQueryOptions({ category: data.category, item: data.item }));
+	const insightsQuery = createQuery(() => filteredMarketInsightsQueryOptions(data.category));
 
 	let deleteDialog = $state<HTMLDialogElement | null>(null);
 	let pendingDeletePrice = $state<MarketPriceDB | null>(null);
@@ -34,8 +34,8 @@
 		try {
 			await api.delete(`market/prices/${pendingDeletePrice.id}`);
 			addToast('success', 'Price deleted');
-			queryClient.refetchQueries({ queryKey: ['cubby', 'market-prices'], exact: true });
-			queryClient.refetchQueries({ queryKey: ['cubby', 'market-insights'], exact: true });
+			queryClient.refetchQueries({ queryKey: ['cubby', 'market-prices'] });
+			queryClient.refetchQueries({ queryKey: ['cubby', 'market-insights'] });
 		} catch {
 			addToast('error', 'Failed to delete');
 		} finally {
@@ -50,24 +50,16 @@
 		return price / quantity;
 	}
 
-	function matchesItem(name: string | null): boolean {
-		if (!name) return false;
-		return name.toLowerCase() === data.item.toLowerCase();
-	}
-
 	let insight = $derived.by(() => {
 		if (!insightsQuery.isSuccess || !insightsQuery.data) return null;
-		return insightsQuery.data.find((i) => matchesItem(i.itemName)) ?? null;
+		return insightsQuery.data.find((i) => i.itemName.toLowerCase() === data.item.toLowerCase()) ?? null;
 	});
 
-	let filteredPrices = $derived.by(() => {
-		if (!pricesQuery.isSuccess || !pricesQuery.data) return [];
-		return pricesQuery.data.filter((p) => matchesItem(p.itemName));
-	});
+	let prices = $derived(pricesQuery.isSuccess ? pricesQuery.data ?? [] : []);
 
 	let sparklineData = $derived.by(() => {
-		if (filteredPrices.length < 2) return [];
-		return [...filteredPrices]
+		if (prices.length < 2) return [];
+		return [...prices]
 			.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
 			.map((p) => ({ date: p.createdAt, price: p.price }));
 	});
@@ -143,9 +135,9 @@
 
 				{#if pricesQuery.isLoading}
 					<div class="skeleton h-16 w-full rounded-2xl"></div>
-				{:else if filteredPrices.length > 0}
+				{:else if prices.length > 0}
 					<div class="border-base-300/50 bg-base-50 divide-base-300/50 divide-y rounded-2xl border">
-						{#each filteredPrices as price}
+						{#each prices as price}
 							{@const up = unitPrice(price.price, price.quantity)}
 							<div
 								class="hover:bg-base-200/50 flex items-center justify-between p-4 transition-colors"

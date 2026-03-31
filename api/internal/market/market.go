@@ -130,17 +130,33 @@ func LogPrice(db *sqlx.DB, p MarketPrice) (UpsertResult, error) {
 	return result, nil
 }
 
-func GetPrices(db *sqlx.DB, userID uuid.UUID) ([]MarketPrice, error) {
+type PriceFilter struct {
+	Category string
+	Item     string
+}
+
+func GetPrices(db *sqlx.DB, userID uuid.UUID, filter PriceFilter) ([]MarketPrice, error) {
 	var p []MarketPrice
 	q := `SELECT mp.* FROM market_prices mp
 			WHERE mp.family_id IN (
 				SELECT family_id FROM families_users WHERE user_id = $1
 				UNION
 				SELECT id FROM families WHERE owner_id = $1
-			)
-			ORDER BY mp.created_at DESC`
+			)`
+	args := []interface{}{userID}
 
-	if err := db.Select(&p, q, userID); err != nil {
+	if filter.Category != "" {
+		args = append(args, filter.Category)
+		q += fmt.Sprintf(` AND LOWER(mp.category) = LOWER($%d)`, len(args))
+	}
+	if filter.Item != "" {
+		args = append(args, filter.Item)
+		q += fmt.Sprintf(` AND LOWER(mp.item_name) = LOWER($%d)`, len(args))
+	}
+
+	q += ` ORDER BY mp.created_at DESC`
+
+	if err := db.Select(&p, q, args...); err != nil {
 		return nil, fmt.Errorf("select market prices: %w", err)
 	}
 
@@ -179,7 +195,7 @@ type lowestRow struct {
 	CreatedAt time.Time `db:"created_at"`
 }
 
-func getLatestPrices(db *sqlx.DB, userID uuid.UUID) ([]latestRow, error) {
+func getLatestPrices(db *sqlx.DB, userID uuid.UUID, category string) ([]latestRow, error) {
 	var rows []latestRow
 	q := `SELECT DISTINCT ON (LOWER(item_name), LOWER(COALESCE(country, '')))
 		item_name, category, country, price,
@@ -190,16 +206,23 @@ func getLatestPrices(db *sqlx.DB, userID uuid.UUID) ([]latestRow, error) {
 		SELECT family_id FROM families_users WHERE user_id = $1
 		UNION
 		SELECT id FROM families WHERE owner_id = $1
-	)
-	ORDER BY LOWER(item_name), LOWER(COALESCE(country, '')), created_at DESC`
+	)`
+	args := []interface{}{userID}
 
-	if err := db.Select(&rows, q, userID); err != nil {
+	if category != "" {
+		args = append(args, category)
+		q += fmt.Sprintf(` AND LOWER(category) = LOWER($%d)`, len(args))
+	}
+
+	q += ` ORDER BY LOWER(item_name), LOWER(COALESCE(country, '')), created_at DESC`
+
+	if err := db.Select(&rows, q, args...); err != nil {
 		return nil, fmt.Errorf("select latest prices: %w", err)
 	}
 	return rows, nil
 }
 
-func getLowestPrices(db *sqlx.DB, userID uuid.UUID) ([]lowestRow, error) {
+func getLowestPrices(db *sqlx.DB, userID uuid.UUID, category string) ([]lowestRow, error) {
 	var rows []lowestRow
 	q := `SELECT DISTINCT ON (LOWER(item_name), LOWER(COALESCE(country, '')))
 		item_name, country, price,
@@ -210,22 +233,29 @@ func getLowestPrices(db *sqlx.DB, userID uuid.UUID) ([]lowestRow, error) {
 		SELECT family_id FROM families_users WHERE user_id = $1
 		UNION
 		SELECT id FROM families WHERE owner_id = $1
-	)
-	ORDER BY LOWER(item_name), LOWER(COALESCE(country, '')), unit_price ASC, created_at DESC`
+	)`
+	args := []interface{}{userID}
 
-	if err := db.Select(&rows, q, userID); err != nil {
+	if category != "" {
+		args = append(args, category)
+		q += fmt.Sprintf(` AND LOWER(category) = LOWER($%d)`, len(args))
+	}
+
+	q += ` ORDER BY LOWER(item_name), LOWER(COALESCE(country, '')), unit_price ASC, created_at DESC`
+
+	if err := db.Select(&rows, q, args...); err != nil {
 		return nil, fmt.Errorf("select lowest prices: %w", err)
 	}
 	return rows, nil
 }
 
-func GetInsights(db *sqlx.DB, userID uuid.UUID) ([]MarketInsight, error) {
-	latest, err := getLatestPrices(db, userID)
+func GetInsights(db *sqlx.DB, userID uuid.UUID, category string) ([]MarketInsight, error) {
+	latest, err := getLatestPrices(db, userID, category)
 	if err != nil {
 		return nil, err
 	}
 
-	lowest, err := getLowestPrices(db, userID)
+	lowest, err := getLowestPrices(db, userID, category)
 	if err != nil {
 		return nil, err
 	}

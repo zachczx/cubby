@@ -181,9 +181,36 @@ export function marketPriceQueryOptions(id: string) {
 	});
 }
 
+export function filteredMarketPricesQueryOptions(filter: { category?: string; item?: string }) {
+	const params = new URLSearchParams();
+	if (filter.category) params.set('category', filter.category);
+	if (filter.item) params.set('item', filter.item);
+	const qs = params.toString();
+	return queryOptions({
+		queryKey: [...rootKey, 'market-prices', filter.category ?? '', filter.item ?? ''],
+		queryFn: async (): Promise<MarketPriceDB[]> =>
+			await api.get(`market/prices${qs ? `?${qs}` : ''}`).json(),
+		staleTime
+	});
+}
+
+export function filteredMarketInsightsQueryOptions(category: string) {
+	return queryOptions({
+		queryKey: [...rootKey, 'market-insights', category],
+		queryFn: async (): Promise<MarketInsightDB[]> =>
+			await api.get(`market/insights?category=${encodeURIComponent(category)}`).json(),
+		staleTime
+	});
+}
+
 export interface MarketPriceUpsertResult {
 	id: string;
 	isUpdate: boolean;
+}
+
+function refetchMarketQueries() {
+	queryClient.refetchQueries({ queryKey: [...rootKey, 'market-prices'] });
+	queryClient.refetchQueries({ queryKey: [...rootKey, 'market-insights'] });
 }
 
 export async function createMarketPriceMutation(input: MarketPriceInput) {
@@ -192,8 +219,7 @@ export async function createMarketPriceMutation(input: MarketPriceInput) {
 			body: JSON.stringify(input)
 		})
 		.json<MarketPriceUpsertResult>();
-	queryClient.refetchQueries({ queryKey: [...rootKey, 'market-prices'], exact: true });
-	queryClient.refetchQueries({ queryKey: [...rootKey, 'market-insights'], exact: true });
+	refetchMarketQueries();
 	return result;
 }
 
@@ -203,6 +229,5 @@ export async function updateMarketPriceMutation(id: string, input: MarketPriceIn
 			body: JSON.stringify(input)
 		})
 		.json<void>();
-	queryClient.refetchQueries({ queryKey: [...rootKey, 'market-prices'], exact: true });
-	queryClient.refetchQueries({ queryKey: [...rootKey, 'market-insights'], exact: true });
+	refetchMarketQueries();
 }

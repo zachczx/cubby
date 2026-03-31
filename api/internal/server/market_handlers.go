@@ -91,7 +91,12 @@ func (s *Service) GetMarketPricesHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	prices, err := market.GetPrices(s.DB, userID)
+	filter := market.PriceFilter{
+		Category: r.URL.Query().Get("category"),
+		Item:     r.URL.Query().Get("item"),
+	}
+
+	prices, err := market.GetPrices(s.DB, userID, filter)
 	if err != nil {
 		response.WriteError(r.Context(), w, err)
 		return
@@ -195,7 +200,9 @@ func (s *Service) GetMarketInsightsHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	insights, err := market.GetInsights(s.DB, userID)
+	category := r.URL.Query().Get("category")
+
+	insights, err := market.GetInsights(s.DB, userID, category)
 	if err != nil {
 		response.WriteError(r.Context(), w, err)
 		return

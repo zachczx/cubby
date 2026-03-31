@@ -2,23 +2,13 @@
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
 	import Icon from '@iconify/svelte';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { marketInsightsQueryOptions } from '$lib/queries';
+	import { filteredMarketInsightsQueryOptions } from '$lib/queries';
 	import { router } from '$lib/routes';
 	import { titleCase } from '$lib/utils';
 
 	let { data } = $props();
 
-	const insightsQuery = createQuery(marketInsightsQueryOptions);
-
-	function matchesCategory(cat: string | null): boolean {
-		if (!cat) return false;
-		return cat.toLowerCase() === data.category.toLowerCase();
-	}
-
-	let filteredInsights = $derived.by(() => {
-		if (!insightsQuery.isSuccess || !insightsQuery.data) return [];
-		return insightsQuery.data.filter((i) => matchesCategory(i.category));
-	});
+	const insightsQuery = createQuery(() => filteredMarketInsightsQueryOptions(data.category));
 </script>
 
 <PageWrapper title={titleCase(data.category)}>
@@ -44,9 +34,9 @@
 					<div class="border-base-300/50 bg-base-50 text-error rounded-2xl border p-4">
 						Failed to load items.
 					</div>
-				{:else if filteredInsights.length > 0}
+				{:else if insightsQuery.data && insightsQuery.data.length > 0}
 					<div class="grid gap-3 sm:grid-cols-2">
-						{#each filteredInsights as insight}
+						{#each insightsQuery.data as insight}
 							<a
 								href={router.marketItem(data.category, insight.itemName)}
 								class="border-base-300/50 bg-base-50 hover:border-primary/30 flex flex-col gap-2 overflow-hidden rounded-2xl border p-4 transition-colors"
