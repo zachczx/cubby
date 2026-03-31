@@ -1,3 +1,6 @@
+import FairpriceLogo from '$lib/assets/logos/fairprice.webp';
+import ShengSiongLogo from '$lib/assets/logos/shengsiong.svg';
+
 export const marketCategories = [
 	{ value: 'fruit', label: 'Fruit', icon: 'material-symbols:nutrition' },
 	{ value: 'vegetable', label: 'Vegetable', icon: 'material-symbols:eco' },
@@ -28,3 +31,10 @@ export const marketUnits = [
 	'dozen',
 	'carton'
 ] as const;
+
+export const marketStores = {
+	Fairprice: { icon: FairpriceLogo },
+	'Sheng Siong': { icon: ShengSiongLogo }
+} as const;
+
+export type marketStoresType = typeof marketStores;

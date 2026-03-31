@@ -4,19 +4,27 @@
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import Icon from '@iconify/svelte';
 	import { createQuery } from '@tanstack/svelte-query';
-	import { filteredMarketPricesQueryOptions, filteredMarketInsightsQueryOptions, queryClient } from '$lib/queries';
+	import {
+		filteredMarketPricesQueryOptions,
+		filteredMarketInsightsQueryOptions,
+		queryClient
+	} from '$lib/queries';
 	import { api } from '$lib/api';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
 	import { goto } from '$app/navigation';
 	import { router } from '$lib/routes';
 	import Sparkline from '$lib/ui/Sparkline.svelte';
 	import { titleCase } from '$lib/utils';
+	import { marketStores } from '$lib/market';
+	import type { marketStoresType } from '$lib/market';
 
 	dayjs.extend(relativeTime);
 
 	let { data } = $props();
 
-	const pricesQuery = createQuery(() => filteredMarketPricesQueryOptions({ category: data.category, item: data.item }));
+	const pricesQuery = createQuery(() =>
+		filteredMarketPricesQueryOptions({ category: data.category, item: data.item })
+	);
 	const insightsQuery = createQuery(() => filteredMarketInsightsQueryOptions(data.category));
 
 	let deleteDialog = $state<HTMLDialogElement | null>(null);
@@ -52,10 +60,17 @@
 
 	let insight = $derived.by(() => {
 		if (!insightsQuery.isSuccess || !insightsQuery.data) return null;
-		return insightsQuery.data.find((i) => i.itemName.toLowerCase() === data.item.toLowerCase()) ?? null;
+		return (
+			insightsQuery.data.find((i) => i.itemName.toLowerCase() === data.item.toLowerCase()) ?? null
+		);
 	});
 
-	let prices = $derived(pricesQuery.isSuccess ? pricesQuery.data ?? [] : []);
+	let prices = $derived(pricesQuery.isSuccess ? (pricesQuery.data ?? []) : []);
+
+	let trackedUnit = $derived.by(() => {
+		if (!prices.length) return null;
+		return prices[0].unit || null;
+	});
 
 	let sparklineData = $derived.by(() => {
 		if (prices.length < 2) return [];
@@ -68,8 +83,32 @@
 <PageWrapper title={titleCase(data.item)}>
 	<main class="h-full">
 		<div class="grid w-full max-w-lg gap-8 justify-self-center lg:text-base">
+			<!-- Meta-data chips -->
+			{#if insight?.country || insight?.category || trackedUnit}
+				<div class="text-base-content/80 flex items-center justify-center gap-2 text-sm">
+					{#if insight?.country}
+						<span>{insight.country}</span>
+					{/if}
+					{#if insight?.country && insight?.category}
+						<span class="text-info/60">&bull;</span>
+					{/if}
+					{#if insight?.category}
+						<span>{titleCase(insight.category)}</span>
+					{/if}
+					{#if (insight?.country || insight?.category) && trackedUnit}
+						<span class="text-info/60">&bull;</span>
+					{/if}
+					{#if trackedUnit}
+						<span>Tracked by {titleCase(trackedUnit)}</span>
+					{/if}
+				</div>
+			{/if}
+
 			<section class="grid gap-4 py-2">
-				<a href={router.marketAdd({ category: data.category, item: data.item })} class="btn btn-primary btn-lg w-full rounded-full">
+				<a
+					href={router.marketAdd({ category: data.category, item: data.item })}
+					class="btn btn-primary btn-lg w-full rounded-full"
+				>
 					<Icon icon="material-symbols:add" class="size-6" />
 					Add Price
 				</a>
@@ -79,44 +118,28 @@
 				<div class="skeleton h-40 w-full rounded-2xl"></div>
 			{:else if insight}
 				<section>
-					<div class="border-base-300/50 bg-base-50 flex flex-col gap-3 rounded-2xl border p-4">
-						<div class="flex items-center gap-2">
-							{#if insight.country}
-								<span class="text-base-content/50 text-xs tracking-wider uppercase"
-									>{insight.country}</span
-								>
-							{/if}
-							{#if insight.category}
-								<span class="text-base-content/50 text-xs">{insight.category}</span>
-							{/if}
+					<div class="border-base-300/50 bg-base-50 grid grid-cols-2 gap-4 rounded-2xl border p-5">
+						<div class="flex flex-col gap-1">
+							<span class="text-base-content/50 text-xs font-medium tracking-wider uppercase"
+								>Lowest</span
+							>
+							<span class="text-success text-2xl font-bold">${insight.lowestPrice.toFixed(2)}</span>
+							<span class="text-base-content/40 text-xs">
+								{#if insight.lowestUnit}per {trackedUnit || 'unit'}{/if}
+								{#if insight.lowestUnit && insight.lowestStore}&nbsp;@&nbsp;{/if}
+								{#if insight.lowestStore}{insight.lowestStore}{/if}
+							</span>
 						</div>
-						<div class="grid grid-cols-2 gap-4">
-							<div class="flex flex-col">
-								<span class="text-base-content/60 text-xs">Current</span>
-								<span class="text-xl font-semibold">${insight.latestPrice.toFixed(2)}</span>
-								{#if insight.latestUnit}
-									<span class="text-base-content/50 text-xs"
-										>${insight.latestUnit.toFixed(2)} / unit</span
-									>
-								{/if}
-								{#if insight.latestStore}
-									<span class="text-base-content/50 text-xs">@ {insight.latestStore}</span>
-								{/if}
-							</div>
-							<div class="flex flex-col">
-								<span class="text-base-content/60 text-xs">Lowest</span>
-								<span class="text-success text-xl font-semibold"
-									>${insight.lowestPrice.toFixed(2)}</span
-								>
-								{#if insight.lowestUnit}
-									<span class="text-success/70 text-xs"
-										>${insight.lowestUnit.toFixed(2)} / unit</span
-									>
-								{/if}
-								{#if insight.lowestStore}
-									<span class="text-base-content/50 text-xs">@ {insight.lowestStore}</span>
-								{/if}
-							</div>
+						<div class="flex flex-col gap-1">
+							<span class="text-base-content/50 text-xs font-medium tracking-wider uppercase"
+								>Latest</span
+							>
+							<span class="text-2xl font-bold">${insight.latestPrice.toFixed(2)}</span>
+							<span class="text-base-content/40 text-xs">
+								{#if insight.latestUnit}per {trackedUnit || 'unit'}{/if}
+								{#if insight.latestUnit && insight.latestStore}&nbsp;@&nbsp;{/if}
+								{#if insight.latestStore}{insight.latestStore}{/if}
+							</span>
 						</div>
 					</div>
 				</section>
@@ -139,56 +162,51 @@
 					<div class="border-base-300/50 bg-base-50 divide-base-300/50 divide-y rounded-2xl border">
 						{#each prices as price}
 							{@const up = unitPrice(price.price, price.quantity)}
+							{@const storeLogo = marketStores[price.store as keyof marketStoresType].icon}
 							<div
-								class="hover:bg-base-200/50 flex items-center justify-between p-4 transition-colors"
+								class="hover:bg-base-200/50 flex items-center justify-between gap-3 p-4 transition-colors"
 							>
-								<div class="flex flex-col gap-0.5">
-									<div class="flex items-center gap-2">
-										{#if price.isPromo}
-											<span class="badge badge-warning badge-xs text-warning-content">Sale</span>
-										{/if}
-									</div>
-									<div class="text-base-content/60 flex flex-wrap items-center gap-2 text-xs">
-										{#if price.quantity && price.unit}
-											<span>{price.quantity} {price.unit}</span>
-										{:else if price.unit}
-											<span>/ {price.unit}</span>
-										{/if}
-										{#if price.store}
-											<span class="flex items-center gap-1"
-												><Icon icon="material-symbols:storefront" /> {price.store}</span
-											>
-										{/if}
-										{#if price.country}
-											<span class="flex items-center gap-1"
-												><Icon icon="material-symbols:public" /> {price.country}</span
-											>
-										{/if}
-										<span>· {dayjs(price.createdAt).fromNow()}</span>
-									</div>
-									{#if price.remarks}
-										<span class="text-base-content/40 text-xs italic">{price.remarks}</span>
-									{/if}
-								</div>
+								<!-- Left: Store + Time -->
 								<div class="flex items-center gap-3">
+									{#if price.store}
+										<div class="avatar">
+											<div class="w-8 rounded-full">
+												<img src={storeLogo} alt="logo" />
+											</div>
+										</div>
+									{/if}
+									<div class="flex flex-col">
+										{#if price.store}
+											<span class="font-semibold">{price.store}</span>
+										{/if}
+										<div class="text-base-content/40 flex items-center gap-2 text-xs">
+											<span>{dayjs(price.createdAt).fromNow()}</span>
+											{#if price.isPromo}
+												<span class="badge badge-warning badge-xs text-warning-content">Sale</span>
+											{/if}
+										</div>
+									</div>
+								</div>
+
+								<!-- Right: Price + Actions -->
+								<div class="flex items-center gap-2">
 									<div class="flex flex-col items-end">
-										<span class="text-lg font-semibold">${price.price.toFixed(2)}</span>
+										<span class="text-lg font-bold">${price.price.toFixed(2)}</span>
 										{#if up}
-											<span class="text-base-content/50 text-xs"
-												>${up.toFixed(2)}/{price.unit || 'unit'}</span
+											<span class="text-base-content/40 text-xs"
+												>${up.toFixed(2)} / {price.unit || 'unit'}</span
 											>
 										{/if}
 									</div>
-
 									<button
-										class="btn btn-ghost btn-sm btn-circle text-base-content/40 hover:text-primary"
+										class="btn btn-ghost btn-sm btn-circle text-base-content/30 hover:text-primary"
 										onclick={() => goto(router.marketEdit(price.id), { state: { price } })}
 										aria-label="Edit price"
 									>
 										<Icon icon="material-symbols:edit-outline" class="size-4" />
 									</button>
 									<button
-										class="btn btn-ghost btn-sm btn-circle text-base-content/40 hover:text-error"
+										class="btn btn-ghost btn-sm btn-circle text-base-content/30 hover:text-error"
 										onclick={() => requestDelete(price)}
 										aria-label="Delete price"
 									>
