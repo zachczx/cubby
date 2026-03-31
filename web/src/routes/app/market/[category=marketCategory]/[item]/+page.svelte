@@ -16,6 +16,7 @@
 	import { titleCase } from '$lib/utils';
 	import { marketStores } from '$lib/market';
 	import type { marketStoresType } from '$lib/market';
+	import SwipeReveal from '$lib/components/SwipeReveal.svelte';
 
 	dayjs.extend(relativeTime);
 
@@ -181,39 +182,71 @@
 					{#if pricesQuery.isLoading}
 						<div class="skeleton h-16 w-full rounded-2xl"></div>
 					{:else if prices.length > 0}
-						<div
-							class="border-base-300/50 bg-base-50 divide-base-300/50 divide-y rounded-2xl border"
-						>
-							{#each prices as price}
+						<div class="ring-base-300/50 bg-base-50 divide-base-300/50 divide-y rounded-2xl ring-1">
+							{#each prices as price, i}
 								{@const up = unitPrice(price.price, price.quantity)}
 								{@const storeLogo = marketStores[price.store as keyof marketStoresType]?.icon}
-								<div
-									class="hover:bg-base-200/50 flex items-center justify-between gap-3 p-4 transition-colors"
-								>
-									<!-- Left: Store + Time -->
-									<div class="flex items-center gap-3">
-										{#if price.store}
-											<div class="avatar">
-												<div class="w-8 rounded-full">
-													<img src={storeLogo} alt="logo" />
+								<SwipeReveal hint={i === 0}>
+									{#snippet actions()}
+										<button
+											class="bg-primary text-primary-content flex w-12 items-center justify-center"
+											onclick={() =>
+												goto(router.marketAdd(), {
+													state: { duplicatePrice: price }
+												})}
+											aria-label="Duplicate price"
+										>
+											<Icon icon="material-symbols:content-copy-outline" class="size-5" />
+										</button>
+										<button
+											class="bg-info text-info-content flex w-12 items-center justify-center"
+											onclick={() => goto(router.marketEdit(price.id), { state: { price } })}
+											aria-label="Edit price"
+										>
+											<Icon icon="material-symbols:edit-outline" class="size-5" />
+										</button>
+										<button
+											class={[
+												'bg-error text-error-content flex w-12 items-center justify-center',
+												i === 0 && 'rounded-tr-2xl',
+												i === prices.length - 1 && 'rounded-br-2xl'
+											]}
+											onclick={() => requestDelete(price)}
+											aria-label="Delete price"
+										>
+											<Icon icon="material-symbols:delete-outline" class="size-5" />
+										</button>
+									{/snippet}
+									<div
+										class={[
+											'bg-base-50 flex items-center justify-between gap-3 p-4 pe-8',
+											i === 0 && 'rounded-t-2xl',
+											i === prices.length - 1 && 'rounded-b-2xl'
+										]}
+									>
+										<div class="flex items-center gap-3">
+											{#if price.store}
+												<div class="avatar">
+													<div class="w-8 rounded-full">
+														<img src={storeLogo} alt="logo" />
+													</div>
+												</div>
+											{/if}
+											<div class="flex flex-col">
+												{#if price.store}
+													<span class="font-semibold">{price.store}</span>
+												{/if}
+												<div class="text-base-content/40 flex items-center gap-2 text-xs">
+													<span>{dayjs(price.createdAt).fromNow()}</span>
+													{#if price.isPromo}
+														<span class="badge badge-warning badge-xs text-warning-content"
+															>Sale</span
+														>
+													{/if}
 												</div>
 											</div>
-										{/if}
-										<div class="flex flex-col">
-											{#if price.store}
-												<span class="font-semibold">{price.store}</span>
-											{/if}
-											<div class="text-base-content/40 flex items-center gap-2 text-xs">
-												<span>{dayjs(price.createdAt).fromNow()}</span>
-												{#if price.isPromo}
-													<span class="badge badge-warning badge-xs text-warning-content">Sale</span
-													>
-												{/if}
-											</div>
 										</div>
-									</div>
 
-									<div class="flex items-center gap-2">
 										<div class="flex flex-col items-end">
 											<span class="text-lg font-bold">${price.price.toFixed(2)}</span>
 											{#if up}
@@ -222,32 +255,8 @@
 												>
 											{/if}
 										</div>
-										<button
-											class="btn btn-ghost btn-sm btn-circle text-base-content/30 hover:text-primary"
-											onclick={() =>
-												goto(router.marketAdd(), {
-													state: { duplicatePrice: price }
-												})}
-											aria-label="Duplicate price"
-										>
-											<Icon icon="material-symbols:content-copy-outline" class="size-4" />
-										</button>
-										<button
-											class="btn btn-ghost btn-sm btn-circle text-base-content/30 hover:text-primary"
-											onclick={() => goto(router.marketEdit(price.id), { state: { price } })}
-											aria-label="Edit price"
-										>
-											<Icon icon="material-symbols:edit-outline" class="size-4" />
-										</button>
-										<button
-											class="btn btn-ghost btn-sm btn-circle text-base-content/30 hover:text-error"
-											onclick={() => requestDelete(price)}
-											aria-label="Delete price"
-										>
-											<Icon icon="material-symbols:delete-outline" class="size-4" />
-										</button>
 									</div>
-								</div>
+								</SwipeReveal>
 							{/each}
 						</div>
 					{:else}
