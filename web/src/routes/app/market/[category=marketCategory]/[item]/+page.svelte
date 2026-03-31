@@ -77,10 +77,10 @@
 	<main class="h-full">
 		<div class="grid w-full max-w-lg gap-8 justify-self-center lg:text-base">
 			<section class="grid gap-4 py-2">
-				<button class="btn btn-primary btn-lg w-full rounded-full" onclick={() => goto(router.marketAdd({ category: data.category, item: data.item }))}>
+				<a href={router.marketAdd({ category: data.category, item: data.item })} class="btn btn-primary btn-lg w-full rounded-full">
 					<Icon icon="material-symbols:add" class="size-6" />
 					Add Price
-				</button>
+				</a>
 			</section>
 
 			{#if insightsQuery.isLoading}

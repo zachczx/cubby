@@ -4,7 +4,6 @@
 	import { createQuery } from '@tanstack/svelte-query';
 	import { marketInsightsQueryOptions } from '$lib/queries';
 	import { router } from '$lib/routes';
-	import { goto } from '$app/navigation';
 	import { titleCase } from '$lib/utils';
 
 	let { data } = $props();
@@ -26,10 +25,10 @@
 	<main class="h-full">
 		<div class="grid w-full max-w-lg gap-8 justify-self-center lg:text-base">
 			<section class="grid gap-4 py-2">
-				<button class="btn btn-primary btn-lg w-full rounded-full" onclick={() => goto(router.marketAdd({ category: data.category }))}>
+				<a href={router.marketAdd({ category: data.category })} class="btn btn-primary btn-lg w-full rounded-full">
 					<Icon icon="material-symbols:add" class="size-6" />
 					Add Price
-				</button>
+				</a>
 			</section>
 
 			<section class="grid gap-4 py-2">

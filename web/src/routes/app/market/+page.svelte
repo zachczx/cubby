@@ -5,7 +5,6 @@
 	import { marketPricesQueryOptions } from '$lib/queries';
 	import { router } from '$lib/routes';
 	import { marketCategories } from '$lib/market';
-	import { goto } from '$app/navigation';
 	import dayjs from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 
@@ -66,10 +65,10 @@
 	<main class="h-full">
 		<div class="grid w-full max-w-lg gap-6 justify-self-center lg:text-base">
 			<section class="grid gap-3 py-2">
-				<button class="btn btn-primary btn-lg w-full rounded-full" onclick={() => goto(router.marketAdd())}>
+				<a href={router.marketAdd()} class="btn btn-primary btn-lg w-full rounded-full">
 					<Icon icon="material-symbols:add" class="size-6" />
 					Add Price
-				</button>
+				</a>
 
 				<label class="input input-bordered input-lg flex w-full items-center gap-2 rounded-full">
 					<Icon icon="material-symbols:search" class="text-base-content/40 size-5" />

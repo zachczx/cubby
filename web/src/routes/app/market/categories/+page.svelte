@@ -5,7 +5,6 @@
 	import { marketPricesQueryOptions } from '$lib/queries';
 	import { router } from '$lib/routes';
 	import { marketCategories } from '$lib/market';
-	import { goto } from '$app/navigation';
 
 	const pricesQuery = createQuery(marketPricesQueryOptions);
 
@@ -29,10 +28,10 @@
 	<main class="h-full">
 		<div class="grid w-full max-w-lg gap-6 justify-self-center lg:text-base">
 			<section class="grid gap-3 py-2">
-				<button class="btn btn-primary btn-lg w-full rounded-full" onclick={() => goto(router.marketAdd())}>
+				<a href={router.marketAdd()} class="btn btn-primary btn-lg w-full rounded-full">
 					<Icon icon="material-symbols:add" class="size-6" />
 					Add Price
-				</button>
+				</a>
 			</section>
 
 			<section class="grid gap-3">
