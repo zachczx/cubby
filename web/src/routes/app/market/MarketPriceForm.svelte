@@ -206,7 +206,7 @@
 				min="0"
 				bind:value={price}
 				placeholder="0.00"
-				class="input input-bordered focus:outline-primary w-full transition-all"
+				class="input input-bordered focus:outline-primary w-full text-2xl font-bold transition-all"
 				required
 			/>
 		</div>
