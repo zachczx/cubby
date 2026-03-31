@@ -71,15 +71,19 @@
 
 <div role="status" {ontouchstart} {ontouchmove} {ontouchend} class="refresher w-full">
 	{#if pulling || refreshing}
-		<div class="fixed top-20 right-0 left-0 z-1 w-full lg:top-16">
-			<div class="grid w-full content-start justify-items-center">
+		<div class="fixed top-12 right-0 left-0 z-2 w-full lg:top-16">
+			<div class="text-neutral-content/85 grid w-full content-start justify-items-center">
 				{#if refreshing}
-					<div class="text-base-content/70 flex items-center justify-center gap-3">
-						<span class="text-base-content/70 loading loading-spinner loading-sm"></span>
+					<div
+						class="bg-neutral/90 flex min-w-58 items-center justify-center gap-3 rounded-3xl px-4 py-2"
+					>
+						<span class="loading loading-spinner loading-sm"></span>
 						<div class="text-lg">Refreshing...</div>
 					</div>
 				{:else if shouldRefresh}
-					<div class="text-primary flex items-center justify-center gap-3 pe-2">
+					<div
+						class="bg-neutral/90 flex min-w-58 items-center justify-center gap-3 rounded-3xl px-4 py-2"
+					>
 						<Icon
 							icon="material-symbols:refresh"
 							class="size-6 transition-transform"
@@ -88,10 +92,12 @@
 						<div class="text-lg">Let go to refresh</div>
 					</div>
 				{:else}
-					<div class="flex items-center justify-center gap-3">
+					<div
+						class="bg-neutral/90 flex min-w-58 items-center justify-center gap-3 rounded-3xl px-4 py-2"
+					>
 						<Icon icon="material-symbols:arrow-downward" class="size-6 opacity-75" />
 
-						<div class="text-base-content/70 text-lg">Pull down to refresh</div>
+						<div class="text-lg">Pull down to refresh</div>
 					</div>
 				{/if}
 			</div>
