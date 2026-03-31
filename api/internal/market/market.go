@@ -260,6 +260,23 @@ func GetInsights(db *sqlx.DB, userID uuid.UUID) ([]MarketInsight, error) {
 	return insights, nil
 }
 
+func GetPrice(db *sqlx.DB, userID uuid.UUID, priceID uuid.UUID) (MarketPrice, error) {
+	var p MarketPrice
+	q := `SELECT mp.* FROM market_prices mp
+			WHERE mp.id = $1
+			AND mp.family_id IN (
+				SELECT family_id FROM families_users WHERE user_id = $2
+				UNION
+				SELECT id FROM families WHERE owner_id = $2
+			)`
+
+	if err := db.Get(&p, q, priceID, userID); err != nil {
+		return p, fmt.Errorf("get market price: %w", err)
+	}
+
+	return p, nil
+}
+
 func DeletePrice(db *sqlx.DB, userID uuid.UUID, priceID uuid.UUID) error {
 	q := `DELETE FROM market_prices
 			WHERE id = $1

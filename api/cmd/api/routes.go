@@ -81,6 +81,7 @@ func NewHTTPHandler(s *server.Service) http.Handler {
 	mux.HandleFunc("GET /gym/stats/exercises/{exerciseID}", s.RequireAuthentication(s.GetGymExerciseStatsHandler))
 
 	mux.HandleFunc("GET /market/prices", s.RequireAuthentication(s.GetMarketPricesHandler))
+	mux.HandleFunc("GET /market/prices/{priceID}", s.RequireAuthentication(s.GetMarketPriceHandler))
 	mux.HandleFunc("POST /market/prices", s.RequireAuthentication(s.LogMarketPriceHandler))
 	mux.HandleFunc("PATCH /market/prices/{priceID}", s.RequireAuthentication(s.UpdateMarketPriceHandler))
 	mux.HandleFunc("DELETE /market/prices/{priceID}", s.RequireAuthentication(s.DeleteMarketPriceHandler))

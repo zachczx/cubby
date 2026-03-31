@@ -100,6 +100,28 @@ func (s *Service) GetMarketPricesHandler(w http.ResponseWriter, r *http.Request)
 	response.WriteJSON(r.Context(), w, prices)
 }
 
+func (s *Service) GetMarketPriceHandler(w http.ResponseWriter, r *http.Request) {
+	userID, err := s.GetUserIDFromContext(r.Context())
+	if err != nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	priceID, err := uuid.Parse(r.PathValue("priceID"))
+	if err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	price, err := market.GetPrice(s.DB, userID, priceID)
+	if err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	response.WriteJSON(r.Context(), w, price)
+}
+
 func (s *Service) UpdateMarketPriceHandler(w http.ResponseWriter, r *http.Request) {
 	userID, err := s.GetUserIDFromContext(r.Context())
 	if err != nil {

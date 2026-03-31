@@ -173,6 +173,14 @@ const marketInsightsQuery = createQueryFactory(
 export const marketInsightsQueryOptions = marketInsightsQuery.options;
 export const marketInsightsRefetchOptions = marketInsightsQuery.refetch;
 
+export function marketPriceQueryOptions(id: string) {
+	return queryOptions({
+		queryKey: [...rootKey, 'market-price', id],
+		queryFn: async (): Promise<MarketPriceDB> => await api.get(`market/prices/${id}`).json(),
+		staleTime
+	});
+}
+
 export interface MarketPriceUpsertResult {
 	id: string;
 	isUpdate: boolean;
