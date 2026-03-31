@@ -224,6 +224,16 @@
 										</div>
 										<button
 											class="btn btn-ghost btn-sm btn-circle text-base-content/30 hover:text-primary"
+											onclick={() =>
+												goto(router.marketAdd(), {
+													state: { duplicatePrice: price }
+												})}
+											aria-label="Duplicate price"
+										>
+											<Icon icon="material-symbols:content-copy-outline" class="size-4" />
+										</button>
+										<button
+											class="btn btn-ghost btn-sm btn-circle text-base-content/30 hover:text-primary"
 											onclick={() => goto(router.marketEdit(price.id), { state: { price } })}
 											aria-label="Edit price"
 										>

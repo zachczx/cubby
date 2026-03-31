@@ -24,15 +24,19 @@
 
 	let {
 		editPrice = null,
+		duplicatePrice = null,
 		prefillCategory,
 		prefillItemName,
 		onSuccess
 	}: {
 		editPrice?: MarketPriceDB | null;
+		duplicatePrice?: MarketPriceDB | null;
 		prefillCategory?: MarketCategoryValue;
 		prefillItemName?: string;
 		onSuccess: () => void;
 	} = $props();
+
+	const prefill = editPrice ?? duplicatePrice;
 
 	const pricesQuery = createQuery(marketPricesQueryOptions);
 
@@ -41,15 +45,15 @@
 		return 'pack';
 	}
 
-	let itemName = $state(editPrice?.itemName ?? (prefillItemName ? titleCase(prefillItemName) : ''));
-	let category = $state(editPrice?.category ?? prefillCategory ?? 'fruit');
-	let country = $state(editPrice?.country ?? '');
-	let store = $state(editPrice?.store ?? 'Sheng Siong');
-	let unit = $state(editPrice?.unit ?? getUnit(category));
-	let quantity = $state(editPrice?.quantity?.toString() ?? '1');
-	let price = $state(editPrice?.price?.toString() ?? '');
-	let isPromo = $state(editPrice?.isPromo ?? false);
-	let remarks = $state(editPrice?.remarks ?? '');
+	let itemName = $state(prefill?.itemName ?? (prefillItemName ? titleCase(prefillItemName) : ''));
+	let category = $state(prefill?.category ?? prefillCategory ?? 'fruit');
+	let country = $state(prefill?.country ?? '');
+	let store = $state(prefill?.store ?? 'Sheng Siong');
+	let unit = $state(prefill?.unit ?? getUnit(category));
+	let quantity = $state(prefill?.quantity?.toString() ?? '1');
+	let price = $state(prefill?.price?.toString() ?? '');
+	let isPromo = $state(prefill?.isPromo ?? false);
+	let remarks = $state(prefill?.remarks ?? '');
 	let customDateEnabled = $state(!!editPrice);
 	let date = $state(
 		editPrice ? dayjs(editPrice.createdAt).format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD')
@@ -71,7 +75,7 @@
 	let isSubmitting = $state(false);
 	let showSuggestions = $state(false);
 	let showCustomStore = $state(false);
-	let showDetails = $state(!!editPrice?.country || !!editPrice?.remarks);
+	let showDetails = $state(!!prefill?.country || !!prefill?.remarks);
 
 	let isCustomStore = $derived(
 		showCustomStore ||

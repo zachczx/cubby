@@ -1,8 +1,12 @@
 <script lang="ts">
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
+	import { page } from '$app/state';
 	import MarketPriceForm from '../MarketPriceForm.svelte';
 
 	let { data } = $props();
+
+	const duplicatePrice =
+		(page.state as { duplicatePrice?: MarketPriceDB }).duplicatePrice ?? null;
 </script>
 
 <PageWrapper title="Add Price" focusedScreen={true}>
@@ -10,6 +14,7 @@
 		<MarketPriceForm
 			prefillCategory={data.prefillCategory}
 			prefillItemName={data.prefillItemName}
+			{duplicatePrice}
 			onSuccess={() => history.back()}
 		/>
 	</div>
