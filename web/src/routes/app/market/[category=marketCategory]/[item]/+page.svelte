@@ -58,14 +58,32 @@
 		return price / quantity;
 	}
 
-	let insight = $derived.by(() => {
-		if (!insightsQuery.isSuccess || !insightsQuery.data) return null;
-		return (
-			insightsQuery.data.find((i) => i.itemName.toLowerCase() === data.item.toLowerCase()) ?? null
-		);
+	let allPrices = $derived(pricesQuery.isSuccess ? (pricesQuery.data ?? []) : []);
+
+	let countries = $derived.by(() => {
+		const set = new Set<string>();
+		for (const p of allPrices) {
+			if (p.country) set.add(p.country);
+		}
+		return [...set].sort();
 	});
 
-	let prices = $derived(pricesQuery.isSuccess ? (pricesQuery.data ?? []) : []);
+	let selectedCountry = $state<string | null>(null);
+
+	let prices = $derived(
+		selectedCountry ? allPrices.filter((p) => p.country === selectedCountry) : allPrices
+	);
+
+	let insight = $derived.by(() => {
+		if (!insightsQuery.isSuccess || !insightsQuery.data) return null;
+		const items = insightsQuery.data.filter(
+			(i) => i.itemName.toLowerCase() === data.item.toLowerCase()
+		);
+		if (selectedCountry) {
+			return items.find((i) => i.country === selectedCountry) ?? null;
+		}
+		return items[0] ?? null;
+	});
 
 	let trackedUnit = $derived.by(() => {
 		if (!prices.length) return null;
@@ -83,19 +101,35 @@
 <PageWrapper title={titleCase(data.item)}>
 	<main class="h-full">
 		<div class="grid w-full max-w-lg gap-8 justify-self-center lg:text-base">
+			<!-- Country filter pills -->
+			{#if countries.length > 1}
+				<div class="flex flex-wrap items-center justify-center gap-2">
+					{#each countries as country}
+						<button
+							class="btn btn-sm rounded-full {selectedCountry === country
+								? 'btn-neutral'
+								: 'btn-soft btn-neutral'}"
+							onclick={() => (selectedCountry = selectedCountry === country ? null : country)}
+						>
+							{country}
+						</button>
+					{/each}
+				</div>
+			{/if}
+
 			<!-- Meta-data chips -->
-			{#if insight?.country || insight?.category || trackedUnit}
+			{#if insight?.category || trackedUnit || (countries.length === 1 && countries[0])}
 				<div class="text-base-content/80 flex items-center justify-center gap-2 text-sm">
-					{#if insight?.country}
-						<span>{insight.country}</span>
-					{/if}
-					{#if insight?.country && insight?.category}
-						<span class="text-info/60">&bull;</span>
+					{#if countries.length === 1}
+						<span>{countries[0]}</span>
+						{#if insight?.category || trackedUnit}
+							<span class="text-info/60">&bull;</span>
+						{/if}
 					{/if}
 					{#if insight?.category}
 						<span>{titleCase(insight.category)}</span>
 					{/if}
-					{#if (insight?.country || insight?.category) && trackedUnit}
+					{#if insight?.category && trackedUnit}
 						<span class="text-info/60">&bull;</span>
 					{/if}
 					{#if trackedUnit}
@@ -162,7 +196,7 @@
 					<div class="border-base-300/50 bg-base-50 divide-base-300/50 divide-y rounded-2xl border">
 						{#each prices as price}
 							{@const up = unitPrice(price.price, price.quantity)}
-							{@const storeLogo = marketStores[price.store as keyof marketStoresType].icon}
+							{@const storeLogo = marketStores[price.store as keyof marketStoresType]?.icon}
 							<div
 								class="hover:bg-base-200/50 flex items-center justify-between gap-3 p-4 transition-colors"
 							>
