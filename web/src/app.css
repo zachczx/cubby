@@ -42,6 +42,7 @@
 	--color-base-input: #fbf9f6;
 	--color-bg-checked: rgba(216, 241, 222, 0.5);
 	--color-segmented: var(--color-slate-600);
+	--color-segmented-content: #f2f2f2;
 	--color-sage: rgba(138, 154, 91);
 }
 
@@ -265,5 +266,21 @@
 
 			background-color: var(--color-primary);
 		}
+	}
+}
+
+@utility btn-segmented {
+	background-color: var(--color-segmented);
+	color: var(--color-segmented-content);
+
+	&.btn-soft {
+		background-color: color-mix(in oklab, var(--color-segmented) 10%, transparent);
+		color: var(--color-segmented);
+	}
+
+	&.btn-outline {
+		border-color: var(--color-segmented);
+		color: var(--color-segmented);
+		background-color: transparent;
 	}
 }

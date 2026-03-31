@@ -209,7 +209,7 @@
 				min="0"
 				bind:value={price}
 				placeholder="0.00"
-				class="input input-bordered focus:outline-primary w-full text-2xl font-bold transition-all"
+				class="input input-bordered focus:outline-primary w-full transition-all"
 				required
 			/>
 		</div>
@@ -296,10 +296,8 @@
 					<button
 						type="button"
 						class={[
-							'btn btn-sm shrink-0 rounded-full',
-							store.toLowerCase() === s.toLowerCase()
-								? 'btn-primary'
-								: 'btn-outline border-base-300'
+							'btn btn-sm btn-segmented shrink-0 rounded-full',
+							store.toLowerCase() === s.toLowerCase() ? '' : 'btn-soft'
 						]}
 						onclick={() => (store = store.toLowerCase() === s.toLowerCase() ? '' : s)}
 					>
@@ -349,7 +347,7 @@
 			class={[
 				'btn btn-sm my-1',
 				!showDetails && 'btn-ghost',
-				showDetails && 'btn-soft btn-primary'
+				showDetails && 'btn-soft btn-segmented'
 			]}
 			onclick={() => (showDetails = !showDetails)}
 			>+ Details (Country, Remarks)<Icon
@@ -394,7 +392,7 @@
 				class={[
 					'btn btn-sm my-1',
 					!customDateEnabled && 'btn-ghost',
-					customDateEnabled && 'btn-soft btn-primary'
+					customDateEnabled && 'btn-soft btn-segmented'
 				]}
 				onclick={() => (customDateEnabled = !customDateEnabled)}
 				>Set Date/Time<Icon icon="material-symbols:arrow-right-alt" class="size-[1.3em]" />
