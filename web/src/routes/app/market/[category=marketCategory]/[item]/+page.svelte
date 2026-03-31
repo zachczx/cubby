@@ -99,9 +99,29 @@
 </script>
 
 <PageWrapper title={titleCase(data.item)}>
+	{#snippet subtitle()}
+		{#if insight?.category || trackedUnit || (countries.length === 1 && countries[0])}
+			<div class="text-base-content/50 flex items-center gap-2 text-sm">
+				{#if countries.length === 1}
+					<span>{countries[0]}</span>
+					{#if insight?.category || trackedUnit}
+						<span class="text-info/60">&bull;</span>
+					{/if}
+				{/if}
+				{#if insight?.category}
+					<span>{titleCase(insight.category)}</span>
+				{/if}
+				{#if insight?.category && trackedUnit}
+					<span class="text-info/60">&bull;</span>
+				{/if}
+				{#if trackedUnit}
+					<span>Tracked by {titleCase(trackedUnit)}</span>
+				{/if}
+			</div>
+		{/if}
+	{/snippet}
 	<main class="h-full">
 		<div class="grid w-full max-w-lg gap-8 justify-self-center lg:text-base">
-			<!-- Country filter pills -->
 			{#if countries.length > 1}
 				<div class="flex flex-wrap items-center justify-center gap-2">
 					{#each countries as country}
@@ -114,27 +134,6 @@
 							{country}
 						</button>
 					{/each}
-				</div>
-			{/if}
-
-			<!-- Meta-data chips -->
-			{#if insight?.category || trackedUnit || (countries.length === 1 && countries[0])}
-				<div class="text-base-content/80 flex items-center justify-center gap-2 text-sm">
-					{#if countries.length === 1}
-						<span>{countries[0]}</span>
-						{#if insight?.category || trackedUnit}
-							<span class="text-info/60">&bull;</span>
-						{/if}
-					{/if}
-					{#if insight?.category}
-						<span>{titleCase(insight.category)}</span>
-					{/if}
-					{#if insight?.category && trackedUnit}
-						<span class="text-info/60">&bull;</span>
-					{/if}
-					{#if trackedUnit}
-						<span>Tracked by {titleCase(trackedUnit)}</span>
-					{/if}
 				</div>
 			{/if}
 
@@ -222,7 +221,6 @@
 									</div>
 								</div>
 
-								<!-- Right: Price + Actions -->
 								<div class="flex items-center gap-2">
 									<div class="flex flex-col items-end">
 										<span class="text-lg font-bold">${price.price.toFixed(2)}</span>

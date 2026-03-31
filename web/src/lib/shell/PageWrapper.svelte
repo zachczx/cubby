@@ -14,6 +14,7 @@
 	let {
 		children,
 		title,
+		subtitle,
 		back = true,
 		focusedScreen = false,
 		noPaddingBottom = false,
@@ -22,6 +23,7 @@
 	}: {
 		children: Snippet;
 		title: string | undefined;
+		subtitle?: Snippet;
 		back?: boolean;
 		focusedScreen?: boolean;
 		noPaddingBottom?: boolean;
@@ -89,10 +91,7 @@
 
 <div class="grid min-h-dvh w-full justify-items-center">
 	<header
-		class={[
-			'bg-base-100 text-base-content fixed top-0 z-1 w-full px-4 lg:hidden',
-			back ? 'pt-2 pb-3' : 'py-2'
-		]}
+		class="bg-base-100 text-base-content fixed top-0 z-1 w-full px-4 py-2 lg:hidden"
 		style="view-transition-name: top-nav"
 	>
 		<div class="flex min-h-10 items-center justify-between">
@@ -141,12 +140,6 @@
 				{/if}
 			</div>
 		</div>
-
-		{#if back}
-			<h1 class="mt-1 text-[1.75rem] leading-tight font-extrabold">
-				{title ? title : defaultTitle}
-			</h1>
-		{/if}
 	</header>
 
 	<!-- Desktop: minimal transparent nav -->
@@ -200,13 +193,17 @@
 			class={[
 				'bg-base-100 w-full p-4 lg:mx-auto lg:grid lg:max-w-5xl lg:px-12',
 				!noPaddingBottom && 'max-lg:pb-24',
-				back
-					? 'max-lg:mt-24 max-lg:min-h-[calc(100vh-6rem-6rem)]'
-					: 'max-lg:mt-14 max-lg:min-h-[calc(100vh-3.5rem-6rem)]',
+				'max-lg:mt-14 max-lg:min-h-[calc(100vh-3.5rem-6rem)]',
 				'lg:mt-14 lg:min-h-[calc(100vh-3.5rem-1rem)] lg:pt-16'
 			]}
 			style="view-transition-name: content;"
 		>
+			{#if back && title}
+				<h1 class="text-[1.75rem] leading-tight font-extrabold">{title}</h1>
+				{#if subtitle}
+					{@render subtitle()}
+				{/if}
+			{/if}
 			{@render children?.()}
 		</div>
 	</Refresher>
