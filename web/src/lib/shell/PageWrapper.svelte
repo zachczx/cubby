@@ -222,16 +222,13 @@
 					href={route.href}
 					aria-current={currentSection === route.id ? 'page' : undefined}
 					class={[
-						'flex flex-col items-center gap-0.5 rounded-full px-5 py-2 transition-colors',
+						'flex flex-col items-center gap-0.5 rounded-full px-4 py-2 transition-colors',
 						currentSection === route.id ? 'text-primary bg-white font-bold' : 'text-white/80'
 					]}
 				>
 					{#if route.icon}
-						<Icon icon={route.icon} class={[currentSection === route.id ? 'size-6' : 'size-5']} />
+						<Icon icon={route.icon} class={[currentSection === route.id ? 'size-8' : 'size-7']} />
 					{/if}
-					<span class={['text-xs', currentSection === route.id ? 'tracking-wider' : undefined]}
-						>{route.label}</span
-					>
 				</a>
 			{/each}
 		</nav>
