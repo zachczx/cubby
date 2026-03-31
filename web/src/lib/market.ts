@@ -1,4 +1,4 @@
-import FairpriceLogo from '$lib/assets/logos/fairprice.webp';
+import FairPriceLogo from '$lib/assets/logos/fairprice.webp';
 import ShengSiongLogo from '$lib/assets/logos/shengsiong.svg';
 
 export const marketCategories = [
@@ -33,8 +33,10 @@ export const marketUnits = [
 ] as const;
 
 export const marketStores = {
-	Fairprice: { icon: FairpriceLogo },
-	'Sheng Siong': { icon: ShengSiongLogo }
+	FairPrice: { name: 'FairPrice', icon: FairPriceLogo },
+	'Sheng Siong': { name: 'Sheng Siong', icon: ShengSiongLogo }
 } as const;
 
 export type marketStoresType = typeof marketStores;
+
+export const quickStores = Object.values(marketStores).map((store) => store.name);

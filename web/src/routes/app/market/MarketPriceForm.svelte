@@ -8,7 +8,12 @@
 		updateMarketPriceMutation
 	} from '$lib/queries';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
-	import { marketCategories, marketUnits, type MarketCategoryValue } from '$lib/market';
+	import {
+		marketCategories,
+		marketUnits,
+		quickStores,
+		type MarketCategoryValue
+	} from '$lib/market';
 	import dayjs from 'dayjs';
 	import utc from 'dayjs/plugin/utc';
 	import timezone from 'dayjs/plugin/timezone';
@@ -67,8 +72,6 @@
 	let showSuggestions = $state(false);
 	let showCustomStore = $state(false);
 	let showDetails = $state(!!editPrice?.country || !!editPrice?.remarks);
-
-	const quickStores = ['FairPrice', 'Sheng Siong'];
 
 	let isCustomStore = $derived(
 		showCustomStore ||
@@ -349,10 +352,13 @@
 				showDetails && 'btn-soft btn-primary'
 			]}
 			onclick={() => (showDetails = !showDetails)}
-			>+ Details (Country, Remarks)<Icon icon="material-symbols:arrow-right-alt" class="size-[1.3em]" />
+			>+ Details (Country, Remarks)<Icon
+				icon="material-symbols:arrow-right-alt"
+				class="size-[1.3em]"
+			/>
 		</button>
 		{#if showDetails}
-			<div class="grid grid-cols-2 gap-4 mt-2">
+			<div class="mt-2 grid grid-cols-2 gap-4">
 				<div class="form-control w-full">
 					<label for="country" class="label py-1"
 						><span class="label-text text-base-content/80 font-medium">Country</span></label
