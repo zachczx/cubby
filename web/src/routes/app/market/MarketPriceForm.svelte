@@ -44,7 +44,7 @@
 	let itemName = $state(editPrice?.itemName ?? (prefillItemName ? titleCase(prefillItemName) : ''));
 	let category = $state(editPrice?.category ?? prefillCategory ?? 'fruit');
 	let country = $state(editPrice?.country ?? '');
-	let store = $state(editPrice?.store ?? '');
+	let store = $state(editPrice?.store ?? 'Sheng Siong');
 	let unit = $state(editPrice?.unit ?? getUnit(category));
 	let quantity = $state(editPrice?.quantity?.toString() ?? '1');
 	let price = $state(editPrice?.price?.toString() ?? '');

@@ -114,9 +114,9 @@
 	{/snippet}
 	<main class="h-full">
 		<div class="grid w-full max-w-lg justify-self-center lg:text-base">
-			<section class="grid gap-3 pb-8">
+			<section class="grid gap-3 pt-4 pb-8">
 				{#if countries.length > 1}
-					<div class="my-4 flex flex-wrap items-center justify-start gap-2">
+					<div class="flex flex-wrap items-center justify-start gap-2">
 						{#each countries as country}
 							<button
 								class="btn btn-sm rounded-full {selectedCountry === country
@@ -132,7 +132,7 @@
 
 				<a
 					href={router.marketAdd({ category: data.category, item: data.item })}
-					class="btn btn-primary btn-lg w-full rounded-full"
+					class="btn btn-primary btn-lg mt-4 w-full rounded-full"
 				>
 					<Icon icon="material-symbols:add" class="size-6" />
 					Add Price
