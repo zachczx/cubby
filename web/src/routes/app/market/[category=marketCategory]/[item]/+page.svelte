@@ -180,7 +180,7 @@
 					<h2 class="text-base-content/70 text-lg font-bold">Price History</h2>
 
 					{#if pricesQuery.isLoading}
-						<div class="skeleton h-16 w-full rounded-2xl"></div>
+						<div class="skeleton min-h-32 w-full rounded-2xl"></div>
 					{:else if prices.length > 0}
 						<div class="ring-base-300/50 bg-base-50 divide-base-300/50 divide-y rounded-2xl ring-1">
 							{#each prices as price, i}

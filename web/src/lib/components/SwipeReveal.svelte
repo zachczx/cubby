@@ -51,7 +51,7 @@
 		if (locked) return;
 		if (!swiping) return;
 
-		e.preventDefault();
+		if (e.cancelable) e.preventDefault();
 
 		const base = open ? -actionsWidth : 0;
 		const raw = base + dx;
@@ -115,12 +115,18 @@
 		style="transform: translateX({currentX}px)"
 	>
 		{@render children()}
-		<div
-			class="text-base-content/50 pointer-events-none absolute top-1/2 right-1.5 -translate-y-1/2 transition-opacity duration-200"
+		<button
+			type="button"
+			class="text-base-content/50 absolute top-1/2 right-0 -translate-y-1/2 p-1.5 transition-opacity duration-200"
 			class:opacity-0={open || swiping}
+			onclick={() => {
+				open = !open;
+				currentX = open ? -actionsWidth : 0;
+			}}
+			aria-label="Show actions"
 		>
 			<Icon icon="material-symbols:chevron-left" class="size-5" />
-		</div>
+		</button>
 	</div>
 </div>
 
