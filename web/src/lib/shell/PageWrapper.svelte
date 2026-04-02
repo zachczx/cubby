@@ -199,10 +199,12 @@
 			style="view-transition-name: content;"
 		>
 			{#if back && title}
-				<h1 class="text-[1.75rem] leading-tight font-extrabold">{title}</h1>
-				{#if subtitle}
-					{@render subtitle()}
-				{/if}
+				<div class="w-full max-w-lg justify-self-center">
+					<h1 class="text-[1.75rem] leading-tight font-extrabold">{title}</h1>
+					{#if subtitle}
+						{@render subtitle()}
+					{/if}
+				</div>
 			{/if}
 			{@render children?.()}
 		</div>
