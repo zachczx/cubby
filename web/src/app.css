@@ -47,8 +47,17 @@
 }
 
 @layer base {
+	:root {
+		--keyboard-height: 0px;
+	}
+
 	body {
 		font-family: 'Nunito Variable', sans-serif;
+	}
+
+	html.keyboard-open body {
+		height: calc(100vh - var(--keyboard-height));
+		overflow: hidden;
 	}
 
 	/* Start transition */

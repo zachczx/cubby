@@ -8,6 +8,7 @@
 	import { queryClient } from '$lib/queries';
 	import { Capacitor } from '@capacitor/core';
 	import { App } from '@capacitor/app';
+	import { Keyboard } from '@capacitor/keyboard';
 	import { onMount } from 'svelte';
 
 	onMount(() => {
@@ -19,7 +20,21 @@
 					App.exitApp();
 				}
 			});
+
+			Keyboard.addListener('keyboardWillShow', (info) => {
+				document.documentElement.style.setProperty(
+					'--keyboard-height',
+					`${info.keyboardHeight}px`
+				);
+				document.documentElement.classList.add('keyboard-open');
+			});
+
+			Keyboard.addListener('keyboardWillHide', () => {
+				document.documentElement.style.setProperty('--keyboard-height', '0px');
+				document.documentElement.classList.remove('keyboard-open');
+			});
 		}
+
 	});
 
 	onNavigate((navigation) => {

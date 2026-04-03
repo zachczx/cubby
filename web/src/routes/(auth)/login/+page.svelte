@@ -117,7 +117,7 @@
 <PageWrapper title="Login" focusedScreen showSettingsIcon={false} back={false}>
 	<form
 		class={[
-			'grid h-full min-h-[calc(100vh-3.5rem-6rem)] w-full content-center justify-self-center lg:min-h-[calc(100vh-3.5rem-1rem)] lg:max-w-sm'
+			'grid w-full justify-self-center lg:max-w-sm'
 		]}
 	>
 		<div class="lg:bg-base-200 w-full rounded-2xl lg:p-8 lg:shadow-md">

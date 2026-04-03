@@ -111,7 +111,6 @@
 
 <style>
 	.refresher {
-		height: 100%;
 		position: relative;
 		overscroll-behavior-y: contain;
 	}

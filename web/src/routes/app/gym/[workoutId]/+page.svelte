@@ -661,7 +661,7 @@
 				<input
 					type="radio"
 					name="set-type"
-					class="btn join-item flex-1 checked:bg-segmented checked:text-primary-content"
+					class="btn join-item checked:bg-segmented checked:text-primary-content flex-1"
 					aria-label={opt.label}
 					checked={setType === opt.value}
 					onchange={() => (setType = opt.value)}

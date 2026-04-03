@@ -193,8 +193,8 @@
 			class={[
 				'bg-base-100 w-full p-4 lg:mx-auto lg:grid lg:max-w-5xl lg:px-12',
 				!noPaddingBottom && 'max-lg:pb-24',
-				'max-lg:mt-14 max-lg:min-h-[calc(100vh-3.5rem-6rem)]',
-				'lg:mt-14 lg:min-h-[calc(100vh-3.5rem-1rem)] lg:pt-16'
+				'max-lg:mt-14',
+				'lg:mt-14 lg:pt-16'
 			]}
 			style="view-transition-name: content;"
 		>
