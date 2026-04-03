@@ -1,3 +1,9 @@
+/**
+ * Exercise database sourced from an external dataset.
+ *
+ * @custom Barbell_Larsen_Press
+ * @custom Barbell_Feet_Up_Bench_Press
+ */
 export const exercises = [
 	{
 		name: '3/4 Sit-Up',
@@ -798,6 +804,44 @@ export const exercises = [
 		category: 'strength',
 		images: ['Barbell_Bench_Press_-_Medium_Grip/0.jpg', 'Barbell_Bench_Press_-_Medium_Grip/1.jpg'],
 		id: 'Barbell_Bench_Press_-_Medium_Grip'
+	},
+	{
+		name: 'Barbell Larsen Press',
+		force: 'push',
+		level: 'intermediate',
+		mechanic: 'compound',
+		equipment: 'barbell',
+		primaryMuscles: ['chest'],
+		secondaryMuscles: ['shoulders', 'triceps'],
+		instructions: [
+			'Lie back on a flat bench with your legs extended straight and feet off the floor.',
+			'Using a medium width grip, unrack the bar and hold it straight over you with your arms locked. This will be your starting position.',
+			'Breathe in and lower the bar slowly until it touches your chest.',
+			'After a brief pause, push the bar back to the starting position as you breathe out.',
+			'Repeat for the prescribed amount of repetitions and rerack the bar.'
+		],
+		category: 'strength',
+		images: [],
+		id: 'Barbell_Larsen_Press'
+	},
+	{
+		name: 'Barbell Feet Up Bench Press',
+		force: 'push',
+		level: 'intermediate',
+		mechanic: 'compound',
+		equipment: 'barbell',
+		primaryMuscles: ['chest'],
+		secondaryMuscles: ['shoulders', 'triceps'],
+		instructions: [
+			'Lie back on a flat bench and place your feet flat on the bench with knees bent to reduce lower back arch.',
+			'Using a medium width grip, unrack the bar and hold it straight over you with your arms locked. This will be your starting position.',
+			'Breathe in and lower the bar slowly until it touches your chest.',
+			'After a brief pause, push the bar back to the starting position as you breathe out.',
+			'Repeat for the prescribed amount of repetitions and rerack the bar.'
+		],
+		category: 'strength',
+		images: [],
+		id: 'Barbell_Feet_Up_Bench_Press'
 	},
 	{
 		name: 'Barbell Curl',
