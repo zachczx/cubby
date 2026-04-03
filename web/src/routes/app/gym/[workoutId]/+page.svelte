@@ -18,6 +18,8 @@
 	import { exercises } from '$lib/exercises';
 	import Icon from '@iconify/svelte';
 	import CorgiGym from '$lib/assets/corgi_gym.webp?w=240&enhanced';
+	import { detectPr, type PrResult } from '$lib/pr';
+	import StarBurst from '$lib/ui/StarBurst.svelte';
 
 	let { data } = $props();
 
@@ -56,6 +58,14 @@
 	function updateWorkoutsCache(updater: (workouts: WorkoutDB[]) => WorkoutDB[]) {
 		const current = queryClient.getQueryData<WorkoutDB[]>(getAllWorkoutsQueryKey());
 		if (current) queryClient.setQueryData(getAllWorkoutsQueryKey(), updater(current));
+	}
+
+	function getAllSetsForExercise(exerciseId: string): SetDB[] {
+		const workouts = queryClient.getQueryData<WorkoutDB[]>(getAllWorkoutsQueryKey());
+		if (!workouts) return [];
+		return workouts
+			.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
+			.flatMap((w) => w.sets.filter((s) => s.exerciseId === exerciseId));
 	}
 
 	let exerciseSearch = $state('');
@@ -129,6 +139,12 @@
 	let isSavingNotes = $state(false);
 	let notesDialog = $state<HTMLDialogElement>();
 	let editingNotes = $state('');
+	let prStarSetId = $state<string | null>(null);
+
+	function triggerPrCelebration(setId: string) {
+		prStarSetId = setId;
+		setTimeout(() => (prStarSetId = null), 2000);
+	}
 
 	function openEditNotes() {
 		editingNotes = currentWorkout?.notes ?? '';
@@ -189,6 +205,38 @@
 		return workoutsDb.data.find((w) => w.id === data.workoutId);
 	});
 
+	// Map of setId → PrResult for sets in the current workout
+	let prMap = $derived.by(() => {
+		const map = new Map<string, PrResult>();
+		if (!workoutsDb.isSuccess || !currentWorkout) return map;
+
+		// All workouts sorted oldest first
+		const sorted = [...workoutsDb.data].sort(
+			(a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+		);
+
+		for (const set of currentWorkout.sets) {
+			// Collect all previous sets for this exercise across all workouts
+			const historical: SetDB[] = [];
+			for (const w of sorted) {
+				for (const s of w.sets) {
+					if (s.exerciseId !== set.exerciseId) continue;
+					if (w.id === currentWorkout.id && s.id === set.id) break;
+					if (w.id === currentWorkout.id) {
+						historical.push(s);
+						continue;
+					}
+					historical.push(s);
+				}
+				if (w.id === currentWorkout.id) break;
+			}
+
+			const pr = detectPr(set, historical);
+			if (pr) map.set(set.id, pr);
+		}
+		return map;
+	});
+
 	let deletingWorkoutId = $state<string | null>(null);
 	let deleteWorkoutDialog = $state<HTMLDialogElement>();
 
@@ -235,9 +283,14 @@
 
 		if (response.status === 201) {
 			const set: SetDB = await response.json();
+			// Check for PR before updating cache (historical = all existing sets)
+			const historical = getAllSetsForExercise(set.exerciseId);
+			const pr = detectPr(set, historical);
+
 			updateWorkoutsCache((workouts) =>
 				workouts.map((w) => (w.id === workoutId ? { ...w, sets: [...w.sets, set] } : w))
 			);
+			if (pr) triggerPrCelebration(set.id);
 			selectedExerciseId = '';
 			setWeight = null;
 			setReps = null;
@@ -262,9 +315,13 @@
 
 		if (response.status === 201) {
 			const newSet: SetDB = await response.json();
+			const historical = getAllSetsForExercise(newSet.exerciseId);
+			const pr = detectPr(newSet, historical);
+
 			updateWorkoutsCache((workouts) =>
 				workouts.map((w) => (w.id === workoutId ? { ...w, sets: [...w.sets, newSet] } : w))
 			);
+			if (pr) triggerPrCelebration(newSet.id);
 		} else {
 			addToast('error', 'Failed to add set');
 		}
@@ -474,7 +531,8 @@
 									</div>
 									<div class="grid gap-2">
 										{#each group.sets as set, si (set.id)}
-											<div class="flex items-center gap-3">
+											<div class="relative flex items-center gap-3">
+												<StarBurst show={prStarSetId === set.id} size="14px" count={8} />
 												<span class="text-base-content/40 w-5 text-right text-sm font-medium"
 													>{si + 1}</span
 												>
@@ -494,6 +552,11 @@
 														{/if}
 														{#if set.setType !== 'working'}
 															<span class="text-base-content/30 ml-1">({set.setType})</span>
+														{/if}
+														{#if prMap.get(set.id)}
+															<span class="bg-warning/15 text-warning ml-1 rounded-full px-1.5 py-0.5 text-xs font-bold">
+																{prMap.get(set.id)?.label}
+															</span>
 														{/if}
 													</span>
 													<div class="flex items-center gap-1">

@@ -8,6 +8,7 @@
 	import dayjs from 'dayjs';
 	import type { Action } from 'svelte/action';
 	import type { PageData } from './$types';
+	import { detectAllPrs } from '$lib/pr';
 
 	let { data }: { data: PageData } = $props();
 	let exerciseId = $derived(data.exerciseId);
@@ -144,6 +145,11 @@
 		volumeData.length > 0 ? volumeData.reduce((sum, d) => sum + d.volume, 0) : 0
 	);
 	let totalSets = $derived(exerciseDb.data?.length ?? 0);
+
+	let prSet = $derived.by(() => {
+		if (!exerciseDb.isSuccess || !exerciseDb.data) return new Map();
+		return detectAllPrs(exerciseDb.data);
+	});
 </script>
 
 <PageWrapper title={exerciseName}>
@@ -244,7 +250,14 @@
 											<td class="text-base-content/60 text-sm">
 												{dayjs(set.date).format('D MMM YYYY')}
 											</td>
-											<td class="text-right font-semibold">{set.weightKg}kg</td>
+											<td class="text-right font-semibold">
+												{set.weightKg}kg
+												{#if prSet.get(i)}
+													<span class="bg-warning/15 text-warning ml-1 rounded-full px-1.5 py-0.5 text-xs font-bold">
+														{prSet.get(i)?.label}
+													</span>
+												{/if}
+											</td>
 											<td class="text-right">{set.reps}</td>
 											<td class="text-right">
 												{#if set.setType === 'failure'}
