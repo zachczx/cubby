@@ -333,6 +333,7 @@
 	let editingSet = $state<SetDB | null>(null);
 	let editWeight = $state<number | null>(null);
 	let editReps = $state<number | null>(null);
+	let editSetType = $state('working');
 	let editDialog = $state<HTMLDialogElement>();
 
 	function openEditSet(set: SetDB) {
@@ -340,6 +341,7 @@
 		editWeight =
 			set.weightKg != null ? (weightUnit === 'lb' ? kgToLb(set.weightKg) : set.weightKg) : null;
 		editReps = set.reps;
+		editSetType = set.setType;
 		editDialog?.showModal();
 	}
 
@@ -352,12 +354,12 @@
 				exerciseId: editingSet.exerciseId,
 				weightKg,
 				reps: editReps,
-				setType: editingSet.setType
+				setType: editSetType
 			})
 		});
 		isSavingEdit = false;
 		if (response.status === 204) {
-			const updatedSet = { ...editingSet, weightKg, reps: editReps };
+			const updatedSet = { ...editingSet, weightKg, reps: editReps, setType: editSetType };
 			updateWorkoutsCache((workouts) =>
 				workouts.map((w) => ({
 					...w,
@@ -783,6 +785,20 @@
 				</button>
 			</div>
 		</div>
+
+		<fieldset class="join w-full text-sm">
+			<legend class="sr-only">Set Type</legend>
+			{#each [{ value: 'working', label: 'Working' }, { value: 'dropset', label: 'Drop' }, { value: 'failure', label: 'Failure' }] as opt (opt.value)}
+				<input
+					type="radio"
+					name="edit-set-type"
+					class="btn join-item checked:bg-segmented checked:text-primary-content flex-1"
+					aria-label={opt.label}
+					checked={editSetType === opt.value}
+					onchange={() => (editSetType = opt.value)}
+				/>
+			{/each}
+		</fieldset>
 
 		<button
 			class="btn btn-primary btn-lg w-full rounded-full"
