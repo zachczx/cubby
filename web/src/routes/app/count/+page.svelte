@@ -365,21 +365,28 @@
 				<button
 					aria-label="toggle sound"
 					class={[
-						'btn btn-sm rounded-full',
-						playSound ? 'btn-soft btn-primary' : 'btn-neutral btn-soft opacity-75'
+						'btn btn-sm btn-soft min-w-22 rounded-full',
+						playSound ? 'btn-primary' : 'btn-neutral opacity-90'
 					]}
 					onclick={() => (playSound = !playSound)}
 				>
-					<Icon
-						icon={playSound ? 'material-symbols:volume-up' : 'material-symbols:volume-off'}
-						width="20"
-						height="20"
-					/>
-					{playSound ? 'Sound' : 'Muted'}
+					{#if user.isSuccess}
+						<Icon
+							icon={playSound ? 'material-symbols:volume-up' : 'material-symbols:volume-off'}
+							width="20"
+							height="20"
+						/>
+						{playSound ? 'Sound' : 'Muted'}
+					{:else}
+						<span class="loading loading-spinner loading-xs"></span>
+					{/if}
 				</button>
 				<button
 					aria-label="switch voice"
-					class="btn btn-soft btn-neutral btn-sm min-w-26 rounded-full"
+					class={[
+						'btn btn-soft btn-sm min-w-26 rounded-full',
+						playSound ? 'btn-primary' : 'btn-neutral opacity-90'
+					]}
 					onclick={() => {
 						const next = character === 'robot' ? 'furnando' : 'robot';
 						character = next;
@@ -387,13 +394,18 @@
 					}}
 				>
 					{#if user.isSuccess}
-						<Icon
-							icon={character === 'robot'
-								? 'material-symbols:smart-toy-outline'
-								: 'mdi:google-downasaur'}
-							width="20"
-							height="20"
-						/>
+						<div class="relative">
+							<Icon
+								icon={character === 'robot'
+									? 'material-symbols:smart-toy-outline'
+									: 'mdi:google-downasaur'}
+								width="20"
+								height="20"
+							/>
+							{#if !playSound}
+								<span class="bg-neutral/90 absolute top-2 -left-0.5 h-0.5 w-6 rotate-45"></span>
+							{/if}
+						</div>
 						<span class="text-xs capitalize">{character}</span>
 					{:else}
 						<span class="loading loading-spinner loading-xs"></span>
