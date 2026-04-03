@@ -52,7 +52,7 @@
 	}
 </script>
 
-<section class="border-primary/20 bg-primary/5 grid gap-3 rounded-2xl border p-4">
+<section class="border-primary/20 bg-base-50 grid gap-3 rounded-2xl border p-4">
 	<a href={router.gymStats} class="flex items-center justify-between">
 		<span class="text-base-content/60 text-sm font-medium">Gym This Month</span>
 		<div class="flex items-center gap-1">
