@@ -91,7 +91,7 @@
 
 <div class="grid min-h-dvh w-full justify-items-center">
 	<header
-		class="bg-base-100 text-base-content fixed top-0 z-1 w-full px-4 py-2 lg:hidden"
+		class="bg-base-100 text-base-content fixed top-0 z-1 w-full px-4 py-2 pt-[calc(env(safe-area-inset-top)+0.5rem)] lg:hidden"
 		style="view-transition-name: top-nav"
 	>
 		<div class="flex min-h-10 items-center justify-between">
@@ -193,7 +193,7 @@
 			class={[
 				'bg-base-100 w-full p-4 lg:mx-auto lg:grid lg:max-w-5xl lg:px-12',
 				!noPaddingBottom && 'max-lg:pb-24',
-				'max-lg:mt-14',
+				'max-lg:mt-[calc(3.5rem+env(safe-area-inset-top))]',
 				'lg:mt-14 lg:pt-16'
 			]}
 			style="view-transition-name: content;"
