@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import 'tw-animate-css';
 /*For owner badge color  */
 @source inline('{text,bg}-{emerald,blue,purple,red,teal,orange,lime,slate}-{200,600}');
 @plugin 'daisyui';

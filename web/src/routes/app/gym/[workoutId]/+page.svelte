@@ -20,6 +20,8 @@
 	import CorgiGym from '$lib/assets/corgi_gym.webp?w=240&enhanced';
 	import { detectPr, type PrResult } from '$lib/pr';
 	import StarBurst from '$lib/ui/StarBurst.svelte';
+	import BitsDialog from '$lib/ui/Dialog.svelte';
+	import ArkDialog from '$lib/ui/ArkDialog.svelte';
 
 	let { data } = $props();
 
@@ -69,8 +71,9 @@
 	}
 
 	let exerciseSearch = $state('');
-	let addSetDialog = $state<HTMLDialogElement>();
-	let exerciseDialog = $state<HTMLDialogElement>();
+	let addSetDialogOpen = $state(false);
+	let exerciseDialogOpen = $state(false);
+	let arkDialogOpen = $state(false);
 	let filteredExercises = $derived(
 		exerciseSearch
 			? exercises.filter((e) => e.name.toLowerCase().includes(exerciseSearch.toLowerCase()))
@@ -97,8 +100,9 @@
 		setWeight = null;
 		setReps = null;
 		setType = 'working';
-		exerciseDialog?.close();
-		addSetDialog?.showModal();
+		exerciseDialogOpen = false;
+		arkDialogOpen = false;
+		addSetDialogOpen = true;
 	}
 
 	function openAddSet(workoutId: string, group: { exerciseId: string; sets: SetDB[] }) {
@@ -121,7 +125,7 @@
 			setReps = null;
 			setType = 'working';
 		}
-		addSetDialog?.showModal();
+		addSetDialogOpen = true;
 	}
 
 	let addingSetToWorkout = $state<string | null>(null);
@@ -297,7 +301,7 @@
 			setType = 'working';
 			weightMode = 'total';
 			addingSetToWorkout = null;
-			addSetDialog?.close();
+			addSetDialogOpen = false;
 		} else {
 			addToast('error', 'Failed to add set');
 		}
@@ -635,11 +639,22 @@
 						onclick={() => {
 							addingSetToWorkout = currentWorkout.id;
 							exerciseSearch = '';
-							exerciseDialog?.showModal();
+							exerciseDialogOpen = true;
 						}}
 					>
 						<Icon icon="material-symbols:add" class="size-4" />
-						Add Exercise
+						Add Exercise (Bits UI)
+					</button>
+					<button
+						class="btn btn-secondary btn-soft w-full rounded-full"
+						onclick={() => {
+							addingSetToWorkout = currentWorkout.id;
+							exerciseSearch = '';
+							arkDialogOpen = true;
+						}}
+					>
+						<Icon icon="material-symbols:add" class="size-4" />
+						Add Exercise (Ark UI)
 					</button>
 				{:else if workoutsDb.isSuccess && !currentWorkout}
 					<div class="grid justify-items-center gap-4 py-16">
@@ -665,19 +680,8 @@
 	</main>
 </PageWrapper>
 
-<dialog bind:this={addSetDialog} class="modal modal-bottom sm:modal-middle">
-	<div class="modal-box grid gap-4">
-		<div class="flex items-center justify-between">
-			<h3 class="text-lg font-bold">
-				{selectedExerciseId ? getExerciseName(selectedExerciseId) : 'Add Set'}
-			</h3>
-			<form method="dialog">
-				<button class="btn btn-ghost btn-sm btn-square">
-					<Icon icon="material-symbols:close" class="size-5" />
-				</button>
-			</form>
-		</div>
-
+<ArkDialog bind:open={addSetDialogOpen} title={selectedExerciseId ? getExerciseName(selectedExerciseId) : 'Add Set'}>
+	<div class="grid gap-4">
 		<div class="flex items-center gap-2">
 			<input
 				type="number"
@@ -743,28 +747,17 @@
 			Add Set
 		</button>
 	</div>
-	<form method="dialog" class="modal-backdrop">
-		<button>close</button>
-	</form>
-</dialog>
+</ArkDialog>
 
-<dialog bind:this={exerciseDialog} class="modal modal-bottom sm:modal-middle">
-	<div class="modal-box flex max-h-[80vh] flex-col gap-3">
-		<div class="flex items-center justify-between">
-			<h3 class="text-lg font-bold">Select Exercise</h3>
-			<form method="dialog">
-				<button class="btn btn-ghost btn-sm btn-square">
-					<Icon icon="material-symbols:close" class="size-5" />
-				</button>
-			</form>
-		</div>
+{#snippet exerciseListContent()}
+	<div class="grid gap-3">
 		<input
 			type="text"
 			class="input input-lg w-full"
 			placeholder="Search exercises..."
 			bind:value={exerciseSearch}
 		/>
-		<div class="flex-1 overflow-y-auto">
+		<div class="max-h-[60vh] overflow-y-auto">
 			{#if favouriteExercises.length > 0}
 				<p
 					class="text-base-content/50 px-3 pt-2 pb-1 text-xs font-semibold tracking-wider uppercase"
@@ -772,7 +765,7 @@
 					Favourites
 				</p>
 				{#each favouriteExercises as ex (ex.id)}
-					<div class="hover:bg-base-200 flex w-full items-center gap-1 px-3 py-2.5">
+					<div class="hover:bg-base-200 flex w-full items-center gap-1 rounded-lg px-3 py-2.5">
 						<button class="flex-1 cursor-pointer text-left" onclick={() => pickExercise(ex.id)}>
 							{ex.name}
 						</button>
@@ -784,7 +777,7 @@
 				<div class="divider my-0"></div>
 			{/if}
 			{#each filteredExercises as ex (ex.id)}
-				<div class="hover:bg-base-200 flex w-full items-center gap-1 px-3 py-2.5">
+				<div class="hover:bg-base-200 flex w-full items-center gap-1 rounded-lg px-3 py-2.5">
 					<button class="flex-1 cursor-pointer text-left" onclick={() => pickExercise(ex.id)}>
 						{ex.name}
 					</button>
@@ -802,10 +795,15 @@
 			{/each}
 		</div>
 	</div>
-	<form method="dialog" class="modal-backdrop">
-		<button>close</button>
-	</form>
-</dialog>
+{/snippet}
+
+<BitsDialog bind:open={exerciseDialogOpen} title="Select Exercise">
+	{@render exerciseListContent()}
+</BitsDialog>
+
+<ArkDialog bind:open={arkDialogOpen} title="Select Exercise">
+	{@render exerciseListContent()}
+</ArkDialog>
 
 <dialog bind:this={editDialog} class="modal modal-bottom sm:modal-middle">
 	<div class="modal-box grid gap-4">
