@@ -27,6 +27,7 @@
 	import { getDashboardTasks, getActiveWorkout } from '$lib/dashboard';
 	import { goto } from '$app/navigation';
 	import SkeletonActionCard from '$lib/ui/SkeletonActionCard.svelte';
+	import HappyCorgi from '$lib/assets/happy-corgi.webp?w=170&enhanced';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
@@ -146,17 +147,23 @@
 					<a
 						href="/app/trackers"
 						class={[
-							'border-base-300 flex items-center gap-3 rounded-2xl border px-4 py-3 transition-shadow hover:shadow',
+							'border-base-300 relative flex items-center gap-3 overflow-hidden rounded-2xl border px-4 py-3 transition-shadow hover:shadow',
 							urgentTasks.length > 0
 								? 'text-error-content bg-error'
 								: 'text-base-content bg-base-50'
 						]}
 					>
-						<span class={['text-3xl font-bold']}>{urgentTasks.length}</span>
-						<span class="grow text-sm font-medium opacity-85"
-							>Urgent Task{urgentTasks.length !== 1 ? 's' : ''}</span
-						>
-						<Icon icon="material-symbols:chevron-right" class="size-5 opacity-60" />
+						{#if urgentTasks.length > 0}
+							<span class={['text-3xl font-bold']}>{urgentTasks.length}</span>
+							<span class="grow text-sm font-medium opacity-85"
+								>Urgent Task{urgentTasks.length !== 1 ? 's' : ''}</span
+							>
+							<Icon icon="material-symbols:chevron-right" class="size-5 opacity-60" />
+						{:else}
+							<div class="text-base-content/65 grow">All caught up!</div>
+						{/if}
+
+						<enhanced:img src={HappyCorgi} alt="Happy corgi" class="absolute -top-11 right-8" />
 					</a>
 				{:else}
 					<div
