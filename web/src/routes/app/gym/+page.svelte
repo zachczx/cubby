@@ -11,6 +11,8 @@
 	import { exercises } from '$lib/exercises';
 	import CorgiGym from '$lib/assets/corgi_gym.webp?w=240&enhanced';
 	import Icon from '@iconify/svelte';
+	import { slide } from 'svelte/transition';
+	import { circOut } from 'svelte/easing';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(updateLocale);
@@ -77,6 +79,12 @@
 	}
 
 	const maxNumberOfExercisesToShow = 3;
+
+	let visibleNotes = $state<string | null>(null);
+
+	function toggleNotes(workoutId: string) {
+		visibleNotes = visibleNotes === workoutId ? null : workoutId;
+	}
 </script>
 
 <PageWrapper title="Gym">
@@ -123,7 +131,18 @@
 											<span>{dayjs(workout.startTime).format('h:mma')}</span>
 										</div>
 									</a>
-									<div class="px-1">
+									<div class="flex items-center gap-1 px-1">
+										{#if workout.notes}
+											<button
+												class="btn btn-ghost btn-xs btn-circle"
+												onclick={() => toggleNotes(workout.id)}
+											>
+												<Icon
+													icon="material-symbols:sticky-note-2-outline-rounded"
+													class="text-base-content/50 size-4"
+												/>
+											</button>
+										{/if}
 										<Icon
 											icon="material-symbols:local-fire-department-rounded"
 											class="text-accent size-5"
@@ -131,8 +150,13 @@
 									</div>
 								</div>
 
-								{#if workout.notes}
-									<p class="text-base-content/70 px-4 pb-2">{workout.notes}</p>
+								{#if visibleNotes === workout.id && workout.notes}
+									<div
+										transition:slide={{ duration: 300, easing: circOut }}
+										class="border-base-300 ms-5 me-4 mb-2 border-l-6 px-2 pt-1 pb-2 italic"
+									>
+										<p class="text-base-content/70 text-xs">{workout.notes}</p>
+									</div>
 								{/if}
 
 								{#if exerciseGroups.length > 0}
