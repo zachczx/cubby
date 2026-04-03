@@ -4,133 +4,129 @@
 	import utc from 'dayjs/plugin/utc';
 	import timezone from 'dayjs/plugin/timezone';
 	import relativeTime from 'dayjs/plugin/relativeTime';
-	import { createQuery } from '@tanstack/svelte-query';
-	import { allEntriesQueryOptions, allTrackersQueryOptions, userQueryOptions } from '$lib/queries';
+	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
+	import {
+		allEntriesQueryOptions,
+		allTrackersQueryOptions,
+		allWorkoutsQueryOptions,
+		getAllWorkoutsQueryKey,
+		gymSummaryQueryOptions,
+		userQueryOptions
+	} from '$lib/queries';
 	import { getTrackerStatus } from '$lib/notification';
+	import { calculateStreak } from '$lib/streaks';
 	import ActionCard from '$lib/ui/ActionCard.svelte';
+	import GymLaunchpad from '$lib/ui/GymLaunchpad.svelte';
 	import EmptyCorgi from '$lib/assets/empty.webp?w=200&enhanced';
 	import { getColoredTrackers, getTrackerIcon, generateSubscriptionEntries } from '$lib/mapper';
-	import SkeletonActionCard from '$lib/ui/SkeletonActionCard.svelte';
-	import { calculateStreak } from '$lib/streaks';
+	import Icon from '@iconify/svelte';
 	import { onMount } from 'svelte';
 	import { router } from '$lib/routes';
 	import { api } from '$lib/api';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
+	import { getDashboardTasks, getActiveWorkout } from '$lib/dashboard';
+	import { goto } from '$app/navigation';
+	import SkeletonActionCard from '$lib/ui/SkeletonActionCard.svelte';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
 
+	const queryClient = useQueryClient();
 	const trackersDb = createQuery(allTrackersQueryOptions);
 	const allEntriesDb = createQuery(allEntriesQueryOptions);
 	const userOptions = createQuery(userQueryOptions);
-
-	let generalTasksUpcomingDays = $derived.by(() => {
-		if (!userOptions.isSuccess || !userOptions.data) return 14;
-
-		return userOptions.data.taskLookaheadDays;
-	});
+	const workoutsDb = createQuery(allWorkoutsQueryOptions);
+	const gymSummary = createQuery(gymSummaryQueryOptions);
 
 	let buttonStatuses = $derived.by(() => {
 		if (!trackersDb.isSuccess || !trackersDb.data) return;
-
 		const statuses = <Record<string, ButtonState>>{};
-
 		for (const t of trackersDb.data) {
 			statuses[t.name] = 'default';
 		}
 		return statuses;
 	});
 
-	let trackers = $derived.by(() => {
+	let pinnedTrackers = $derived.by(() => {
 		if (!trackersDb.isSuccess || !trackersDb.data || !userOptions.isSuccess || !userOptions.data)
-			return { pinned: [], general: [] };
-
-		const coloredTrackers = getColoredTrackers(trackersDb.data);
-
-		const pinned = coloredTrackers.filter(
-			(tracker) => tracker.pinned && tracker.show && tracker.kind === 'task'
+			return [];
+		return getColoredTrackers(trackersDb.data).filter(
+			(t) => t.pinned && t.show && t.kind === 'task'
 		);
-		const general = coloredTrackers.filter(
-			(tracker) => !tracker.pinned && tracker.show && tracker.kind === 'task'
-		);
-
-		return { pinned: pinned, general: general };
 	});
 
-	let subscriptions = $derived.by(() => {
+	let generalTrackers = $derived.by(() => {
 		if (!trackersDb.isSuccess || !trackersDb.data || !userOptions.isSuccess || !userOptions.data)
-			return;
-
-		const coloredTrackers = getColoredTrackers(trackersDb.data);
-
-		return coloredTrackers
-			.filter((tracker) => tracker.show && tracker.kind === 'subscription')
-			.map((sub) => {
-				return {
-					...sub,
-					entryData: generateSubscriptionEntries(sub, userOptions.data!.id)
-				};
-			});
+			return [];
+		return getColoredTrackers(trackersDb.data).filter(
+			(t) => !t.pinned && t.show && t.kind === 'task'
+		);
 	});
 
-	let entries = $derived.by(() => {
-		if (!allEntriesDb.isSuccess) return { pinned: [], general: [] };
-
-		return {
-			pinned: classifyTrackers(trackers.pinned, allEntriesDb.data, 'pinned'),
-			general: classifyTrackers(trackers.general, allEntriesDb.data, 'general')
-		};
+	let subscriptionTrackers = $derived.by(() => {
+		if (!trackersDb.isSuccess || !trackersDb.data || !userOptions.isSuccess || !userOptions.data)
+			return [];
+		return getColoredTrackers(trackersDb.data)
+			.filter((t) => t.show && t.kind === 'subscription')
+			.map((sub) => ({
+				...sub,
+				syntheticEntries: generateSubscriptionEntries(sub, userOptions.data!.id)
+			}));
 	});
 
-	function classifyTrackers(trackers: TrackerDB[], entries: EntryDB[], kind: 'general' | 'pinned') {
+	let pinnedEntries = $derived.by(() => {
+		if (!allEntriesDb.isSuccess || !allEntriesDb.data) return [];
+		return classifyTrackers(pinnedTrackers, allEntriesDb.data);
+	});
+
+	let urgentTasks = $derived.by(() => {
+		if (!allEntriesDb.isSuccess || !allEntriesDb.data) return [];
+
+		const tasks = getDashboardTasks(generalTrackers, allEntriesDb.data);
+
+		// Treat subscriptions as upcoming tasks too
+		const subs = getDashboardTasks(
+			subscriptionTrackers,
+			subscriptionTrackers.flatMap((s) => s.syntheticEntries)
+		);
+
+		return [...tasks, ...subs];
+	});
+
+	let activeWorkout = $derived(
+		workoutsDb.isSuccess ? getActiveWorkout(workoutsDb.data) : undefined
+	);
+
+	const gymMonthlyTarget = 8;
+	let gymThisMonth = $derived(
+		gymSummary.isSuccess ? (gymSummary.data?.totalWorkoutsThisMonth ?? 0) : 0
+	);
+
+	function classifyTrackers(trackers: TrackerColored[], entries: EntryDB[]) {
 		const data = [];
-
 		for (const t of trackers) {
-			const entryData = entries?.filter((entry) => t.id === entry.trackerId) ?? [];
-			const trackerData = trackers.find((tracker) => tracker.id === t.id);
-			if (!trackerData) continue;
-
-			const mergedData = {
+			const entryData = entries.filter((entry) => t.id === entry.trackerId);
+			data.push({
 				trackerName: t.name,
-				trackerData: trackerData,
+				trackerData: t,
 				entries: entryData,
 				notification: getTrackerStatus(entryData),
-				streak: calculateStreak(entryData, trackerData)
-			};
-
-			if (
-				kind === 'general' &&
-				dayjs(mergedData.notification.next).diff(dayjs(), 'day', true) > generalTasksUpcomingDays
-			) {
-				continue;
-			}
-			data.push(mergedData);
+				streak: calculateStreak(entryData, t)
+			});
 		}
-
 		return data;
 	}
 
-	const viewButtons = [
-		{ days: 7, description: '1 week' },
-		{ days: 14, description: '2 weeks' },
-		{ days: 31, description: '1 month' },
-		{ days: 183, description: '6 months' },
-		{ days: 9999, description: 'All' }
-	];
-
-	async function generalTasksViewBtnHandler(numberDays: number) {
-		generalTasksUpcomingDays = numberDays;
-		console.log(numberDays, typeof numberDays);
-		try {
-			await api.patch('users/me/task-lookahead', {
-				body: JSON.stringify({
-					taskDays: numberDays
-				})
-			});
-		} catch (err) {
-			console.error(err);
-			addToast('error', 'Error!');
+	async function startWorkout() {
+		const response = await api.post('gym/workouts');
+		if (response.status === 201) {
+			const workout = await response.json<WorkoutDB>();
+			addToast('success', 'Workout started!');
+			queryClient.invalidateQueries({ queryKey: getAllWorkoutsQueryKey() });
+			goto(router.gym(workout.id));
+		} else {
+			addToast('error', 'Failed to start workout');
 		}
 	}
 
@@ -144,12 +140,62 @@
 
 <PageWrapper title="Dashboard" back={false}>
 	<main class="h-full">
-		<div id="mobile" class="grid w-full max-w-lg gap-8 justify-self-center lg:text-base">
+		<div class="grid w-full max-w-lg gap-6 justify-self-center lg:text-base">
+			<section class="grid gap-3">
+				{#if allEntriesDb.isSuccess && trackersDb.isSuccess && userOptions.isSuccess}
+					<a
+						href="/app/trackers"
+						class={[
+							'border-base-300 flex items-center gap-3 rounded-2xl border px-4 py-3 transition-shadow hover:shadow',
+							urgentTasks.length > 0
+								? 'text-error-content bg-error'
+								: 'text-base-content bg-base-50'
+						]}
+					>
+						<span class={['text-3xl font-bold']}>{urgentTasks.length}</span>
+						<span class="grow text-sm font-medium opacity-85"
+							>Urgent Task{urgentTasks.length !== 1 ? 's' : ''}</span
+						>
+						<Icon icon="material-symbols:chevron-right" class="size-5 opacity-60" />
+					</a>
+				{:else}
+					<div
+						class="border-base-300/50 bg-base-50 flex items-center gap-3 rounded-2xl border px-4 py-3"
+					>
+						<div class="skeleton h-9 w-8 rounded-full"></div>
+						<div class="skeleton h-4 w-24 grow-0 rounded-full"></div>
+						<div class="grow"></div>
+						<Icon icon="material-symbols:chevron-right" class="text-base-content/20 size-5" />
+					</div>
+				{/if}
+			</section>
+
+			{#if workoutsDb.isSuccess && gymSummary.isSuccess}
+				<GymLaunchpad
+					{activeWorkout}
+					{gymThisMonth}
+					{gymMonthlyTarget}
+					onStartWorkout={startWorkout}
+				/>
+			{:else}
+				<div class="border-primary/20 bg-primary/5 grid h-28.5 gap-3 rounded-2xl border p-4">
+					<div class="flex items-center justify-between">
+						<div class="skeleton h-4 w-24 rounded-full"></div>
+						<div class="flex items-center gap-1">
+							{#each Array(gymMonthlyTarget) as _}
+								<div class="skeleton size-3.5 rounded-sm"></div>
+							{/each}
+						</div>
+					</div>
+					<div class="skeleton h-12 w-full rounded-full"></div>
+				</div>
+			{/if}
+
 			<section class="grid gap-4 py-2">
 				<h2 class="text-base-content/70 text-lg font-bold">Pinned</h2>
 
 				{#if allEntriesDb.isSuccess && trackersDb.isSuccess && userOptions.isSuccess}
-					{#each entries.pinned as entry (entry.trackerData?.id)}
+					{#each pinnedEntries as entry (entry.trackerData?.id)}
 						<ActionCard
 							options={{
 								tracker: entry.trackerData,
@@ -176,23 +222,12 @@
 			</section>
 
 			<section class="grid gap-4 py-2">
-				<h2 class="text-base-content/70 text-lg font-bold">Other Tasks</h2>
-				<div class="flex items-center gap-2">
-					{#each viewButtons as btn}
-						<button
-							class={[
-								'btn-soft btn btn-sm rounded-full',
-								generalTasksUpcomingDays === btn.days && 'btn-primary'
-							]}
-							onclick={() => generalTasksViewBtnHandler(btn.days)}>{btn.description}</button
-						>
-					{/each}
-				</div>
+				<h2 class="text-base-content/70 text-lg font-bold">Upcoming</h2>
 
 				{#if allEntriesDb.isSuccess && trackersDb.isSuccess && userOptions.isSuccess}
-					{#if entries.general && entries.general.length > 0}
-						<div class="border-base-300/50 rounded-2xl border bg-base-50">
-							{#each entries.general as entry, i (entry.trackerData?.id)}
+					{#if urgentTasks.length > 0}
+						<div class="border-base-300/50 bg-base-50 rounded-2xl border">
+							{#each urgentTasks as entry, i (entry.trackerData?.id)}
 								<ActionCard
 									options={{
 										tracker: entry.trackerData,
@@ -201,7 +236,7 @@
 										entries: entry.entries,
 										route: router.tracker(entry.trackerData?.id),
 										icon: getTrackerIcon(entry.trackerData?.icon),
-										lastChild: i === entries.general.length - 1 ? true : undefined,
+										lastChild: i === urgentTasks.length - 1 ? true : undefined,
 										button: {
 											status: buttonStatuses?.[entry.trackerName],
 											text: entry.trackerData?.actionLabel
@@ -214,46 +249,9 @@
 					{:else}
 						<div class="justify-self-center">
 							<enhanced:img src={EmptyCorgi} alt="nothing" />
-							<p class="text-center">Nothing upcoming!</p>
+							<p class="text-center">Nothing urgent!</p>
 						</div>
 					{/if}
-				{:else if allEntriesDb.isError}
-					Error!
-				{:else}
-					<SkeletonActionCard size="compact" />
-					<SkeletonActionCard size="compact" />
-					<SkeletonActionCard size="compact" />
-				{/if}
-			</section>
-
-			<section class="grid gap-4 py-2">
-				<h2 class="text-base-content/70 text-lg font-bold">Subscriptions</h2>
-
-				{#if allEntriesDb.isSuccess && trackersDb.isSuccess && userOptions.isSuccess && subscriptions && subscriptions.length > 0}
-					<div class="border-base-300/50 rounded-2xl border bg-base-50">
-						{#each subscriptions as sub, i (sub.id)}
-							<ActionCard
-								options={{
-									tracker: sub,
-									size: 'list',
-									title: sub.display,
-									entries: sub.entryData,
-									route: `/app/trackers/${sub.id}`,
-									icon: getTrackerIcon(sub.icon),
-									lastChild: i === entries.general.length - 1 ? true : undefined,
-									button: {
-										status: buttonStatuses?.[sub.name],
-										text: sub.actionLabel
-									}
-								}}
-							></ActionCard>
-						{/each}
-					</div>
-				{:else if allEntriesDb.isSuccess && trackersDb.isSuccess && userOptions.isSuccess && subscriptions && subscriptions.length === 0}
-					<div class="justify-self-center">
-						<enhanced:img src={EmptyCorgi} alt="nothing" />
-						<p class="text-center">No subscriptions!</p>
-					</div>
 				{:else if allEntriesDb.isError}
 					Error!
 				{:else}

@@ -13,6 +13,8 @@
 	import { getTrackerStatus } from '$lib/notification.js';
 	import { calculateStreak } from '$lib/streaks';
 	import { router } from '$lib/routes';
+	import { api } from '$lib/api';
+	import { addToast } from '$lib/ui/ArkToaster.svelte';
 	import Icon from '@iconify/svelte';
 
 	const categories = [
@@ -23,6 +25,31 @@
 	] as const;
 
 	let selectedCategory = $state<string>('all');
+
+	const viewButtons = [
+		{ days: 7, description: '1 week' },
+		{ days: 14, description: '2 weeks' },
+		{ days: 31, description: '1 month' },
+		{ days: 183, description: '6 months' },
+		{ days: 9999, description: 'All' }
+	];
+
+	let generalTasksUpcomingDays = $derived.by(() => {
+		if (!userOptions.isSuccess || !userOptions.data) return 14;
+		return userOptions.data.taskLookaheadDays;
+	});
+
+	async function generalTasksViewBtnHandler(numberDays: number) {
+		generalTasksUpcomingDays = numberDays;
+		try {
+			await api.patch('users/me/task-lookahead', {
+				body: JSON.stringify({ taskDays: numberDays })
+			});
+		} catch (err) {
+			console.error(err);
+			addToast('error', 'Error!');
+		}
+	}
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
@@ -84,21 +111,38 @@
 
 		return {
 			pinned: classifyTrackers(currentTrackers.pinned, allEntriesDb.data),
-			general: classifyTrackers(currentTrackers.general, allEntriesDb.data)
+			general: classifyTrackers(
+				currentTrackers.general,
+				allEntriesDb.data,
+				generalTasksUpcomingDays
+			)
 		};
 	});
 
-	function classifyTrackers(trackers: TrackerDB[], entries: EntryDB[]) {
+	function classifyTrackers(
+		trackers: TrackerDB[],
+		entries: EntryDB[],
+		filterDays?: number
+	) {
 		const data = [];
 
 		for (const t of trackers) {
 			const entryData = entries.filter((entry) => t.id === entry.trackerId);
+			const notification = getTrackerStatus(entryData);
+
+			if (
+				filterDays !== undefined &&
+				notification.next &&
+				dayjs(notification.next).diff(dayjs(), 'day', true) > filterDays
+			) {
+				continue;
+			}
 
 			data.push({
 				trackerName: t.name,
 				trackerData: t,
 				entries: entryData,
-				notification: getTrackerStatus(entryData),
+				notification,
 				streak: calculateStreak(entryData, t)
 			});
 		}
@@ -124,6 +168,18 @@
 					</button>
 				{/each}
 			</nav>
+
+			<div class="flex items-center gap-2 px-1">
+				{#each viewButtons as btn}
+					<button
+						class={[
+							'btn-soft btn btn-sm rounded-full',
+							generalTasksUpcomingDays === btn.days && 'btn-primary'
+						]}
+						onclick={() => generalTasksViewBtnHandler(btn.days)}>{btn.description}</button
+					>
+				{/each}
+			</div>
 
 			<section class="grid gap-4 py-2">
 				<h2 class="text-base-content/70 text-lg font-bold">Pinned</h2>
