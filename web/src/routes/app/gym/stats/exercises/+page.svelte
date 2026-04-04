@@ -7,14 +7,14 @@
 
 	const userExercisesDb = createQuery(gymUserExercisesQueryOptions);
 
-	const exerciseMap = new Map(exercises.map((e) => [e.id, e]));
+	const exerciseMap = new Map(exercises.map((e) => [e.id.toLowerCase(), e]));
 
 	function getExerciseName(exerciseId: string): string {
-		return exerciseMap.get(exerciseId)?.name ?? exerciseId;
+		return exerciseMap.get(exerciseId.toLowerCase())?.name ?? exerciseId;
 	}
 
 	function getMuscleGroups(exerciseId: string): string[] {
-		return exerciseMap.get(exerciseId)?.primaryMuscles ?? [];
+		return exerciseMap.get(exerciseId.toLowerCase())?.primaryMuscles ?? [];
 	}
 
 	let exerciseSearch = $state('');

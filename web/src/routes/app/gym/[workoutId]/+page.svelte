@@ -51,10 +51,10 @@
 	const workoutsDb = createQuery(allWorkoutsQueryOptions);
 	const favouritesDb = createQuery(favouriteExercisesQueryOptions);
 
-	const exerciseMap = new Map(exercises.map((e) => [e.id, e]));
+	const exerciseMap = new Map(exercises.map((e) => [e.id.toLowerCase(), e]));
 
 	function getExerciseName(exerciseId: string): string {
-		return exerciseMap.get(exerciseId)?.name ?? exerciseId;
+		return exerciseMap.get(exerciseId.toLowerCase())?.name ?? exerciseId;
 	}
 
 	function updateWorkoutsCache(updater: (workouts: WorkoutDB[]) => WorkoutDB[]) {
@@ -95,7 +95,7 @@
 
 	function pickExercise(id: string) {
 		selectedExerciseId = id;
-		const ex = exerciseMap.get(id);
+		const ex = exerciseMap.get(id.toLowerCase());
 		weightMode = ex?.equipment === 'dumbbell' ? 'each' : 'total';
 		setWeight = null;
 		setReps = null;
@@ -108,7 +108,7 @@
 	function openAddSet(workoutId: string, group: { exerciseId: string; sets: SetDB[] }) {
 		addingSetToWorkout = workoutId;
 		selectedExerciseId = group.exerciseId;
-		const ex = exerciseMap.get(group.exerciseId);
+		const ex = exerciseMap.get(group.exerciseId.toLowerCase());
 		weightMode = ex?.equipment === 'dumbbell' ? 'each' : 'total';
 		const lastSet = group.sets[group.sets.length - 1];
 		if (lastSet) {
@@ -526,7 +526,7 @@
 											{group.exerciseName}
 										</p>
 										<a
-											href="/app/gym/stats/exercises/{group.exerciseId}"
+											href="/app/gym/stats/exercises/{encodeURIComponent(group.exerciseId)}"
 											class="btn btn-ghost btn-xs"
 										>
 											<Icon icon="material-symbols:show-chart" class="size-4" />

@@ -14,16 +14,16 @@
 
 	const calendarDb = createQuery(gymCalendarQueryOptions);
 
-	const exerciseMap = new Map(exercises.map((e) => [e.id, e]));
+	const exerciseMap = new Map(exercises.map((e) => [e.id.toLowerCase(), e]));
 
 	function getExerciseName(exerciseId: string): string {
-		return exerciseMap.get(exerciseId)?.name ?? exerciseId;
+		return exerciseMap.get(exerciseId.toLowerCase())?.name ?? exerciseId;
 	}
 
 	function getMuscleGroups(exerciseIds: string[]): string[] {
 		const muscles = new Set<string>();
 		for (const id of exerciseIds) {
-			for (const m of exerciseMap.get(id)?.primaryMuscles ?? []) {
+			for (const m of exerciseMap.get(id.toLowerCase())?.primaryMuscles ?? []) {
 				muscles.add(m);
 			}
 		}
@@ -159,7 +159,7 @@
 				<div class="border-base-300/50 bg-base-200/30 rounded-xl border px-3 py-2">
 					<p class="font-medium">{getExerciseName(exerciseId)}</p>
 					<p class="text-base-content/50 text-xs">
-						{exerciseMap.get(exerciseId)?.primaryMuscles.join(', ')}
+						{exerciseMap.get(exerciseId.toLowerCase())?.primaryMuscles.join(', ')}
 					</p>
 				</div>
 			{/each}

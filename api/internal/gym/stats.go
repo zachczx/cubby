@@ -137,10 +137,10 @@ func GetCalendarWorkouts(db *sqlx.DB, userID uuid.UUID) ([]WorkoutCalendarEntry,
 }
 
 type ExerciseSetStats struct {
-	Date     string  `db:"date" json:"date"`
-	WeightKg float64 `db:"weight_kg" json:"weightKg"`
-	Reps     int     `db:"reps" json:"reps"`
-	SetType  string  `db:"set_type" json:"setType"`
+	Date     string   `db:"date" json:"date"`
+	WeightKg *float64 `db:"weight_kg" json:"weightKg"`
+	Reps     *int     `db:"reps" json:"reps"`
+	SetType  string   `db:"set_type" json:"setType"`
 }
 
 type UserExercise struct {
@@ -179,9 +179,7 @@ func GetExerciseStats(db *sqlx.DB, userID uuid.UUID, exerciseID string) ([]Exerc
 		FROM gym_sets gs
 		JOIN gym_workouts gw ON gs.workout_id = gw.id
 		WHERE gw.user_id = $1
-		AND gs.exercise_id = $2
-		AND gs.weight_kg IS NOT NULL
-		AND gs.reps IS NOT NULL
+		AND LOWER(gs.exercise_id) = LOWER($2)
 		ORDER BY gw.start_time ASC, gs.position ASC`
 
 	var stats []ExerciseSetStats

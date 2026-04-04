@@ -8,7 +8,7 @@
 	import dayjs from 'dayjs';
 	import type { Action } from 'svelte/action';
 
-	const exerciseMap = new Map(exercises.map((e) => [e.id, e]));
+	const exerciseMap = new Map(exercises.map((e) => [e.id.toLowerCase(), e]));
 
 	const allMuscles = [
 		'chest',
@@ -44,7 +44,7 @@
 		const muscleMap = new Map<string, MuscleAggregate>();
 
 		for (const stat of stats) {
-			const primaryMuscles = exerciseMap.get(stat.exerciseId)?.primaryMuscles ?? [];
+			const primaryMuscles = exerciseMap.get(stat.exerciseId.toLowerCase())?.primaryMuscles ?? [];
 			for (const muscle of primaryMuscles) {
 				const existing = muscleMap.get(muscle);
 				if (existing) {

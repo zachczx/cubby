@@ -14,7 +14,8 @@
 	let exerciseId = $derived(data.exerciseId);
 
 	let exerciseName = $derived.by(() => {
-		const exercise = exercises.find((e) => e.id === exerciseId);
+		const lower = exerciseId.toLowerCase();
+		const exercise = exercises.find((e) => e.id.toLowerCase() === lower);
 		return exercise?.name ?? exerciseId;
 	});
 
@@ -120,19 +121,21 @@
 
 	let chartData = $derived.by(() => {
 		if (!exerciseDb.isSuccess || !exerciseDb.data) return [];
-		return exerciseDb.data.map((s) => ({
-			date: s.date,
-			weight: s.weightKg,
-			reps: s.reps,
-			setType: s.setType
-		}));
+		return exerciseDb.data
+			.filter((s) => s.weightKg != null)
+			.map((s) => ({
+				date: s.date,
+				weight: s.weightKg!,
+				reps: s.reps ?? 0,
+				setType: s.setType
+			}));
 	});
 
 	let volumeData = $derived.by(() => {
 		if (!exerciseDb.isSuccess || !exerciseDb.data) return [];
 		const grouped = new Map<string, number>();
 		for (const set of exerciseDb.data) {
-			const vol = set.weightKg * set.reps;
+			const vol = (set.weightKg ?? 0) * (set.reps ?? 0);
 			grouped.set(set.date, (grouped.get(set.date) ?? 0) + vol);
 		}
 		return Array.from(grouped.entries())
@@ -150,6 +153,7 @@
 		if (!exerciseDb.isSuccess || !exerciseDb.data) return new Map();
 		return detectAllPrs(exerciseDb.data);
 	});
+
 </script>
 
 <PageWrapper title={exerciseName}>
@@ -251,14 +255,16 @@
 												{dayjs(set.date).format('D MMM YYYY')}
 											</td>
 											<td class="text-right font-semibold">
-												{set.weightKg}kg
+												{set.weightKg != null ? `${set.weightKg}kg` : '–'}
 												{#if prSet.get(i)}
-													<span class="bg-warning/15 text-warning ml-1 rounded-full px-1.5 py-0.5 text-xs font-bold">
+													<span
+														class="bg-warning/15 text-warning ml-1 rounded-full px-1.5 py-0.5 text-xs font-bold"
+													>
 														{prSet.get(i)?.label}
 													</span>
 												{/if}
 											</td>
-											<td class="text-right">{set.reps}</td>
+											<td class="text-right">{set.reps ?? '–'}</td>
 											<td class="text-right">
 												{#if set.setType === 'failure'}
 													<span class="text-error/70">failure</span>

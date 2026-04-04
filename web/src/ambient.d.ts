@@ -236,8 +236,8 @@ interface MuscleStatsDB {
 
 interface ExerciseSetStatsDB {
 	date: string;
-	weightKg: number;
-	reps: number;
+	weightKg: number | null;
+	reps: number | null;
 	setType: string;
 }
 
