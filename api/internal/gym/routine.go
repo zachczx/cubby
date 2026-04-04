@@ -81,6 +81,39 @@ func EditRoutine(db *sqlx.DB, userID uuid.UUID, routineID uuid.UUID, input Routi
 	return nil
 }
 
+func ReorderRoutine(db *sqlx.DB, userID uuid.UUID, input ReorderRoutineInput) error {
+	var current Routine
+	q := `SELECT * FROM gym_routines WHERE id = $1 AND user_id = $2`
+	if err := db.Get(&current, q, input.RoutineID, userID); err != nil {
+		return fmt.Errorf("reorder routine get current: %w", err)
+	}
+
+	var neighbor Routine
+	var nq string
+	if input.Direction == "up" {
+		nq = `SELECT * FROM gym_routines
+				WHERE user_id = $1 AND position < $2
+				ORDER BY position DESC LIMIT 1`
+	} else {
+		nq = `SELECT * FROM gym_routines
+				WHERE user_id = $1 AND position > $2
+				ORDER BY position ASC LIMIT 1`
+	}
+	if err := db.Get(&neighbor, nq, userID, current.Position); err != nil {
+		return fmt.Errorf("reorder routine get neighbor: %w", err)
+	}
+
+	swapQ := `UPDATE gym_routines SET position = $1::smallint, updated_at = NOW() WHERE id = $2`
+	if _, err := db.Exec(swapQ, neighbor.Position, current.ID); err != nil {
+		return fmt.Errorf("reorder routine swap current: %w", err)
+	}
+	if _, err := db.Exec(swapQ, current.Position, neighbor.ID); err != nil {
+		return fmt.Errorf("reorder routine swap neighbor: %w", err)
+	}
+
+	return nil
+}
+
 func DeleteRoutine(db *sqlx.DB, userID uuid.UUID, routineID uuid.UUID) error {
 	q := `DELETE FROM gym_routines WHERE id = $1 AND user_id = $2`
 

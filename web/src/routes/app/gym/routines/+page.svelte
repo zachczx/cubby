@@ -42,6 +42,44 @@
 		}
 	}
 
+	let sortedRoutines = $derived(
+		routinesDb.data ? [...routinesDb.data].sort((a, b) => a.position - b.position) : []
+	);
+
+	function updateRoutinesCache(updater: (routines: RoutineDB[]) => RoutineDB[]) {
+		const current = queryClient.getQueryData<RoutineDB[]>(getRoutinesQueryKey());
+		if (current) queryClient.setQueryData(getRoutinesQueryKey(), updater(current));
+	}
+
+	let isReordering = $state(false);
+
+	async function reorderRoutine(routineId: string, direction: 'up' | 'down') {
+		isReordering = true;
+
+		updateRoutinesCache((routines) => {
+			const sorted = [...routines].sort((a, b) => a.position - b.position);
+			const idx = sorted.findIndex((r) => r.id === routineId);
+			const neighborIdx = direction === 'up' ? idx - 1 : idx + 1;
+			if (neighborIdx < 0 || neighborIdx >= sorted.length) return routines;
+			const current = sorted[idx];
+			const neighbor = sorted[neighborIdx];
+			return routines.map((r) => {
+				if (r.id === current.id) return { ...r, position: neighbor.position };
+				if (r.id === neighbor.id) return { ...r, position: current.position };
+				return r;
+			});
+		});
+
+		const response = await api.post('gym/routines/reorder', {
+			json: { routineId, direction }
+		});
+		isReordering = false;
+		if (response.status !== 204) {
+			addToast('error', 'Failed to reorder');
+			queryClient.invalidateQueries({ queryKey: getRoutinesQueryKey() });
+		}
+	}
+
 	let isStarting = $state<string | null>(null);
 
 	async function startFromRoutine(routineId: string) {
@@ -77,7 +115,7 @@
 
 			<section class="grid gap-4 py-2">
 				{#if routinesDb.isSuccess}
-					{#if !routinesDb.data || routinesDb.data.length === 0}
+					{#if sortedRoutines.length === 0}
 						<div class="grid justify-items-center gap-2 py-8">
 							<Icon icon="material-symbols:fitness-center" class="text-base-content/20 size-16" />
 							<p class="text-base-content/50 font-medium">No routines yet</p>
@@ -86,16 +124,46 @@
 							</p>
 						</div>
 					{:else}
-						{#each routinesDb.data as routine (routine.id)}
+						{#each sortedRoutines as routine, ri (routine.id)}
 							<div class="border-base-300/50 bg-base-50 rounded-2xl border">
-								<a href={router.gymRoutine(routine.id)} class="block px-4 pt-3 pb-2">
-									<div class="text-base-content/90 text-lg font-bold">
-										{routine.name}
-									</div>
-									<div class="text-base-content/50 text-sm">
-										{routine.exercises.length} exercise{routine.exercises.length !== 1 ? 's' : ''}
-									</div>
-								</a>
+								<div class="flex items-center gap-0 px-4 pt-3 pb-2">
+									<a href={router.gymRoutine(routine.id)} class="block grow">
+										<div class="text-base-content/90 text-lg font-bold">
+											{routine.name}
+										</div>
+										<div class="text-base-content/50 text-sm">
+											{routine.exercises.length} exercise{routine.exercises.length !== 1 ? 's' : ''}
+										</div>
+									</a>
+									{#if sortedRoutines.length > 1}
+										<div class="flex items-center gap-0.5">
+											{#if ri > 0}
+												<button
+													class="btn btn-ghost btn-xs btn-square"
+													disabled={isReordering}
+													onclick={() => reorderRoutine(routine.id, 'up')}
+												>
+													<Icon
+														icon="material-symbols:arrow-upward"
+														class="text-base-content/50 size-3.5"
+													/>
+												</button>
+											{/if}
+											{#if ri < sortedRoutines.length - 1}
+												<button
+													class="btn btn-ghost btn-xs btn-square"
+													disabled={isReordering}
+													onclick={() => reorderRoutine(routine.id, 'down')}
+												>
+													<Icon
+														icon="material-symbols:arrow-downward"
+														class="text-base-content/50 size-3.5"
+													/>
+												</button>
+											{/if}
+										</div>
+									{/if}
+								</div>
 
 								{#if routine.exercises.length > 0}
 									<div class="grid gap-0 px-4 text-sm">

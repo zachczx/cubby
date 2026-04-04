@@ -81,6 +81,11 @@ type RoutineExerciseInput struct {
 	Sets       int16  `json:"sets"`
 }
 
+type ReorderRoutineInput struct {
+	RoutineID uuid.UUID `json:"routineId"`
+	Direction string    `json:"direction"`
+}
+
 type ReorderRoutineExerciseInput struct {
 	ExerciseID uuid.UUID `json:"exerciseId"`
 	Direction  string    `json:"direction"`

@@ -294,6 +294,27 @@ func (s *Service) EditRoutineHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+func (s *Service) ReorderRoutineHandler(w http.ResponseWriter, r *http.Request) {
+	userID, err := s.GetUserIDFromContext(r.Context())
+	if err != nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	var input gym.ReorderRoutineInput
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	if err := gym.ReorderRoutine(s.DB, userID, input); err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func (s *Service) DeleteRoutineHandler(w http.ResponseWriter, r *http.Request) {
 	userID, err := s.GetUserIDFromContext(r.Context())
 	if err != nil {
