@@ -26,7 +26,7 @@
 
 	let { options }: { options: TrackerPageOptions } = $props();
 
-	let modal = $state<HTMLDialogElement>();
+	let modalOpen = $state(false);
 
 	const allEntriesDb = createQuery(allEntriesQueryOptions);
 
@@ -77,14 +77,14 @@
 				if (currentTrackerEntries && currentTrackerEntries.length > 0) {
 					selectedDate = info.date;
 					await tick();
-					modal?.showModal();
+					modalOpen = true;
 				}
 			},
 			eventClick: async (info) => {
 				if (currentTrackerEntries && currentTrackerEntries.length > 0) {
 					selectedDate = info.event.start;
 					await tick();
-					modal?.showModal();
+					modalOpen = true;
 				}
 			},
 			eventTimeFormat(start) {
@@ -376,4 +376,4 @@
 	</main>
 </PageWrapper>
 
-<SingleDayModal bind:modal {singleDay} />
+<SingleDayModal bind:open={modalOpen} {singleDay} />

@@ -9,6 +9,7 @@
 	import Icon from '@iconify/svelte';
 	import { invalidateAll } from '$app/navigation';
 	import { api } from '$lib/api';
+	import Dialog from '$lib/ui/Dialog.svelte';
 
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
@@ -19,7 +20,7 @@
 
 	let vacationStart = $state('');
 	let vacationEnd = $state('');
-	let vacationsModal = $state() as HTMLDialogElement;
+	let vacationsModalOpen = $state(false);
 
 	function formatTime(startDateTime: string, endDateTime: string) {
 		if (!startDateTime || !endDateTime) return;
@@ -84,7 +85,7 @@
 						<h3 class="text-base-content/70 grow font-semibold uppercase">Recent Vacations</h3>
 						<button
 							class="btn btn-ghost -me-4 flex items-center gap-2 font-normal"
-							onclick={() => vacationsModal.showModal()}
+							onclick={() => (vacationsModalOpen = true)}
 							aria-label="see all"
 						>
 							View all
@@ -135,29 +136,22 @@
 	</div>
 </PageWrapper>
 
-<dialog bind:this={vacationsModal} class="modal modal-bottom sm:modal-middle">
-	<div class="modal-box">
-		<form method="dialog">
-			<button class="btn btn-sm btn-circle btn-ghost absolute top-2 right-2">✕</button>
-		</form>
-
-		<h3 class="mb-4 text-lg font-bold uppercase">Recent Vacations</h3>
-		<ul class="list-disc">
-			{#if vacations.isSuccess}
-				{#each vacations.data as v}
-					{@const dateTime = formatTime(v.startDateTime, v.endDateTime)}
-					<li class="not-last-of-type:border-b-base-300 ms-6 py-4 not-last-of-type:border-b">
-						<div class="flex items-center gap-4">
-							<div class="grow">{dateTime}</div>
-							<button
-								class="btn btn-error btn-sm"
-								onclick={() => deleteHandler(v.id)}
-								aria-label="delete"><Icon icon="material-symbols:delete" class="size-5" /></button
-							>
-						</div>
-					</li>
-				{/each}
-			{/if}
-		</ul>
-	</div>
-</dialog>
+<Dialog bind:open={vacationsModalOpen} title="Recent Vacations">
+	<ul class="list-disc">
+		{#if vacations.isSuccess}
+			{#each vacations.data as v}
+				{@const dateTime = formatTime(v.startDateTime, v.endDateTime)}
+				<li class="not-last-of-type:border-b-base-300 ms-6 py-4 not-last-of-type:border-b">
+					<div class="flex items-center gap-4">
+						<div class="grow">{dateTime}</div>
+						<button
+							class="btn btn-error btn-sm"
+							onclick={() => deleteHandler(v.id)}
+							aria-label="delete"><Icon icon="material-symbols:delete" class="size-5" /></button
+						>
+					</div>
+				</li>
+			{/each}
+		{/if}
+	</ul>
+</Dialog>

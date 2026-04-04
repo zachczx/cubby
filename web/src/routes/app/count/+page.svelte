@@ -20,6 +20,7 @@
 	import SegmentList from './SegmentList.svelte';
 	import SegmentProgress from './SegmentProgress.svelte';
 	import ProgressRing from './ProgressRing.svelte';
+	import Dialog from '$lib/ui/Dialog.svelte';
 
 	const user = createQuery(userQueryOptions);
 	const profilesQuery = createQuery(timerProfilesQueryOptions);
@@ -61,7 +62,7 @@
 		}
 	});
 
-	let profileModal: HTMLDialogElement | undefined = $state();
+	let profileModalOpen = $state(false);
 	let editingProfile: TimerProfileDB | null = $state(null);
 	let profileName = $state('');
 	let profileSegments: TimerSegmentDef[] = $state([]);
@@ -73,7 +74,7 @@
 		profileName = '';
 		profileSegments = [{ label: 'Focus', defaultSeconds: 1500 }];
 		profileIsDefault = false;
-		profileModal?.showModal();
+		profileModalOpen = true;
 	}
 
 	function openEditProfile(profile: TimerProfileDB) {
@@ -81,7 +82,7 @@
 		profileName = profile.name;
 		profileSegments = profile.segments.map((s) => ({ ...s }));
 		profileIsDefault = profile.isDefault;
-		profileModal?.showModal();
+		profileModalOpen = true;
 	}
 
 	function addSegment() {
@@ -125,7 +126,7 @@
 		}
 
 		saving = false;
-		profileModal?.close();
+		profileModalOpen = false;
 		queryClient.refetchQueries(timerProfilesRefetchOptions());
 	}
 
@@ -551,74 +552,67 @@
 	</div>
 </PageWrapper>
 
-<dialog bind:this={profileModal} class="modal">
-	<div class="modal-box">
-		<h3 class="text-lg font-bold">{editingProfile ? 'Edit Profile' : 'New Profile'}</h3>
+<Dialog bind:open={profileModalOpen} title={editingProfile ? 'Edit Profile' : 'New Profile'}>
+	<div class="grid gap-4">
+		<label class="form-control w-full">
+			<div class="label"><span class="label-text">Name</span></div>
+			<input
+				type="text"
+				class="input input-bordered w-full"
+				placeholder="e.g. Pomodoro"
+				bind:value={profileName}
+			/>
+		</label>
 
-		<div class="mt-4 grid gap-4">
-			<label class="form-control w-full">
-				<div class="label"><span class="label-text">Name</span></div>
-				<input
-					type="text"
-					class="input input-bordered w-full"
-					placeholder="e.g. Pomodoro"
-					bind:value={profileName}
-				/>
-			</label>
-
-			<div>
-				<div class="label"><span class="label-text">Segments</span></div>
-				<div class="grid gap-2">
-					{#each profileSegments as segment, i (i)}
-						<div class="flex items-center gap-2">
-							<input
-								type="text"
-								class="input input-bordered input-sm grow"
-								placeholder="Label"
-								bind:value={segment.label}
-							/>
-							<input
-								type="number"
-								class="input input-bordered input-sm w-20"
-								placeholder="Min"
-								min="0"
-								value={Math.floor(segment.defaultSeconds / 60)}
-								oninput={(e) => {
-									const min = parseInt(e.currentTarget.value) || 0;
-									const sec = segment.defaultSeconds % 60;
-									profileSegments[i].defaultSeconds = min * 60 + sec;
-								}}
-							/>
-							<span class="text-base-content/50 text-sm">min</span>
-							{#if profileSegments.length > 1}
-								<button class="btn btn-ghost btn-sm btn-square" onclick={() => removeSegment(i)}>
-									<Icon icon="material-symbols:remove" width="16" height="16" />
-								</button>
-							{/if}
-						</div>
-					{/each}
-				</div>
-				<button class="btn btn-ghost btn-sm mt-2" onclick={addSegment}>+ Add Segment</button>
+		<div>
+			<div class="label"><span class="label-text">Segments</span></div>
+			<div class="grid gap-2">
+				{#each profileSegments as segment, i (i)}
+					<div class="flex items-center gap-2">
+						<input
+							type="text"
+							class="input input-bordered input-sm grow"
+							placeholder="Label"
+							bind:value={segment.label}
+						/>
+						<input
+							type="number"
+							class="input input-bordered input-sm w-20"
+							placeholder="Min"
+							min="0"
+							value={Math.floor(segment.defaultSeconds / 60)}
+							oninput={(e) => {
+								const min = parseInt(e.currentTarget.value) || 0;
+								const sec = segment.defaultSeconds % 60;
+								profileSegments[i].defaultSeconds = min * 60 + sec;
+							}}
+						/>
+						<span class="text-base-content/50 text-sm">min</span>
+						{#if profileSegments.length > 1}
+							<button class="btn btn-ghost btn-sm btn-square" onclick={() => removeSegment(i)}>
+								<Icon icon="material-symbols:remove" width="16" height="16" />
+							</button>
+						{/if}
+					</div>
+				{/each}
 			</div>
-
-			<label class="label cursor-pointer justify-start gap-3">
-				<input type="checkbox" class="toggle toggle-primary" bind:checked={profileIsDefault} />
-				<span class="label-text">Set as default</span>
-			</label>
+			<button class="btn btn-ghost btn-sm mt-2" onclick={addSegment}>+ Add Segment</button>
 		</div>
 
-		<div class="modal-action">
-			<form method="dialog">
-				<button class="btn btn-ghost">Cancel</button>
-			</form>
-			<button
-				class="btn btn-primary"
-				onclick={saveProfile}
-				disabled={saving || !profileName.trim() || profileSegments.length === 0}
-			>
-				{saving ? 'Saving...' : editingProfile ? 'Update' : 'Create'}
-			</button>
-		</div>
+		<label class="label cursor-pointer justify-start gap-3">
+			<input type="checkbox" class="toggle toggle-primary" bind:checked={profileIsDefault} />
+			<span class="label-text">Set as default</span>
+		</label>
 	</div>
-	<form method="dialog" class="modal-backdrop"><button>close</button></form>
-</dialog>
+
+	<div class="mt-4 flex justify-end gap-2">
+		<button class="btn btn-ghost" onclick={() => (profileModalOpen = false)}>Cancel</button>
+		<button
+			class="btn btn-primary"
+			onclick={saveProfile}
+			disabled={saving || !profileName.trim() || profileSegments.length === 0}
+		>
+			{saving ? 'Saving...' : editingProfile ? 'Update' : 'Create'}
+		</button>
+	</div>
+</Dialog>

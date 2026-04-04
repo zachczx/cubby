@@ -141,7 +141,7 @@
 	let isDeletingWorkout = $state(false);
 	let isSavingEdit = $state(false);
 	let isSavingNotes = $state(false);
-	let notesDialog = $state<HTMLDialogElement>();
+	let notesDialogOpen = $state(false);
 	let editingNotes = $state('');
 	let prStarSetId = $state<string | null>(null);
 
@@ -152,7 +152,7 @@
 
 	function openEditNotes() {
 		editingNotes = currentWorkout?.notes ?? '';
-		notesDialog?.showModal();
+		notesDialogOpen = true;
 	}
 
 	async function saveNotes() {
@@ -171,7 +171,7 @@
 					w.id === currentWorkout.id ? { ...w, notes: editingNotes || null } : w
 				)
 			);
-			notesDialog?.close();
+			notesDialogOpen = false;
 		} else {
 			addToast('error', 'Failed to save notes');
 		}
@@ -242,11 +242,11 @@
 	});
 
 	let deletingWorkoutId = $state<string | null>(null);
-	let deleteWorkoutDialog = $state<HTMLDialogElement>();
+	let deleteWorkoutDialogOpen = $state(false);
 
 	function openDeleteWorkout(workoutId: string) {
 		deletingWorkoutId = workoutId;
-		deleteWorkoutDialog?.showModal();
+		deleteWorkoutDialogOpen = true;
 	}
 
 	async function confirmDeleteWorkout() {
@@ -258,7 +258,7 @@
 			addToast('success', 'Workout deleted');
 			const deletedId = deletingWorkoutId;
 			updateWorkoutsCache((workouts) => workouts.filter((w) => w.id !== deletedId));
-			deleteWorkoutDialog?.close();
+			deleteWorkoutDialogOpen = false;
 			deletingWorkoutId = null;
 			goto('/app/gym');
 		} else {
@@ -367,11 +367,11 @@
 	}
 
 	let deletingSet = $state<SetDB | null>(null);
-	let deleteSetDialog = $state<HTMLDialogElement>();
+	let deleteSetDialogOpen = $state(false);
 
 	function openDeleteSet(set: SetDB) {
 		deletingSet = set;
-		deleteSetDialog?.showModal();
+		deleteSetDialogOpen = true;
 	}
 
 	async function confirmDeleteSet() {
@@ -384,7 +384,7 @@
 			updateWorkoutsCache((workouts) =>
 				workouts.map((w) => ({ ...w, sets: w.sets.filter((s) => s.id !== deletedId) }))
 			);
-			deleteSetDialog?.close();
+			deleteSetDialogOpen = false;
 			deletingSet = null;
 		} else {
 			addToast('error', 'Failed to delete set');
@@ -395,7 +395,7 @@
 	let editWeight = $state<number | null>(null);
 	let editReps = $state<number | null>(null);
 	let editSetType = $state('working');
-	let editDialog = $state<HTMLDialogElement>();
+	let editDialogOpen = $state(false);
 
 	function openEditSet(set: SetDB) {
 		editingSet = set;
@@ -403,7 +403,7 @@
 			set.weightKg != null ? (weightUnit === 'lb' ? kgToLb(set.weightKg) : set.weightKg) : null;
 		editReps = set.reps;
 		editSetType = set.setType;
-		editDialog?.showModal();
+		editDialogOpen = true;
 	}
 
 	async function saveEditSet() {
@@ -427,7 +427,7 @@
 					sets: w.sets.map((s) => (s.id === updatedSet.id ? updatedSet : s))
 				}))
 			);
-			editDialog?.close();
+			editDialogOpen = false;
 			editingSet = null;
 		} else {
 			addToast('error', 'Failed to update set');
@@ -805,19 +805,8 @@
 	{@render exerciseListContent()}
 </ArkDialog>
 
-<dialog bind:this={editDialog} class="modal modal-bottom sm:modal-middle">
-	<div class="modal-box grid gap-4">
-		<div class="flex items-center justify-between">
-			<h3 class="text-lg font-bold">
-				{editingSet ? getExerciseName(editingSet.exerciseId) : ''}
-			</h3>
-			<form method="dialog">
-				<button class="btn btn-ghost btn-sm btn-square">
-					<Icon icon="material-symbols:close" class="size-5" />
-				</button>
-			</form>
-		</div>
-
+<BitsDialog bind:open={editDialogOpen} title={editingSet ? getExerciseName(editingSet.exerciseId) : ''}>
+	<div class="grid gap-4">
 		<div class="flex items-center gap-2">
 			<input
 				type="number"
@@ -870,21 +859,10 @@
 			Save
 		</button>
 	</div>
-	<form method="dialog" class="modal-backdrop">
-		<button>close</button>
-	</form>
-</dialog>
+</BitsDialog>
 
-<dialog bind:this={notesDialog} class="modal modal-bottom sm:modal-middle">
-	<div class="modal-box grid gap-4">
-		<div class="flex items-center justify-between">
-			<h3 class="text-lg font-bold">Notes</h3>
-			<form method="dialog">
-				<button class="btn btn-ghost btn-sm btn-square">
-					<Icon icon="material-symbols:close" class="size-5" />
-				</button>
-			</form>
-		</div>
+<BitsDialog bind:open={notesDialogOpen} title="Notes">
+	<div class="grid gap-4">
 		<textarea
 			class="textarea textarea-bordered w-full resize-none"
 			rows="4"
@@ -900,37 +878,28 @@
 			Save
 		</button>
 	</div>
-	<form method="dialog" class="modal-backdrop">
-		<button>close</button>
-	</form>
-</dialog>
+</BitsDialog>
 
-<dialog bind:this={deleteSetDialog} class="modal modal-bottom sm:modal-middle">
-	<div class="modal-box grid gap-8">
-		<form method="dialog">
-			<button class="btn btn-sm btn-circle btn-ghost absolute top-2 right-2">✕</button>
-		</form>
-		<div class="grid gap-4">
-			<div
-				class="bg-error/10 text-error flex aspect-square size-20 items-center justify-center justify-self-center rounded-full"
-			>
-				<Icon icon="material-symbols:delete-outline" class="size-10" />
-			</div>
-			<h2 class="text-2xl font-bold">Delete this set?</h2>
-			{#if deletingSet}
-				<p class="text-base-content/60">
-					This will permanently remove the
-					<span class="text-base-content font-semibold">
-						{#if deletingSet.weightKg != null}{weightUnit === 'lb'
-								? kgToLb(deletingSet.weightKg)
-								: deletingSet.weightKg}{weightUnit}{/if}{#if deletingSet.weightKg != null && deletingSet.reps != null}
-							×
-						{/if}{#if deletingSet.reps != null}{deletingSet.reps} reps{/if}
-					</span>
-					set from {getExerciseName(deletingSet.exerciseId)}.
-				</p>
-			{/if}
+<BitsDialog bind:open={deleteSetDialogOpen} title="Delete this set?">
+	<div class="grid gap-8">
+		<div
+			class="bg-error/10 text-error flex aspect-square size-20 items-center justify-center justify-self-center rounded-full"
+		>
+			<Icon icon="material-symbols:delete-outline" class="size-10" />
 		</div>
+		{#if deletingSet}
+			<p class="text-base-content/60">
+				This will permanently remove the
+				<span class="text-base-content font-semibold">
+					{#if deletingSet.weightKg != null}{weightUnit === 'lb'
+							? kgToLb(deletingSet.weightKg)
+							: deletingSet.weightKg}{weightUnit}{/if}{#if deletingSet.weightKg != null && deletingSet.reps != null}
+						×
+					{/if}{#if deletingSet.reps != null}{deletingSet.reps} reps{/if}
+				</span>
+				set from {getExerciseName(deletingSet.exerciseId)}.
+			</p>
+		{/if}
 		<div class="grid gap-4">
 			<button class="btn btn-error btn-lg" disabled={isDeletingSet} onclick={confirmDeleteSet}>
 				{#if isDeletingSet}<span class="loading loading-spinner loading-sm"></span>{/if}
@@ -938,26 +907,20 @@
 			</button>
 			<button
 				class="btn btn-outline btn-neutral btn-lg w-full"
-				onclick={() => deleteSetDialog?.close()}>Cancel</button
+				onclick={() => (deleteSetDialogOpen = false)}>Cancel</button
 			>
 		</div>
 	</div>
-</dialog>
+</BitsDialog>
 
-<dialog bind:this={deleteWorkoutDialog} class="modal modal-bottom sm:modal-middle">
-	<div class="modal-box grid gap-8">
-		<form method="dialog">
-			<button class="btn btn-sm btn-circle btn-ghost absolute top-2 right-2">✕</button>
-		</form>
-		<div class="grid gap-4">
-			<div
-				class="bg-error/10 text-error flex aspect-square size-20 items-center justify-center justify-self-center rounded-full"
-			>
-				<Icon icon="material-symbols:delete-outline" class="size-10" />
-			</div>
-			<h2 class="text-2xl font-bold">Delete workout?</h2>
-			<p class="text-base-content/60">All sets in this workout will be deleted.</p>
+<BitsDialog bind:open={deleteWorkoutDialogOpen} title="Delete workout?">
+	<div class="grid gap-8">
+		<div
+			class="bg-error/10 text-error flex aspect-square size-20 items-center justify-center justify-self-center rounded-full"
+		>
+			<Icon icon="material-symbols:delete-outline" class="size-10" />
 		</div>
+		<p class="text-base-content/60">All sets in this workout will be deleted.</p>
 		<div class="grid gap-4">
 			<button
 				class="btn btn-error btn-lg"
@@ -969,8 +932,8 @@
 			</button>
 			<button
 				class="btn btn-outline btn-neutral btn-lg w-full"
-				onclick={() => deleteWorkoutDialog?.close()}>Cancel</button
+				onclick={() => (deleteWorkoutDialogOpen = false)}>Cancel</button
 			>
 		</div>
 	</div>
-</dialog>
+</BitsDialog>

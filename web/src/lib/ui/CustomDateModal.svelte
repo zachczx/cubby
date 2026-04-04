@@ -8,6 +8,7 @@
 	import Icon from '@iconify/svelte';
 	import { getAllEntriesQueryKey } from '../queries';
 	import { api } from '$lib/api';
+	import Dialog from '$lib/ui/Dialog.svelte';
 
 	dayjs.extend(relativeTime);
 	dayjs.extend(utc);
@@ -25,7 +26,7 @@
 
 	let buttonStatus: 'default' | 'loading' | 'success' = $state('default');
 
-	let dialog = $state() as HTMLDialogElement;
+	let dialogOpen = $state(false);
 	let date = $state(dayjs().format('YYYY-MM-DD'));
 	let time = $state(dayjs().format('HH:mm'));
 	let timestamp = $derived.by(() => {
@@ -65,7 +66,7 @@
 			.json();
 
 		if (response.id) {
-			dialog.close();
+			dialogOpen = false;
 			addToast('success', 'Added successfully!');
 			buttonStatus = 'success';
 
@@ -94,65 +95,60 @@
 <button
 	class="text-base-content/70 flex cursor-pointer items-center gap-1 py-2 font-medium"
 	aria-label="custom time"
-	onclick={() => dialog.showModal()}
+	onclick={() => (dialogOpen = true)}
 >
 	Custom Time<Icon icon="material-symbols:arrow-right-alt" class="size-5 opacity-[0.7]" /></button
 >
 
-<dialog bind:this={dialog} class="modal modal-bottom sm:modal-middle">
-	<div class="modal-box">
-		<h3 class="mb-8 text-xl font-bold">Add Custom Date</h3>
-
-		<div class="mb-8">
-			<fieldset class="fieldset mb-4">
-				<div class="grid grid-cols-2 gap-2">
-					<input type="date" class="input input-lg w-full" bind:value={date} required />
-					<input type="time" class="input input-lg w-full" bind:value={time} required />
-				</div>
-			</fieldset>
-
-			<div class="grid grid-cols-4 gap-2">
-				<button
-					class="btn btn-outline btn-sm rounded-full opacity-75"
-					onclick={() => changeTime('subtract', 30, 'minute')}>-30m</button
-				>
-				<button class="btn btn-outline btn-sm rounded-full opacity-75" onclick={() => setTime(8, 0)}
-					>8am</button
-				>
-				<button
-					class="btn btn-outline btn-sm rounded-full opacity-75"
-					onclick={() => setTime(20, 0)}>8pm</button
-				>
-				<button
-					class="btn btn-outline btn-sm rounded-full opacity-75"
-					onclick={() => changeTime('add', 30, 'minute')}>+30m</button
-				>
+<Dialog bind:open={dialogOpen} title="Add Custom Date">
+	<div class="mb-8">
+		<fieldset class="fieldset mb-4">
+			<div class="grid grid-cols-2 gap-2">
+				<input type="date" class="input input-lg w-full" bind:value={date} required />
+				<input type="time" class="input input-lg w-full" bind:value={time} required />
 			</div>
+		</fieldset>
+
+		<div class="grid grid-cols-4 gap-2">
+			<button
+				class="btn btn-outline btn-sm rounded-full opacity-75"
+				onclick={() => changeTime('subtract', 30, 'minute')}>-30m</button
+			>
+			<button class="btn btn-outline btn-sm rounded-full opacity-75" onclick={() => setTime(8, 0)}
+				>8am</button
+			>
+			<button
+				class="btn btn-outline btn-sm rounded-full opacity-75"
+				onclick={() => setTime(20, 0)}>8pm</button
+			>
+			<button
+				class="btn btn-outline btn-sm rounded-full opacity-75"
+				onclick={() => changeTime('add', 30, 'minute')}>+30m</button
+			>
 		</div>
-
-		<button
-			class={[
-				'btn btn-lg flex w-full items-center gap-2 rounded-full',
-				buttonStatus === 'default' && 'btn-primary',
-				buttonStatus === 'loading' && 'btn-primary',
-				buttonStatus === 'success' && 'btn-success'
-			]}
-			onclick={addHandler}
-		>
-			{#if buttonStatus === 'success'}
-				<Icon icon="material-symbols:check" class="size-6" />Added!
-			{:else if buttonStatus === 'loading'}
-				<span class="loading loading-spinner loading-md"></span>
-			{:else}
-				{tracker?.actionLabel}
-			{/if}
-		</button>
-
-		<form method="dialog">
-			<!-- if there is a button in form, it will close the modal -->
-			<div class="flex justify-center">
-				<button class="btn btn-lg btn-ghost mt-4 rounded-full">Close</button>
-			</div>
-		</form>
 	</div>
-</dialog>
+
+	<button
+		class={[
+			'btn btn-lg flex w-full items-center gap-2 rounded-full',
+			buttonStatus === 'default' && 'btn-primary',
+			buttonStatus === 'loading' && 'btn-primary',
+			buttonStatus === 'success' && 'btn-success'
+		]}
+		onclick={addHandler}
+	>
+		{#if buttonStatus === 'success'}
+			<Icon icon="material-symbols:check" class="size-6" />Added!
+		{:else if buttonStatus === 'loading'}
+			<span class="loading loading-spinner loading-md"></span>
+		{:else}
+			{tracker?.actionLabel}
+		{/if}
+	</button>
+
+	<div class="flex justify-center">
+		<button class="btn btn-lg btn-ghost mt-4 rounded-full" onclick={() => (dialogOpen = false)}
+			>Close</button
+		>
+	</div>
+</Dialog>

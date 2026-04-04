@@ -15,6 +15,7 @@
 	import { api } from '$lib/api';
 	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
+	import Dialog from '$lib/ui/Dialog.svelte';
 
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
@@ -28,7 +29,8 @@
 
 	let invitee = $state('');
 
-	let modals = $state<HTMLDialogElement[]>([]);
+	let removeDialogOpen = $state(false);
+	let selectedMember = $state<{ member: FamilyOwnerMember; family: Family } | null>(null);
 
 	async function deleteHandler(memberId: string, family: Family) {
 		if (!user.isSuccess || !family) return;
@@ -183,7 +185,7 @@
 										</div>
 									</div>
 								</li>
-								{#each family.members as member, i (member.id)}
+								{#each family.members as member (member.id)}
 									<li class="flex items-center">
 										<div class="flex grow items-center gap-2 py-1">
 											<Icon icon="material-symbols:person" class="me-2" />
@@ -207,7 +209,10 @@
 													class="dropdown-content menu rounded-box bg-base-100 text-md text-base-content z-1 min-w-32 shadow-lg"
 												>
 													<button
-														onclick={() => modals[i].showModal()}
+														onclick={() => {
+															selectedMember = { member, family };
+															removeDialogOpen = true;
+														}}
 														class="btn btn-ghost flex w-full items-center gap-2 rounded-xl"
 													>
 														<Icon
@@ -274,36 +279,34 @@
 	</div>
 </PageWrapper>
 
-{#if families.isSuccess && families.data}
-	{#each families.data as family (family.id)}
-		{#each family.members as member, i (member.id)}
-			<dialog bind:this={modals[i]} class="modal modal-bottom sm:modal-middle">
-				<div class="modal-box grid gap-8">
-					<div
-						class="bg-error/10 text-error flex aspect-square size-20 items-center justify-center justify-self-center overflow-hidden rounded-full"
-					>
-						<Icon icon="material-symbols:person-remove" class="ms-2.5 size-12" />
-					</div>
-					<div class="grid gap-4">
-						<h2 class="text-2xl font-bold">Remove Member?</h2>
-						<ul class="ms-6 list-disc space-y-2">
-							<li>
-								This will revoke <span class="font-bold"
-									>{member.name ? member.name : member.email}</span
-								>'s access to your family's logs.
-							</li>
-						</ul>
-					</div>
-					<div class="grid grid-cols-1 gap-4">
-						<button class="btn btn-error btn-lg" onclick={() => deleteHandler(member.id, family)}
-							>Remove</button
-						>
-						<form method="dialog" class="">
-							<button class="btn btn-outline btn-lg w-full">Cancel</button>
-						</form>
-					</div>
-				</div>
-			</dialog>
-		{/each}
-	{/each}
-{/if}
+<Dialog bind:open={removeDialogOpen} title="Remove Member?">
+	<div class="grid gap-8">
+		<div
+			class="bg-error/10 text-error flex aspect-square size-20 items-center justify-center justify-self-center overflow-hidden rounded-full"
+		>
+			<Icon icon="material-symbols:person-remove" class="ms-2.5 size-12" />
+		</div>
+		{#if selectedMember}
+			<ul class="ms-6 list-disc space-y-2">
+				<li>
+					This will revoke <span class="font-bold"
+						>{selectedMember.member.name ? selectedMember.member.name : selectedMember.member.email}</span
+					>'s access to your family's logs.
+				</li>
+			</ul>
+		{/if}
+		<div class="grid grid-cols-1 gap-4">
+			<button
+				class="btn btn-error btn-lg"
+				onclick={() => {
+					if (selectedMember) deleteHandler(selectedMember.member.id, selectedMember.family);
+					removeDialogOpen = false;
+				}}>Remove</button
+			>
+			<button
+				class="btn btn-outline btn-lg w-full"
+				onclick={() => (removeDialogOpen = false)}>Cancel</button
+			>
+		</div>
+	</div>
+</Dialog>

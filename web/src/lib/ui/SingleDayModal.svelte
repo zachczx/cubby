@@ -6,12 +6,13 @@
 	import { useQueryClient } from '@tanstack/svelte-query';
 	import { getAllEntriesQueryKey } from '$lib/queries';
 	import { api } from '$lib/api';
+	import Dialog from '$lib/ui/Dialog.svelte';
 
 	let {
-		modal = $bindable(),
+		open = $bindable(false),
 		singleDay
 	}: {
-		modal: HTMLDialogElement | undefined;
+		open?: boolean;
 		singleDay: EntryDB[] | undefined;
 	} = $props();
 
@@ -28,7 +29,7 @@
 		if (success.status === 204) {
 			deleteEntryFromCache(entryId);
 			addToast('success', 'Deleted!');
-			modal?.close();
+			open = false;
 		}
 	}
 
@@ -82,74 +83,54 @@
 		});
 </script>
 
-<dialog bind:this={modal} class="modal modal-bottom sm:modal-middle">
-	<div class="modal-box">
-		{#if entries && entries.length > 0}
-			{@const theDay = dayjs(entries[0].performedAt).format('ddd, D MMM')}
-			<div class="flex items-center">
-				<h3 class="grow text-lg font-bold">{theDay}</h3>
-				<div class="flex items-center justify-end">
-					<form method="dialog">
-						<button class="btn btn-ghost -me-2"
-							><Icon icon="material-symbols:close" class="size-5" /></button
+<Dialog bind:open title={entries && entries.length > 0 ? dayjs(entries[0].performedAt).format('ddd, D MMM') : undefined}>
+	{#if entries && entries.length > 0}
+		<div class="grid gap-2 py-4">
+			{#each entries as entry}
+				{@const formatted = dayjs(entry.performedAt).format('hh:mma')}
+				{#if editMode[entry.id]}
+					<div
+						class="border-base-300 grid min-h-18 content-center gap-2 rounded-2xl border bg-base-50 px-2 py-2"
+					>
+						<form class="grid w-full content-center" onsubmit={(evt) => saveEdit(evt, entry)}>
+							<input
+								type="time"
+								name="newTime"
+								value={dayjs(entry.performedAt).format('HH:mm')}
+								class="input input-lg w-full"
+							/>
+							<button class="btn btn-primary btn-lg mt-2 w-full rounded-full"> Save </button>
+						</form>
+						<button
+							class="btn btn-ghost btn-lg w-full"
+							onclick={() => (editMode[entry.id] = false)}>Cancel</button
 						>
-					</form>
-				</div>
-			</div>
-			<div class="grid gap-2 py-4">
-				{#each entries as entry}
-					{@const formatted = dayjs(entry.performedAt).format('hh:mma')}
-					{#if editMode[entry.id]}
-						<div
-							class="border-base-300 grid min-h-18 content-center gap-2 rounded-2xl border bg-base-50 px-2 py-2"
-						>
-							<form class="grid w-full content-center" onsubmit={(evt) => saveEdit(evt, entry)}>
-								<input
-									type="time"
-									name="newTime"
-									value={dayjs(entry.performedAt).format('HH:mm')}
-									class="input input-lg w-full"
-								/>
-								<button class="btn btn-primary btn-lg mt-2 w-full rounded-full"> Save </button>
-							</form>
+					</div>
+				{:else}
+					<div
+						class="border-base-300 grid min-h-18 grid-cols-[1fr_auto] content-center gap-4 rounded-2xl border bg-base-50 px-2 py-2"
+					>
+						<div class="flex items-center p-2 text-lg font-bold">
+							{formatted}
+						</div>
+						<div class="flex items-center">
 							<button
-								class="btn btn-ghost btn-lg w-full"
-								onclick={() => (editMode[entry.id] = false)}>Cancel</button
+								class="btn btn-ghost"
+								onclick={() => (editMode[entry.id] = !editMode[entry.id])}
+								><Icon icon="material-symbols:edit" class="size-[1.3em]" /></button
+							>
+							<button class="btn btn-error btn-soft" onclick={() => deleteHandler(entry.id)}
+								><Icon icon="material-symbols:delete" class="size-[1.3em]" /></button
 							>
 						</div>
-					{:else}
-						<div
-							class="border-base-300 grid min-h-18 grid-cols-[1fr_auto] content-center gap-4 rounded-2xl border bg-base-50 px-2 py-2"
-						>
-							<div class="flex items-center p-2 text-lg font-bold">
-								{formatted}
-							</div>
-							<div class="flex items-center">
-								<button
-									class="btn btn-ghost"
-									onclick={() => (editMode[entry.id] = !editMode[entry.id])}
-									><Icon icon="material-symbols:edit" class="size-[1.3em]" /></button
-								>
-								<button class="btn btn-error btn-soft" onclick={() => deleteHandler(entry.id)}
-									><Icon icon="material-symbols:delete" class="size-[1.3em]" /></button
-								>
-							</div>
-						</div>
-					{/if}
-				{/each}
-			</div>
-		{:else}
-			<div class="flex items-center justify-end">
-				<form method="dialog">
-					<button class="btn btn-ghost -me-2"
-						><Icon icon="material-symbols:close" class="size-5" /></button
-					>
-				</form>
-			</div>
-			<div class="justify-self-center">
-				<enhanced:img src={EmptyCorgi} alt="nothing" />
-				<p class="text-center text-lg">Nothing here!</p>
-			</div>
-		{/if}
-	</div>
-</dialog>
+					</div>
+				{/if}
+			{/each}
+		</div>
+	{:else}
+		<div class="justify-self-center">
+			<enhanced:img src={EmptyCorgi} alt="nothing" />
+			<p class="text-center text-lg">Nothing here!</p>
+		</div>
+	{/if}
+</Dialog>

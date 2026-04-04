@@ -8,6 +8,7 @@
 	import utc from 'dayjs/plugin/utc';
 	import Icon from '@iconify/svelte';
 	import { tick } from 'svelte';
+	import Dialog from '$lib/ui/Dialog.svelte';
 
 	dayjs.extend(utc);
 
@@ -29,7 +30,7 @@
 		return [...muscles];
 	}
 
-	let modal = $state<HTMLDialogElement>();
+	let modalOpen = $state(false);
 	let selectedEntry = $state<WorkoutCalendarEntryDB | null>(null);
 
 	let calendarOptions: Calendar.Options = $derived.by(() => {
@@ -66,7 +67,7 @@
 				if (dayEntries && dayEntries.length > 0) {
 					selectedEntry = dayEntries[0];
 					await tick();
-					modal?.showModal();
+					modalOpen = true;
 				}
 			},
 			eventClick: async (info) => {
@@ -76,7 +77,7 @@
 				if (entry) {
 					selectedEntry = entry;
 					await tick();
-					modal?.showModal();
+					modalOpen = true;
 				}
 			}
 		};
@@ -148,40 +149,25 @@
 	</main>
 </PageWrapper>
 
-<dialog bind:this={modal} class="modal modal-bottom sm:modal-middle">
-	<div class="modal-box">
-		{#if selectedEntry}
-			<div class="flex items-center">
-				<h3 class="grow text-lg font-bold">
-					{dayjs.utc(selectedEntry.startTime).format('ddd, D MMM YYYY')}
-				</h3>
-				<form method="dialog">
-					<button class="btn btn-ghost -me-2">
-						<Icon icon="material-symbols:close" class="size-5" />
-					</button>
-				</form>
-			</div>
-			<div class="text-base-content/60 mb-4 text-sm">
-				{selectedEntry.exerciseCount} exercises · {selectedEntry.setCount} sets
-			</div>
-			<div class="grid gap-2">
-				{#each selectedEntry.exerciseIds as exerciseId (exerciseId)}
-					<div class="border-base-300/50 bg-base-200/30 rounded-xl border px-3 py-2">
-						<p class="font-medium">{getExerciseName(exerciseId)}</p>
-						<p class="text-base-content/50 text-xs">
-							{exerciseMap.get(exerciseId)?.primaryMuscles.join(', ')}
-						</p>
-					</div>
-				{/each}
-			</div>
-			<div class="mt-4">
-				<a href="/app/gym/{selectedEntry.workoutId}" class="btn btn-primary w-full rounded-full">
-					View Workout
-				</a>
-			</div>
-		{/if}
-	</div>
-	<form method="dialog" class="modal-backdrop">
-		<button>close</button>
-	</form>
-</dialog>
+<Dialog bind:open={modalOpen} title={selectedEntry ? dayjs.utc(selectedEntry.startTime).format('ddd, D MMM YYYY') : undefined}>
+	{#if selectedEntry}
+		<div class="text-base-content/60 mb-4 text-sm">
+			{selectedEntry.exerciseCount} exercises · {selectedEntry.setCount} sets
+		</div>
+		<div class="grid gap-2">
+			{#each selectedEntry.exerciseIds as exerciseId (exerciseId)}
+				<div class="border-base-300/50 bg-base-200/30 rounded-xl border px-3 py-2">
+					<p class="font-medium">{getExerciseName(exerciseId)}</p>
+					<p class="text-base-content/50 text-xs">
+						{exerciseMap.get(exerciseId)?.primaryMuscles.join(', ')}
+					</p>
+				</div>
+			{/each}
+		</div>
+		<div class="mt-4">
+			<a href="/app/gym/{selectedEntry.workoutId}" class="btn btn-primary w-full rounded-full">
+				View Workout
+			</a>
+		</div>
+	{/if}
+</Dialog>

@@ -17,6 +17,7 @@
 	import { marketStores } from '$lib/market';
 	import type { marketStoresType } from '$lib/market';
 	import SwipeReveal from '$lib/components/SwipeReveal.svelte';
+	import Dialog from '$lib/ui/Dialog.svelte';
 
 	dayjs.extend(relativeTime);
 
@@ -27,13 +28,13 @@
 	);
 	const insightsQuery = createQuery(() => filteredMarketInsightsQueryOptions(data.category));
 
-	let deleteDialog = $state<HTMLDialogElement | null>(null);
+	let deleteDialogOpen = $state(false);
 	let pendingDeletePrice = $state<MarketPriceDB | null>(null);
 	let isDeleting = $state(false);
 
 	function requestDelete(price: any) {
 		pendingDeletePrice = price;
-		deleteDialog?.showModal();
+		deleteDialogOpen = true;
 	}
 
 	async function confirmDelete() {
@@ -49,7 +50,7 @@
 		} finally {
 			isDeleting = false;
 			pendingDeletePrice = null;
-			deleteDialog?.close();
+			deleteDialogOpen = false;
 		}
 	}
 
@@ -270,28 +271,22 @@
 	</main>
 </PageWrapper>
 
-<dialog bind:this={deleteDialog} class="modal modal-bottom sm:modal-middle">
-	<div class="modal-box grid gap-8">
-		<form method="dialog">
-			<button class="btn btn-sm btn-circle btn-ghost absolute top-2 right-2">✕</button>
-		</form>
-		<div class="grid gap-4">
-			<div
-				class="bg-error/10 text-error flex aspect-square size-20 items-center justify-center justify-self-center rounded-full"
-			>
-				<Icon icon="material-symbols:delete-outline" class="size-10" />
-			</div>
-			<h2 class="text-2xl font-bold">Delete this price?</h2>
-			{#if pendingDeletePrice}
-				<p class="text-base-content/60">
-					This will permanently remove the
-					<span class="text-base-content font-semibold">
-						${pendingDeletePrice.price.toFixed(2)}
-					</span>
-					entry from {dayjs(pendingDeletePrice.createdAt).fromNow()}.
-				</p>
-			{/if}
+<Dialog bind:open={deleteDialogOpen} title="Delete this price?">
+	<div class="grid gap-8">
+		<div
+			class="bg-error/10 text-error flex aspect-square size-20 items-center justify-center justify-self-center rounded-full"
+		>
+			<Icon icon="material-symbols:delete-outline" class="size-10" />
 		</div>
+		{#if pendingDeletePrice}
+			<p class="text-base-content/60">
+				This will permanently remove the
+				<span class="text-base-content font-semibold">
+					${pendingDeletePrice.price.toFixed(2)}
+				</span>
+				entry from {dayjs(pendingDeletePrice.createdAt).fromNow()}.
+			</p>
+		{/if}
 		<div class="grid gap-4">
 			<button class="btn btn-error btn-lg" disabled={isDeleting} onclick={confirmDelete}>
 				{#if isDeleting}<span class="loading loading-spinner loading-sm"></span>{/if}
@@ -299,11 +294,8 @@
 			</button>
 			<button
 				class="btn btn-outline btn-neutral btn-lg w-full"
-				onclick={() => deleteDialog?.close()}>Cancel</button
+				onclick={() => (deleteDialogOpen = false)}>Cancel</button
 			>
 		</div>
 	</div>
-	<form method="dialog" class="modal-backdrop">
-		<button>close</button>
-	</form>
-</dialog>
+</Dialog>

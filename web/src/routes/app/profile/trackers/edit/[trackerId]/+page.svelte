@@ -15,6 +15,7 @@
 	import Icon from '@iconify/svelte';
 	import { api } from '$lib/api';
 	import { router } from '$lib/routes';
+	import Dialog from '$lib/ui/Dialog.svelte';
 
 	dayjs.extend(utc);
 	dayjs.extend(timezone);
@@ -69,7 +70,7 @@
 		}
 	}
 
-	let deleteModal = $state<HTMLDialogElement>();
+	let deleteModalOpen = $state(false);
 </script>
 
 <PageWrapper title="Edit Tracker" hideTitle>
@@ -86,19 +87,18 @@
 
 		<button
 			class="btn btn-error btn-lg btn-soft mt-4 w-full rounded-full"
-			onclick={() => deleteModal?.showModal()}>Delete Tracker</button
+			onclick={() => (deleteModalOpen = true)}>Delete Tracker</button
 		>
 	</div>
 </PageWrapper>
 
-<dialog bind:this={deleteModal} class="modal modal-bottom sm:modal-middle">
-	<div class="modal-box grid gap-8">
+<Dialog bind:open={deleteModalOpen} title="Confirm Deletion">
+	<div class="grid gap-8">
 		<div
 			class="bg-primary/10 text-error flex aspect-square size-20 items-center justify-center justify-self-center overflow-hidden rounded-full"
 		>
 			<Icon icon="material-symbols:delete" class="size-12" />
 		</div>
-		<h2 class="text-2xl font-bold">Confirm Deletion</h2>
 
 		<ul class="ms-6 list-disc space-y-2">
 			<li>You will delete all of your entries in this tracker.</li>
@@ -111,9 +111,10 @@
 					deleteTracker();
 				}}>Confirm Deletion</button
 			>
-			<form method="dialog" class="">
-				<button class="btn btn-outline btn-primary btn-lg w-full rounded-full">Cancel</button>
-			</form>
+			<button
+				class="btn btn-outline btn-primary btn-lg w-full rounded-full"
+				onclick={() => (deleteModalOpen = false)}>Cancel</button
+			>
 		</div>
 	</div>
-</dialog>
+</Dialog>
