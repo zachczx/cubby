@@ -162,7 +162,7 @@
 							<Icon icon="material-symbols:chevron-right" class="size-5 opacity-60" />
 						{:else}
 							<StarField count={10} size="lg" />
-							<div class="text-base-content/65 relative z-2 grow text-lg font-medium">
+							<div class="text-base-content/65 relative z-10 grow text-lg font-medium">
 								All caught up!
 							</div>
 						{/if}
@@ -170,7 +170,7 @@
 						<enhanced:img
 							src={HappyCorgi}
 							alt="Happy corgi"
-							class="absolute -top-9 -right-3 z-2 mix-blend-multiply"
+							class="absolute -top-9 -right-3 z-10 mix-blend-multiply"
 						/>
 					</a>
 				{:else}
