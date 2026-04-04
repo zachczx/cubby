@@ -13,6 +13,8 @@ export const router = {
 	marketEdit: (id: string) => `/app/market/edit/${encodeURIComponent(id)}`,
 	marketCategories: '/app/market/categories',
 	gym: (workoutId?: string) => (workoutId ? `/app/gym/${workoutId}` : '/app/gym'),
+	gymRoutines: '/app/gym/routines',
+	gymRoutine: (routineId: string) => `/app/gym/routines/${routineId}`,
 	gymStats: '/app/gym/stats',
 	app: (route: string) => `/app/${route}`
 } as const;

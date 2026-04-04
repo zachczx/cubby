@@ -227,6 +227,213 @@ func (s *Service) ToggleFavouriteHandler(w http.ResponseWriter, r *http.Request)
 	response.WriteJSON(r.Context(), w, map[string][]string{"exerciseIds": ids})
 }
 
+// Routine handlers
+
+func (s *Service) GetAllRoutinesHandler(w http.ResponseWriter, r *http.Request) {
+	userID, err := s.GetUserIDFromContext(r.Context())
+	if err != nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	routines, err := gym.GetAllRoutines(s.DB, userID)
+	if err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	response.WriteJSON(r.Context(), w, routines)
+}
+
+func (s *Service) NewRoutineHandler(w http.ResponseWriter, r *http.Request) {
+	userID, err := s.GetUserIDFromContext(r.Context())
+	if err != nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	var input gym.RoutineInput
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	routine, err := gym.NewRoutine(s.DB, userID, input)
+	if err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	response.WriteJSONStatus(r.Context(), w, http.StatusCreated, routine)
+}
+
+func (s *Service) EditRoutineHandler(w http.ResponseWriter, r *http.Request) {
+	userID, err := s.GetUserIDFromContext(r.Context())
+	if err != nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	routineID, err := uuid.Parse(r.PathValue("routineID"))
+	if err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	var input gym.RoutineInput
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	if err := gym.EditRoutine(s.DB, userID, routineID, input); err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (s *Service) DeleteRoutineHandler(w http.ResponseWriter, r *http.Request) {
+	userID, err := s.GetUserIDFromContext(r.Context())
+	if err != nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	routineID, err := uuid.Parse(r.PathValue("routineID"))
+	if err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	if err := gym.DeleteRoutine(s.DB, userID, routineID); err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (s *Service) AddRoutineExerciseHandler(w http.ResponseWriter, r *http.Request) {
+	userID, err := s.GetUserIDFromContext(r.Context())
+	if err != nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	routineID, err := uuid.Parse(r.PathValue("routineID"))
+	if err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	var input gym.RoutineExerciseInput
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	exercise, err := gym.AddRoutineExercise(s.DB, userID, routineID, input)
+	if err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	response.WriteJSONStatus(r.Context(), w, http.StatusCreated, exercise)
+}
+
+func (s *Service) EditRoutineExerciseHandler(w http.ResponseWriter, r *http.Request) {
+	userID, err := s.GetUserIDFromContext(r.Context())
+	if err != nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	exerciseID, err := uuid.Parse(r.PathValue("exerciseID"))
+	if err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	var input gym.RoutineExerciseInput
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	if err := gym.EditRoutineExercise(s.DB, userID, exerciseID, input); err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (s *Service) RemoveRoutineExerciseHandler(w http.ResponseWriter, r *http.Request) {
+	userID, err := s.GetUserIDFromContext(r.Context())
+	if err != nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	exerciseID, err := uuid.Parse(r.PathValue("exerciseID"))
+	if err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	if err := gym.RemoveRoutineExercise(s.DB, userID, exerciseID); err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (s *Service) ReorderRoutineExerciseHandler(w http.ResponseWriter, r *http.Request) {
+	userID, err := s.GetUserIDFromContext(r.Context())
+	if err != nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	var input gym.ReorderRoutineExerciseInput
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	if err := gym.ReorderRoutineExercise(s.DB, userID, input); err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (s *Service) StartWorkoutFromRoutineHandler(w http.ResponseWriter, r *http.Request) {
+	userID, err := s.GetUserIDFromContext(r.Context())
+	if err != nil {
+		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+
+	routineID, err := uuid.Parse(r.PathValue("routineID"))
+	if err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	workout, err := gym.StartWorkoutFromRoutine(s.DB, userID, routineID)
+	if err != nil {
+		response.WriteError(r.Context(), w, err)
+		return
+	}
+
+	response.WriteJSONStatus(r.Context(), w, http.StatusCreated, workout)
+}
+
 func (s *Service) GetGymSummaryHandler(w http.ResponseWriter, r *http.Request) {
 	userID, err := s.GetUserIDFromContext(r.Context())
 	if err != nil {

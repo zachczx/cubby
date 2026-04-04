@@ -123,6 +123,14 @@ export const favouriteExercisesQueryOptions = favouriteExercisesQuery.options;
 export const favouriteExercisesRefetchOptions = favouriteExercisesQuery.refetch;
 export const getFavouriteExercisesQueryKey = () => [...getRootKey(), 'gym-favourites'];
 
+const routinesQuery = createQueryFactory(
+	['gym-routines'],
+	async (): Promise<RoutineDB[]> => await api.get('gym/routines').json()
+);
+export const routinesQueryOptions = routinesQuery.options;
+export const routinesRefetchOptions = routinesQuery.refetch;
+export const getRoutinesQueryKey = () => [...getRootKey(), 'gym-routines'];
+
 const gymSummaryQuery = createQueryFactory(
 	['gym-stats-summary'],
 	async (): Promise<WorkoutSummaryDB> => await api.get('gym/stats/summary').json()

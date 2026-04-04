@@ -90,10 +90,14 @@
 <PageWrapper title="Gym">
 	<main class="h-full">
 		<div id="mobile" class="grid w-full max-w-lg gap-8 justify-self-center lg:text-base">
-			<section class="grid gap-4 py-2">
+			<section class="grid gap-3 py-2">
 				<button class="btn btn-primary btn-lg w-full rounded-full" onclick={startWorkout}>
-					Start Workout
+					Start Empty Workout
 				</button>
+				<a href="/app/gym/routines" class="btn btn-primary btn-soft btn-lg w-full rounded-full">
+					<Icon icon="material-symbols:list-alt" class="size-5" />
+					Start from Routine
+				</a>
 			</section>
 
 			<section class="grid gap-4 py-2">

@@ -246,6 +246,28 @@ interface UserExerciseDB {
 	setCount: number;
 }
 
+// Gym routine types
+
+interface RoutineDB {
+	id: string;
+	userId: string;
+	name: string;
+	position: number;
+	createdAt: string;
+	updatedAt: string;
+	exercises: RoutineExerciseDB[];
+}
+
+interface RoutineExerciseDB {
+	id: string;
+	routineId: string;
+	exerciseId: string;
+	sets: number;
+	position: number;
+	createdAt: string;
+	updatedAt: string;
+}
+
 // Timer profile types
 
 interface TimerSegmentDef {

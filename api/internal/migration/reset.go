@@ -10,7 +10,7 @@ import (
 )
 
 func WipeData(db *sqlx.DB) {
-	query := `DROP TABLE IF EXISTS timer_profiles, gym_sets, gym_workouts, tracker_user_settings, notification_logs, push_tokens, invites, vacations, entries, trackers, families_users, families, users, market_prices CASCADE;`
+	query := `DROP TABLE IF EXISTS timer_profiles, gym_routine_exercises, gym_routines, gym_sets, gym_workouts, tracker_user_settings, notification_logs, push_tokens, invites, vacations, entries, trackers, families_users, families, users, market_prices CASCADE;`
 	_, err := db.Exec(query)
 	if err != nil {
 		slog.Error("failed to drop tables", "error", err)
@@ -172,6 +172,27 @@ func Create(db *sqlx.DB) {
 			PRIMARY KEY (user_id, exercise_id)
 		);`,
 
+		// Gym Routines
+		`CREATE TABLE IF NOT EXISTS gym_routines (
+			id UUID PRIMARY KEY DEFAULT uuidv7(),
+			user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+			name TEXT NOT NULL,
+			position SMALLINT NOT NULL DEFAULT 0,
+			created_at TIMESTAMPTZ DEFAULT NOW(),
+			updated_at TIMESTAMPTZ DEFAULT NOW()
+		);`,
+
+		`CREATE TABLE IF NOT EXISTS gym_routine_exercises (
+			id UUID PRIMARY KEY DEFAULT uuidv7(),
+			routine_id UUID NOT NULL REFERENCES gym_routines(id) ON DELETE CASCADE,
+			exercise_id TEXT NOT NULL,
+			sets SMALLINT NOT NULL DEFAULT 3,
+			position SMALLINT NOT NULL DEFAULT 0,
+			created_at TIMESTAMPTZ DEFAULT NOW(),
+			updated_at TIMESTAMPTZ DEFAULT NOW(),
+			UNIQUE(routine_id, exercise_id)
+		);`,
+
 		// Market Prices
 		`CREATE TABLE IF NOT EXISTS market_prices (
 			id UUID PRIMARY KEY DEFAULT uuidv7(),
@@ -207,6 +228,9 @@ func Create(db *sqlx.DB) {
 		`CREATE INDEX IF NOT EXISTS idx_gym_workouts_user_id ON gym_workouts(user_id);`,
 		`CREATE INDEX IF NOT EXISTS idx_gym_sets_workout_id ON gym_sets(workout_id);`,
 		`CREATE INDEX IF NOT EXISTS idx_gym_sets_chronological ON gym_sets(workout_id, created_at ASC);`,
+
+		`CREATE INDEX IF NOT EXISTS idx_gym_routines_user_id ON gym_routines(user_id);`,
+		`CREATE INDEX IF NOT EXISTS idx_gym_routine_exercises_routine_id ON gym_routine_exercises(routine_id);`,
 
 		`CREATE INDEX IF NOT EXISTS idx_market_prices_family_id ON market_prices(family_id);`,
 		`CREATE INDEX IF NOT EXISTS idx_market_prices_item_name ON market_prices(item_name);`,
