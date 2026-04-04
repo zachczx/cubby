@@ -43,7 +43,7 @@
 		generalTasksUpcomingDays = numberDays;
 		try {
 			await api.patch('users/me/task-lookahead', {
-				body: JSON.stringify({ taskDays: numberDays })
+				json: { taskDays: numberDays }
 			});
 		} catch (err) {
 			console.error(err);

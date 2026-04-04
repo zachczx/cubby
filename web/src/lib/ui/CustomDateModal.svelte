@@ -56,12 +56,12 @@
 
 		const response: EntryDB = await api
 			.post(`trackers/${tracker?.id}/entries`, {
-				body: JSON.stringify({
+				json: {
 					trackerId: tracker?.id,
 					interval: Number(interval),
 					intervalUnit: intervalUnit,
 					performedAt: dayjs.tz(timestamp, 'Asia/Singapore')
-				})
+				}
 			})
 			.json();
 

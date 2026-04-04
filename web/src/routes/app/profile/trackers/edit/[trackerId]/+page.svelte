@@ -37,10 +37,10 @@
 
 		try {
 			const response = await api.patch(`trackers/${data.trackerId}`, {
-				body: JSON.stringify({
+				json: {
 					...inputTrackerDetails,
 					interval: Number(inputTrackerDetails.interval)
-				})
+				}
 			});
 
 			if (response.status === 204) {

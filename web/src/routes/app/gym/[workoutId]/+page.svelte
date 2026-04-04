@@ -85,7 +85,7 @@
 
 	async function toggleFavourite(exerciseId: string) {
 		const response = await api.post('gym/favourites', {
-			body: JSON.stringify({ exerciseId })
+			json: { exerciseId }
 		});
 		if (response.ok) {
 			const data: FavouriteExercisesDB = await response.json();
@@ -159,10 +159,10 @@
 		if (!currentWorkout) return;
 		isSavingNotes = true;
 		const response = await api.patch(`gym/workouts/${currentWorkout.id}`, {
-			body: JSON.stringify({
+			json: {
 				startTime: currentWorkout.startTime,
 				notes: editingNotes || null
-			})
+			}
 		});
 		isSavingNotes = false;
 		if (response.status === 204) {
@@ -275,12 +275,12 @@
 			displayWeight != null && weightUnit === 'lb' ? lbToKg(displayWeight) : displayWeight;
 
 		const response = await api.post(`gym/workouts/${workoutId}/sets`, {
-			body: JSON.stringify({
+			json: {
 				exerciseId: selectedExerciseId,
 				weightKg,
 				reps: setReps,
 				setType
-			})
+			}
 		});
 
 		isSubmittingSet = false;
@@ -309,12 +309,12 @@
 
 	async function duplicateSet(workoutId: string, set: SetDB) {
 		const response = await api.post(`gym/workouts/${workoutId}/sets`, {
-			body: JSON.stringify({
+			json: {
 				exerciseId: set.exerciseId,
 				weightKg: set.weightKg,
 				reps: set.reps,
 				setType: set.setType
-			})
+			}
 		});
 
 		if (response.status === 201) {
@@ -357,7 +357,7 @@
 		);
 
 		const response = await api.post('gym/sets/reorder', {
-			body: JSON.stringify({ setId, direction })
+			json: { setId, direction }
 		});
 		reorderingSetId = null;
 		if (response.status !== 204) {
@@ -411,12 +411,12 @@
 		isSavingEdit = true;
 		const weightKg = editWeight != null && weightUnit === 'lb' ? lbToKg(editWeight) : editWeight;
 		const response = await api.patch(`gym/sets/${editingSet.id}`, {
-			body: JSON.stringify({
+			json: {
 				exerciseId: editingSet.exerciseId,
 				weightKg,
 				reps: editReps,
 				setType: editSetType
-			})
+			}
 		});
 		isSavingEdit = false;
 		if (response.status === 204) {

@@ -88,7 +88,7 @@
 		try {
 			const response: VerifyResponse = await api
 				.post('otp/verify', {
-					body: JSON.stringify({ methodId: methodId, otp: otp })
+					json: { methodId: methodId, otp: otp }
 				})
 				.json();
 

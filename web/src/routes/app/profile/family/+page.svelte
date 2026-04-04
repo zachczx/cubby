@@ -57,9 +57,9 @@
 
 		try {
 			const inviteResponse = await api.post(`families/invites`, {
-				body: JSON.stringify({
+				json: {
 					inviteeEmail: invitee
-				})
+				}
 			});
 
 			if (inviteResponse.status === 201) {

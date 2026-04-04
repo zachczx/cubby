@@ -105,7 +105,7 @@
 
 		if (editingProfile) {
 			const res = await api.patch(`timer-profiles/${editingProfile.id}`, {
-				body: JSON.stringify(body)
+				json: body
 			});
 			if (res.status === 204) {
 				addToast('success', 'Profile updated!');
@@ -114,7 +114,7 @@
 			}
 		} else {
 			const res = await api.post('timer-profiles', {
-				body: JSON.stringify(body)
+				json: body
 			});
 			if (res.status === 201) {
 				const created = await res.json<TimerProfileDB>();
@@ -331,7 +331,7 @@
 
 	async function changeCharacterHandler(char: string) {
 		const response = await api.patch('users/me/character', {
-			body: JSON.stringify({ preferredCharacter: char })
+			json: { preferredCharacter: char }
 		});
 		if (response.status !== 204 && response.status !== 201) {
 			addToast('error', 'Error saving character choice!');

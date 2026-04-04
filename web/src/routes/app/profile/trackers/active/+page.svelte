@@ -28,9 +28,9 @@
 
 		try {
 			await api.patch(`trackers/${tracker.id}/show`, {
-				body: JSON.stringify({
+				json: {
 					show: newValue
-				})
+				}
 			});
 		} catch (err) {
 			console.error(err);
@@ -44,9 +44,9 @@
 
 		try {
 			await api.patch(`trackers/${tracker.id}/pinned`, {
-				body: JSON.stringify({
+				json: {
 					pinned: newValue
-				})
+				}
 			});
 		} catch (err) {
 			console.error(err);

@@ -24,9 +24,9 @@
 		if (target instanceof HTMLInputElement) {
 			try {
 				const response = await api.patch('users/me/sound', {
-					body: JSON.stringify({
+					json: {
 						soundOn: target.checked ? true : false
-					})
+					}
 				});
 
 				if (response.status === 204) {

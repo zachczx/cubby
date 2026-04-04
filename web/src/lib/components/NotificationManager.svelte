@@ -27,10 +27,10 @@
 			console.log('Push registration success, token: ' + token.value);
 			try {
 				await api.post('tokens', {
-					body: JSON.stringify({
+					json: {
 						token: token.value,
 						platform: Capacitor.getPlatform() // 'ios' or 'android'
-					})
+					}
 				});
 			} catch (err) {
 				console.error('Failed to save push token to backend', err);

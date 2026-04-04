@@ -63,9 +63,9 @@
 		const trackerId = trackerMuteToggle?.trackerId;
 		if (!trackerId) return;
 		const response = await api.post(`trackers/${trackerId}/toggle-mute`, {
-			body: JSON.stringify({
+			json: {
 				isMuted: changeTo === 'mute'
-			})
+			}
 		});
 
 		if (response.status === 204) {

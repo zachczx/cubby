@@ -51,12 +51,12 @@ export async function createEntryQuery(options: {
 }) {
 	return await api
 		.post(`trackers/${options.trackerId}/entries`, {
-			body: JSON.stringify({
+			json: {
 				trackerId: options.trackerId,
 				interval: options.interval,
 				intervalUnit: options.intervalUnit,
 				performedAt: dayjs.tz(new Date(), defaultTz)
-			})
+			}
 		})
 		.json<EntryDB>();
 }
@@ -224,7 +224,7 @@ function refetchMarketQueries() {
 export async function createMarketPriceMutation(input: MarketPriceInput) {
 	const result = await api
 		.post('market/prices', {
-			body: JSON.stringify(input)
+			json: input
 		})
 		.json<MarketPriceUpsertResult>();
 	refetchMarketQueries();
@@ -234,7 +234,7 @@ export async function createMarketPriceMutation(input: MarketPriceInput) {
 export async function updateMarketPriceMutation(id: string, input: MarketPriceInput) {
 	await api
 		.patch(`market/prices/${id}`, {
-			body: JSON.stringify(input)
+			json: input
 		})
 		.json<void>();
 	refetchMarketQueries();

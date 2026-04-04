@@ -55,9 +55,9 @@
 				'Asia/Singapore'
 			);
 			const response = await api.patch(`entries/${entry.id}`, {
-				body: JSON.stringify({
+				json: {
 					performedAt: newDateTime
-				})
+				}
 			});
 
 			if (response.status === 204) {

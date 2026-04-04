@@ -39,10 +39,10 @@
 
 		try {
 			const response = await api.patch('users/me/account', {
-				body: JSON.stringify({
+				json: {
 					name,
 					familyName
-				})
+				}
 			});
 
 			if (response.status === 204) {

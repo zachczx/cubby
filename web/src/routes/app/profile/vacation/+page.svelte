@@ -43,10 +43,10 @@
 			const end = dayjs.tz(vacationEnd, 'Asia/Singapore');
 
 			const response = await api.post('vacations', {
-				body: JSON.stringify({
+				json: {
 					startDateTime: start,
 					endDateTime: end
-				})
+				}
 			});
 
 			if (response.status === 201) {

@@ -36,7 +36,7 @@
 			};
 
 			const response = await api.post('trackers', {
-				body: JSON.stringify(formData)
+				json: formData
 			});
 
 			if (response.status === 409) {
