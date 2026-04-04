@@ -63,7 +63,7 @@
 	}
 </script>
 
-<PageWrapper title="Account Info">
+<PageWrapper title="Account Info" hideTitle>
 	<div
 		class="grid w-full rounded-2xl max-lg:h-full max-lg:grid-rows-[1fr_auto] lg:h-min lg:max-w-md lg:justify-self-center lg:bg-base-50 lg:p-8 lg:shadow-md"
 	>

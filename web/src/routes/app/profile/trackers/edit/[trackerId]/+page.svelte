@@ -72,7 +72,7 @@
 	let deleteModal = $state<HTMLDialogElement>();
 </script>
 
-<PageWrapper title="Edit Tracker">
+<PageWrapper title="Edit Tracker" hideTitle>
 	<div class="grid w-full rounded-2xl lg:h-min lg:max-w-lg lg:justify-self-center lg:p-8">
 		<h1 class="mb-4 text-center text-3xl font-bold max-lg:hidden">Edit Tracker</h1>
 

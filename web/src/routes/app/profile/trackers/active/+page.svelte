@@ -71,7 +71,7 @@
 	});
 </script>
 
-<PageWrapper title="Active Trackers">
+<PageWrapper title="Active Trackers" hideTitle>
 	<div class="grid w-full rounded-2xl lg:h-min lg:max-w-lg lg:justify-self-center">
 		<h1 class="mb-4 text-center text-3xl font-bold max-lg:hidden">Active Trackers</h1>
 

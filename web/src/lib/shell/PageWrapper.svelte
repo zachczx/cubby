@@ -19,6 +19,7 @@
 		focusedScreen = false,
 		noPaddingBottom = false,
 		showSettingsIcon = true,
+		hideTitle = false,
 		trackerMuteToggle
 	}: {
 		children: Snippet;
@@ -29,6 +30,7 @@
 		noPaddingBottom?: boolean;
 		focusedScreenAction?: Snippet;
 		showSettingsIcon?: boolean;
+		hideTitle?: boolean;
 		trackerMuteToggle?: { trackerId: string | undefined; isMuted: boolean | undefined };
 	} = $props();
 
@@ -199,7 +201,7 @@
 			style="view-transition-name: content;"
 		>
 			{#if back && title}
-				<div class="w-full max-w-lg justify-self-center">
+				<div class={['w-full max-w-lg justify-self-center', hideTitle && 'lg:hidden']}>
 					<h1 class="text-[1.75rem] leading-tight font-extrabold">{title}</h1>
 					{#if subtitle}
 						{@render subtitle()}

@@ -98,7 +98,7 @@
 	});
 </script>
 
-<PageWrapper title="Manage Family">
+<PageWrapper title="Manage Family" hideTitle>
 	<div
 		class="grid w-full rounded-2xl lg:h-min lg:max-w-lg lg:justify-self-center lg:bg-base-50 lg:p-8 lg:shadow-md"
 	>
