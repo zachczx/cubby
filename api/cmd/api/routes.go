@@ -26,7 +26,7 @@ func NewHTTPHandler(s *server.Service) http.Handler {
 	mux.HandleFunc("GET /users", s.GetUserHandler)
 	mux.HandleFunc("GET /users/me/families", s.RequireAuthentication(s.GetUsersFamiliesHandler))
 	mux.HandleFunc("PATCH /users/me/account", s.RequireAuthentication(s.UpdateAccountInfoHandler))
-	mux.HandleFunc("PATCH /users/me/sound", s.RequireAuthentication(s.ToggleSoundHandler))
+	mux.HandleFunc("PATCH /users/me/sound", s.RequireAuthentication(s.UpdateSoundModeHandler))
 	mux.HandleFunc("PATCH /users/me/task-lookahead", s.RequireAuthentication(s.ChangeTaskLookaheadDaysHandler))
 	mux.HandleFunc("PATCH /users/me/character", s.RequireAuthentication(s.ChangePreferredCharacterHandler))
 

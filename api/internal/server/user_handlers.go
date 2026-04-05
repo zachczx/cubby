@@ -90,25 +90,33 @@ func (s *Service) ChangePreferredCharacterHandler(w http.ResponseWriter, r *http
 	w.WriteHeader(http.StatusNoContent)
 }
 
-type SoundInput struct {
-	SoundOn bool `json:"soundOn"`
+type SoundModeInput struct {
+	SoundModeQuick   string `json:"soundModeQuick"`
+	SoundModeProfile string `json:"soundModeProfile"`
 }
 
-func (s *Service) ToggleSoundHandler(w http.ResponseWriter, r *http.Request) {
+var validSoundModes = map[string]bool{"off": true, "end": true, "full": true}
+
+func (s *Service) UpdateSoundModeHandler(w http.ResponseWriter, r *http.Request) {
 	userID, err := s.GetUserIDFromContext(r.Context())
 	if err != nil {
 		response.RespondWithError(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}
 
-	var soundInput SoundInput
+	var input SoundModeInput
 
-	if err := json.NewDecoder(r.Body).Decode(&soundInput); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		response.WriteError(r.Context(), w, err)
 		return
 	}
 
-	if err := user.ToggleSound(s.DB, userID, soundInput.SoundOn); err != nil {
+	if !validSoundModes[input.SoundModeQuick] || !validSoundModes[input.SoundModeProfile] {
+		response.RespondWithError(w, http.StatusBadRequest, "invalid sound mode")
+		return
+	}
+
+	if err := user.UpdateSoundMode(s.DB, userID, input.SoundModeQuick, input.SoundModeProfile); err != nil {
 		response.WriteError(r.Context(), w, err)
 		return
 	}

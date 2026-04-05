@@ -1,46 +1,6 @@
 <script lang="ts">
 	import PageWrapper from '$lib/shell/PageWrapper.svelte';
-	import { addToast } from '$lib/ui/ArkToaster.svelte';
-	import dayjs from 'dayjs';
-	import utc from 'dayjs/plugin/utc';
-	import timezone from 'dayjs/plugin/timezone';
-	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
-	import { userQueryOptions, userRefetchOptions } from '$lib/queries';
 	import Icon from '@iconify/svelte';
-	import { api } from '$lib/api';
-
-	dayjs.extend(utc);
-	dayjs.extend(timezone);
-
-	const user = createQuery(userQueryOptions);
-
-	const tanstackClient = useQueryClient();
-
-	let sound = $derived.by(() => (user.isSuccess ? user.data?.soundOn : undefined));
-
-	async function onchange(evt: Event) {
-		const target = evt.target;
-
-		if (target instanceof HTMLInputElement) {
-			try {
-				const response = await api.patch('users/me/sound', {
-					json: {
-						soundOn: target.checked ? true : false
-					}
-				});
-
-				if (response.status === 204) {
-					addToast('success', 'Saved!');
-					await tanstackClient.refetchQueries(userRefetchOptions());
-				}
-			} catch (err) {
-				console.error(err);
-				addToast('error', 'Error saving!');
-			}
-		} else {
-			addToast('error', 'Error saving!');
-		}
-	}
 </script>
 
 <PageWrapper title="Profile" hideTitle>
@@ -54,16 +14,6 @@
 				{@render menuItem('trackers', 'Manage Trackers')}
 				{@render menuItem('family', 'Manage Family')}
 				{@render menuItem('vacation', 'Manage Vacation Dates')}
-
-				<form class="border-b-base-300 flex items-center border-b py-6 text-lg" {onchange}>
-					<legend class="fieldset-legend grow">Sound</legend>
-					<input
-						type="checkbox"
-						name="sound"
-						class="toggle toggle-lg toggle-primary"
-						bind:checked={sound}
-					/>
-				</form>
 			</div>
 		</div>
 		<div class="mt-4 text-lg">

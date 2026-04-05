@@ -30,7 +30,8 @@ func Create(db *sqlx.DB) {
 			email TEXT UNIQUE NOT NULL,
 			name TEXT,
 			task_lookahead_days INTEGER DEFAULT 14,
-			sound_on BOOLEAN DEFAULT TRUE,
+			sound_mode_quick VARCHAR(10) DEFAULT 'full',
+			sound_mode_profile VARCHAR(10) DEFAULT 'end',
 			preferred_character VARCHAR(50) DEFAULT 'default',
 			created_at TIMESTAMPTZ DEFAULT NOW(),
 			updated_at TIMESTAMPTZ DEFAULT NOW()

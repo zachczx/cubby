@@ -4,7 +4,8 @@ interface UserDB {
 	id: string;
 	email: string;
 	name: string;
-	soundOn: boolean;
+	soundModeQuick: 'off' | 'end' | 'full';
+	soundModeProfile: 'off' | 'end' | 'full';
 	taskLookaheadDays: number;
 	preferredCharacter: 'default' | Characters;
 	createdAt: string;

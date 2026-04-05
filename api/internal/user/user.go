@@ -13,7 +13,8 @@ type User struct {
 	ID                 uuid.UUID `db:"id"         json:"id"`
 	Email              string    `db:"email"      json:"email"`
 	Name               *string   `db:"name"       json:"name"`
-	SoundOn            bool      `db:"sound_on"       json:"soundOn"`
+	SoundModeQuick     string    `db:"sound_mode_quick"   json:"soundModeQuick"`
+	SoundModeProfile   string    `db:"sound_mode_profile" json:"soundModeProfile"`
 	TaskLookAheadDays  int       `db:"task_lookahead_days" json:"taskLookaheadDays"`
 	PreferredCharacter string    `db:"preferred_character" json:"preferredCharacter"`
 	CreatedAt          time.Time `db:"created_at" json:"createdAt"`
@@ -76,11 +77,11 @@ func (UserManager) Get(db *sqlx.DB, email string) (User, error) {
 	return user, nil
 }
 
-func ToggleSound(db *sqlx.DB, userID uuid.UUID, soundOn bool) error {
-	q := `UPDATE users SET sound_on = $1 WHERE id = $2`
+func UpdateSoundMode(db *sqlx.DB, userID uuid.UUID, modeQuick, modeProfile string) error {
+	q := `UPDATE users SET sound_mode_quick = $1, sound_mode_profile = $2 WHERE id = $3`
 
-	if _, err := db.Exec(q, soundOn, userID); err != nil {
-		return fmt.Errorf("toggle sound err: %w", err)
+	if _, err := db.Exec(q, modeQuick, modeProfile, userID); err != nil {
+		return fmt.Errorf("update sound mode err: %w", err)
 	}
 
 	return nil

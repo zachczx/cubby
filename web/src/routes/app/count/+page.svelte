@@ -6,6 +6,7 @@
 	import { KeepAwake } from '@capacitor-community/keep-awake';
 	import {
 		userQueryOptions,
+		userRefetchOptions,
 		timerProfilesQueryOptions,
 		timerProfilesRefetchOptions
 	} from '$lib/queries';
@@ -169,7 +170,7 @@
 		min = ms.min;
 		sec = ms.sec;
 
-		if (remainingSeconds > 0 && playSound && remainingSeconds !== lastReportedSecond) {
+		if (remainingSeconds > 0 && playDuring && remainingSeconds !== lastReportedSecond) {
 			lastReportedSecond = remainingSeconds;
 			audioPlayer?.play();
 			play(remainingSeconds, character);
@@ -291,15 +292,27 @@
 	});
 	let progress = $derived(timerTotal > 0 ? remainingSeconds / timerTotal : 1);
 
-	let playSound = $state(false);
-	let playSoundInitialized = false;
+	let soundMode = $state<'off' | 'end' | 'full'>('off');
+	let playSound = $derived(soundMode !== 'off');
+	let playDuring = $derived(soundMode === 'full');
 
 	$effect(() => {
-		if (user.isSuccess && !playSoundInitialized) {
-			playSound = !!user.data.soundOn;
-			playSoundInitialized = true;
-		}
+		if (!user.isSuccess) return;
+		soundMode = mode === 'profile' ? user.data.soundModeProfile : user.data.soundModeQuick;
 	});
+
+	function cycleSoundMode() {
+		if (soundMode === 'off') soundMode = 'end';
+		else if (soundMode === 'end') soundMode = 'full';
+		else soundMode = 'off';
+
+		api.patch('users/me/sound', {
+			json: {
+				soundModeQuick: mode === 'quick' ? soundMode : user.data?.soundModeQuick ?? 'full',
+				soundModeProfile: mode === 'profile' ? soundMode : user.data?.soundModeProfile ?? 'end'
+			}
+		}).then(() => queryClient.refetchQueries(userRefetchOptions()));
+	}
 
 	let audioPlayer: HTMLAudioElement | undefined = $state();
 
@@ -366,18 +379,22 @@
 				<button
 					aria-label="toggle sound"
 					class={[
-						'btn btn-sm btn-soft min-w-22 rounded-full',
-						playSound ? 'btn-primary' : 'btn-neutral opacity-90'
+						'btn btn-sm btn-soft min-w-28 rounded-full',
+						soundMode !== 'off' ? 'btn-primary' : 'btn-neutral opacity-90'
 					]}
-					onclick={() => (playSound = !playSound)}
+					onclick={cycleSoundMode}
 				>
 					{#if user.isSuccess}
 						<Icon
-							icon={playSound ? 'material-symbols:volume-up' : 'material-symbols:volume-off'}
+							icon={soundMode === 'full'
+								? 'material-symbols:volume-up'
+								: soundMode === 'end'
+									? 'material-symbols:notifications'
+									: 'material-symbols:volume-off'}
 							width="20"
 							height="20"
 						/>
-						{playSound ? 'Sound' : 'Muted'}
+						{soundMode === 'full' ? 'Sound' : soundMode === 'end' ? 'End Only' : 'Muted'}
 					{:else}
 						<span class="loading loading-spinner loading-xs"></span>
 					{/if}
@@ -386,7 +403,7 @@
 					aria-label="switch voice"
 					class={[
 						'btn btn-soft btn-sm min-w-26 rounded-full',
-						playSound ? 'btn-primary' : 'btn-neutral opacity-90'
+						soundMode === 'full' ? 'btn-primary' : 'btn-neutral opacity-90'
 					]}
 					onclick={() => {
 						const next = character === 'robot' ? 'furnando' : 'robot';
@@ -403,7 +420,7 @@
 								width="20"
 								height="20"
 							/>
-							{#if !playSound}
+							{#if soundMode !== 'full'}
 								<span class="bg-neutral/90 absolute top-2 -left-0.5 h-0.5 w-6 rotate-45"></span>
 							{/if}
 						</div>
