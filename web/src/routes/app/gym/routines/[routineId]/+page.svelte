@@ -16,6 +16,7 @@
 	import Icon from '@iconify/svelte';
 	import BitsDialog from '$lib/ui/Dialog.svelte';
 	import ArkDialog from '$lib/ui/ArkDialog.svelte';
+	import DeleteConfirmDialog from '$lib/ui/DeleteConfirmDialog.svelte';
 
 	let { data } = $props();
 
@@ -525,55 +526,21 @@
 </BitsDialog>
 
 <!-- Remove exercise dialog -->
-<BitsDialog bind:open={removeDialogOpen} title="Remove exercise?">
-	<div class="grid gap-8">
-		<div
-			class="bg-error/10 text-error flex aspect-square size-20 items-center justify-center justify-self-center rounded-full"
-		>
-			<Icon icon="material-symbols:delete-outline" class="size-10" />
-		</div>
-		{#if removingExercise}
-			<p class="text-base-content/60">
-				Remove <span class="text-base-content font-semibold"
-					>{getExerciseName(removingExercise.exerciseId)}</span
-				> from this routine?
-			</p>
-		{/if}
-		<div class="grid gap-4">
-			<button class="btn btn-error btn-lg" disabled={isRemoving} onclick={confirmRemove}>
-				{#if isRemoving}<span class="loading loading-spinner loading-sm"></span>{/if}
-				Remove
-			</button>
-			<button
-				class="btn btn-outline btn-neutral btn-lg w-full"
-				onclick={() => (removeDialogOpen = false)}>Cancel</button
-			>
-		</div>
-	</div>
-</BitsDialog>
+<DeleteConfirmDialog bind:open={removeDialogOpen} title="Remove exercise?" confirmLabel="Remove" isLoading={isRemoving} onconfirm={confirmRemove}>
+	{#if removingExercise}
+		<p class="text-base-content/60">
+			Remove <span class="text-base-content font-semibold"
+				>{getExerciseName(removingExercise.exerciseId)}</span
+			> from this routine?
+		</p>
+	{/if}
+</DeleteConfirmDialog>
 
 <!-- Delete routine dialog -->
-<BitsDialog bind:open={deleteDialogOpen} title="Delete routine?">
-	<div class="grid gap-8">
-		<div
-			class="bg-error/10 text-error flex aspect-square size-20 items-center justify-center justify-self-center rounded-full"
-		>
-			<Icon icon="material-symbols:delete-outline" class="size-10" />
-		</div>
-		<p class="text-base-content/60">
-			This will permanently delete <span class="text-base-content font-semibold"
-				>{currentRoutine?.name}</span
-			> and all its exercises.
-		</p>
-		<div class="grid gap-4">
-			<button class="btn btn-error btn-lg" disabled={isDeleting} onclick={confirmDelete}>
-				{#if isDeleting}<span class="loading loading-spinner loading-sm"></span>{/if}
-				Delete
-			</button>
-			<button
-				class="btn btn-outline btn-neutral btn-lg w-full"
-				onclick={() => (deleteDialogOpen = false)}>Cancel</button
-			>
-		</div>
-	</div>
-</BitsDialog>
+<DeleteConfirmDialog bind:open={deleteDialogOpen} title="Delete routine?" isLoading={isDeleting} onconfirm={confirmDelete}>
+	<p class="text-base-content/60">
+		This will permanently delete <span class="text-base-content font-semibold"
+			>{currentRoutine?.name}</span
+		> and all its exercises.
+	</p>
+</DeleteConfirmDialog>

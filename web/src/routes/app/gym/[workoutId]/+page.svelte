@@ -22,6 +22,7 @@
 	import StarBurst from '$lib/ui/StarBurst.svelte';
 	import BitsDialog from '$lib/ui/Dialog.svelte';
 	import ArkDialog from '$lib/ui/ArkDialog.svelte';
+	import DeleteConfirmDialog from '$lib/ui/DeleteConfirmDialog.svelte';
 
 	let { data } = $props();
 
@@ -882,60 +883,22 @@
 	</div>
 </BitsDialog>
 
-<BitsDialog bind:open={deleteSetDialogOpen} title="Delete this set?">
-	<div class="grid gap-8">
-		<div
-			class="bg-error/10 text-error flex aspect-square size-20 items-center justify-center justify-self-center rounded-full"
-		>
-			<Icon icon="material-symbols:delete-outline" class="size-10" />
-		</div>
-		{#if deletingSet}
-			<p class="text-base-content/60">
-				This will permanently remove the
-				<span class="text-base-content font-semibold">
-					{#if deletingSet.weightKg != null}{weightUnit === 'lb'
-							? kgToLb(deletingSet.weightKg)
-							: deletingSet.weightKg}{weightUnit}{/if}{#if deletingSet.weightKg != null && deletingSet.reps != null}
-						×
-					{/if}{#if deletingSet.reps != null}{deletingSet.reps} reps{/if}
-				</span>
-				set from {getExerciseName(deletingSet.exerciseId)}.
-			</p>
-		{/if}
-		<div class="grid gap-4">
-			<button class="btn btn-error btn-lg" disabled={isDeletingSet} onclick={confirmDeleteSet}>
-				{#if isDeletingSet}<span class="loading loading-spinner loading-sm"></span>{/if}
-				Delete
-			</button>
-			<button
-				class="btn btn-outline btn-neutral btn-lg w-full"
-				onclick={() => (deleteSetDialogOpen = false)}>Cancel</button
-			>
-		</div>
-	</div>
-</BitsDialog>
+<DeleteConfirmDialog bind:open={deleteSetDialogOpen} title="Delete this set?" isLoading={isDeletingSet} onconfirm={confirmDeleteSet}>
+	{#if deletingSet}
+		<p class="text-base-content/60">
+			This will permanently remove the
+			<span class="text-base-content font-semibold">
+				{#if deletingSet.weightKg != null}{weightUnit === 'lb'
+						? kgToLb(deletingSet.weightKg)
+						: deletingSet.weightKg}{weightUnit}{/if}{#if deletingSet.weightKg != null && deletingSet.reps != null}
+					×
+				{/if}{#if deletingSet.reps != null}{deletingSet.reps} reps{/if}
+			</span>
+			set from {getExerciseName(deletingSet.exerciseId)}.
+		</p>
+	{/if}
+</DeleteConfirmDialog>
 
-<BitsDialog bind:open={deleteWorkoutDialogOpen} title="Delete workout?">
-	<div class="grid gap-8">
-		<div
-			class="bg-error/10 text-error flex aspect-square size-20 items-center justify-center justify-self-center rounded-full"
-		>
-			<Icon icon="material-symbols:delete-outline" class="size-10" />
-		</div>
-		<p class="text-base-content/60">All sets in this workout will be deleted.</p>
-		<div class="grid gap-4">
-			<button
-				class="btn btn-error btn-lg"
-				disabled={isDeletingWorkout}
-				onclick={confirmDeleteWorkout}
-			>
-				{#if isDeletingWorkout}<span class="loading loading-spinner loading-sm"></span>{/if}
-				Delete
-			</button>
-			<button
-				class="btn btn-outline btn-neutral btn-lg w-full"
-				onclick={() => (deleteWorkoutDialogOpen = false)}>Cancel</button
-			>
-		</div>
-	</div>
-</BitsDialog>
+<DeleteConfirmDialog bind:open={deleteWorkoutDialogOpen} title="Delete workout?" isLoading={isDeletingWorkout} onconfirm={confirmDeleteWorkout}>
+	<p class="text-base-content/60">All sets in this workout will be deleted.</p>
+</DeleteConfirmDialog>

@@ -17,7 +17,7 @@
 	import { marketStores } from '$lib/market';
 	import type { marketStoresType } from '$lib/market';
 	import SwipeReveal from '$lib/components/SwipeReveal.svelte';
-	import Dialog from '$lib/ui/Dialog.svelte';
+	import DeleteConfirmDialog from '$lib/ui/DeleteConfirmDialog.svelte';
 
 	dayjs.extend(relativeTime);
 
@@ -271,31 +271,14 @@
 	</main>
 </PageWrapper>
 
-<Dialog bind:open={deleteDialogOpen} title="Delete this price?">
-	<div class="grid gap-8">
-		<div
-			class="bg-error/10 text-error flex aspect-square size-20 items-center justify-center justify-self-center rounded-full"
-		>
-			<Icon icon="material-symbols:delete-outline" class="size-10" />
-		</div>
-		{#if pendingDeletePrice}
-			<p class="text-base-content/60">
-				This will permanently remove the
-				<span class="text-base-content font-semibold">
-					${pendingDeletePrice.price.toFixed(2)}
-				</span>
-				entry from {dayjs(pendingDeletePrice.createdAt).fromNow()}.
-			</p>
-		{/if}
-		<div class="grid gap-4">
-			<button class="btn btn-error btn-lg" disabled={isDeleting} onclick={confirmDelete}>
-				{#if isDeleting}<span class="loading loading-spinner loading-sm"></span>{/if}
-				Delete
-			</button>
-			<button
-				class="btn btn-outline btn-neutral btn-lg w-full"
-				onclick={() => (deleteDialogOpen = false)}>Cancel</button
-			>
-		</div>
-	</div>
-</Dialog>
+<DeleteConfirmDialog bind:open={deleteDialogOpen} title="Delete this price?" isLoading={isDeleting} onconfirm={confirmDelete}>
+	{#if pendingDeletePrice}
+		<p class="text-base-content/60">
+			This will permanently remove the
+			<span class="text-base-content font-semibold">
+				${pendingDeletePrice.price.toFixed(2)}
+			</span>
+			entry from {dayjs(pendingDeletePrice.createdAt).fromNow()}.
+		</p>
+	{/if}
+</DeleteConfirmDialog>
