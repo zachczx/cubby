@@ -14,7 +14,7 @@
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
 	import { router } from '$lib/routes';
 	import Icon from '@iconify/svelte';
-	import BitsDialog from '$lib/ui/Dialog.svelte';
+	import Dialog from '$lib/ui/Dialog.svelte';
 	import DeleteConfirmDialog from '$lib/ui/DeleteConfirmDialog.svelte';
 
 	let { data } = $props();
@@ -476,12 +476,12 @@
 	</div>
 {/snippet}
 
-<BitsDialog bind:open={exerciseDialogOpen} title="Add Exercise">
+<Dialog bind:open={exerciseDialogOpen} title="Add Exercise">
 	{@render exerciseListContent()}
-</BitsDialog>
+</Dialog>
 
 <!-- Rename dialog -->
-<BitsDialog bind:open={renameDialogOpen} title="Rename Routine">
+<Dialog bind:open={renameDialogOpen} title="Rename Routine">
 	<div class="grid gap-4">
 		<input type="text" class="input input-lg w-full" bind:value={editName} />
 		<button
@@ -493,10 +493,10 @@
 			Save
 		</button>
 	</div>
-</BitsDialog>
+</Dialog>
 
 <!-- Edit sets count dialog -->
-<BitsDialog bind:open={editSetsDialogOpen} title="Sets">
+<Dialog bind:open={editSetsDialogOpen} title="Sets">
 	<div class="grid gap-4">
 		<p class="text-base-content/70">
 			{editingSetsExercise ? getExerciseName(editingSetsExercise.exerciseId) : ''}
@@ -522,7 +522,7 @@
 			Save
 		</button>
 	</div>
-</BitsDialog>
+</Dialog>
 
 <!-- Remove exercise dialog -->
 <DeleteConfirmDialog bind:open={removeDialogOpen} title="Remove exercise?" confirmLabel="Remove" isLoading={isRemoving} onconfirm={confirmRemove}>

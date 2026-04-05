@@ -8,7 +8,7 @@
 	import { goto } from '$app/navigation';
 	import { router } from '$lib/routes';
 	import Icon from '@iconify/svelte';
-	import BitsDialog from '$lib/ui/Dialog.svelte';
+	import Dialog from '$lib/ui/Dialog.svelte';
 
 	const queryClient = useQueryClient();
 	const routinesDb = createQuery(routinesQueryOptions);
@@ -223,7 +223,7 @@
 	</main>
 </PageWrapper>
 
-<BitsDialog bind:open={createDialogOpen} title="New Routine">
+<Dialog bind:open={createDialogOpen} title="New Routine">
 	<div class="grid gap-4">
 		<input
 			type="text"
@@ -240,4 +240,4 @@
 			Create
 		</button>
 	</div>
-</BitsDialog>
+</Dialog>

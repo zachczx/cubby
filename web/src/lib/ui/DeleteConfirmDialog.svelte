@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import Icon from '@iconify/svelte';
-	import BitsDialog from '$lib/ui/Dialog.svelte';
+	import Dialog from '$lib/ui/Dialog.svelte';
 
 	let {
 		open = $bindable(false),
@@ -20,7 +20,7 @@
 	} = $props();
 </script>
 
-<BitsDialog bind:open {title}>
+<Dialog bind:open {title}>
 	<div class="grid gap-8">
 		<div
 			class="bg-error/10 text-error flex aspect-square size-20 items-center justify-center justify-self-center rounded-full"
@@ -39,4 +39,4 @@
 			>
 		</div>
 	</div>
-</BitsDialog>
+</Dialog>

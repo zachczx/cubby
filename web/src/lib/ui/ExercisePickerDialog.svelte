@@ -5,7 +5,7 @@
 	import { api } from '$lib/api';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
 	import Icon from '@iconify/svelte';
-	import BitsDialog from '$lib/ui/Dialog.svelte';
+	import Dialog from '$lib/ui/Dialog.svelte';
 
 	let {
 		open = $bindable(false),
@@ -47,7 +47,7 @@
 	}
 </script>
 
-<BitsDialog bind:open title="Select Exercise">
+<Dialog bind:open title="Select Exercise">
 	<div class="grid gap-3">
 		<input
 			type="text"
@@ -99,4 +99,4 @@
 			{/each}
 		</div>
 	</div>
-</BitsDialog>
+</Dialog>

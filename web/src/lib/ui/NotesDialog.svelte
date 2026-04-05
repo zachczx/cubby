@@ -1,5 +1,5 @@
 <script lang="ts">
-	import BitsDialog from '$lib/ui/Dialog.svelte';
+	import Dialog from '$lib/ui/Dialog.svelte';
 
 	let {
 		open = $bindable(false),
@@ -18,7 +18,7 @@
 	}
 </script>
 
-<BitsDialog bind:open title="Notes">
+<Dialog bind:open title="Notes">
 	<div class="grid gap-4">
 		<textarea
 			class="textarea textarea-bordered w-full resize-none"
@@ -35,4 +35,4 @@
 			Save
 		</button>
 	</div>
-</BitsDialog>
+</Dialog>

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import BitsDialog from '$lib/ui/Dialog.svelte';
+	import Dialog from '$lib/ui/Dialog.svelte';
 
 	let {
 		open = $bindable(false),
@@ -42,7 +42,7 @@
 	}
 </script>
 
-<BitsDialog bind:open title={exerciseName}>
+<Dialog bind:open title={exerciseName}>
 	<div class="grid gap-4">
 		<div class="flex items-center gap-2">
 			<input
@@ -96,4 +96,4 @@
 			Save
 		</button>
 	</div>
-</BitsDialog>
+</Dialog>
