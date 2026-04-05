@@ -90,6 +90,8 @@
 		if (response.ok) {
 			const data: FavouriteExercisesDB = await response.json();
 			queryClient.setQueryData(getFavouriteExercisesQueryKey(), data);
+		} else {
+			addToast('error', 'Failed to update favourite');
 		}
 	}
 
