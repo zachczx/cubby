@@ -6,12 +6,7 @@
 	import updateLocale from 'dayjs/plugin/updateLocale';
 	import isToday from 'dayjs/plugin/isToday';
 	import { createQuery, useQueryClient } from '@tanstack/svelte-query';
-	import {
-		allWorkoutsQueryOptions,
-		getAllWorkoutsQueryKey,
-		favouriteExercisesQueryOptions,
-		getFavouriteExercisesQueryKey
-	} from '$lib/queries';
+	import { allWorkoutsQueryOptions, getAllWorkoutsQueryKey } from '$lib/queries';
 	import { api } from '$lib/api';
 	import { goto } from '$app/navigation';
 	import { addToast } from '$lib/ui/ArkToaster.svelte';
@@ -20,9 +15,11 @@
 	import CorgiGym from '$lib/assets/corgi_gym.webp?w=240&enhanced';
 	import { detectPr, type PrResult } from '$lib/pr';
 	import StarBurst from '$lib/ui/StarBurst.svelte';
-	import BitsDialog from '$lib/ui/Dialog.svelte';
-	import ArkDialog from '$lib/ui/ArkDialog.svelte';
 	import DeleteConfirmDialog from '$lib/ui/DeleteConfirmDialog.svelte';
+	import ExercisePickerDialog from '$lib/ui/ExercisePickerDialog.svelte';
+	import AddSetDialog from '$lib/ui/AddSetDialog.svelte';
+	import EditSetDialog from '$lib/ui/EditSetDialog.svelte';
+	import NotesDialog from '$lib/ui/NotesDialog.svelte';
 
 	let { data } = $props();
 
@@ -50,7 +47,6 @@
 
 	const queryClient = useQueryClient();
 	const workoutsDb = createQuery(allWorkoutsQueryOptions);
-	const favouritesDb = createQuery(favouriteExercisesQueryOptions);
 
 	const exerciseMap = new Map(exercises.map((e) => [e.id.toLowerCase(), e]));
 
@@ -71,117 +67,7 @@
 			.flatMap((w) => w.sets.filter((s) => s.exerciseId === exerciseId));
 	}
 
-	let exerciseSearch = $state('');
-	let addSetDialogOpen = $state(false);
-	let exerciseDialogOpen = $state(false);
-	let arkDialogOpen = $state(false);
-	let filteredExercises = $derived(
-		exerciseSearch
-			? exercises.filter((e) => e.name.toLowerCase().includes(exerciseSearch.toLowerCase()))
-			: exercises
-	);
-
-	let favouriteIds = $derived(favouritesDb.data?.exerciseIds ?? []);
-	let favouriteExercises = $derived(exercises.filter((e) => favouriteIds.includes(e.id)));
-
-	async function toggleFavourite(exerciseId: string) {
-		const response = await api.post('gym/favourites', {
-			json: { exerciseId }
-		});
-		if (response.ok) {
-			const data: FavouriteExercisesDB = await response.json();
-			queryClient.setQueryData(getFavouriteExercisesQueryKey(), data);
-		} else {
-			addToast('error', 'Failed to update favourite');
-		}
-	}
-
-	function pickExercise(id: string) {
-		selectedExerciseId = id;
-		const ex = exerciseMap.get(id.toLowerCase());
-		weightMode = ex?.equipment === 'dumbbell' ? 'each' : 'total';
-		setWeight = null;
-		setReps = null;
-		setType = 'working';
-		exerciseDialogOpen = false;
-		arkDialogOpen = false;
-		addSetDialogOpen = true;
-	}
-
-	function openAddSet(workoutId: string, group: { exerciseId: string; sets: SetDB[] }) {
-		addingSetToWorkout = workoutId;
-		selectedExerciseId = group.exerciseId;
-		const ex = exerciseMap.get(group.exerciseId.toLowerCase());
-		weightMode = ex?.equipment === 'dumbbell' ? 'each' : 'total';
-		const lastSet = group.sets[group.sets.length - 1];
-		if (lastSet) {
-			setWeight =
-				lastSet.weightKg != null
-					? weightUnit === 'lb'
-						? kgToLb(lastSet.weightKg)
-						: lastSet.weightKg
-					: null;
-			setReps = lastSet.reps;
-			setType = lastSet.setType;
-		} else {
-			setWeight = null;
-			setReps = null;
-			setType = 'working';
-		}
-		addSetDialogOpen = true;
-	}
-
-	let addingSetToWorkout = $state<string | null>(null);
-	let selectedExerciseId = $state('');
-	let setWeight = $state<number | null>(null);
-	let setReps = $state<number | null>(null);
-	let setType = $state('working');
-	let weightUnit = $state<'kg' | 'lb'>('kg');
-	let weightMode = $state<'total' | 'each'>('total');
-	let isSubmittingSet = $state(false);
-	let reorderingSetId = $state<string | null>(null);
-	let isDeletingSet = $state(false);
-	let isDeletingWorkout = $state(false);
-	let isSavingEdit = $state(false);
-	let isSavingNotes = $state(false);
-	let notesDialogOpen = $state(false);
-	let editingNotes = $state('');
-	let prStarSetId = $state<string | null>(null);
-
-	function triggerPrCelebration(setId: string) {
-		prStarSetId = setId;
-		setTimeout(() => (prStarSetId = null), 2000);
-	}
-
-	function openEditNotes() {
-		editingNotes = currentWorkout?.notes ?? '';
-		notesDialogOpen = true;
-	}
-
-	async function saveNotes() {
-		if (!currentWorkout) return;
-		isSavingNotes = true;
-		const response = await api.patch(`gym/workouts/${currentWorkout.id}`, {
-			json: {
-				startTime: currentWorkout.startTime,
-				notes: editingNotes || null
-			}
-		});
-		isSavingNotes = false;
-		if (response.status === 204) {
-			updateWorkoutsCache((workouts) =>
-				workouts.map((w) =>
-					w.id === currentWorkout.id ? { ...w, notes: editingNotes || null } : w
-				)
-			);
-			notesDialogOpen = false;
-		} else {
-			addToast('error', 'Failed to save notes');
-		}
-	}
-
 	const kgToLb = (kg: number) => Math.round(kg * 2.20462 * 10) / 10;
-	const lbToKg = (lb: number) => Math.round((lb / 2.20462) * 10) / 10;
 
 	function groupSetsByExercise(sets: SetDB[]) {
 		const groups: { exerciseId: string; exerciseName: string; sets: SetDB[] }[] = [];
@@ -244,45 +130,66 @@
 		return map;
 	});
 
-	let deletingWorkoutId = $state<string | null>(null);
-	let deleteWorkoutDialogOpen = $state(false);
+	// Shared state
+	let weightUnit = $state<'kg' | 'lb'>('kg');
+	let prStarSetId = $state<string | null>(null);
 
-	function openDeleteWorkout(workoutId: string) {
-		deletingWorkoutId = workoutId;
-		deleteWorkoutDialogOpen = true;
+	function triggerPrCelebration(setId: string) {
+		prStarSetId = setId;
+		setTimeout(() => (prStarSetId = null), 2000);
 	}
 
-	async function confirmDeleteWorkout() {
-		if (!deletingWorkoutId) return;
-		isDeletingWorkout = true;
-		const response = await api.delete(`gym/workouts/${deletingWorkoutId}`);
-		isDeletingWorkout = false;
-		if (response.status === 204) {
-			addToast('success', 'Workout deleted');
-			const deletedId = deletingWorkoutId;
-			updateWorkoutsCache((workouts) => workouts.filter((w) => w.id !== deletedId));
-			deleteWorkoutDialogOpen = false;
-			deletingWorkoutId = null;
-			goto('/app/gym');
-		} else {
-			addToast('error', 'Failed to delete workout');
-		}
+	// Exercise picker
+	let exerciseDialogOpen = $state(false);
+
+	function onPickExercise(exerciseId: string) {
+		selectedExerciseId = exerciseId;
+		const ex = exerciseMap.get(exerciseId.toLowerCase());
+		exerciseDialogOpen = false;
+		addSetRef?.prefill({
+			weight: null,
+			reps: null,
+			setType: 'working',
+			weightMode: ex?.equipment === 'dumbbell' ? 'each' : 'total'
+		});
+		addSetDialogOpen = true;
 	}
 
-	async function addSet(workoutId: string) {
-		if (!selectedExerciseId) return;
+	// Add set
+	let addSetDialogOpen = $state(false);
+	let addSetRef = $state<ReturnType<typeof AddSetDialog> | null>(null);
+	let addingSetToWorkout = $state<string | null>(null);
+	let selectedExerciseId = $state('');
+	let isSubmittingSet = $state(false);
+
+	function openAddSet(workoutId: string, group: { exerciseId: string; sets: SetDB[] }) {
+		addingSetToWorkout = workoutId;
+		selectedExerciseId = group.exerciseId;
+		const ex = exerciseMap.get(group.exerciseId.toLowerCase());
+		const lastSet = group.sets[group.sets.length - 1];
+		addSetRef?.prefill({
+			weight: lastSet?.weightKg != null
+				? weightUnit === 'lb'
+					? kgToLb(lastSet.weightKg)
+					: lastSet.weightKg
+				: null,
+			reps: lastSet?.reps ?? null,
+			setType: lastSet?.setType ?? 'working',
+			weightMode: ex?.equipment === 'dumbbell' ? 'each' : 'total'
+		});
+		addSetDialogOpen = true;
+	}
+
+	async function handleAddSet(setData: { weightKg: number | null; reps: number | null; setType: string }) {
+		if (!addingSetToWorkout || !selectedExerciseId) return;
 		isSubmittingSet = true;
 
-		const displayWeight = setWeight != null && weightMode === 'each' ? setWeight * 2 : setWeight;
-		const weightKg =
-			displayWeight != null && weightUnit === 'lb' ? lbToKg(displayWeight) : displayWeight;
-
-		const response = await api.post(`gym/workouts/${workoutId}/sets`, {
+		const response = await api.post(`gym/workouts/${addingSetToWorkout}/sets`, {
 			json: {
 				exerciseId: selectedExerciseId,
-				weightKg,
-				reps: setReps,
-				setType
+				weightKg: setData.weightKg,
+				reps: setData.reps,
+				setType: setData.setType
 			}
 		});
 
@@ -290,21 +197,17 @@
 
 		if (response.status === 201) {
 			const set: SetDB = await response.json();
-			// Check for PR before updating cache (historical = all existing sets)
 			const historical = getAllSetsForExercise(set.exerciseId);
 			const pr = detectPr(set, historical);
 
 			updateWorkoutsCache((workouts) =>
-				workouts.map((w) => (w.id === workoutId ? { ...w, sets: [...w.sets, set] } : w))
+				workouts.map((w) => (w.id === addingSetToWorkout ? { ...w, sets: [...w.sets, set] } : w))
 			);
 			if (pr) triggerPrCelebration(set.id);
 			selectedExerciseId = '';
-			setWeight = null;
-			setReps = null;
-			setType = 'working';
-			weightMode = 'total';
 			addingSetToWorkout = null;
 			addSetDialogOpen = false;
+			addSetRef?.reset();
 		} else {
 			addToast('error', 'Failed to add set');
 		}
@@ -333,6 +236,9 @@
 			addToast('error', 'Failed to add set');
 		}
 	}
+
+	// Reorder set
+	let reorderingSetId = $state<string | null>(null);
 
 	async function reorderSet(setId: string, direction: 'up' | 'down') {
 		reorderingSetId = setId;
@@ -369,8 +275,10 @@
 		}
 	}
 
+	// Delete set
 	let deletingSet = $state<SetDB | null>(null);
 	let deleteSetDialogOpen = $state(false);
+	let isDeletingSet = $state(false);
 
 	function openDeleteSet(set: SetDB) {
 		deletingSet = set;
@@ -394,36 +302,37 @@
 		}
 	}
 
+	// Edit set
 	let editingSet = $state<SetDB | null>(null);
-	let editWeight = $state<number | null>(null);
-	let editReps = $state<number | null>(null);
-	let editSetType = $state('working');
 	let editDialogOpen = $state(false);
+	let editSetRef = $state<ReturnType<typeof EditSetDialog> | null>(null);
+	let isSavingEdit = $state(false);
 
 	function openEditSet(set: SetDB) {
 		editingSet = set;
-		editWeight =
-			set.weightKg != null ? (weightUnit === 'lb' ? kgToLb(set.weightKg) : set.weightKg) : null;
-		editReps = set.reps;
-		editSetType = set.setType;
+		editSetRef?.prefill({
+			weight:
+				set.weightKg != null ? (weightUnit === 'lb' ? kgToLb(set.weightKg) : set.weightKg) : null,
+			reps: set.reps,
+			setType: set.setType
+		});
 		editDialogOpen = true;
 	}
 
-	async function saveEditSet() {
+	async function handleEditSet(setData: { weightKg: number | null; reps: number | null; setType: string }) {
 		if (!editingSet) return;
 		isSavingEdit = true;
-		const weightKg = editWeight != null && weightUnit === 'lb' ? lbToKg(editWeight) : editWeight;
 		const response = await api.patch(`gym/sets/${editingSet.id}`, {
 			json: {
 				exerciseId: editingSet.exerciseId,
-				weightKg,
-				reps: editReps,
-				setType: editSetType
+				weightKg: setData.weightKg,
+				reps: setData.reps,
+				setType: setData.setType
 			}
 		});
 		isSavingEdit = false;
 		if (response.status === 204) {
-			const updatedSet = { ...editingSet, weightKg, reps: editReps, setType: editSetType };
+			const updatedSet = { ...editingSet, weightKg: setData.weightKg, reps: setData.reps, setType: setData.setType };
 			updateWorkoutsCache((workouts) =>
 				workouts.map((w) => ({
 					...w,
@@ -434,6 +343,65 @@
 			editingSet = null;
 		} else {
 			addToast('error', 'Failed to update set');
+		}
+	}
+
+	// Notes
+	let notesDialogOpen = $state(false);
+	let notesRef = $state<ReturnType<typeof NotesDialog> | null>(null);
+	let isSavingNotes = $state(false);
+
+	function openEditNotes() {
+		notesRef?.prefill(currentWorkout?.notes ?? '');
+		notesDialogOpen = true;
+	}
+
+	async function handleSaveNotes(notes: string) {
+		if (!currentWorkout) return;
+		isSavingNotes = true;
+		const response = await api.patch(`gym/workouts/${currentWorkout.id}`, {
+			json: {
+				startTime: currentWorkout.startTime,
+				notes: notes || null
+			}
+		});
+		isSavingNotes = false;
+		if (response.status === 204) {
+			updateWorkoutsCache((workouts) =>
+				workouts.map((w) =>
+					w.id === currentWorkout.id ? { ...w, notes: notes || null } : w
+				)
+			);
+			notesDialogOpen = false;
+		} else {
+			addToast('error', 'Failed to save notes');
+		}
+	}
+
+	// Delete workout
+	let deletingWorkoutId = $state<string | null>(null);
+	let deleteWorkoutDialogOpen = $state(false);
+	let isDeletingWorkout = $state(false);
+
+	function openDeleteWorkout(workoutId: string) {
+		deletingWorkoutId = workoutId;
+		deleteWorkoutDialogOpen = true;
+	}
+
+	async function confirmDeleteWorkout() {
+		if (!deletingWorkoutId) return;
+		isDeletingWorkout = true;
+		const response = await api.delete(`gym/workouts/${deletingWorkoutId}`);
+		isDeletingWorkout = false;
+		if (response.status === 204) {
+			addToast('success', 'Workout deleted');
+			const deletedId = deletingWorkoutId;
+			updateWorkoutsCache((workouts) => workouts.filter((w) => w.id !== deletedId));
+			deleteWorkoutDialogOpen = false;
+			deletingWorkoutId = null;
+			goto('/app/gym');
+		} else {
+			addToast('error', 'Failed to delete workout');
 		}
 	}
 </script>
@@ -641,23 +609,11 @@
 						class="btn btn-primary btn-soft w-full rounded-full"
 						onclick={() => {
 							addingSetToWorkout = currentWorkout.id;
-							exerciseSearch = '';
 							exerciseDialogOpen = true;
 						}}
 					>
 						<Icon icon="material-symbols:add" class="size-4" />
-						Add Exercise (Bits UI)
-					</button>
-					<button
-						class="btn btn-secondary btn-soft w-full rounded-full"
-						onclick={() => {
-							addingSetToWorkout = currentWorkout.id;
-							exerciseSearch = '';
-							arkDialogOpen = true;
-						}}
-					>
-						<Icon icon="material-symbols:add" class="size-4" />
-						Add Exercise (Ark UI)
+						Add Exercise
 					</button>
 				{:else if workoutsDb.isSuccess && !currentWorkout}
 					<div class="grid justify-items-center gap-4 py-16">
@@ -683,205 +639,32 @@
 	</main>
 </PageWrapper>
 
-<ArkDialog bind:open={addSetDialogOpen} title={selectedExerciseId ? getExerciseName(selectedExerciseId) : 'Add Set'}>
-	<div class="grid gap-4">
-		<div class="flex items-center gap-2">
-			<input
-				type="number"
-				class="input input-bordered w-full rounded-lg"
-				placeholder="Reps"
-				bind:value={setReps}
-			/>
-			<span class="text-base-content/40 text-lg font-bold">×</span>
-			<div class="flex grow">
-				<input
-					type="number"
-					class="input input-bordered w-full rounded-lg"
-					placeholder={weightUnit}
-					bind:value={setWeight}
-				/>
-				<button
-					class="btn btn-ghost"
-					onclick={() => (weightUnit = weightUnit === 'kg' ? 'lb' : 'kg')}
-				>
-					{weightUnit}
-				</button>
-			</div>
-			<button
-				class="btn btn-ghost border-base-300 min-w-18 shrink-0 rounded-lg border"
-				onclick={() => (weightMode = weightMode === 'total' ? 'each' : 'total')}
-				title={weightMode === 'each' ? 'Per hand' : 'Both hands'}
-			>
-				{#if weightMode === 'each'}
-					<Icon icon="mdi:hand-back-left" class="size-5" />
-				{:else}
-					<Icon icon="mdi:hand-back-left" class="-mr-2 size-5" />
-					<Icon icon="mdi:hand-back-right" class="size-5" />
-				{/if}
-			</button>
-		</div>
-		{#if weightMode === 'each' && setWeight != null}
-			<p class="text-base-content/50 -mt-2 text-sm">
-				{setWeight} × 2 = {setWeight * 2}
-				{weightUnit} total
-			</p>
-		{/if}
+<ExercisePickerDialog bind:open={exerciseDialogOpen} onpick={onPickExercise} />
 
-		<fieldset class="join w-full text-sm">
-			<legend class="sr-only">Set Type</legend>
-			{#each [{ value: 'working', label: 'Working' }, { value: 'dropset', label: 'Drop' }, { value: 'failure', label: 'Failure' }] as opt (opt.value)}
-				<input
-					type="radio"
-					name="set-type"
-					class="btn join-item checked:bg-segmented checked:text-primary-content flex-1"
-					aria-label={opt.label}
-					checked={setType === opt.value}
-					onchange={() => (setType = opt.value)}
-				/>
-			{/each}
-		</fieldset>
+<AddSetDialog
+	bind:this={addSetRef}
+	bind:open={addSetDialogOpen}
+	exerciseName={selectedExerciseId ? getExerciseName(selectedExerciseId) : ''}
+	bind:weightUnit
+	isLoading={isSubmittingSet}
+	onsubmit={handleAddSet}
+/>
 
-		<button
-			class="btn btn-primary btn-lg w-full rounded-full"
-			disabled={isSubmittingSet}
-			onclick={() => addingSetToWorkout && addSet(addingSetToWorkout)}
-		>
-			{#if isSubmittingSet}<span class="loading loading-spinner loading-sm"></span>{/if}
-			Add Set
-		</button>
-	</div>
-</ArkDialog>
+<EditSetDialog
+	bind:this={editSetRef}
+	bind:open={editDialogOpen}
+	exerciseName={editingSet ? getExerciseName(editingSet.exerciseId) : ''}
+	bind:weightUnit
+	isLoading={isSavingEdit}
+	onsave={handleEditSet}
+/>
 
-{#snippet exerciseListContent()}
-	<div class="grid gap-3">
-		<input
-			type="text"
-			class="input input-lg w-full"
-			placeholder="Search exercises..."
-			bind:value={exerciseSearch}
-		/>
-		<div class="max-h-[60vh] overflow-y-auto">
-			{#if favouriteExercises.length > 0}
-				<p
-					class="text-base-content/50 px-3 pt-2 pb-1 text-xs font-semibold tracking-wider uppercase"
-				>
-					Favourites
-				</p>
-				{#each favouriteExercises as ex (ex.id)}
-					<div class="hover:bg-base-200 flex w-full items-center gap-1 rounded-lg px-3 py-2.5">
-						<button class="flex-1 cursor-pointer text-left" onclick={() => pickExercise(ex.id)}>
-							{ex.name}
-						</button>
-						<button class="btn btn-ghost btn-xs btn-square" onclick={() => toggleFavourite(ex.id)}>
-							<Icon icon="material-symbols:star" class="text-warning size-4" />
-						</button>
-					</div>
-				{/each}
-				<div class="divider my-0"></div>
-			{/if}
-			{#each filteredExercises as ex (ex.id)}
-				<div class="hover:bg-base-200 flex w-full items-center gap-1 rounded-lg px-3 py-2.5">
-					<button class="flex-1 cursor-pointer text-left" onclick={() => pickExercise(ex.id)}>
-						{ex.name}
-					</button>
-					<button class="btn btn-ghost btn-xs btn-square" onclick={() => toggleFavourite(ex.id)}>
-						<Icon
-							icon={favouriteIds.includes(ex.id)
-								? 'material-symbols:star'
-								: 'material-symbols:star-outline'}
-							class={favouriteIds.includes(ex.id)
-								? 'text-warning size-4'
-								: 'text-base-content/30 size-4'}
-						/>
-					</button>
-				</div>
-			{/each}
-		</div>
-	</div>
-{/snippet}
-
-<BitsDialog bind:open={exerciseDialogOpen} title="Select Exercise">
-	{@render exerciseListContent()}
-</BitsDialog>
-
-<ArkDialog bind:open={arkDialogOpen} title="Select Exercise">
-	{@render exerciseListContent()}
-</ArkDialog>
-
-<BitsDialog bind:open={editDialogOpen} title={editingSet ? getExerciseName(editingSet.exerciseId) : ''}>
-	<div class="grid gap-4">
-		<div class="flex items-center gap-2">
-			<input
-				type="number"
-				class="input input-bordered w-full rounded-lg"
-				placeholder="Reps"
-				bind:value={editReps}
-			/>
-			<span class="text-base-content/40 text-lg font-bold">×</span>
-			<div class="flex grow">
-				<input
-					type="number"
-					class="input input-bordered w-full rounded-lg"
-					placeholder={weightUnit}
-					bind:value={editWeight}
-				/>
-				<button
-					class="btn btn-ghost"
-					onclick={() => {
-						if (editWeight != null) {
-							editWeight = weightUnit === 'kg' ? kgToLb(editWeight) : lbToKg(editWeight);
-						}
-						weightUnit = weightUnit === 'kg' ? 'lb' : 'kg';
-					}}
-				>
-					{weightUnit}
-				</button>
-			</div>
-		</div>
-
-		<fieldset class="join w-full text-sm">
-			<legend class="sr-only">Set Type</legend>
-			{#each [{ value: 'working', label: 'Working' }, { value: 'dropset', label: 'Drop' }, { value: 'failure', label: 'Failure' }] as opt (opt.value)}
-				<input
-					type="radio"
-					name="edit-set-type"
-					class="btn join-item checked:bg-segmented checked:text-primary-content flex-1"
-					aria-label={opt.label}
-					checked={editSetType === opt.value}
-					onchange={() => (editSetType = opt.value)}
-				/>
-			{/each}
-		</fieldset>
-
-		<button
-			class="btn btn-primary btn-lg w-full rounded-full"
-			disabled={isSavingEdit}
-			onclick={saveEditSet}
-		>
-			{#if isSavingEdit}<span class="loading loading-spinner loading-sm"></span>{/if}
-			Save
-		</button>
-	</div>
-</BitsDialog>
-
-<BitsDialog bind:open={notesDialogOpen} title="Notes">
-	<div class="grid gap-4">
-		<textarea
-			class="textarea textarea-bordered w-full resize-none"
-			rows="4"
-			placeholder="Add notes about this workout..."
-			bind:value={editingNotes}
-		></textarea>
-		<button
-			class="btn btn-primary btn-lg w-full rounded-full"
-			disabled={isSavingNotes}
-			onclick={saveNotes}
-		>
-			{#if isSavingNotes}<span class="loading loading-spinner loading-sm"></span>{/if}
-			Save
-		</button>
-	</div>
-</BitsDialog>
+<NotesDialog
+	bind:this={notesRef}
+	bind:open={notesDialogOpen}
+	isLoading={isSavingNotes}
+	onsave={handleSaveNotes}
+/>
 
 <DeleteConfirmDialog bind:open={deleteSetDialogOpen} title="Delete this set?" isLoading={isDeletingSet} onconfirm={confirmDeleteSet}>
 	{#if deletingSet}

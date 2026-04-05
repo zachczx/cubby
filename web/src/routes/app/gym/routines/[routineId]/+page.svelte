@@ -15,7 +15,6 @@
 	import { router } from '$lib/routes';
 	import Icon from '@iconify/svelte';
 	import BitsDialog from '$lib/ui/Dialog.svelte';
-	import ArkDialog from '$lib/ui/ArkDialog.svelte';
 	import DeleteConfirmDialog from '$lib/ui/DeleteConfirmDialog.svelte';
 
 	let { data } = $props();
@@ -477,9 +476,9 @@
 	</div>
 {/snippet}
 
-<ArkDialog bind:open={exerciseDialogOpen} title="Add Exercise">
+<BitsDialog bind:open={exerciseDialogOpen} title="Add Exercise">
 	{@render exerciseListContent()}
-</ArkDialog>
+</BitsDialog>
 
 <!-- Rename dialog -->
 <BitsDialog bind:open={renameDialogOpen} title="Rename Routine">
